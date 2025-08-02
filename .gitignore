@@ -1,0 +1,25 @@
+# Node modules
+node_modules/
+
+# Astro build output
+astro-blog/dist/
+
+# Logs
+*.log
+
+# macOS file system
+.DS_Store
+
+# Editor directories and files
+.vscode/
+*.sw?
+*.swp
+*.swo
+
+# Temporary files
+*.tmp
+
+# Run-time files
+npm-debug.log*
+yarn-debug.log*
+pnpm-debug.log*
