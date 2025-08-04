@@ -6,6 +6,21 @@ astro-blog/dist/
 
 # Logs
 *.log
+# Environment files
+.env
+.env.*.local
+
+# Astro cache (generated)
+.astro/
+
+# Editor directories and files
+.idea/
+
+# coverage output
+coverage/
+
+# npm package files
+*.tgz
 
 # macOS file system
 .DS_Store
