@@ -1,0 +1,24 @@
+---
+import '../styles/global.css';
+// Layout.astro: site metadata for SEO
+const { site, url } = Astro;
+const canonicalUrl = new URL(url.pathname, site).toString();
+---
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width" />
+		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+		<meta name="generator" content={Astro.generator} />
+		<title>Astro Blog</title>
+		<link rel="canonical" href={canonicalUrl} />
+		<meta property="og:url" content={canonicalUrl} />
+	</head>
+	<body>
+		<nav>
+			<a href="/">Home</a>
+		</nav>
+		<slot />
+	</body>
+</html>
