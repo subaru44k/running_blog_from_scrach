@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title><%= post ? 'Edit' : 'New' %> Post</title>
+</head>
+<body>
+  <h1><%= post ? 'Edit' : 'New' %> Post</h1>
+  <form action="<%= post ? '/edit/' + encodeURIComponent(post) : '/new' %>" method="POST">
+    <div>
+      <label for="filename">Filename:</label>
+      <input type="text" id="filename" name="filename" value="<%= post || '' %>" <%= post ? 'readonly' : '' %> />
+    </div>
+    <div>
+      <label for="content">Content (frontmatter + body):</label><br>
+      <textarea id="content" name="content" rows="20" cols="80"><%= content %></textarea>
+    </div>
+    <button type="submit">Save</button>
+  </form>
+  <a href="/">← Back to list</a>
+</body>
+</html>

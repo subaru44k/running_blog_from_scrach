@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Blog Admin – Posts</title>
+</head>
+<body>
+  <h1>Blog Posts</h1>
+  <a href="/new">Add New Post</a>
+  <ul>
+    <% posts.forEach(function(post) { %>
+      <li>
+        <%= post %> -
+        <a href="/edit/<%= encodeURIComponent(post) %>">Edit</a>
+        <form action="/delete/<%= encodeURIComponent(post) %>" method="POST" style="display:inline">
+          <button type="submit">Delete</button>
+        </form>
+      </li>
+    <% }) %>
+  </ul>
+</body>
+</html>
