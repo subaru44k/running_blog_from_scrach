@@ -23,75 +23,13 @@ if (!post) {
 ---
 
 <Layout>
-  <div class="flex flex-col md:flex-row">
-    <aside class="w-full md:w-1/4 pr-4 max-h-screen overflow-y-auto">
-      <nav id="blog-nav">
-        <ul>
-          {posts.map((item) => (
-            <li class={item.slug === slug ? 'font-bold' : ''}>
-              <a href={`/${item.slug}/`} class="block py-2 hover:bg-gray-100">
-                <span>{item.data.title}</span><br />
-                <small class="text-sm text-gray-500">{item.data.date.toDateString()}</small>
-              </a>
-            </li>
-          ))}
-        </ul>
-      </nav>
-    </aside>
-    <main id="post-content" class="w-full md:w-3/4">
-      <article>
-        <h1>{post.data.title}</h1>
-        <p>
-          <time datetime={post.data.date.toISOString()}>
-            {post.data.date.toDateString()}
-          </time>
-        </p>
-        <div set:html={post.body}></div>
-      </article>
-    </main>
-  </div>
-  <script type="module" client:load>
-    const nav = document.getElementById('blog-nav');
-    const contentContainer = document.getElementById('post-content');
-
-    nav.addEventListener('click', async (e) => {
-      const anchor = e.target.closest('a');
-      if (!anchor || !nav.contains(anchor)) return;
-      e.preventDefault();
-      const url = anchor.href;
-      history.pushState(null, '', url);
-      const resp = await fetch(url);
-      if (resp.ok) {
-        const html = await resp.text();
-        const parser = new DOMParser();
-        const doc = parser.parseFromString(html, 'text/html');
-        const newContent = doc.getElementById('post-content');
-        if (newContent) {
-          contentContainer.replaceWith(newContent);
-        }
-        nav.querySelectorAll('li').forEach((li) => {
-          const a = li.querySelector('a');
-          if (a) li.classList.toggle('font-bold', a.href === url);
-        });
-      }
-    });
-
-    window.addEventListener('popstate', async () => {
-      const url = location.href;
-      const resp = await fetch(url);
-      if (resp.ok) {
-        const html = await resp.text();
-        const parser = new DOMParser();
-        const doc = parser.parseFromString(html, 'text/html');
-        const newContent = doc.getElementById('post-content');
-        if (newContent) {
-          document.getElementById('post-content').replaceWith(newContent);
-        }
-        nav.querySelectorAll('li').forEach((li) => {
-          const a = li.querySelector('a');
-          if (a) li.classList.toggle('font-bold', a.href === url);
-        });
-      }
-    });
-  </script>
+  <article>
+    <h1>{post.data.title}</h1>
+    <p>
+      <time datetime={post.data.date.toISOString()}>
+        {post.data.date.toDateString()}
+      </time>
+    </p>
+    <div set:html={post.body}></div>
+  </article>
 </Layout>
