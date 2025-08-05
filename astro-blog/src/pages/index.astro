@@ -11,11 +11,12 @@ categories.unshift('All');
 <Layout>
   <h1>Blog</h1>
   <ul>
-    {posts.map(post => (
+    {posts.map((post) => (
       <li>
-        <a href={`/${post.slug}/`}>{post.data.title}</a>
-        <br />
-        <small>{post.data.date.toDateString()}</small>
+        <a href={`/${post.slug}/`} class="block py-2 hover:bg-gray-100">
+          <span class="font-semibold">{post.data.title}</span><br />
+          <small class="text-sm text-gray-500">{post.data.date.toDateString()}</small>
+        </a>
       </li>
     ))}
   </ul>
