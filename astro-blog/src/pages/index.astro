@@ -9,99 +9,14 @@ categories.unshift('All');
 ---
 
 <Layout>
-  <h1 class="text-2xl font-bold mb-4">Latest Posts</h1>
-  <div class="flex">
-    <nav class="w-1/4 pr-4 border-r border-gray-200 max-h-screen overflow-y-auto">
-      <div class="mb-4">
-        <label for="categoryFilter" class="block font-medium mb-1">Filter by category:</label>
-        <select id="categoryFilter" class="w-full border rounded px-2 py-1">
-          {categories.map((cat) => (
-            <option value={cat}>{cat}</option>
-          ))}
-        </select>
-      </div>
-      <ul>
-        {posts.map((post) => (
-          <li>
-            <a
-              href="#"
-              data-slug={post.slug}
-              data-cat={post.data.category}
-              class="block py-2 hover:bg-gray-100 cursor-pointer"
-            >
-              <span class="font-semibold">{post.data.title}</span><br />
-              <small class="text-sm text-gray-500">{post.data.date.toDateString()}</small>
-            </a>
-          </li>
-        ))}
-      </ul>
-    </nav>
-    <main class="w-3/4 pl-6">
-      {posts.map((post, idx) => (
-        <article id={post.slug} class={idx === 0 ? '' : 'hidden'}>
-          <h2 class="text-xl font-bold mb-2">{post.data.title}</h2>
-          <time datetime={post.data.date.toISOString()} class="block text-gray-500 mb-4">
-            {post.data.date.toDateString()}
-          </time>
-          <div set:html={post.body} />
-        </article>
-      ))}
-    </main>
-  </div>
-  <script type="module">
-    const navLinks = document.querySelectorAll('nav a[data-slug]');
-    const articles = document.querySelectorAll('main article');
-    const filter = document.getElementById('categoryFilter');
-
-    function selectPost(link, push = true) {
-      const slug = link.dataset.slug;
-      navLinks.forEach((l) => l.classList.remove('bg-gray-200'));
-      link.classList.add('bg-gray-200');
-      articles.forEach((article) =>
-        article.classList.toggle('hidden', article.id !== slug)
-      );
-      if (push) {
-        const url = new URL(location);
-        url.searchParams.set('post', slug);
-        history.pushState({ slug }, '', url);
-      }
-    }
-
-    navLinks.forEach((link) => {
-      link.addEventListener('click', (e) => {
-        e.preventDefault();
-        selectPost(link);
-      });
-    });
-
-    filter.addEventListener('change', () => {
-      const cat = filter.value;
-      navLinks.forEach((link) => {
-        const ok = cat === 'All' || link.dataset.cat === cat;
-        link.parentElement.style.display = ok ? '' : 'none';
-      });
-      const first = Array.from(navLinks).find(
-        (l) => l.parentElement.style.display !== 'none'
-      );
-      if (first) selectPost(first);
-    });
-
-    // Handle back/forward navigation
-    window.addEventListener('popstate', (e) => {
-      const slug = (e.state && e.state.slug) || new URL(location).searchParams.get('post');
-      if (slug) {
-        const link = Array.from(navLinks).find((l) => l.dataset.slug === slug);
-        if (link) selectPost(link, false);
-      }
-    });
-
-    // Initialize based on URL or default to first visible post
-    const params = new URLSearchParams(location.search);
-    const initialSlug = params.get('post');
-    filter.dispatchEvent(new Event('change'));
-    if (initialSlug) {
-      const initLink = Array.from(navLinks).find((l) => l.dataset.slug === initialSlug);
-      if (initLink) selectPost(initLink, false);
-    }
-  </script>
+  <h1>Blog</h1>
+  <ul>
+    {posts.map(post => (
+      <li>
+        <a href={`/${post.slug}/`}>{post.data.title}</a>
+        <br />
+        <small>{post.data.date.toDateString()}</small>
+      </li>
+    ))}
+  </ul>
 </Layout>
