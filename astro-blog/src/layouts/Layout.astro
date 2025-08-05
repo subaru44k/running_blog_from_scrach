@@ -1,8 +1,13 @@
 ---
 import '../styles/global.css';
-// Layout.astro: site metadata for SEO
+// Layout.astro: site metadata for SEO and sidebar post navigation
+import { getCollection } from 'astro:content';
 const { site, url } = Astro;
 const canonicalUrl = new URL(url.pathname, site).toString();
+
+// Fetch published posts for sidebar
+const posts = await getCollection('blog', ({ data }) => data.status === 'publish');
+posts.sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
 ---
 <!doctype html>
 <html lang="en">
@@ -15,10 +20,28 @@ const canonicalUrl = new URL(url.pathname, site).toString();
 		<link rel="canonical" href={canonicalUrl} />
 		<meta property="og:url" content={canonicalUrl} />
 	</head>
-	<body>
-		<nav>
-			<a href="/">Home</a>
-		</nav>
-		<slot />
+	<body class="min-h-screen">
+		<header class="border-b border-gray-200 p-4">
+			<a href="/" class="text-xl font-bold">Home</a>
+		</header>
+		<div class="flex">
+			<aside class="w-1/4 pr-4 max-h-screen overflow-y-auto border-r border-gray-200">
+				<nav id="blog-nav">
+					<ul>
+						{posts.map((item) => (
+							<li class={item.slug === url.pathname.slice(1, -1) ? 'font-bold' : ''}>
+								<a href={`/${item.slug}/`} class="block py-2 hover:bg-gray-100">
+									<span class="font-semibold">{item.data.title}</span><br />
+									<small class="text-sm text-gray-500">{item.data.date.toDateString()}</small>
+								</a>
+							</li>
+						))}
+					</ul>
+				</nav>
+			</aside>
+			<main class="w-3/4 p-6">
+				<slot />
+			</main>
+		</div>
 	</body>
-</html>
+	</html>
