@@ -26,6 +26,23 @@ const now = new Date();
 const currentYear = now.getFullYear();
 const currentMonth = now.getMonth();
 
+// Determine initial calendar view: prefer selected post's month, else latest post, else current
+let initialYear = currentYear;
+let initialMonth = currentMonth; // 0-11
+
+const latestSlugDate = posts[0]?.slug.slice(0, 10);
+if (latestSlugDate) {
+  const [ly, lm] = latestSlugDate.split('-');
+  initialYear = parseInt(ly, 10);
+  initialMonth = parseInt(lm, 10) - 1;
+}
+
+const pathMatch = url.pathname.match(/^\/(\d{4})-(\d{2})-/);
+if (pathMatch) {
+  initialYear = parseInt(pathMatch[1], 10);
+  initialMonth = parseInt(pathMatch[2], 10) - 1;
+}
+
 // Server-render initial month grid for better UX (no-JS fallback)
 function buildInitialMonth(year: number, month: number) {
   const first = new Date(year, month, 1);
@@ -55,7 +72,7 @@ function buildInitialMonth(year: number, month: number) {
   }
   return rows;
 }
-const initialMonthRows = buildInitialMonth(currentYear, currentMonth);
+const initialMonthRows = buildInitialMonth(initialYear, initialMonth);
 ---
 <!doctype html>
 <html lang="en">
@@ -79,17 +96,17 @@ const initialMonthRows = buildInitialMonth(currentYear, currentMonth);
 						<h2 class="text-lg font-semibold mb-2">Calendar</h2>
 						<div class="flex gap-2 mb-2">
 							<label for="calendarYear" class="sr-only">Year</label>
-							<select id="calendarYear" class="border rounded px-2 py-1 flex-1" value={currentYear}>
-								{years.map((y) => (
-									<option value={y} selected={y === currentYear}>{y}</option>
-								))}
-							</select>
+            <select id="calendarYear" class="border rounded px-2 py-1 flex-1">
+              {years.map((y) => (
+                <option value={y} selected={y === initialYear}>{y}</option>
+              ))}
+            </select>
 							<label for="calendarMonth" class="sr-only">Month</label>
-							<select id="calendarMonth" class="border rounded px-2 py-1 flex-1" value={currentMonth}>
-								{[...Array(12)].map((_, i) => (
-									<option value={i} selected={i === currentMonth}>{new Date(2000, i, 1).toLocaleString('en-US', { month: 'short' })}</option>
-								))}
-							</select>
+            <select id="calendarMonth" class="border rounded px-2 py-1 flex-1">
+              {[...Array(12)].map((_, i) => (
+                <option value={i} selected={i === initialMonth}>{new Date(2000, i, 1).toLocaleString('en-US', { month: 'short' })}</option>
+              ))}
+            </select>
 						</div>
 						<table class="w-full text-sm text-center select-none">
 							<thead>
