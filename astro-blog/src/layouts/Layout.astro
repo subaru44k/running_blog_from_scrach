@@ -4,6 +4,8 @@ import '../styles/global.css';
 import { getCollection } from 'astro:content';
 const { site, url } = Astro;
 const canonicalUrl = new URL(url.pathname, site).toString();
+const siteTitle = 'Subaru Running Blog';
+const siteDescription = 'Training logs, race reports, and running notes by Subaru.';
 
 // Fetch published posts for sidebar
 const posts = await getCollection('blog', ({ data }) => data.status === 'publish');
@@ -81,9 +83,17 @@ const initialMonthRows = buildInitialMonth(initialYear, initialMonth);
 			<meta name="viewport" content="width=device-width, initial-scale=1" />
 		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
 		<meta name="generator" content={Astro.generator} />
-		<title>Subaru Running Blog</title>
+		<title>{siteTitle}</title>
 		<link rel="canonical" href={canonicalUrl} />
 		<meta property="og:url" content={canonicalUrl} />
+    <meta name="description" content={siteDescription} />
+    <meta property="og:title" content={siteTitle} />
+    <meta property="og:site_name" content={siteTitle} />
+    <meta property="og:type" content="website" />
+    <meta property="og:description" content={siteDescription} />
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:title" content={siteTitle} />
+    <meta name="twitter:description" content={siteDescription} />
 	</head>
 	<body class="min-h-screen bg-gradient-to-b from-white to-gray-50 dark:from-gray-950 dark:to-gray-900">
 		<header class="bg-white/90 dark:bg-gray-950/80 backdrop-blur border-b border-gray-200 dark:border-gray-800 sticky top-0 z-30">
