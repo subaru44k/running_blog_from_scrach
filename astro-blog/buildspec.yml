@@ -14,7 +14,7 @@ env:
 phases:
   install:
     commands:
-      - echo Node: $(node -v); NPM: $(npm -v)
+      - echo Node=$(node -v) NPM=$(npm -v)
       - echo Installing dependencies in $APP_DIR with dev deps
       - export NODE_ENV=development
       - npm ci --prefix $APP_DIR
