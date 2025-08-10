@@ -1,11 +1,14 @@
  # Astro Blog
 
- This project generates a blog site using Astro and content collections, sourcing posts from the Movable Type export in `old_blog_data/export_blog_1.txt`. Run the conversion tool before starting the dev server or building the site.
+ This project generates a blog site using Astro and content collections. Blog posts are sourced from Markdown files under `src/content/blog`.
+
+ Important: `old_blog_data/export_blog_1.txt` is only used as an import source during the initial migration. After conversion, Markdown files are the single source of truth. You do not need `export_blog_1.txt` at runtime or during development/build, and any editing tool (e.g., an admin app) should operate on the Markdown files, not on the export file.
 
  ## Setup
 
 ```sh
 npm install
+# Optional: only if you need to (re)import from Movable Type export
 npm run convert:mt
 npm run dev
 ```
@@ -26,7 +29,7 @@ export default defineConfig({
 });
 ```
 
- ## Project Structure
+## Project Structure
 
  Inside of your Astro project, you'll see the following folders and files:
 
@@ -36,24 +39,45 @@ export default defineConfig({
  │   └── favicon.svg
  ├── src/
  │   ├── content/
- │   │   └── blog/
+ │   │   └── blog/           # Markdown posts (source of truth)
  │   ├── components/
  │   ├── layouts/
  │   └── pages/
  └── package.json
  ```
 
+## Content model
+
+Markdown files in `src/content/blog` include frontmatter validated by `src/content/config.ts`:
+
+```yaml
+---
+title: My Post Title
+date: 2024-08-10
+author: Your Name
+category: Misc
+status: publish
+allowComments: true
+convertBreaks: false
+entryHash: abcdef123456
+---
+
+Post body in Markdown…
+```
+
+Only files with `status: publish` appear on the site.
+
  ## Commands
 
  | Command               | Action                                                   |
  | :-------------------- | :------------------------------------------------------- |
 | `npm install`         | Installs dependencies                                    |
-| `npm run convert:mt`  | Converts the Movable Type export to markdown files (run once) |
+| `npm run convert:mt`  | Converts the Movable Type export to markdown files (run once or when re-importing) |
 | `npm run dev`         | Starts the dev server at `localhost:4321`                |
 | `npm run build`       | Builds production site to `./dist/`                      |
 | `npm run preview`     | Previews the built site locally                          |
 
- ## Using the blog
+## Using the blog
 
- - Navigate to `http://localhost:4321/blog/` to view the blog listing.
- - Click on a post title to read an individual post.
+- Start dev: `npm run dev`, open `http://localhost:4321/`.
+- Calendar and sidebar help navigate posts; click a date with posts or a title to open.
