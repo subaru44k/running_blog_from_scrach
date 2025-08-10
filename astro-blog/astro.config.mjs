@@ -6,7 +6,7 @@ import remarkBreaks from 'remark-breaks';
 import tailwind from '@astrojs/tailwind';
 
 export default defineConfig({
-  site: 'https://example.com',
+  site: 'https://subaru-is-running.com',
   markdown: {
     remarkPlugins: [remarkBreaks],
   },
