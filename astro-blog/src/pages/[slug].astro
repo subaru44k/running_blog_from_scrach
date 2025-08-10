@@ -20,6 +20,7 @@ const post = await getEntryBySlug('blog', slug);
 if (!post) {
   throw new Error(`Post not found: ${slug}`);
 }
+const { Content } = await post.render();
 ---
 
 <Layout>
@@ -31,6 +32,6 @@ if (!post) {
       </div>
       <h1 class="mb-2">{post.data.title}</h1>
     </header>
-    <div class="prose max-w-none dark:prose-invert" set:html={post.body}></div>
+    <div class="prose max-w-none dark:prose-invert"><Content /></div>
   </article>
 </Layout>
