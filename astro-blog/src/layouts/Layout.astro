@@ -98,7 +98,7 @@ const initialMonthRows = buildInitialMonth(initialYear, initialMonth);
 			</div>
 		</header>
 		<div class="container-page grid grid-cols-1 lg:grid-cols-[20rem_1fr] gap-8 py-8">
-			<aside class="lg:sticky lg:top-20 self-start space-y-4">
+			<aside class="order-2 lg:order-1 lg:sticky lg:top-20 self-start space-y-4">
 					<!-- Sidebar calendar -->
 					<div class="card px-4 py-4">
 						<h2 class="text-lg font-semibold mb-2">Calendar</h2>
@@ -279,7 +279,7 @@ const initialMonthRows = buildInitialMonth(initialYear, initialMonth);
        }
 	      })();
 	    </script>
-			<main class="min-w-0">
+			<main class="order-1 lg:order-2 min-w-0">
 				<slot />
 			</main>
 		</div>
