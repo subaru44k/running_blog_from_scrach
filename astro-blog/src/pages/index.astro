@@ -11,6 +11,22 @@ function excerpt(html: string, max = 220) {
   const text = html.replace(/<[^>]+>/g, '').replace(/\s+/g, ' ').trim();
   return text.length > max ? text.slice(0, max - 1) + '…' : text;
 }
+
+function imageForCategory(cat: string): string {
+  switch (cat) {
+    case '練習(弱)':
+      return '/images/workouts/abstract-04.svg'; // mild
+    case '練習(中)':
+      return '/images/workouts/abstract-03.svg'; // moderate
+    case '練習(強)':
+      return '/images/workouts/abstract-08.svg'; // strong
+    case '試合':
+      return '/images/workouts/abstract-02.svg'; // strongest
+    case '練習(デフォルト)':
+    default:
+      return '/images/workouts/abstract-01.svg'; // neutral
+  }
+}
 ---
 
 <Layout>
@@ -18,20 +34,23 @@ function excerpt(html: string, max = 220) {
 
   <section class="grid gap-6 sm:gap-8 grid-cols-1 md:grid-cols-2">
     {latest.map((post) => (
-      <article class="card card-hover p-6 flex flex-col">
-        <div class="flex items-center gap-3 text-xs text-gray-500 mb-2">
-          <span class="badge">{post.data.category}</span>
-          <time datetime={post.data.date.toISOString()}>{post.data.date.toDateString()}</time>
-        </div>
-        <h2 class="text-xl font-bold mb-2">
-          <a class="no-underline" href={`/${post.slug}/`}>{post.data.title}</a>
-        </h2>
-        <p class="text-sm text-gray-600 dark:text-gray-300 mb-4">{excerpt(post.body)}</p>
-        <div class="mt-auto">
-          <a class="inline-flex items-center gap-1 text-sm font-medium" href={`/${post.slug}/`}>
-            Read more
-            <span aria-hidden>→</span>
-          </a>
+      <article class="card card-hover p-0 flex flex-col overflow-hidden">
+        <img src={imageForCategory(post.data.category)} alt={`Image for ${post.data.title}`} width="1200" height="630" class="w-full aspect-[1200/630] object-cover" loading="lazy" />
+        <div class="p-6 flex flex-col">
+          <div class="flex items-center gap-3 text-xs text-gray-500 mb-2">
+            <span class="badge">{post.data.category}</span>
+            <time datetime={post.data.date.toISOString()}>{post.data.date.toDateString()}</time>
+          </div>
+          <h2 class="text-xl font-bold mb-2">
+            <a class="no-underline" href={`/${post.slug}/`}>{post.data.title}</a>
+          </h2>
+          <p class="text-sm text-gray-600 dark:text-gray-300 mb-4">{excerpt(post.body)}</p>
+          <div class="mt-auto">
+            <a class="inline-flex items-center gap-1 text-sm font-medium" href={`/${post.slug}/`}>
+              Read more
+              <span aria-hidden>→</span>
+            </a>
+          </div>
         </div>
       </article>
     ))}
