@@ -66,7 +66,7 @@ Post body in Markdown…
 
 Only files with `status: publish` appear on the site. The legacy `convertBreaks` field from Movable Type is no longer used and may be omitted.
 
- ## Commands
+## Commands
 
  | Command               | Action                                                   |
  | :-------------------- | :------------------------------------------------------- |
@@ -80,3 +80,41 @@ Only files with `status: publish` appear on the site. The legacy `convertBreaks`
 
 - Start dev: `npm run dev`, open `http://localhost:4321/`.
 - Calendar and sidebar help navigate posts; click a date with posts or a title to open.
+
+## AWS CI/CD (CodePipeline + CodeBuild)
+
+This site is static (no SSR) and deploys well to S3 + CloudFront. Use CodePipeline (Source → Build) and perform the deploy in CodeBuild.
+
+- Buildspec: `astro-blog/buildspec.yml` (already included)
+- CodeBuild environment variables (set in the project):
+  - `BUCKET` (required): S3 hosting bucket name (private, behind CloudFront)
+  - `DISTRIBUTION_ID` (required): CloudFront distribution ID
+  - `NODE_VERSION` (optional): defaults to `20`
+
+CodeBuild does the following:
+- `npm ci` and `npm run build` in this folder
+- `aws s3 sync dist s3://$BUCKET --delete`
+- `aws cloudfront create-invalidation --distribution-id $DISTRIBUTION_ID --paths '/*'`
+
+Minimum IAM for the CodeBuild role (replace with your bucket and distribution ARNs):
+
+```json
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    { "Effect": "Allow", "Action": ["logs:CreateLogGroup","logs:CreateLogStream","logs:PutLogEvents"], "Resource": "*" },
+    { "Effect": "Allow", "Action": ["s3:ListBucket"], "Resource": "arn:aws:s3:::YOUR_BUCKET" },
+    { "Effect": "Allow", "Action": ["s3:GetObject","s3:PutObject","s3:DeleteObject"], "Resource": "arn:aws:s3:::YOUR_BUCKET/*" },
+    { "Effect": "Allow", "Action": ["cloudfront:CreateInvalidation"], "Resource": "*" }
+  ]
+}
+```
+
+Pipeline outline:
+- Source: GitHub repository (branch `main`)
+- Build: CodeBuild project using this repo path and buildspec
+- Artifacts bucket: separate from hosting bucket
+
+Notes:
+- Set `site` in `astro.config.mjs` to your domain (e.g., `https://subaru-is-running.com`).
+- Hosting bucket should be private; use CloudFront Origin Access Control (OAC).
