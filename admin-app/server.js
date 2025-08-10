@@ -8,6 +8,9 @@ const dayjs = require('dayjs');
 const slugify = require('slugify');
 const { marked } = require('marked');
 
+// Fixed category options for new/edit forms
+const CATEGORIES = ['練習(デフォルト)', '練習(低)', '練習(中)', '練習(強)', '試合'];
+
 // Directory of Astro blog markdown posts
 const BLOG_DIR = path.resolve(__dirname, '../astro-blog/src/content/blog');
 
@@ -60,12 +63,12 @@ app.get('/new', (req, res) => {
   const defaults = {
     title: '',
     date: today,
-    author: '',
-    category: 'Misc',
+    author: 'subaru44k',
+    category: CATEGORIES[0],
     status: 'draft',
     allowComments: false,
   };
-  res.render('edit', { file: null, data: defaults, body: '' });
+  res.render('edit', { file: null, data: defaults, body: '', categories: CATEGORIES });
 });
 
 // Create new post
@@ -78,11 +81,12 @@ app.post('/new', (req, res) => {
   if (fs.existsSync(target)) {
     return res.status(400).send('A post with this date/title already exists. Change the title or date.');
   }
+  const categoryValue = CATEGORIES.includes(category) ? category : CATEGORIES[0];
   const data = {
     title: title || 'Untitled',
     date: new Date(ymd),
-    author: author || '',
-    category: category || '',
+    author: author || 'subaru44k',
+    category: categoryValue,
     status: status || 'draft',
     allowComments: Boolean(allowComments),
     entryHash: Math.random().toString(16).slice(2, 10),
@@ -102,8 +106,7 @@ app.get('/edit/:filename', (req, res) => {
   const { data, body } = readPost(target);
   // Normalize booleans for form checkboxes
   data.allowComments = Boolean(data.allowComments);
-  data.convertBreaks = Boolean(data.convertBreaks);
-  res.render('edit', { file: fn, data, body });
+  res.render('edit', { file: fn, data, body, categories: CATEGORIES });
 });
 
 // Save edit
@@ -115,12 +118,13 @@ app.post('/edit/:filename', (req, res) => {
     return res.status(404).send('Post not found');
   }
   const { data: current } = readPost(target);
+  const categoryValue2 = CATEGORIES.includes(category) ? category : (current.category && CATEGORIES.includes(current.category) ? current.category : CATEGORIES[0]);
   const data = {
     ...current,
     title: title || current.title,
     date: new Date(dayjs(date || current.date).format('YYYY-MM-DD')),
     author: author ?? current.author,
-    category: category ?? current.category,
+    category: categoryValue2,
     status: status ?? current.status,
     allowComments: Boolean(allowComments),
   };

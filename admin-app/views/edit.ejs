@@ -23,7 +23,11 @@
       </div>
       <div>
         <label for="category">Category:</label>
-        <input type="text" id="category" name="category" value="<%= data.category || '' %>" />
+        <select id="category" name="category">
+          <% (categories || []).forEach(function(cat){ %>
+            <option value="<%= cat %>" <%= (data.category === cat) ? 'selected' : '' %>><%= cat %></option>
+          <% }); %>
+        </select>
       </div>
       <div>
         <label for="status">Status:</label>
