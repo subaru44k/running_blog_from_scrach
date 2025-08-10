@@ -1,0 +1,35 @@
+version: 0.2
+
+# CodeBuild buildspec for deploying the Astro site to S3 + CloudFront.
+# Required environment variables (configure in CodeBuild project):
+# - BUCKET: S3 bucket name for hosting (e.g., subaru-is-running-site)
+# - DISTRIBUTION_ID: CloudFront distribution ID (e.g., E123ABC456DEF)
+# Optional env vars:
+# - NODE_VERSION: defaults to 20
+
+env:
+  variables:
+    NODE_VERSION: "20"
+
+phases:
+  install:
+    runtime-versions:
+      nodejs: $NODE_VERSION
+    commands:
+      - echo "Using Node $(node -v)"
+      - npm ci
+  build:
+    commands:
+      - npm run build
+  post_build:
+    commands:
+      - echo "Syncing dist/ to s3://$BUCKET ..."
+      - aws s3 sync dist s3://$BUCKET --delete
+      - echo "Creating CloudFront invalidation ..."
+      - aws cloudfront create-invalidation --distribution-id "$DISTRIBUTION_ID" --paths '/*'
+
+# Optional: also publish the built site as a pipeline artifact.
+artifacts:
+  base-directory: dist
+  files:
+    - '**/*'
