@@ -95,7 +95,8 @@ const currentMonth = now.getMonth();
     </aside>
    <script type="application/json" id="postsByDateData">{JSON.stringify(postsByDate)}</script>
    <script>
-     document.addEventListener('DOMContentLoaded', () => {
+     (function initSidebar() {
+       const init = () => {
        // Calendar setup
        const dataTag = document.getElementById('postsByDateData');
        const POSTS_BY_DATE = dataTag ? JSON.parse(dataTag.textContent || '{}') : {};
@@ -166,8 +167,14 @@ const currentMonth = now.getMonth();
            li.style.display = sel.value === 'All' || li.dataset.category === sel.value ? '' : 'none';
          });
        });
-     });
-   </script>
+       };
+       if (document.readyState === 'loading') {
+         document.addEventListener('DOMContentLoaded', init);
+       } else {
+         init();
+       }
+     })();
+    </script>
 			<main class="w-3/4 p-6">
 				<slot />
 			</main>
