@@ -13,22 +13,19 @@ env:
 
 phases:
   install:
-    runtime-versions:
-      nodejs: 20
     commands:
-      - echo "Working dir: $CODEBUILD_SRC_DIR"
-      - echo "Installing in $APP_DIR ..."
-      - npm ci --prefix "$APP_DIR"
+      - echo Installing dependencies in $APP_DIR
+      - npm ci --prefix $APP_DIR
   build:
     commands:
-      - echo "Building in $APP_DIR ..."
-      - npm run build --prefix "$APP_DIR"
+      - echo Building in $APP_DIR
+      - npm run build --prefix $APP_DIR
   post_build:
     commands:
-      - echo "Syncing $APP_DIR/dist to s3://$BUCKET ..."
-      - aws s3 sync "$APP_DIR/dist" "s3://$BUCKET" --delete
-      - echo "Invalidating CloudFront distribution $DISTRIBUTION_ID ..."
-      - aws cloudfront create-invalidation --distribution-id "$DISTRIBUTION_ID" --paths '/*'
+      - echo Syncing $APP_DIR/dist to s3://$BUCKET
+      - aws s3 sync $APP_DIR/dist s3://$BUCKET --delete
+      - echo Invalidating CloudFront distribution $DISTRIBUTION_ID
+      - aws cloudfront create-invalidation --distribution-id $DISTRIBUTION_ID --paths '/*'
 
 # Optional: also publish the built site as a pipeline artifact.
 artifacts:
