@@ -7,6 +7,8 @@ const matter = require('gray-matter');
 const dayjs = require('dayjs');
 const slugify = require('slugify');
 const { marked } = require('marked');
+// Ensure preview converts single newlines to <br>
+try { marked.setOptions({ breaks: true }); } catch (_) {}
 
 // Fixed category options for new/edit forms
 const CATEGORIES = ['練習(デフォルト)', '練習(低)', '練習(中)', '練習(強)', '試合'];
