@@ -6,17 +6,35 @@
 </head>
 <body>
   <h1>Blog Posts</h1>
-  <a href="/new">Add New Post</a>
-  <ul>
-    <% posts.forEach(function(post) { %>
-      <li>
-        <%= post %> -
-        <a href="/edit/<%= encodeURIComponent(post) %>">Edit</a>
-        <form action="/delete/<%= encodeURIComponent(post) %>" method="POST" style="display:inline">
-          <button type="submit">Delete</button>
-        </form>
-      </li>
-    <% }) %>
-  </ul>
+  <p><a href="/new">Add New Post</a></p>
+  <table border="1" cellpadding="6" cellspacing="0">
+    <thead>
+      <tr>
+        <th>Title</th>
+        <th>Date</th>
+        <th>Status</th>
+        <th>Category</th>
+        <th>File</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% posts.forEach(function(p) { %>
+      <tr>
+        <td><a href="/edit/<%= encodeURIComponent(p.file) %>"><%= p.title %></a></td>
+        <td><%= p.date ? p.date.toDateString() : '' %></td>
+        <td><%= p.status %></td>
+        <td><%= p.category %></td>
+        <td><code><%= p.file %></code></td>
+        <td>
+          <a href="/edit/<%= encodeURIComponent(p.file) %>">Edit</a>
+          <form action="/delete/<%= encodeURIComponent(p.file) %>" method="POST" style="display:inline" onsubmit="return confirm('Delete this post?');">
+            <button type="submit">Delete</button>
+          </form>
+        </td>
+      </tr>
+      <% }) %>
+    </tbody>
+  </table>
 </body>
 </html>
