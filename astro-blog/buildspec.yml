@@ -14,7 +14,12 @@ env:
 phases:
   install:
     commands:
-      - echo Node=$(node -v) NPM=$(npm -v)
+      - echo Current Node=$(node -v) NPM=$(npm -v)
+      - echo Upgrading Node to >=20 using n
+      - npm install -g n
+      - n 20
+      - hash -r
+      - echo Upgraded Node=$(node -v) NPM=$(npm -v)
       - echo Installing dependencies in $APP_DIR with dev deps
       - export NODE_ENV=development
       - npm ci --prefix $APP_DIR
