@@ -42,4 +42,6 @@
   .badge {
     @apply inline-flex items-center rounded-md bg-gray-100 dark:bg-gray-800 px-2 py-0.5 text-xs font-medium text-gray-700 dark:text-gray-300 ring-1 ring-inset ring-gray-200 dark:ring-gray-700;
   }
+  /* Collapse duplicate <br> sequences in legacy posts (imported content where lines already include <br>) */
+  .old-post .prose br + br { display: none; }
 }
