@@ -21,18 +21,10 @@ if (!post) {
   throw new Error(`Post not found: ${slug}`);
 }
 const { Content } = await post.render();
-
-// Determine if this is an old post (year <= 2024) based on slug prefix YYYY-MM-DD
-let isOldPost = false;
-const mYear = slug.match(/^(\d{4})-/);
-if (mYear) {
-  const y = parseInt(mYear[1], 10);
-  if (!Number.isNaN(y) && y <= 2024) isOldPost = true;
-}
 ---
 
 <Layout>
-  <article class={`card p-6 md:p-10 ${isOldPost ? 'old-post' : ''}`}>
+  <article class="card p-6 md:p-10">
     <header class="mb-6">
       <div class="flex items-center gap-3 text-xs text-gray-500 mb-2">
         <span class="badge">{post.data.category}</span>
