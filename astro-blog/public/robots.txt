@@ -1,0 +1,6 @@
+User-agent: *
+Allow: /
+
+# Sitemap for Google/Bing/etc.
+Sitemap: https://subaru-is-running.com/sitemap.xml
+
