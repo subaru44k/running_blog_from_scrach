@@ -4,32 +4,34 @@ version: 0.2
 # Required environment variables (configure in CodeBuild project):
 # - BUCKET: S3 bucket name for hosting (e.g., subaru-is-running-site)
 # - DISTRIBUTION_ID: CloudFront distribution ID (e.g., E123ABC456DEF)
-# Optional env vars:
-# - NODE_VERSION: defaults to 20
+# Optional environment variables:
+# - APP_DIR: path to app within the repo (default: astro-blog)
 
 env:
   variables:
-    NODE_VERSION: "20"
+    APP_DIR: "astro-blog"
 
 phases:
   install:
     runtime-versions:
-      nodejs: $NODE_VERSION
+      nodejs: 20
     commands:
-      - echo "Using Node $(node -v)"
-      - npm ci
+      - echo "Working dir: $CODEBUILD_SRC_DIR"
+      - echo "Installing in $APP_DIR ..."
+      - npm ci --prefix "$APP_DIR"
   build:
     commands:
-      - npm run build
+      - echo "Building in $APP_DIR ..."
+      - npm run build --prefix "$APP_DIR"
   post_build:
     commands:
-      - echo "Syncing dist/ to s3://$BUCKET ..."
-      - aws s3 sync dist s3://$BUCKET --delete
-      - echo "Creating CloudFront invalidation ..."
+      - echo "Syncing $APP_DIR/dist to s3://$BUCKET ..."
+      - aws s3 sync "$APP_DIR/dist" "s3://$BUCKET" --delete
+      - echo "Invalidating CloudFront distribution $DISTRIBUTION_ID ..."
       - aws cloudfront create-invalidation --distribution-id "$DISTRIBUTION_ID" --paths '/*'
 
 # Optional: also publish the built site as a pipeline artifact.
 artifacts:
-  base-directory: dist
+  base-directory: astro-blog/dist
   files:
     - '**/*'
