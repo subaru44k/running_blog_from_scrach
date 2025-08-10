@@ -16,6 +16,7 @@
     "@astrojs/tailwind": "^6.0.2",
     "autoprefixer": "^10.4.21",
     "postcss": "^8.5.6",
-    "tailwindcss": "^3.4.17"
+    "tailwindcss": "^3.4.17",
+    "remark-breaks": "^3.0.2"
   }
 }
