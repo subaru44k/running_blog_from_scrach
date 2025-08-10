@@ -15,8 +15,14 @@ phases:
   install:
     commands:
       - echo Current Node=$(node -v) NPM=$(npm -v)
-      - echo Upgrading Node to >=20 using n
-      - npm install -g n
+      - echo Ensuring Node >=20 using n
+      - |
+        if command -v n >/dev/null 2>&1; then
+          echo n already installed; n --version || true
+        else
+          echo installing n
+          npm install -g n@latest || npm install -g n --force
+        fi
       - n 20
       - hash -r
       - echo Upgraded Node=$(node -v) NPM=$(npm -v)
