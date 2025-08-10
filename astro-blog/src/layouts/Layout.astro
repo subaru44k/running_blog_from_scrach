@@ -13,12 +13,12 @@ posts.sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
 const categories = Array.from(new Set(posts.map((p) => p.data.category))).sort();
 categories.unshift('All');
 
-// Prepare calendar data: date -> posts mapping
+// Prepare calendar data: date -> posts mapping (use slug date to avoid TZ drift)
 const postsByDate = posts.reduce((acc, p) => {
-  const key = p.data.date.toISOString().slice(0, 10);
+  const key = p.slug.slice(0, 10); // YYYY-MM-DD from filename
   (acc[key] ||= []).push({ slug: p.slug, title: p.data.title });
   return acc;
-}, {});
+}, {} as Record<string, { slug: string; title: string }[]>);
 
 // Years available for selection
 const years = Array.from(new Set(posts.map((p) => p.data.date.getFullYear()))).sort((a, b) => a - b);
@@ -79,13 +79,13 @@ const initialMonthRows = buildInitialMonth(currentYear, currentMonth);
 						<h2 class="text-lg font-semibold mb-2">Calendar</h2>
 						<div class="flex gap-2 mb-2">
 							<label for="calendarYear" class="sr-only">Year</label>
-							<select id="calendarYear" class="border rounded px-2 py-1 flex-1">
+							<select id="calendarYear" class="border rounded px-2 py-1 flex-1" value={currentYear}>
 								{years.map((y) => (
 									<option value={y} selected={y === currentYear}>{y}</option>
 								))}
 							</select>
 							<label for="calendarMonth" class="sr-only">Month</label>
-							<select id="calendarMonth" class="border rounded px-2 py-1 flex-1">
+							<select id="calendarMonth" class="border rounded px-2 py-1 flex-1" value={currentMonth}>
 								{[...Array(12)].map((_, i) => (
 									<option value={i} selected={i === currentMonth}>{new Date(2000, i, 1).toLocaleString('en-US', { month: 'short' })}</option>
 								))}
