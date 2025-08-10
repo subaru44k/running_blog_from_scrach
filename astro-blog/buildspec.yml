@@ -14,7 +14,9 @@ env:
 phases:
   install:
     commands:
-      - echo Installing dependencies in $APP_DIR
+      - echo Node: $(node -v); NPM: $(npm -v)
+      - echo Installing dependencies in $APP_DIR with dev deps
+      - export NODE_ENV=development
       - npm ci --prefix $APP_DIR
   build:
     commands:
@@ -22,10 +24,15 @@ phases:
       - npm run build --prefix $APP_DIR
   post_build:
     commands:
-      - echo Syncing $APP_DIR/dist to s3://$BUCKET
-      - aws s3 sync $APP_DIR/dist s3://$BUCKET --delete
-      - echo Invalidating CloudFront distribution $DISTRIBUTION_ID
-      - aws cloudfront create-invalidation --distribution-id $DISTRIBUTION_ID --paths '/*'
+      - |
+        if [ -d "$APP_DIR/dist" ]; then
+          echo Syncing $APP_DIR/dist to s3://$BUCKET
+          aws s3 sync $APP_DIR/dist s3://$BUCKET --delete
+          echo Invalidating CloudFront distribution $DISTRIBUTION_ID
+          aws cloudfront create-invalidation --distribution-id $DISTRIBUTION_ID --paths '/*'
+        else
+          echo "No build output found at $APP_DIR/dist. Skipping deploy."
+        fi
 
 # Optional: also publish the built site as a pipeline artifact.
 artifacts:
