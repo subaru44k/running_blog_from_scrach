@@ -2,22 +2,27 @@
 import Layout from '../layouts/Layout.astro';
 import { getCollection } from 'astro:content';
 
+// Load published posts and take the latest 10
 const posts = await getCollection('blog', ({ data }) => data.status === 'publish');
 posts.sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
-const categories = Array.from(new Set(posts.map((p) => p.data.category))).sort();
-categories.unshift('All');
+const latest = posts.slice(0, 10);
 ---
 
 <Layout>
-  <h1>Blog</h1>
-  <ul>
-    {posts.map((post) => (
-      <li>
-        <a href={`/${post.slug}/`} class="block py-2 hover:bg-gray-100">
-          <span class="font-semibold">{post.data.title}</span><br />
-          <small class="text-sm text-gray-500">{post.data.date.toDateString()}</small>
-        </a>
-      </li>
-    ))}
-  </ul>
+  <h1 class="mb-6">Latest Posts</h1>
+
+  {latest.map((post) => (
+    <article class="mb-12">
+      <h2 class="text-2xl font-bold mb-1">
+        <a href={`/${post.slug}/`}>{post.data.title}</a>
+      </h2>
+      <p class="text-sm text-gray-500 mb-4">
+        <time datetime={post.data.date.toISOString()}>
+          {post.data.date.toDateString()}
+        </time>
+      </p>
+      <div set:html={post.body}></div>
+    </article>
+  ))}
+
 </Layout>
