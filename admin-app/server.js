@@ -64,14 +64,13 @@ app.get('/new', (req, res) => {
     category: 'Misc',
     status: 'draft',
     allowComments: false,
-    convertBreaks: false,
   };
   res.render('edit', { file: null, data: defaults, body: '' });
 });
 
 // Create new post
 app.post('/new', (req, res) => {
-  const { title, date, author, category, status, allowComments, convertBreaks, body } = req.body;
+  const { title, date, author, category, status, allowComments, body } = req.body;
   const ymd = dayjs(date || new Date()).format('YYYY-MM-DD');
   const slug = slugify(String(title || 'untitled'), { lower: true, strict: true }) || 'untitled';
   const filename = `${ymd}-${slug}.md`;
@@ -86,7 +85,6 @@ app.post('/new', (req, res) => {
     category: category || '',
     status: status || 'draft',
     allowComments: Boolean(allowComments),
-    convertBreaks: Boolean(convertBreaks),
     entryHash: Math.random().toString(16).slice(2, 10),
   };
   const content = writePost(data, body || '');
@@ -111,7 +109,7 @@ app.get('/edit/:filename', (req, res) => {
 // Save edit
 app.post('/edit/:filename', (req, res) => {
   const fn = req.params.filename;
-  const { title, date, author, category, status, allowComments, convertBreaks, body } = req.body;
+  const { title, date, author, category, status, allowComments, body } = req.body;
   const target = path.join(BLOG_DIR, fn);
   if (!fn.endsWith('.md') || !fs.existsSync(target)) {
     return res.status(404).send('Post not found');
@@ -125,7 +123,6 @@ app.post('/edit/:filename', (req, res) => {
     category: category ?? current.category,
     status: status ?? current.status,
     allowComments: Boolean(allowComments),
-    convertBreaks: Boolean(convertBreaks),
   };
   const content = writePost(data, body || '');
   fs.writeFileSync(target, content, 'utf8');

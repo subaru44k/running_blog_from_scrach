@@ -58,14 +58,13 @@ author: Your Name
 category: Misc
 status: publish
 allowComments: true
-convertBreaks: false
 entryHash: abcdef123456
 ---
 
 Post body in Markdown…
 ```
 
-Only files with `status: publish` appear on the site.
+Only files with `status: publish` appear on the site. The legacy `convertBreaks` field from Movable Type is no longer used and may be omitted.
 
  ## Commands
 

@@ -14,7 +14,7 @@ By default, it connects to the `astro-blog/src/content/blog` folder next door. M
 
 Features
 - Lists posts with title, date, status, category, and filename.
-- Create/edit posts with structured frontmatter fields (title, date, author, category, status, allowComments, convertBreaks) and a Markdown body.
+- Create/edit posts with structured frontmatter fields (title, date, author, category, status, allowComments) and a Markdown body.
 - Auto-generates filenames like `YYYY-MM-DD-my-title.md` for new posts.
 - Preview Markdown rendering without saving.
 

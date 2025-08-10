@@ -8,7 +8,8 @@ const blog = defineCollection({
     category: z.string(),
     status: z.string(),
     allowComments: z.boolean(),
-    convertBreaks: z.boolean(),
+    // Legacy field from Movable Type; no longer used by the site
+    convertBreaks: z.boolean().optional(),
     entryHash: z.string(),
   }),
 });
