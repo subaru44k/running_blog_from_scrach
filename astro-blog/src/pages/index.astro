@@ -2,27 +2,39 @@
 import Layout from '../layouts/Layout.astro';
 import { getCollection } from 'astro:content';
 
-// Load published posts and take the latest 10
+// Load published posts and take the latest 12
 const posts = await getCollection('blog', ({ data }) => data.status === 'publish');
 posts.sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
-const latest = posts.slice(0, 10);
+const latest = posts.slice(0, 12);
+
+function excerpt(html: string, max = 220) {
+  const text = html.replace(/<[^>]+>/g, '').replace(/\s+/g, ' ').trim();
+  return text.length > max ? text.slice(0, max - 1) + '…' : text;
+}
 ---
 
 <Layout>
   <h1 class="mb-6">Latest Posts</h1>
 
-  {latest.map((post) => (
-    <article class="mb-12">
-      <h2 class="text-2xl font-bold mb-1">
-        <a href={`/${post.slug}/`}>{post.data.title}</a>
-      </h2>
-      <p class="text-sm text-gray-500 mb-4">
-        <time datetime={post.data.date.toISOString()}>
-          {post.data.date.toDateString()}
-        </time>
-      </p>
-      <div set:html={post.body}></div>
-    </article>
-  ))}
+  <section class="grid gap-6 sm:gap-8 grid-cols-1 md:grid-cols-2">
+    {latest.map((post) => (
+      <article class="card card-hover p-6 flex flex-col">
+        <div class="flex items-center gap-3 text-xs text-gray-500 mb-2">
+          <span class="badge">{post.data.category}</span>
+          <time datetime={post.data.date.toISOString()}>{post.data.date.toDateString()}</time>
+        </div>
+        <h2 class="text-xl font-bold mb-2">
+          <a class="no-underline" href={`/${post.slug}/`}>{post.data.title}</a>
+        </h2>
+        <p class="text-sm text-gray-600 dark:text-gray-300 mb-4">{excerpt(post.body)}</p>
+        <div class="mt-auto">
+          <a class="inline-flex items-center gap-1 text-sm font-medium" href={`/${post.slug}/`}>
+            Read more
+            <span aria-hidden>→</span>
+          </a>
+        </div>
+      </article>
+    ))}
+  </section>
 
 </Layout>

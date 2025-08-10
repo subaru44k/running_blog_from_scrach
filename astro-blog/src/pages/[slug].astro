@@ -23,13 +23,14 @@ if (!post) {
 ---
 
 <Layout>
-  <article>
-    <h1>{post.data.title}</h1>
-    <p>
-      <time datetime={post.data.date.toISOString()}>
-        {post.data.date.toDateString()}
-      </time>
-    </p>
-    <div set:html={post.body}></div>
+  <article class="card p-6 md:p-10">
+    <header class="mb-6">
+      <div class="flex items-center gap-3 text-xs text-gray-500 mb-2">
+        <span class="badge">{post.data.category}</span>
+        <time datetime={post.data.date.toISOString()}>{post.data.date.toDateString()}</time>
+      </div>
+      <h1 class="mb-2">{post.data.title}</h1>
+    </header>
+    <div class="prose max-w-none dark:prose-invert" set:html={post.body}></div>
   </article>
 </Layout>
