@@ -145,13 +145,21 @@ const initialMonthRows = buildInitialMonth(currentYear, currentMonth);
 						</ul>
 					</nav>
     </aside>
-   <script type="application/json" id="postsByDateData">{JSON.stringify(postsByDate)}</script>
    <script>
      (function initSidebar() {
        const init = () => {
-       // Calendar setup
-       const dataTag = document.getElementById('postsByDateData');
-       const POSTS_BY_DATE = dataTag ? JSON.parse(dataTag.textContent || '{}') : {};
+       // Calendar setup: build posts-by-date map from sidebar links to avoid JSON embedding issues
+       const POSTS_BY_DATE = {};
+       document.querySelectorAll('#blog-nav a[href^="/"]').forEach((a) => {
+         const href = a.getAttribute('href') || '';
+         const m = href.match(/^\/(\d{4}-\d{2}-\d{2})\//);
+         if (m) {
+           const key = m[1];
+           const slug = href.replace(/^\/+|\/+$/g, '');
+           const title = a.textContent?.trim() || slug;
+           (POSTS_BY_DATE[key] ||= []).push({ slug, title });
+         }
+       });
 
        const yearSel = document.getElementById('calendarYear');
        const monthSel = document.getElementById('calendarMonth');
@@ -213,7 +221,7 @@ const initialMonthRows = buildInitialMonth(currentYear, currentMonth);
          renderCalendar();
        }
 
-       const sel = document.getElementById('sidebarCategory');
+        const sel = document.getElementById('sidebarCategory');
        sel.addEventListener('change', () => {
          document.querySelectorAll('#blog-nav li').forEach((li) => {
            li.style.display = sel.value === 'All' || li.dataset.category === sel.value ? '' : 'none';
