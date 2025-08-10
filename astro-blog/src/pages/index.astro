@@ -2,10 +2,10 @@
 import Layout from '../layouts/Layout.astro';
 import { getCollection } from 'astro:content';
 
-// Load published posts and take the latest 12
+// Load published posts and take the latest 6
 const posts = await getCollection('blog', ({ data }) => data.status === 'publish');
 posts.sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
-const latest = posts.slice(0, 12);
+const latest = posts.slice(0, 6);
 
 function excerpt(html: string, max = 220) {
   const text = html.replace(/<[^>]+>/g, '').replace(/\s+/g, ' ').trim();

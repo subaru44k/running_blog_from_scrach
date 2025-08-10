@@ -11,7 +11,7 @@ const { marked } = require('marked');
 try { marked.setOptions({ breaks: true }); } catch (_) {}
 
 // Fixed category options for new/edit forms
-const CATEGORIES = ['練習(デフォルト)', '練習(低)', '練習(中)', '練習(強)', '試合'];
+const CATEGORIES = ['練習(デフォルト)', '練習(弱)', '練習(中)', '練習(強)', '試合'];
 
 // Directory of Astro blog markdown posts
 const BLOG_DIR = path.resolve(__dirname, '../astro-blog/src/content/blog');
