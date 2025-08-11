@@ -22,3 +22,6 @@ pnpm-debug.log*
 
 # jetbrains setting folder
 .idea/
+
+# generated monthly summaries (ignored)
+src/content/blog/*-summary-*.md
