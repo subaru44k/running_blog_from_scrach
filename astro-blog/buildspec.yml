@@ -33,7 +33,7 @@ phases:
       - npm ci --prefix admin-app
   pre_build:
     commands:
-      - echo Generating monthly summaries in $APP_DIR (force regenerate)
+      - echo "Generating monthly summaries in $APP_DIR - force regenerate"
       - npm run gen:summary --prefix $APP_DIR -- --force
   build:
     commands:
