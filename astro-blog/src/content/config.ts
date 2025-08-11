@@ -10,7 +10,7 @@ const blog = defineCollection({
     allowComments: z.boolean(),
     // Legacy field from Movable Type; no longer used by the site
     convertBreaks: z.boolean().optional(),
-    entryHash: z.string(),
+    entryHash: z.coerce.string(),
   }),
 });
 
