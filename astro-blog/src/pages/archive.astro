@@ -1,0 +1,51 @@
+---
+import Layout from '../layouts/Layout.astro';
+import { getCollection } from 'astro:content';
+
+const posts = await getCollection('blog', ({ data }) => data.status === 'publish');
+posts.sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
+
+// Group by year -> month -> posts
+const grouped: Record<string, Record<string, typeof posts>> = {};
+for (const p of posts) {
+  const d = p.data.date;
+  const y = String(d.getFullYear());
+  const m = String(d.getMonth() + 1).padStart(2, '0');
+  (grouped[y] ||= {});
+  (grouped[y][m] ||= [] as any);
+  grouped[y][m].push(p);
+}
+const years = Object.keys(grouped).sort((a, b) => Number(b) - Number(a));
+---
+
+<Layout>
+  <h1 class="mb-6">Archive</h1>
+  <p class="text-sm text-gray-600 dark:text-gray-300 mb-6">All published posts grouped by year and month.</p>
+
+  <div class="space-y-10">
+    {years.map((year) => (
+      <section>
+        <h2 class="text-2xl font-bold mb-3">{year}</h2>
+        <div class="grid md:grid-cols-2 gap-6">
+          {Object.keys(grouped[year]).sort((a, b) => Number(b) - Number(a)).map((month) => (
+            <div class="card p-4">
+              <h3 class="text-lg font-semibold mb-2">{new Date(Number(year), Number(month)-1, 1).toLocaleString('en-US', { month: 'long' })} {year}</h3>
+              <ul class="space-y-1">
+                {grouped[year][month].map((p) => (
+                  <li>
+                    <a href={`/${p.slug}/`} class="no-underline hover:underline">
+                      <span class="text-sm text-gray-500 mr-2">{p.data.date.toISOString().slice(0,10)}</span>
+                      {p.data.title}
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ))}
+        </div>
+      </section>
+    ))}
+  </div>
+
+</Layout>
+

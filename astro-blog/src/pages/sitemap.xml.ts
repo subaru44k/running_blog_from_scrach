@@ -10,6 +10,7 @@ export async function GET() {
   const latestPostDate = posts[0]?.data.date ?? new Date();
   const urls = [
     { loc: site, lastmod: latestPostDate.toISOString() },
+    { loc: `${site}archive/`, lastmod: latestPostDate.toISOString() },
     ...posts.map((p) => ({
       loc: `${site}${p.slug}/`,
       lastmod: p.data.date.toISOString(),
