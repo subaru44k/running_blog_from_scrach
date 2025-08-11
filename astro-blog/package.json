@@ -6,6 +6,8 @@
     "convert:mt": "node scripts/convert_mt.cjs",
     "dev": "astro dev",
     "build": "astro build",
+    "gen:summary": "node ../admin-app/scripts/generate-monthly-summary.js",
+    "build:with-summary": "npm run gen:summary && npm run build",
     "preview": "astro preview",
     "astro": "astro"
   },

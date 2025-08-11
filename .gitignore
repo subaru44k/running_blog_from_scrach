@@ -3,6 +3,9 @@ node_modules/
 
 # Astro build output
 astro-blog/dist/
+ 
+# Generated monthly summaries (do not track)
+astro-blog/src/content/blog/*-summary-*.md
 
 # Logs
 *.log

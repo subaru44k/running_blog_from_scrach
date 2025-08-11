@@ -1,52 +1,36 @@
 version: 0.2
 
-# CodeBuild buildspec for deploying the Astro site to S3 + CloudFront.
-# Required environment variables (configure in CodeBuild project):
-# - BUCKET: S3 bucket name for hosting (e.g., subaru-is-running-site)
-# - DISTRIBUTION_ID: CloudFront distribution ID (e.g., E123ABC456DEF)
-# Optional environment variables:
-# - APP_DIR: path to app within the repo (default: astro-blog)
-
 env:
   variables:
-    APP_DIR: "astro-blog"
+    ASTRO_TELEMETRY_DISABLED: "1"
 
 phases:
   install:
+    runtime-versions:
+      nodejs: 20
     commands:
-      - echo Current Node=$(node -v) NPM=$(npm -v)
-      - echo Ensuring Node >=20 using n
-      - |
-        if command -v n >/dev/null 2>&1; then
-          echo n already installed; n --version || true
-        else
-          echo installing n
-          npm install -g n@latest || npm install -g n --force
-        fi
-      - n 20
-      - hash -r
-      - echo Upgraded Node=$(node -v) NPM=$(npm -v)
-      - echo Installing dependencies in $APP_DIR with dev deps
-      - export NODE_ENV=development
-      - npm ci --prefix $APP_DIR
+      - echo Installing dependencies...
+      - npm --prefix ../admin-app ci
+      - npm ci
+  pre_build:
+    commands:
+      - echo Generating monthly summaries...
+      - npm run gen:summary
   build:
     commands:
-      - echo Building in $APP_DIR
-      - npm run build --prefix $APP_DIR
+      - echo Building Astro site...
+      - npm run build
   post_build:
     commands:
-      - |
-        if [ -d "$APP_DIR/dist" ]; then
-          echo Syncing $APP_DIR/dist to s3://$BUCKET
-          aws s3 sync $APP_DIR/dist s3://$BUCKET --delete
-          echo Invalidating CloudFront distribution $DISTRIBUTION_ID
-          aws cloudfront create-invalidation --distribution-id $DISTRIBUTION_ID --paths '/*'
-        else
-          echo "No build output found at $APP_DIR/dist. Skipping deploy."
-        fi
+      - echo Build completed on `date`
 
-# Optional: also publish the built site as a pipeline artifact.
 artifacts:
-  base-directory: astro-blog/dist
   files:
     - '**/*'
+  base-directory: dist
+
+cache:
+  paths:
+    - '../admin-app/node_modules/**/*'
+    - 'node_modules/**/*'
+
