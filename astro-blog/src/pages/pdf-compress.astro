@@ -1,6 +1,7 @@
 ---
 import Layout from "../layouts/Layout.astro";
 const title = "PDF Compressor";
+const apiBase = import.meta.env.PUBLIC_PDF_API_BASE || '';
 ---
 <Layout noSidebar>
   <section class="card p-6">
@@ -29,8 +30,10 @@ const title = "PDF Compressor";
         <button id="compressBtn" class="rounded-md px-4 py-2 ring-1 ring-inset ring-gray-300 dark:ring-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800 disabled:opacity-50" disabled>
           Start Compression
         </button>
+        <a id="downloadBtn" class="hidden rounded-md px-4 py-2 bg-blue-600 text-white hover:bg-blue-700" target="_blank">Download</a>
         <span id="status" class="text-sm text-gray-600 dark:text-gray-400"></span>
       </div>
+      <div id="progressText" class="text-xs text-gray-500"></div>
 
       <details class="mt-2">
         <summary class="cursor-pointer select-none">Advanced options</summary>
@@ -50,47 +53,129 @@ const title = "PDF Compressor";
     </div>
   </section>
 
-  <script type="module">
-    const fileInput = document.getElementById('pdfFile');
-    const fileInfo = document.getElementById('fileInfo');
-    const level = document.getElementById('level');
-    const levelLabel = document.getElementById('levelLabel');
-    const compressBtn = document.getElementById('compressBtn');
-    const statusEl = document.getElementById('status');
-    const preview = document.getElementById('preview');
+  <script define:vars={{ apiBase }}>
+    var API_BASE = apiBase || '';
+    function api(path) {
+      var b = API_BASE || '';
+      if (b && b.charAt(b.length - 1) === '/') b = b.slice(0, -1);
+      return b + path;
+    }
 
-    const levelText = (v) => (v <= 1 ? 'Low' : v >= 3 ? 'High' : 'Medium');
-    // Initialize slider label on load
+    var fileInput = document.getElementById('pdfFile');
+    var fileInfo = document.getElementById('fileInfo');
+    var level = document.getElementById('level');
+    var levelLabel = document.getElementById('levelLabel');
+    var compressBtn = document.getElementById('compressBtn');
+    var downloadBtn = document.getElementById('downloadBtn');
+    var statusEl = document.getElementById('status');
+    var progressText = document.getElementById('progressText');
+    var preview = document.getElementById('preview');
+
+    function levelText(v) { return (v <= 1 ? 'Low' : (v >= 3 ? 'High' : 'Medium')); }
     if (level && levelLabel) {
       levelLabel.textContent = levelText(Number(level.value));
-      level.addEventListener('input', () => { levelLabel.textContent = levelText(Number(level.value)); });
+      level.addEventListener('input', function () { levelLabel.textContent = levelText(Number(level.value)); });
     }
 
     function formatBytes(bytes) {
-      if (!Number.isFinite(bytes)) return '';
-      const sizes = ['B','KB','MB','GB'];
-      let i = 0;
+      if (!isFinite(bytes)) return '';
+      var sizes = ['B','KB','MB','GB'];
+      var i = 0;
       while (bytes >= 1024 && i < sizes.length - 1) { bytes /= 1024; i++; }
-      return `${bytes.toFixed(bytes < 10 && i > 0 ? 1 : 0)} ${sizes[i]}`;
+      var places = (bytes < 10 && i > 0) ? 1 : 0;
+      return String(bytes.toFixed(places)) + ' ' + sizes[i];
     }
 
     if (fileInput) {
-      fileInput.addEventListener('change', () => {
+      fileInput.addEventListener('change', function () {
         if (preview) preview.innerHTML = '';
-        const f = fileInput.files && fileInput.files[0] ? fileInput.files[0] : null;
+        var f = (fileInput.files && fileInput.files[0]) ? fileInput.files[0] : null;
         if (compressBtn) compressBtn.disabled = !f;
-        if (fileInfo) fileInfo.textContent = f ? `${f.name} — ${formatBytes(f.size)}` : '';
+        if (fileInfo) fileInfo.textContent = f ? (f.name + ' — ' + formatBytes(f.size)) : '';
         if (statusEl) statusEl.textContent = '';
+        if (downloadBtn) downloadBtn.classList.add('hidden');
+        if (progressText) progressText.textContent = '';
+      });
+    }
+
+    function postJSON(url, data) {
+      return fetch(url, {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify(data)
+      }).then(function (res) {
+        if (res.ok) return res.json();
+        return res.text().then(function (t) {
+          throw new Error('Request failed: ' + res.status + (t ? (' ' + t) : ''));
+        });
+      });
+    }
+
+    function uploadToS3(url, file, onProgress) {
+      return new Promise(function (resolve, reject) {
+        var xhr = new XMLHttpRequest();
+        xhr.open('PUT', url);
+        xhr.setRequestHeader('Content-Type', file.type || 'application/pdf');
+        xhr.upload.onprogress = function (e) {
+          if (!e.lengthComputable) return;
+          var pct = Math.round((e.loaded / e.total) * 100);
+          if (onProgress) onProgress(pct);
+        };
+        xhr.onload = function () {
+          if (xhr.status >= 200 && xhr.status < 300) resolve(null);
+          else reject(new Error('S3 upload failed: ' + xhr.status));
+        };
+        xhr.onerror = function () { reject(new Error('Network error during S3 upload')); };
+        xhr.send(file);
       });
     }
 
     if (compressBtn) {
-      compressBtn.addEventListener('click', async () => {
-        const f = fileInput && fileInput.files && fileInput.files[0] ? fileInput.files[0] : null;
+      compressBtn.addEventListener('click', function () {
+        var f = (fileInput && fileInput.files && fileInput.files[0]) ? fileInput.files[0] : null;
         if (!f) return;
-        if (statusEl) statusEl.textContent = 'Ready to upload to server for compression (Ghostscript).';
-        // Placeholder: in the next step, this will POST to an API route
-        // and return a compressed file for download.
+        if (!API_BASE) {
+          if (statusEl) statusEl.textContent = 'API base is not configured. Set PUBLIC_PDF_API_BASE.';
+          return;
+        }
+        compressBtn.disabled = true;
+        if (statusEl) statusEl.textContent = 'Requesting upload URL...';
+        if (progressText) progressText.textContent = '';
+        postJSON(api('/sign-upload'), {
+          filename: f.name,
+          contentType: f.type || 'application/pdf'
+        }).then(function (sign) {
+          if (statusEl) statusEl.textContent = 'Uploading to S3...';
+          return uploadToS3(sign.uploadUrl, f, function (pct) {
+            if (progressText) progressText.textContent = 'Upload: ' + pct + '%';
+          }).then(function () { return sign; });
+        }).then(function (sign) {
+          if (statusEl) statusEl.textContent = 'Starting compression...';
+          var rmEl = document.getElementById('removeMetadata');
+          var gsEl = document.getElementById('grayscale');
+          return postJSON(api('/compress'), {
+            bucket: sign.bucket,
+            key: sign.objectKey,
+            level: Number(level && level.value || 2),
+            removeMetadata: !!(rmEl && rmEl.checked),
+            grayscale: !!(gsEl && gsEl.checked)
+          });
+        }).then(function (resp) {
+          if (resp.downloadUrl && downloadBtn) {
+            downloadBtn.href = resp.downloadUrl;
+            var base = f.name.replace(/\.pdf$/i, '');
+            downloadBtn.setAttribute('download', base + '.compressed.pdf');
+            downloadBtn.classList.remove('hidden');
+            if (statusEl) statusEl.textContent = 'Done. Click Download to save the compressed PDF.';
+          } else if (statusEl) {
+            statusEl.textContent = 'Compression finished. No downloadUrl returned.';
+          }
+        }).catch(function (err) {
+          console.error(err);
+          if (statusEl) statusEl.textContent = 'Error: ' + (err && err.message || err);
+        }).finally(function () {
+          compressBtn.disabled = !fileInput || !(fileInput.files && fileInput.files[0]);
+        });
       });
     }
   </script>
