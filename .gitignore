@@ -45,3 +45,4 @@ pnpm-debug.log*
 # Lambda build artifacts
 lambdas/**/node_modules/
 lambdas/**/function.zip
+lambdas/**/package-lock.json
