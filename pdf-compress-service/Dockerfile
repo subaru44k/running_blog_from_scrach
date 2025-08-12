@@ -7,6 +7,10 @@ RUN microdnf update -y \
 
 WORKDIR /var/task
 
+# Dependencies for AWS SDK v3
+COPY package.json ./
+RUN npm install --only=production
+
 # Copy Lambda handler
 COPY lambda.js ./
 

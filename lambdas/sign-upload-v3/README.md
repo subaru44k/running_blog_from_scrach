@@ -13,7 +13,6 @@ Files
 Environment variables
 - BUCKET_NAME: target S3 bucket for uploads (required)
 - UPLOAD_URL_TTL: URL lifetime in seconds (default 600)
-- ALLOW_ORIGIN: CORS origin for responses (default "*")
 
 Required IAM for the Lambda role
 - s3:PutObject on arn:aws:s3:::<BUCKET_NAME>/*
@@ -58,10 +57,9 @@ Console setup steps
 5) API Gateway (HTTP API)
    - Integrations → Create → Lambda → choose pdf-sign-upload → Payload format v2.0
    - Routes → Create: POST /sign-upload → attach the Lambda integration
-   - CORS → Configure: Allow origin(s) for your site; methods: POST; headers: content-type
-   - Stages: $default with Auto-deploy ON
+   - CORS: Configure in API Gateway (recommended); allow your site origins, method POST, header content-type
+   - Stage: $default with Auto-deploy ON
 6) Test
    - curl -X POST "$API_BASE/sign-upload" -H "content-type: application/json" -d '{"filename":"test.pdf","contentType":"application/pdf"}'
    - Response includes: { uploadUrl, objectKey, bucket }
    - PUT your file to uploadUrl with Content-Type: application/pdf
-

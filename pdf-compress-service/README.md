@@ -15,7 +15,12 @@ Run locally (invoke Lambda handler)
     -d '{"headers":{"content-type":"application/json"},"isBase64Encoded":false,"body":{"fileBase64":"<base64>","filename":"input.pdf","level":2,"removeMetadata":true,"grayscale":false}}'
 
 Lambda request formats supported
-- JSON body: { fileBase64, filename?, level?, removeMetadata?, grayscale? }
+- JSON body (S3 mode, recommended for large files):
+  - { bucket: string, key: string, level?: 1|2|3, removeMetadata?: boolean, grayscale?: boolean }
+  - Response: { bucket, key, downloadUrl }
+- JSON body (inline base64 mode):
+  - { fileBase64: string, filename?: string, level?: 1|2|3, removeMetadata?: boolean, grayscale?: boolean }
+  - Response: application/pdf (base64) with Content-Type application/pdf
 - API Gateway proxy with multipart/form-data (base64-encoded body)
 
 Examples
@@ -32,4 +37,5 @@ Implementation details
 
 Notes
 - Compression defaults are practical; adjust Ghostscript args as needed.
-- This image targets Lambda only; no Node dependencies are required.
+- For S3 mode, the Lambda execution role must have s3:GetObject and s3:PutObject on your bucket.
+- This image targets Lambda; Node dependencies (AWS SDK v3) are included in the image.
