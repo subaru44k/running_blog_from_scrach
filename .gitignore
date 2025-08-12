@@ -41,3 +41,7 @@ coverage/
 npm-debug.log*
 yarn-debug.log*
 pnpm-debug.log*
+
+# Lambda build artifacts
+lambdas/**/node_modules/
+lambdas/**/function.zip
