@@ -30,7 +30,7 @@ const apiBase = import.meta.env.PUBLIC_PDF_API_BASE || '';
         <button id="compressBtn" class="rounded-md px-4 py-2 ring-1 ring-inset ring-gray-300 dark:ring-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800 disabled:opacity-50" disabled>
           Start Compression
         </button>
-        <a id="downloadBtn" class="hidden rounded-md px-4 py-2 bg-blue-600 text-white hover:bg-blue-700" target="_blank">Download</a>
+        <button id="downloadBtn" class="hidden rounded-md px-4 py-2 bg-blue-600 text-white hover:bg-blue-700">Download</button>
         <span id="status" class="text-sm text-gray-600 dark:text-gray-400"></span>
       </div>
       <div id="progressText" class="text-xs text-gray-500"></div>
@@ -67,6 +67,8 @@ const apiBase = import.meta.env.PUBLIC_PDF_API_BASE || '';
     var levelLabel = document.getElementById('levelLabel');
     var compressBtn = document.getElementById('compressBtn');
     var downloadBtn = document.getElementById('downloadBtn');
+    var pendingDownloadUrl = null;
+    var pendingFilename = null;
     var statusEl = document.getElementById('status');
     var progressText = document.getElementById('progressText');
     var preview = document.getElementById('preview');
@@ -162,9 +164,9 @@ const apiBase = import.meta.env.PUBLIC_PDF_API_BASE || '';
           });
         }).then(function (resp) {
           if (resp.downloadUrl && downloadBtn) {
-            downloadBtn.href = resp.downloadUrl;
+            pendingDownloadUrl = resp.downloadUrl;
             var base = f.name.replace(/\.pdf$/i, '');
-            downloadBtn.setAttribute('download', base + '.compressed.pdf');
+            pendingFilename = base + '.compressed.pdf';
             downloadBtn.classList.remove('hidden');
             if (statusEl) statusEl.textContent = 'Done. Click Download to save the compressed PDF.';
           } else if (statusEl) {
@@ -176,6 +178,31 @@ const apiBase = import.meta.env.PUBLIC_PDF_API_BASE || '';
         }).finally(function () {
           compressBtn.disabled = !fileInput || !(fileInput.files && fileInput.files[0]);
         });
+      });
+    }
+
+    if (downloadBtn) {
+      downloadBtn.addEventListener('click', function () {
+        if (!pendingDownloadUrl) return;
+        if (statusEl) statusEl.textContent = 'Preparing download...';
+        downloadBtn.disabled = true;
+        fetch(pendingDownloadUrl, { method: 'GET' })
+          .then(function (res) { if (!res.ok) throw new Error('Download failed: ' + res.status); return res.blob(); })
+          .then(function (blob) {
+            var link = document.createElement('a');
+            var urlObj = URL.createObjectURL(blob);
+            link.href = urlObj;
+            if (pendingFilename) link.download = pendingFilename;
+            document.body.appendChild(link);
+            link.click();
+            setTimeout(function () { URL.revokeObjectURL(urlObj); if (link.parentNode) link.parentNode.removeChild(link); }, 1000);
+            if (statusEl) statusEl.textContent = 'Download started.';
+          })
+          .catch(function (err) {
+            console.error(err);
+            if (statusEl) statusEl.textContent = 'Error: ' + (err && err.message || err);
+          })
+          .finally(function () { downloadBtn.disabled = false; });
       });
     }
   </script>
