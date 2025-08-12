@@ -11,6 +11,7 @@ export async function GET() {
   const urls = [
     { loc: site, lastmod: latestPostDate.toISOString() },
     { loc: `${site}archive/`, lastmod: latestPostDate.toISOString() },
+    { loc: `${site}pdf-compress/`, lastmod: latestPostDate.toISOString() },
     ...posts.map((p) => ({
       loc: `${site}${p.slug}/`,
       lastmod: p.data.date.toISOString(),

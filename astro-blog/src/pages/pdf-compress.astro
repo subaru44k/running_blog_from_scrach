@@ -1,0 +1,97 @@
+---
+import Layout from "../layouts/Layout.astro";
+const title = "PDF Compressor";
+---
+<Layout noSidebar>
+  <section class="card p-6">
+    <h1 class="text-2xl font-bold mb-2">{title}</h1>
+    <p class="text-gray-600 dark:text-gray-400 mb-6">
+      Compress PDF files in your browser. Your files never leave your device.
+    </p>
+
+    <div class="space-y-4">
+      <div>
+        <label class="block font-medium mb-1" for="pdfFile">Select PDF file</label>
+        <input id="pdfFile" type="file" accept="application/pdf" class="block w-full" />
+        <p id="fileInfo" class="mt-1 text-sm text-gray-500"></p>
+      </div>
+
+      <div>
+        <label class="block font-medium mb-1" for="level">Compression level</label>
+        <div class="flex items-center gap-3">
+          <input id="level" type="range" min="1" max="3" step="1" value="2" class="w-56" />
+          <span id="levelLabel" class="text-sm text-gray-700 dark:text-gray-300">Medium</span>
+        </div>
+        <p class="mt-1 text-xs text-gray-500">Low = better quality, larger size. High = smaller size, lower quality.</p>
+      </div>
+
+      <div class="flex items-center gap-3">
+        <button id="compressBtn" class="rounded-md px-4 py-2 ring-1 ring-inset ring-gray-300 dark:ring-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800 disabled:opacity-50" disabled>
+          Start Compression
+        </button>
+        <span id="status" class="text-sm text-gray-600 dark:text-gray-400"></span>
+      </div>
+
+      <details class="mt-2">
+        <summary class="cursor-pointer select-none">Advanced options</summary>
+        <div class="mt-2 space-y-2">
+          <label class="flex items-center gap-2">
+            <input id="removeMetadata" type="checkbox" class="h-4 w-4" checked />
+            <span class="text-sm">Remove document metadata (when possible)</span>
+          </label>
+          <label class="flex items-center gap-2">
+            <input id="grayscale" type="checkbox" class="h-4 w-4" />
+            <span class="text-sm">Convert pages to grayscale (smaller size)</span>
+          </label>
+        </div>
+      </details>
+
+      <div id="preview" class="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4"></div>
+    </div>
+  </section>
+
+  <script type="module">
+    const fileInput = document.getElementById('pdfFile');
+    const fileInfo = document.getElementById('fileInfo');
+    const level = document.getElementById('level');
+    const levelLabel = document.getElementById('levelLabel');
+    const compressBtn = document.getElementById('compressBtn');
+    const statusEl = document.getElementById('status');
+    const preview = document.getElementById('preview');
+
+    const levelText = (v) => (v <= 1 ? 'Low' : v >= 3 ? 'High' : 'Medium');
+    // Initialize slider label on load
+    if (level && levelLabel) {
+      levelLabel.textContent = levelText(Number(level.value));
+      level.addEventListener('input', () => { levelLabel.textContent = levelText(Number(level.value)); });
+    }
+
+    function formatBytes(bytes) {
+      if (!Number.isFinite(bytes)) return '';
+      const sizes = ['B','KB','MB','GB'];
+      let i = 0;
+      while (bytes >= 1024 && i < sizes.length - 1) { bytes /= 1024; i++; }
+      return `${bytes.toFixed(bytes < 10 && i > 0 ? 1 : 0)} ${sizes[i]}`;
+    }
+
+    if (fileInput) {
+      fileInput.addEventListener('change', () => {
+        if (preview) preview.innerHTML = '';
+        const f = fileInput.files && fileInput.files[0] ? fileInput.files[0] : null;
+        if (compressBtn) compressBtn.disabled = !f;
+        if (fileInfo) fileInfo.textContent = f ? `${f.name} — ${formatBytes(f.size)}` : '';
+        if (statusEl) statusEl.textContent = '';
+      });
+    }
+
+    if (compressBtn) {
+      compressBtn.addEventListener('click', async () => {
+        const f = fileInput && fileInput.files && fileInput.files[0] ? fileInput.files[0] : null;
+        if (!f) return;
+        if (statusEl) statusEl.textContent = 'Ready to upload to server for compression (Ghostscript).';
+        // Placeholder: in the next step, this will POST to an API route
+        // and return a compressed file for download.
+      });
+    }
+  </script>
+</Layout>
