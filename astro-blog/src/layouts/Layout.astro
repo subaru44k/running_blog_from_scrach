@@ -113,6 +113,19 @@ const initialMonthRows = buildInitialMonth(initialYear, initialMonth);
       // Configure GA with privacy-friendly defaults
       gtag('config', 'G-QMP63NE6Q1', { anonymize_ip: true });
     </script>
+    <!-- Mobile menu toggler (delegated) -->
+    <script is:inline>
+      (function(){
+        function onClick(e){
+          var t = e.target;
+          var btn = (t && (t.id === 'menuBtn')) ? t : (t && t.closest ? t.closest('#menuBtn') : null);
+          if (!btn) return;
+          var menu = document.getElementById('mobileMenu');
+          if (menu) { menu.classList.toggle('hidden'); }
+        }
+        document.addEventListener('click', onClick);
+      })();
+    </script>
     { !noSidebar && (
       <script
         is:inline
@@ -359,25 +372,6 @@ const initialMonthRows = buildInitialMonth(initialYear, initialMonth);
 			</div>
         </div>
         )}
-        <script>
-          (function () {
-            function wireMenu() {
-              var btn = document.getElementById('menuBtn');
-              var menu = document.getElementById('mobileMenu');
-              if (btn && menu && !btn.dataset.wired) {
-                btn.dataset.wired = '1';
-                btn.addEventListener('click', function () {
-                  menu.classList.toggle('hidden');
-                });
-              }
-            }
-            if (document.readyState === 'loading') {
-              document.addEventListener('DOMContentLoaded', wireMenu);
-            } else {
-              wireMenu();
-            }
-          })();
-        </script>
         <footer class="mt-10 border-t border-gray-200 dark:border-gray-800">
             <div class="container-page py-8 text-sm text-gray-500 dark:text-gray-400 flex flex-col md:flex-row md:items-center md:justify-between gap-3">
                 <div>© {new Date().getFullYear()} Subaru Misc Blog. All rights reserved.</div>
