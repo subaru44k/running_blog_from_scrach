@@ -208,22 +208,11 @@ const initialMonthRows = buildInitialMonth(initialYear, initialMonth);
 			</div>
 	   <script>
   (function initUI() {
-    // Mobile menu toggle
-    function wireMenu() {
-      const btn = document.getElementById('menuBtn');
-      const menu = document.getElementById('mobileMenu');
-      if (btn && menu) {
-        btn.addEventListener('click', () => {
-          menu.classList.toggle('hidden');
-        });
-      }
-    }
-
     // Sidebar/calendar, category filter, etc.
     function initSidebar() {
       const init = () => {
         // Calendar setup: prefer JSON embedded at build time
-            let POSTS_BY_DATE = (window as any).__CAL_MAP || {};
+            let POSTS_BY_DATE = (window && window.__CAL_MAP) || {};
             if (!Object.keys(POSTS_BY_DATE).length) {
               const dataEl = document.getElementById('calendar-data');
               try {
@@ -330,9 +319,8 @@ const initialMonthRows = buildInitialMonth(initialYear, initialMonth);
 
     // Wire on DOM ready
     if (document.readyState === 'loading') {
-      document.addEventListener('DOMContentLoaded', () => { wireMenu(); initSidebar(); });
+      document.addEventListener('DOMContentLoaded', () => { initSidebar(); });
     } else {
-      wireMenu();
       initSidebar();
     }
   })();
@@ -369,8 +357,27 @@ const initialMonthRows = buildInitialMonth(initialYear, initialMonth);
 						</div>
 						</nav>
 			</div>
-		</div>
-		)}
+        </div>
+        )}
+        <script>
+          (function () {
+            function wireMenu() {
+              var btn = document.getElementById('menuBtn');
+              var menu = document.getElementById('mobileMenu');
+              if (btn && menu && !btn.dataset.wired) {
+                btn.dataset.wired = '1';
+                btn.addEventListener('click', function () {
+                  menu.classList.toggle('hidden');
+                });
+              }
+            }
+            if (document.readyState === 'loading') {
+              document.addEventListener('DOMContentLoaded', wireMenu);
+            } else {
+              wireMenu();
+            }
+          })();
+        </script>
         <footer class="mt-10 border-t border-gray-200 dark:border-gray-800">
             <div class="container-page py-8 text-sm text-gray-500 dark:text-gray-400 flex flex-col md:flex-row md:items-center md:justify-between gap-3">
                 <div>© {new Date().getFullYear()} Subaru Misc Blog. All rights reserved.</div>
