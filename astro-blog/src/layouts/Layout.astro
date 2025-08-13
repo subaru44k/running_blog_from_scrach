@@ -104,6 +104,14 @@ const initialMonthRows = buildInitialMonth(initialYear, initialMonth);
     <meta name="twitter:card" content="summary" />
     <meta name="twitter:title" content={headTitle} />
     <meta name="twitter:description" content={headDescription} />
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-QMP63NE6Q1"></script>
+    <script is:inline>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-QMP63NE6Q1');
+    </script>
     { !noSidebar && (
       <script
         is:inline
