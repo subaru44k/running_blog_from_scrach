@@ -3,10 +3,12 @@ import '../styles/global.css';
 // Layout.astro: site metadata for SEO and sidebar post navigation
 import { getCollection } from 'astro:content';
 const { site, url } = Astro;
-const { noSidebar = false } = Astro.props as { noSidebar?: boolean };
+const { noSidebar = false, pageTitle, metaDescription } = Astro.props as { noSidebar?: boolean; pageTitle?: string; metaDescription?: string };
 const canonicalUrl = new URL(url.pathname, site).toString();
 const siteTitle = 'Subaru is Running';
 const siteDescription = 'Training logs, race reports, and running notes by Subaru.';
+const headTitle = pageTitle ?? siteTitle;
+const headDescription = metaDescription ?? siteDescription;
 
 // Fetch published posts for sidebar and calendar
 const posts = await getCollection('blog', ({ data }) => data.status === 'publish');
@@ -91,17 +93,17 @@ const initialMonthRows = buildInitialMonth(initialYear, initialMonth);
 			<meta name="viewport" content="width=device-width, initial-scale=1" />
 		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
 		<meta name="generator" content={Astro.generator} />
-		<title>{siteTitle}</title>
+		<title>{headTitle}</title>
 		<link rel="canonical" href={canonicalUrl} />
 		<meta property="og:url" content={canonicalUrl} />
-    <meta name="description" content={siteDescription} />
-    <meta property="og:title" content={siteTitle} />
+    <meta name="description" content={headDescription} />
+    <meta property="og:title" content={headTitle} />
     <meta property="og:site_name" content={siteTitle} />
     <meta property="og:type" content="website" />
-    <meta property="og:description" content={siteDescription} />
+    <meta property="og:description" content={headDescription} />
     <meta name="twitter:card" content="summary" />
-    <meta name="twitter:title" content={siteTitle} />
-    <meta name="twitter:description" content={siteDescription} />
+    <meta name="twitter:title" content={headTitle} />
+    <meta name="twitter:description" content={headDescription} />
     { !noSidebar && (
       <script
         is:inline

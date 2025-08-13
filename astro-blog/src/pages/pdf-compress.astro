@@ -2,8 +2,10 @@
 import Layout from "../layouts/Layout.astro";
 const title = "PDF Compressor";
 const apiBase = import.meta.env.PUBLIC_PDF_API_BASE || '';
+const pageTitle = 'PDF Compressor — Subaru is Running';
+const pageDescription = 'Compress PDF files with adjustable quality, metadata removal, and grayscale. Uploads are secure and source files are deleted after compression.';
 ---
-<Layout noSidebar>
+<Layout noSidebar pageTitle={pageTitle} metaDescription={pageDescription}>
   <section class="card p-6">
     <h1 class="text-2xl font-bold mb-2">{title}</h1>
     <p class="text-gray-600 dark:text-gray-400 mb-6">
