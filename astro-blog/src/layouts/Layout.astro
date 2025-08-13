@@ -108,9 +108,10 @@ const initialMonthRows = buildInitialMonth(initialYear, initialMonth);
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-QMP63NE6Q1"></script>
     <script is:inline>
       window.dataLayer = window.dataLayer || [];
-      function gtag(){dataLayer.push(arguments);}
+      function gtag(){dataLayer.push(arguments);} 
       gtag('js', new Date());
-      gtag('config', 'G-QMP63NE6Q1');
+      // Configure GA with privacy-friendly defaults
+      gtag('config', 'G-QMP63NE6Q1', { anonymize_ip: true });
     </script>
     { !noSidebar && (
       <script
