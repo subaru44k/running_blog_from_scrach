@@ -113,14 +113,25 @@ const initialMonthRows = buildInitialMonth(initialYear, initialMonth);
 	<body class="min-h-screen bg-gradient-to-b from-white to-gray-50 dark:from-gray-950 dark:to-gray-900">
 		<header class="bg-white/90 dark:bg-gray-950/80 backdrop-blur border-b border-gray-200 dark:border-gray-800 sticky top-0 z-30">
 			<div class="container-page flex items-center justify-between py-4">
-				<a href="/" class="flex items-center gap-3 no-underline">
-					<img src="/logo-mark.svg" alt="" aria-hidden="true" class="h-9 w-9 rounded-lg" width="36" height="36" />
-					<span class="text-lg md:text-xl font-bold">{siteTitle}</span>
-				</a>
-				<div class="flex items-center gap-3">
-					<a href="/pdf-compress/" class="text-sm rounded-md px-3 py-1.5 ring-1 ring-inset ring-gray-300 dark:ring-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800">PDF Compressor</a>
-					<a href="/" class="text-sm rounded-md px-3 py-1.5 ring-1 ring-inset ring-gray-300 dark:ring-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800">Blog</a>
+				<div class="flex items-center gap-4 min-w-0">
+					<a href="/" class="flex items-center gap-3 no-underline shrink-0">
+						<img src="/logo-mark.svg" alt="" aria-hidden="true" class="h-9 w-9 rounded-lg" width="36" height="36" />
+						<span class="text-lg md:text-xl font-bold">{siteTitle}</span>
+					</a>
+					<nav class="hidden md:flex items-center gap-2 ml-2">
+						<a href="/" class="text-sm rounded-md px-3 py-1.5 ring-1 ring-inset ring-gray-300 dark:ring-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800">Blog</a>
+						<a href="/pdf-compress/" class="text-sm rounded-md px-3 py-1.5 ring-1 ring-inset ring-gray-300 dark:ring-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800">PDF Compressor</a>
+						<!-- Add more links here as more pages are added -->
+					</nav>
 				</div>
+				<button id="menuBtn" class="md:hidden text-sm rounded-md px-3 py-1.5 ring-1 ring-inset ring-gray-300 dark:ring-gray-700">Menu</button>
+			</div>
+			<!-- Mobile menu -->
+			<div id="mobileMenu" class="md:hidden container-page py-2 hidden">
+				<nav class="flex flex-col gap-2">
+					<a href="/" class="rounded-md px-3 py-2 ring-1 ring-inset ring-gray-200 dark:ring-gray-800">Blog</a>
+					<a href="/pdf-compress/" class="rounded-md px-3 py-2 ring-1 ring-inset ring-gray-200 dark:ring-gray-800">PDF Compressor</a>
+				</nav>
 			</div>
 		</header>
 		{ noSidebar ? (
@@ -182,36 +193,31 @@ const initialMonthRows = buildInitialMonth(initialYear, initialMonth);
 					</div>
 			</div>
 	   <script>
-  // Simple theme toggle with localStorage
-  (function initTheme() {
-    try {
-      const root = document.documentElement;
-      const stored = localStorage.getItem('theme');
-      if (stored === 'dark' || (!stored && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
-        root.classList.add('dark');
+  (function initUI() {
+    // Mobile menu toggle
+    function wireMenu() {
+      const btn = document.getElementById('menuBtn');
+      const menu = document.getElementById('mobileMenu');
+      if (btn && menu) {
+        btn.addEventListener('click', () => {
+          menu.classList.toggle('hidden');
+        });
       }
-      document.addEventListener('click', (e) => {
-        const t = e.target;
-        if (t && t.id === 'themeToggle') {
-          root.classList.toggle('dark');
-          localStorage.setItem('theme', root.classList.contains('dark') ? 'dark' : 'light');
-        }
-      });
-    } catch (_) {}
-  })();
+    }
 
-  (function initSidebar() {
-    const init = () => {
-      // Calendar setup: prefer JSON embedded at build time
-          let POSTS_BY_DATE = (window as any).__CAL_MAP || {};
-          if (!Object.keys(POSTS_BY_DATE).length) {
-            const dataEl = document.getElementById('calendar-data');
-            try {
-              if (dataEl && dataEl.textContent) {
-                POSTS_BY_DATE = JSON.parse(dataEl.textContent);
-              }
-            } catch (_) {}
-          }
+    // Sidebar/calendar, category filter, etc.
+    function initSidebar() {
+      const init = () => {
+        // Calendar setup: prefer JSON embedded at build time
+            let POSTS_BY_DATE = (window as any).__CAL_MAP || {};
+            if (!Object.keys(POSTS_BY_DATE).length) {
+              const dataEl = document.getElementById('calendar-data');
+              try {
+                if (dataEl && dataEl.textContent) {
+                  POSTS_BY_DATE = JSON.parse(dataEl.textContent);
+                }
+              } catch (_) {}
+            }
 
       // Fallback: scrape sidebar only if no JSON present
           if (!Object.keys(POSTS_BY_DATE).length) {
@@ -300,11 +306,20 @@ const initialMonthRows = buildInitialMonth(initialYear, initialMonth);
           });
         });
       }
-    };
+      };
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', init);
+      } else {
+        init();
+      }
+    }
+
+    // Wire on DOM ready
     if (document.readyState === 'loading') {
-      document.addEventListener('DOMContentLoaded', init);
+      document.addEventListener('DOMContentLoaded', () => { wireMenu(); initSidebar(); });
     } else {
-      init();
+      wireMenu();
+      initSidebar();
     }
   })();
 </script>
