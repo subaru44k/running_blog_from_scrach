@@ -108,9 +108,35 @@ const apiBase = import.meta.env.PUBLIC_PDF_API_BASE || '';
       }).then(function (res) {
         if (res.ok) return res.json();
         return res.text().then(function (t) {
-          throw new Error('Request failed: ' + res.status + (t ? (' ' + t) : ''));
+          var err = new Error('Request failed: ' + res.status + (t ? (' ' + t) : ''));
+          err.status = res.status;
+          err.body = t;
+          throw err;
         });
       });
+    }
+
+    function sleep(ms) { return new Promise(function (r) { setTimeout(r, ms); }); }
+
+    async function withBackoff(task, options) {
+      options = options || {};
+      var retries = (options.retries == null ? 4 : options.retries);
+      var base = options.base || 400; // ms
+      var factor = options.factor || 2;
+      var max = options.max || 5000; // ms
+      for (var attempt = 0; attempt <= retries; attempt++) {
+        try {
+          return await task(attempt + 1);
+        } catch (e) {
+          var status = e && e.status;
+          var retryable = (status === 429) || (status >= 500 && status < 600) || (status == null);
+          if (attempt === retries || !retryable) { throw e; }
+          var delay = Math.min(max, base * Math.pow(factor, attempt));
+          var wait = Math.floor(Math.random() * delay); // full jitter
+          if (statusEl) statusEl.textContent = 'Retrying in ' + Math.ceil(wait/1000) + 's... (attempt ' + (attempt+2) + '/' + (retries+1) + ')';
+          await sleep(wait);
+        }
+      }
     }
 
     function uploadToS3(url, file, onProgress) {
@@ -143,10 +169,10 @@ const apiBase = import.meta.env.PUBLIC_PDF_API_BASE || '';
         compressBtn.disabled = true;
         if (statusEl) statusEl.textContent = 'Requesting upload URL...';
         if (progressText) progressText.textContent = '';
-        postJSON(api('/sign-upload'), {
+        withBackoff(function () { return postJSON(api('/sign-upload'), {
           filename: f.name,
           contentType: f.type || 'application/pdf'
-        }).then(function (sign) {
+        }); }, { retries: 5, base: 500, max: 6000 }).then(function (sign) {
           if (statusEl) statusEl.textContent = 'Uploading to S3...';
           return uploadToS3(sign.uploadUrl, f, function (pct) {
             if (progressText) progressText.textContent = 'Upload: ' + pct + '%';
@@ -155,13 +181,13 @@ const apiBase = import.meta.env.PUBLIC_PDF_API_BASE || '';
           if (statusEl) statusEl.textContent = 'Starting compression...';
           var rmEl = document.getElementById('removeMetadata');
           var gsEl = document.getElementById('grayscale');
-          return postJSON(api('/compress'), {
+          return withBackoff(function () { return postJSON(api('/compress'), {
             bucket: sign.bucket,
             key: sign.objectKey,
             level: Number(level && level.value || 2),
             removeMetadata: !!(rmEl && rmEl.checked),
             grayscale: !!(gsEl && gsEl.checked)
-          });
+          }); }, { retries: 5, base: 700, max: 8000 });
         }).then(function (resp) {
           if (resp.downloadUrl && downloadBtn) {
             pendingDownloadUrl = resp.downloadUrl;
