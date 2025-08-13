@@ -20,13 +20,12 @@ const pageDescription = 'What Subaru is Running is about, who it is for, and how
     </ul>
     <h2 class="text-xl font-semibold mt-6 mb-2">How the PDF Compressor works</h2>
     <p class="text-gray-700 dark:text-gray-300 mb-2">
-      Files are uploaded directly to Amazon S3 via a short‑lived, pre‑signed URL.
-      A Lambda container (with Ghostscript) compresses the PDF, writes the result back to S3,
-      and deletes the original upload. You then receive a short‑lived download link.
+      When you compress a PDF here, your file is transferred securely, processed on the server, and the
+      original upload is removed after a successful compression. The download link you receive is temporary
+      and expires automatically.
     </p>
     <p class="text-gray-700 dark:text-gray-300">
-      This design keeps costs low and protects your data by limiting how long files exist on the server.
+      The service is designed to keep your files private and to minimize how long they are stored.
     </p>
   </section>
 </Layout>
-
