@@ -1,0 +1,47 @@
+---
+import Layout from "../layouts/Layout.astro";
+const pageTitle = 'Privacy Policy — Subaru is Running';
+const pageDescription = 'Learn how Subaru is Running handles your data, including short-lived uploads for the PDF Compressor.';
+---
+<Layout noSidebar pageTitle={pageTitle} metaDescription={pageDescription}>
+  <section class="card p-6">
+    <h1 class="text-2xl font-bold mb-3">Privacy Policy</h1>
+    <p class="text-gray-700 dark:text-gray-300 mb-4">
+      Your privacy matters. This page explains what data this site collects and how it is used.
+    </p>
+
+    <h2 class="text-xl font-semibold mt-5 mb-2">PDF Compressor</h2>
+    <ul class="list-disc pl-5 space-y-2 text-gray-700 dark:text-gray-300">
+      <li>
+        Files are uploaded directly from your browser to Amazon S3 using a short‑lived pre‑signed URL.
+      </li>
+      <li>
+        A serverless process compresses your PDF and stores the result back to S3.
+        The original uploaded file (under <code class="px-1 rounded bg-gray-100 dark:bg-gray-800">uploads/</code>)
+        is deleted immediately after a successful compression.
+      </li>
+      <li>
+        Download links are short‑lived and expire automatically. S3 lifecycle rules
+        also remove residual files after a short retention window.
+      </li>
+      <li>
+        No PDFs are used for analytics or shared with third parties.
+      </li>
+    </ul>
+
+    <h2 class="text-xl font-semibold mt-5 mb-2">Site Analytics and Cookies</h2>
+    <p class="text-gray-700 dark:text-gray-300">
+      This site aims to minimize tracking. If basic analytics are enabled in the future,
+      they will be privacy‑respecting and cookie‑light. Any changes will be reflected here.
+    </p>
+
+    <h2 class="text-xl font-semibold mt-5 mb-2">Contact</h2>
+    <p class="text-gray-700 dark:text-gray-300">
+      For any privacy questions or data concerns, please contact
+      <a class="underline" href="/contact/">here</a>.
+    </p>
+
+    <p class="text-xs text-gray-500 mt-6">Last updated: {new Date().toISOString().slice(0, 10)}</p>
+  </section>
+</Layout>
+

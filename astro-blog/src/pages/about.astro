@@ -1,0 +1,32 @@
+---
+import Layout from "../layouts/Layout.astro";
+const pageTitle = 'About This Site — Subaru is Running';
+const pageDescription = 'What Subaru is Running is about, who it is for, and how this site is built.';
+---
+<Layout noSidebar pageTitle={pageTitle} metaDescription={pageDescription}>
+  <section class="card p-6">
+    <h1 class="text-2xl font-bold mb-3">About This Site</h1>
+    <p class="text-gray-700 dark:text-gray-300 mb-4">
+      Subaru is Running is a personal site that combines a training blog with a few
+      practical tools for everyday use — like the PDF Compressor. The goal is to
+      share progress, capture lessons from races and workouts, and offer small utilities
+      that are fast, private, and easy to use.
+    </p>
+    <h2 class="text-xl font-semibold mt-6 mb-2">What you'll find here</h2>
+    <ul class="list-disc pl-5 space-y-2 text-gray-700 dark:text-gray-300">
+      <li>Running logs and race reports, organized by date and category.</li>
+      <li>Simple, privacy‑minded tools, starting with PDF compression.</li>
+      <li>Lightweight UX designed to work well on desktop and mobile.</li>
+    </ul>
+    <h2 class="text-xl font-semibold mt-6 mb-2">How the PDF Compressor works</h2>
+    <p class="text-gray-700 dark:text-gray-300 mb-2">
+      Files are uploaded directly to Amazon S3 via a short‑lived, pre‑signed URL.
+      A Lambda container (with Ghostscript) compresses the PDF, writes the result back to S3,
+      and deletes the original upload. You then receive a short‑lived download link.
+    </p>
+    <p class="text-gray-700 dark:text-gray-300">
+      This design keeps costs low and protects your data by limiting how long files exist on the server.
+    </p>
+  </section>
+</Layout>
+

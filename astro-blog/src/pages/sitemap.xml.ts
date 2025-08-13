@@ -12,6 +12,9 @@ export async function GET() {
     { loc: site, lastmod: latestPostDate.toISOString() },
     { loc: `${site}archive/`, lastmod: latestPostDate.toISOString() },
     { loc: `${site}pdf-compress/`, lastmod: latestPostDate.toISOString() },
+    { loc: `${site}about/`, lastmod: latestPostDate.toISOString() },
+    { loc: `${site}contact/`, lastmod: latestPostDate.toISOString() },
+    { loc: `${site}privacy/`, lastmod: latestPostDate.toISOString() },
     ...posts.map((p) => ({
       loc: `${site}${p.slug}/`,
       lastmod: p.data.date.toISOString(),
