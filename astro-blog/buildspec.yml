@@ -33,6 +33,12 @@ phases:
       - npm ci --prefix admin-app
   pre_build:
     commands:
+      - |
+        if [ -z "$PUBLIC_PDF_API_BASE" ]; then
+          echo "ERROR: PUBLIC_PDF_API_BASE is required (set in CodeBuild Environment variables)" >&2
+          exit 1
+        fi
+      - echo "Using PUBLIC_PDF_API_BASE=$PUBLIC_PDF_API_BASE"
       - echo "Generating monthly summaries in $APP_DIR - force regenerate"
       - npm run gen:summary --prefix $APP_DIR -- --force
   build:
