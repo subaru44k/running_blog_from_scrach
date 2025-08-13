@@ -39,6 +39,8 @@ phases:
     commands:
       - echo Building in $APP_DIR
       - npm run build --prefix $APP_DIR
+      - echo Running sanity tests
+      - node $APP_DIR/scripts/sanity-check.mjs "$APP_DIR/dist"
   post_build:
     commands:
       - |
