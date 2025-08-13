@@ -38,4 +38,5 @@ Implementation details
 Notes
 - Compression defaults are practical; adjust Ghostscript args as needed.
 - For S3 mode, the Lambda execution role must have s3:GetObject and s3:PutObject on your bucket.
+- The function deletes the original upload (keys starting with `uploads/`) after a successful compression upload; grant `s3:DeleteObject`.
 - This image targets Lambda; Node dependencies (AWS SDK v3) are included in the image.

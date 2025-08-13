@@ -3,7 +3,7 @@ const fsp = require('fs/promises');
 const os = require('os');
 const path = require('path');
 const { spawn } = require('child_process');
-const { S3Client, GetObjectCommand, PutObjectCommand } = require('@aws-sdk/client-s3');
+const { S3Client, GetObjectCommand, PutObjectCommand, DeleteObjectCommand } = require('@aws-sdk/client-s3');
 const { getSignedUrl } = require('@aws-sdk/s3-request-presigner');
 
 function headerLookup(headers, key) {
@@ -156,6 +156,14 @@ exports.handler = async (event) => {
       const s3 = new S3Client({ region: process.env.AWS_REGION || process.env.AWS_DEFAULT_REGION });
       const outKey = `outputs/${base}.compressed.pdf`;
       await s3.send(new PutObjectCommand({ Bucket: s3Bucket, Key: outKey, Body: outBuf, ContentType: 'application/pdf' }));
+      // Best-effort: delete original upload to save storage cost
+      try {
+        if (s3Key && /^uploads\//.test(s3Key)) {
+          await s3.send(new DeleteObjectCommand({ Bucket: s3Bucket, Key: s3Key }));
+        }
+      } catch (e) {
+        // Ignore deletion errors; do not fail compression response
+      }
       const downloadUrl = await getSignedUrl(s3, new GetObjectCommand({ Bucket: s3Bucket, Key: outKey }), { expiresIn: Number(process.env.DOWNLOAD_URL_TTL || 600) });
       return {
         statusCode: 200,
