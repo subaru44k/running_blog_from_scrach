@@ -128,13 +128,7 @@ const initialMonthRows = buildInitialMonth(initialYear, initialMonth);
         document.addEventListener('click', onClick);
       })();
     </script>
-    { !noSidebar && (
-      <script
-        is:inline
-        id="calendar-data"
-        set:html={`window.__CAL_MAP=${JSON.stringify(postsByDate).replace(/</g, '\\u003c')}`}
-      ></script>
-    )}
+    
 	</head>
 	<body class="min-h-screen bg-gradient-to-b from-white to-gray-50 dark:from-gray-950 dark:to-gray-900">
 		<header class="bg-white/90 dark:bg-gray-950/80 backdrop-blur border-b border-gray-200 dark:border-gray-800 sticky top-0 z-30">
@@ -226,16 +220,12 @@ const initialMonthRows = buildInitialMonth(initialYear, initialMonth);
     // Sidebar/calendar, category filter, etc.
     function initSidebar() {
       const init = () => {
-        // Calendar setup: prefer JSON embedded at build time
-            let POSTS_BY_DATE = (window && window.__CAL_MAP) || {};
-            if (!Object.keys(POSTS_BY_DATE).length) {
-              const dataEl = document.getElementById('calendar-data');
-              try {
-                if (dataEl && dataEl.textContent) {
-                  POSTS_BY_DATE = JSON.parse(dataEl.textContent);
-                }
-              } catch (_) {}
-            }
+        // Calendar data: load from localStorage, then fetch async
+            let POSTS_BY_DATE = {};
+            try {
+              const s = localStorage.getItem('CAL_MAP_V1');
+              if (s) POSTS_BY_DATE = JSON.parse(s) || {};
+            } catch (_) {}
 
       // Fallback: scrape sidebar only if no JSON present
           if (!Object.keys(POSTS_BY_DATE).length) {
@@ -314,6 +304,19 @@ const initialMonthRows = buildInitialMonth(initialYear, initialMonth);
             // Log map size for debug in dev
             try { console.debug('calendar map keys:', Object.keys(POSTS_BY_DATE).length); } catch {}
             renderCalendar();
+            // Always fetch the full calendar map in the background to ensure older dates are covered
+            try {
+              fetch('/cal-map.json', { cache: 'force-cache' })
+                .then((r) => r.ok ? r.json() : null)
+                .then((data) => {
+                  if (data && Object.keys(data).length) {
+                    POSTS_BY_DATE = data;
+                    try { localStorage.setItem('CAL_MAP_V1', JSON.stringify(data)); } catch (_) {}
+                    renderCalendar();
+                  }
+                })
+                .catch(() => {});
+            } catch (_) {}
           }
 
       const sel = document.getElementById('sidebarCategory');
