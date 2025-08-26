@@ -29,8 +29,7 @@ const postsByDate = posts.reduce((acc, p) => {
   else acc[key].c += 1;
   return acc;
 }, {} as Record<string, { s: string; c: number }>);
-// Encode data safely for embedding in inline script
-const calendarDataURI = encodeURIComponent(JSON.stringify(postsByDate));
+// Note: we no longer inline the calendar map to reduce page size.
 
 // Years available for selection
 const years = Array.from(new Set(posts.map((p) => p.data.date.getFullYear()))).sort((a, b) => a - b);
@@ -215,23 +214,15 @@ const initialMonthRows = buildInitialMonth(initialYear, initialMonth);
 						<p class="mt-2 text-xs text-gray-500 dark:text-gray-400">Dates with posts are clickable.</p>
 					</div>
 			</div>
-	   <!-- Seed calendar map from server to avoid empty initial render -->
-	   <meta id="calSeed" data-map={calendarDataURI} />
+	   <!-- Removed inlined calendar seed to slim page size -->
 	   <script>
   (function initUI() {
     // Sidebar/calendar, category filter, etc.
     function initSidebar() {
       const init = () => {
-        // Calendar data: load from localStorage, then fetch async
+        // Calendar data: prefer cached full map, then fetch async; avoid large inline seed
             let POSTS_BY_DATE = {};
-            // 1) Start with server-embedded seed for immediate correctness
-            try {
-              const seedAttr = document.getElementById('calSeed')?.getAttribute('data-map');
-              if (seedAttr) {
-                POSTS_BY_DATE = JSON.parse(decodeURIComponent(seedAttr)) || {};
-              }
-            } catch (_) {}
-            // 2) Prefer cached full map if present
+            // Prefer cached full map if present
             try {
               const s = localStorage.getItem('CAL_MAP_V1');
               if (s) POSTS_BY_DATE = JSON.parse(s) || POSTS_BY_DATE;
@@ -313,7 +304,11 @@ const initialMonthRows = buildInitialMonth(initialYear, initialMonth);
             monthSel.addEventListener('change', renderCalendar);
             // Log map size for debug in dev
             try { console.debug('calendar map keys:', Object.keys(POSTS_BY_DATE).length); } catch {}
-            renderCalendar();
+            // Only re-render client calendar if we actually have a map;
+            // otherwise keep the SSR month grid until JSON loads.
+            if (Object.keys(POSTS_BY_DATE).length) {
+              renderCalendar();
+            }
             // Always fetch the full calendar map in the background to ensure older dates are covered
             try {
               fetch('/cal-map.json', { cache: 'force-cache' })
