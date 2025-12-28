@@ -1,18 +1,19 @@
 ---
 import { getCollection, getEntryBySlug } from 'astro:content';
+import { filterPostsForBuild } from '../lib/build-filter';
 import Layout from '../layouts/Layout.astro';
 
 export const prerender = true;
 
 export async function getStaticPaths() {
-  const posts = await getCollection('blog');
+  const posts = filterPostsForBuild(await getCollection('blog'));
   return posts.map((post) => ({ params: { slug: post.slug } }));
 }
 
 const { slug } = Astro.params;
 
 // Load all published posts for sidebar navigation
-const posts = await getCollection('blog', ({ data }) => data.status === 'publish');
+const posts = filterPostsForBuild(await getCollection('blog', ({ data }) => data.status === 'publish'));
 posts.sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
 
 // Load the requested post

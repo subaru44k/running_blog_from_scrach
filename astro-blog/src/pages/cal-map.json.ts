@@ -1,9 +1,10 @@
 import { getCollection } from 'astro:content';
+import { filterPostsForBuild } from '../lib/build-filter';
 
 export const prerender = true;
 
 export async function GET() {
-  const posts = await getCollection('blog', ({ data }) => data.status === 'publish');
+  const posts = filterPostsForBuild(await getCollection('blog', ({ data }) => data.status === 'publish'));
   // dateKey -> { s: firstSlug, c: count }
   const map: Record<string, { s: string; c: number }> = {};
   for (const p of posts) {
@@ -20,4 +21,3 @@ export async function GET() {
     },
   });
 }
-

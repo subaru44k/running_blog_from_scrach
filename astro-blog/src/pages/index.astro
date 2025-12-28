@@ -1,9 +1,10 @@
 ---
 import Layout from '../layouts/Layout.astro';
 import { getCollection } from 'astro:content';
+import { filterPostsForBuild } from '../lib/build-filter';
 
 // Load published posts and take the latest 6
-const posts = await getCollection('blog', ({ data }) => data.status === 'publish');
+const posts = filterPostsForBuild(await getCollection('blog', ({ data }) => data.status === 'publish'));
 posts.sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
 const latest = posts.slice(0, 6);
 

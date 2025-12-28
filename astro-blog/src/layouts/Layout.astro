@@ -2,6 +2,7 @@
 import '../styles/global.css';
 // Layout.astro: site metadata for SEO and sidebar post navigation
 import { getCollection } from 'astro:content';
+import { filterPostsForBuild } from '../lib/build-filter';
 const { site, url } = Astro;
 const { noSidebar = false, pageTitle, metaDescription } = Astro.props as { noSidebar?: boolean; pageTitle?: string; metaDescription?: string };
 const canonicalUrl = new URL(url.pathname, site).toString();
@@ -11,12 +12,19 @@ const headTitle = pageTitle ?? siteTitle;
 const headDescription = metaDescription ?? siteDescription;
 
 // Fetch published posts for sidebar and calendar
-const posts = await getCollection('blog', ({ data }) => data.status === 'publish');
+const posts = filterPostsForBuild(await getCollection('blog', ({ data }) => data.status === 'publish'));
 posts.sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
 
-// Limit sidebar to latest N posts (performance)
-const SIDEBAR_LIMIT = 100;
+// Limit sidebar to latest N posts; category filter can load more via JSON
+const SIDEBAR_LIMIT = 50;
 const sidebarPosts = posts.slice(0, SIDEBAR_LIMIT);
+const sidebarItems = sidebarPosts.map((p) => ({
+  slug: p.slug,
+  title: p.data.title,
+  date: p.data.date.toISOString(),
+  category: p.data.category,
+}));
+const sidebarItemsJson = JSON.stringify(sidebarItems).replace(/</g, '\\u003c');
 
 // Derive unique categories for sidebar filter
 const categories = Array.from(new Set(posts.map((p) => p.data.category))).sort();
@@ -214,6 +222,7 @@ const initialMonthRows = buildInitialMonth(initialYear, initialMonth);
 						<p class="mt-2 text-xs text-gray-500 dark:text-gray-400">Dates with posts are clickable.</p>
 					</div>
 			</div>
+	   <script type="application/json" id="sidebarItemsData" set:html={sidebarItemsJson}></script>
 	   <!-- Removed inlined calendar seed to slim page size -->
 	   <script>
   (function initUI() {
@@ -222,11 +231,9 @@ const initialMonthRows = buildInitialMonth(initialYear, initialMonth);
       const init = () => {
         // Calendar data: prefer cached full map, then fetch async; avoid large inline seed
             let POSTS_BY_DATE = {};
-            // Prefer cached full map if present
-            try {
-              const s = localStorage.getItem('CAL_MAP_V1');
-              if (s) POSTS_BY_DATE = JSON.parse(s) || POSTS_BY_DATE;
-            } catch (_) {}
+            const loadedMonths = new Set();
+            const CURRENT_MONTH_TTL_MS = 5 * 60 * 1000;
+            const PAST_MONTH_TTL_MS = 30 * 24 * 60 * 60 * 1000;
 
       // Fallback: scrape sidebar only if no JSON present
           if (!Object.keys(POSTS_BY_DATE).length) {
@@ -253,9 +260,30 @@ const initialMonthRows = buildInitialMonth(initialYear, initialMonth);
         const pad = (n) => (n < 10 ? '0' + n : '' + n);
         const dateKey = (y, m, d) => `${y}-${pad(m + 1)}-${pad(d)}`;
 
+        function mergeInitialMonthFromDOM() {
+          const y = parseInt(yearSel.value, 10);
+          const m = parseInt(monthSel.value, 10);
+          if (!Number.isFinite(y) || !Number.isFinite(m)) return;
+          tbody.querySelectorAll('a[href^="/"]').forEach((a) => {
+            const dayText = a.childNodes?.[0]?.textContent || a.textContent || '';
+            const day = parseInt(dayText.trim(), 10);
+            if (!Number.isFinite(day)) return;
+            const key = dateKey(y, m, day);
+            const slug = (a.getAttribute('href') || '').replace(/^\/+|\/+$/g, '');
+            if (!slug) return;
+            if (POSTS_BY_DATE[key]) {
+              POSTS_BY_DATE[key].c = Math.max(POSTS_BY_DATE[key].c || 1, 1);
+              POSTS_BY_DATE[key].s = POSTS_BY_DATE[key].s || slug;
+            } else {
+              POSTS_BY_DATE[key] = { s: slug, c: 1 };
+            }
+          });
+        }
+
         function renderCalendar() {
           const y = parseInt(yearSel.value, 10);
           const m = parseInt(monthSel.value, 10);
+          if (!loadedMonths.has(monthKey(y, m))) return;
           const first = new Date(y, m, 1);
           const startDay = first.getDay();
           const daysInMonth = new Date(y, m + 1, 0).getDate();
@@ -300,36 +328,145 @@ const initialMonthRows = buildInitialMonth(initialYear, initialMonth);
           }
         }
 
-            yearSel.addEventListener('change', renderCalendar);
-            monthSel.addEventListener('change', renderCalendar);
-            // Log map size for debug in dev
-            try { console.debug('calendar map keys:', Object.keys(POSTS_BY_DATE).length); } catch {}
-            // Only re-render client calendar if we actually have a map;
-            // otherwise keep the SSR month grid until JSON loads.
-            if (Object.keys(POSTS_BY_DATE).length) {
-              renderCalendar();
-            }
-            // Always fetch the full calendar map in the background to ensure older dates are covered
-            try {
-              fetch('/cal-map.json', { cache: 'force-cache' })
-                .then((r) => r.ok ? r.json() : null)
-                .then((data) => {
-                  if (data && Object.keys(data).length) {
-                    POSTS_BY_DATE = data;
-                    try { localStorage.setItem('CAL_MAP_V1', JSON.stringify(data)); } catch (_) {}
-                    renderCalendar();
-                  }
-                })
-                .catch(() => {});
-            } catch (_) {}
+        function monthKey(y, m) {
+          return `${y}-${pad(m + 1)}`;
+        }
+
+        function mergeMonthData(data) {
+          for (const key in data) {
+            POSTS_BY_DATE[key] = data[key];
+          }
+        }
+
+        function loadCachedMonth(y, m) {
+          const key = monthKey(y, m);
+          try {
+            const raw = localStorage.getItem(`CAL_MAP_MONTH_${key}`);
+            const tsRaw = localStorage.getItem(`CAL_MAP_MONTH_TS_${key}`);
+            const ts = tsRaw ? Number(tsRaw) : 0;
+            if (!raw) return null;
+            const data = JSON.parse(raw);
+            return { data, ts };
+          } catch (_) {
+            return null;
+          }
+        }
+
+        function monthTTL(y, m) {
+          const now = new Date();
+          const isCurrent = now.getFullYear() === y && now.getMonth() === m;
+          return isCurrent ? CURRENT_MONTH_TTL_MS : PAST_MONTH_TTL_MS;
+        }
+
+        async function ensureMonthData(y, m) {
+          const key = monthKey(y, m);
+          const cached = loadCachedMonth(y, m);
+          const ttl = monthTTL(y, m);
+          const now = Date.now();
+
+          if (cached && cached.data && now - cached.ts <= ttl) {
+            mergeMonthData(cached.data);
+            loadedMonths.add(key);
+            return true;
           }
 
+          try {
+            const res = await fetch(`/cal-map/${y}/${pad(m + 1)}.json`);
+            if (!res.ok) {
+              loadedMonths.add(key);
+              return false;
+            }
+            const data = await res.json();
+            mergeMonthData(data);
+            loadedMonths.add(key);
+            try {
+              localStorage.setItem(`CAL_MAP_MONTH_${key}`, JSON.stringify(data));
+              localStorage.setItem(`CAL_MAP_MONTH_TS_${key}`, String(now));
+            } catch (_) {}
+            return true;
+          } catch (_) {
+            loadedMonths.add(key);
+            return false;
+          }
+        }
+
+        async function loadAndRender() {
+          const y = parseInt(yearSel.value, 10);
+          const m = parseInt(monthSel.value, 10);
+          if (!Number.isFinite(y) || !Number.isFinite(m)) return;
+          await ensureMonthData(y, m);
+          renderCalendar();
+        }
+
+        yearSel.addEventListener('change', loadAndRender);
+        monthSel.addEventListener('change', loadAndRender);
+        mergeInitialMonthFromDOM();
+        loadAndRender();
+      }
+
       const sel = document.getElementById('sidebarCategory');
-      if (sel) {
-        sel.addEventListener('change', () => {
-          document.querySelectorAll('#blog-nav li').forEach((li) => {
-            li.style.display = sel.value === 'All' || li.dataset.category === sel.value ? '' : 'none';
-          });
+      const list = document.querySelector('#blog-nav ul');
+      const currentSlug = window.location.pathname.replace(/^\/|\/$/g, '');
+      const sidebarData = document.getElementById('sidebarItemsData');
+      let INITIAL_ITEMS = [];
+      if (sidebarData) {
+        try {
+          INITIAL_ITEMS = JSON.parse(sidebarData.textContent || '[]');
+        } catch (_) {
+          INITIAL_ITEMS = [];
+        }
+      }
+      let categoryMapPromise = null;
+
+      function renderList(items) {
+        if (!list) return;
+        list.innerHTML = '';
+        if (!items.length) {
+          const li = document.createElement('li');
+          li.className = 'px-3 py-2 text-sm text-gray-500';
+          li.textContent = 'No posts.';
+          list.appendChild(li);
+          return;
+        }
+        for (const item of items) {
+          const li = document.createElement('li');
+          li.dataset.category = item.category;
+          const a = document.createElement('a');
+          a.href = `/${item.slug}/`;
+          const isActive = item.slug === currentSlug;
+          a.className = `block rounded-md px-3 py-2 hover:bg-gray-50 dark:hover:bg-gray-800 transition ${isActive ? 'bg-gray-100 dark:bg-gray-800 font-semibold' : ''}`;
+          const title = document.createElement('span');
+          title.className = 'line-clamp-1';
+          title.textContent = item.title;
+          const date = document.createElement('small');
+          date.className = 'text-xs text-gray-500';
+          date.textContent = new Date(item.date).toDateString();
+          a.appendChild(title);
+          a.appendChild(date);
+          li.appendChild(a);
+          list.appendChild(li);
+        }
+      }
+
+      async function loadCategoryMap() {
+        if (!categoryMapPromise) {
+          categoryMapPromise = fetch('/category-map.json')
+            .then((r) => (r.ok ? r.json() : {}))
+            .catch(() => ({}));
+        }
+        return categoryMapPromise;
+      }
+
+      if (sel && list) {
+        sel.addEventListener('change', async () => {
+          const selected = sel.value;
+          if (selected === 'All') {
+            renderList(INITIAL_ITEMS);
+            return;
+          }
+          const map = await loadCategoryMap();
+          const items = Array.isArray(map[selected]) ? map[selected] : [];
+          renderList(items);
         });
       }
       };

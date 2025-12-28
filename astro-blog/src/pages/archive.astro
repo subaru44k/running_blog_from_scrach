@@ -1,8 +1,9 @@
 ---
 import Layout from '../layouts/Layout.astro';
 import { getCollection } from 'astro:content';
+import { filterPostsForBuild } from '../lib/build-filter';
 
-const posts = await getCollection('blog', ({ data }) => data.status === 'publish');
+const posts = filterPostsForBuild(await getCollection('blog', ({ data }) => data.status === 'publish'));
 posts.sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
 
 // Group by year -> month -> posts
@@ -48,4 +49,3 @@ const years = Object.keys(grouped).sort((a, b) => Number(b) - Number(a));
   </div>
 
 </Layout>
-

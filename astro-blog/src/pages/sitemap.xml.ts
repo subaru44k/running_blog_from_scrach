@@ -1,10 +1,11 @@
 import { getCollection } from 'astro:content';
+import { filterPostsForBuild } from '../lib/build-filter';
 
 export const prerender = true;
 
 export async function GET() {
   const site = import.meta.env.SITE?.replace(/\/?$/, '/') || 'https://subaru-is-running.com/';
-  const posts = await getCollection('blog', ({ data }) => data.status === 'publish');
+  const posts = filterPostsForBuild(await getCollection('blog', ({ data }) => data.status === 'publish'));
   posts.sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
 
   const latestPostDate = posts[0]?.data.date ?? new Date();
