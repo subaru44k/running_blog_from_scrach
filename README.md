@@ -18,6 +18,8 @@ support direct uploads and deployment.
 - `lambdas/sign-upload-v3/`
   - Node.js 20 Lambda that issues pre‑signed PUT URLs for direct browser upload
   - Uses AWS SDK v3; deployed as a zip
+- `lambdas/fitbit-callback/`
+  - Node.js 20 Lambda that handles the Fitbit OAuth callback and stores refreshed tokens in S3
 - `admin-app/`
   - Internal scripts used by the blog (e.g., monthly summary generator)
 - `old_blog_data/`
@@ -145,4 +147,24 @@ support direct uploads and deployment.
   - We can switch to env-driven values (e.g., `PUBLIC_GA_MEASUREMENT_ID`) with a build guard
 - Calendar map could be further split per month if the archive grows very large
 - For heavy usage, consider S3 multipart uploads from the browser and tighter Lambda memory tuning
+
+
+## Services: Fitbit Workout Import
+
+### Fitbit OAuth Callback (`lambdas/fitbit-callback`)
+
+- Handles Fitbit OAuth 2.0 redirect, exchanges the authorization code for access/refresh tokens
+- Stores the token payload in S3 (`TOKEN_S3_BUCKET`/`TOKEN_S3_KEY`) so offline tooling can refresh later
+- Optional `EXPECTED_STATE` and `SUCCESS_REDIRECT_URL` env vars protect the flow and improve UX
+- Deploy via `lambdas/fitbit-callback/cloudformation.yaml` to provision Lambda, IAM role, and API Gateway in one stack
+
+### Admin Import Script (`admin-app/scripts/import-fitbit-workouts.js`)
+
+- Fetches daily activities via Fitbit Web API and writes Markdown drafts into `astro-blog/src/content/blog/`
+- Requires AWS credentials + Fitbit client secrets to refresh tokens
+- CLI usage:
+  - `node scripts/import-fitbit-workouts.js` imports yesterday by default
+  - `--date YYYY-MM-DD` or `--days N` customise the range
+  - `FITBIT_IMPORT_DRY_RUN=true` to preview without writing files
+- Frontmatter defaults can be tuned with `FITBIT_DEFAULT_*` env vars; timezone offset defaults to JST (`540` minutes)
 

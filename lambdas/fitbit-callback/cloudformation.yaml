@@ -1,0 +1,147 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: Fitbit OAuth callback Lambda, API Gateway, and supporting resources.
+
+Parameters:
+  StackNameSuffix:
+    Type: String
+    Default: fitbit-callback
+    Description: Optional suffix appended to named resources (useful for multiple environments).
+  DeploymentPackageBucket:
+    Type: String
+    Description: S3 bucket that hosts the zipped Lambda deployment package.
+  DeploymentPackageKey:
+    Type: String
+    Description: S3 key for the zipped Lambda deployment package (e.g., fitbit-callback/function.zip).
+  FitbitClientId:
+    Type: String
+    Description: Fitbit application client ID.
+  FitbitClientSecret:
+    Type: String
+    NoEcho: true
+    Description: Fitbit application client secret.
+  FitbitRedirectUri:
+    Type: String
+    Description: Redirect URI registered with Fitbit (must match the API Gateway invoke URL).
+  TokenS3Bucket:
+    Type: String
+    Description: Bucket where Fitbit token payloads are stored (must already exist).
+  TokenS3Key:
+    Type: String
+    Default: fitbit/token.json
+    Description: Object key for the Fitbit token payload.
+  TokenS3Sse:
+    Type: String
+    Default: ''
+    Description: Optional server-side encryption setting for the token object (e.g., aws:kms).
+  ExpectedState:
+    Type: String
+    Default: ''
+    Description: Optional state token required for inbound OAuth callbacks.
+  SuccessRedirectUrl:
+    Type: String
+    Default: ''
+    Description: Optional URL to redirect end users to after a successful authorization.
+
+Conditions:
+  HasTokenS3Sse: { "Fn::Not": [ { "Fn::Equals": [ { "Ref": "TokenS3Sse" }, '' ] } ] }
+  HasExpectedState: { "Fn::Not": [ { "Fn::Equals": [ { "Ref": "ExpectedState" }, '' ] } ] }
+  HasSuccessRedirect: { "Fn::Not": [ { "Fn::Equals": [ { "Ref": "SuccessRedirectUrl" }, '' ] } ] }
+
+Resources:
+  FitbitCallbackRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: !Sub "${AWS::StackName}-lambda-role"
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: lambda.amazonaws.com
+            Action: sts:AssumeRole
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+      Policies:
+        - PolicyName: FitbitCallbackTokenAccess
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - s3:PutObject
+                  - s3:GetObject
+                Resource: !Sub "arn:aws:s3:::${TokenS3Bucket}/${TokenS3Key}"
+
+  FitbitCallbackFunction:
+    Type: AWS::Lambda::Function
+    Properties:
+      FunctionName: !Sub "${AWS::StackName}-handler"
+      Runtime: nodejs20.x
+      Handler: index.handler
+      Role: !GetAtt FitbitCallbackRole.Arn
+      Code:
+        S3Bucket: !Ref DeploymentPackageBucket
+        S3Key: !Ref DeploymentPackageKey
+      Timeout: 15
+      MemorySize: 256
+      Environment:
+        Variables:
+          FITBIT_CLIENT_ID: !Ref FitbitClientId
+          FITBIT_CLIENT_SECRET: !Ref FitbitClientSecret
+          FITBIT_REDIRECT_URI: !Ref FitbitRedirectUri
+          TOKEN_S3_BUCKET: !Ref TokenS3Bucket
+          TOKEN_S3_KEY: !Ref TokenS3Key
+          TOKEN_S3_SSE: !If [HasTokenS3Sse, !Ref TokenS3Sse, !Ref "AWS::NoValue"]
+          EXPECTED_STATE: !If [HasExpectedState, !Ref ExpectedState, !Ref "AWS::NoValue"]
+          SUCCESS_REDIRECT_URL: !If [HasSuccessRedirect, !Ref SuccessRedirectUrl, !Ref "AWS::NoValue"]
+
+  FitbitCallbackApi:
+    Type: AWS::ApiGatewayV2::Api
+    Properties:
+      Name: !Sub "fitbit-callback-${StackNameSuffix}"
+      ProtocolType: HTTP
+      CorsConfiguration:
+        AllowMethods: ["GET"]
+        AllowOrigins: ['*']
+        AllowHeaders: ['*']
+
+  FitbitCallbackIntegration:
+    Type: AWS::ApiGatewayV2::Integration
+    Properties:
+      ApiId: !Ref FitbitCallbackApi
+      IntegrationType: AWS_PROXY
+      IntegrationUri: !Sub "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${FitbitCallbackFunction.Arn}/invocations"
+      PayloadFormatVersion: '2.0'
+
+  FitbitCallbackRoute:
+    Type: AWS::ApiGatewayV2::Route
+    Properties:
+      ApiId: !Ref FitbitCallbackApi
+      RouteKey: 'GET /fitbit/callback'
+      Target: !Sub "integrations/${FitbitCallbackIntegration}"
+
+  FitbitCallbackStage:
+    Type: AWS::ApiGatewayV2::Stage
+    Properties:
+      ApiId: !Ref FitbitCallbackApi
+      StageName: prod
+      AutoDeploy: true
+
+  FitbitCallbackPermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+      Action: lambda:InvokeFunction
+      FunctionName: !Ref FitbitCallbackFunction
+      Principal: apigateway.amazonaws.com
+      SourceArn: !Sub "arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${FitbitCallbackApi}/*/GET/fitbit/callback"
+
+Outputs:
+  CallbackUrl:
+    Description: Invoke URL for the Fitbit OAuth redirect.
+    Value: !Sub "https://${FitbitCallbackApi}.execute-api.${AWS::Region}.amazonaws.com/${FitbitCallbackStage}/fitbit/callback"
+  FunctionArn:
+    Description: ARN of the Fitbit callback Lambda function.
+    Value: !GetAtt FitbitCallbackFunction.Arn
+  RoleArn:
+    Description: IAM role used by the Fitbit callback Lambda.
+    Value: !GetAtt FitbitCallbackRole.Arn

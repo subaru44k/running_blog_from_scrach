@@ -65,6 +65,7 @@ app.get('/new', (req, res) => {
   const defaults = {
     title: '練習',
     date: today,
+    dateInput: today,
     author: 'subaru44k',
     category: CATEGORIES[0],
     status: 'publish',
@@ -135,6 +136,7 @@ app.get('/edit/:filename', (req, res) => {
   } else {
     data.allowComments = Boolean(data.allowComments);
   }
+  data.dateInput = data.date ? dayjs(data.date).format('YYYY-MM-DD') : '';
   res.render('edit', { file: fn, data, body, categories: CATEGORIES });
 });
 

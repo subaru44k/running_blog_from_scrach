@@ -1,0 +1,9 @@
+{
+  "name": "fitbit-callback",
+  "version": "0.1.0",
+  "type": "module",
+  "main": "index.mjs",
+  "dependencies": {
+    "@aws-sdk/client-s3": "^3.637.0"
+  }
+}
