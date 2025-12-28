@@ -301,6 +301,12 @@ function secondsFromTimeString(timeStr) {
   return h * 3600 + m * 60 + s;
 }
 
+function isValidDateInput(value) {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(value)) return false;
+  const time = Date.parse(`${value}T00:00:00Z`);
+  return !Number.isNaN(time);
+}
+
 function computeSplitsFromSamples(samples, includePartial) {
   if (!samples || samples.length < 2) return [];
   const sorted = [...samples].sort((a, b) => a.seconds - b.seconds);
@@ -501,18 +507,50 @@ async function getRunSplits(tokens, activity, dateStr) {
 
 function parseCliArgs() {
   const args = process.argv.slice(2);
-  const result = { dates: [], days: null };
+  const result = { dates: [], days: null, from: null, to: null };
   for (let i = 0; i < args.length; i++) {
     const arg = args[i];
     if (arg === '--date' && args[i + 1]) {
       result.dates.push(args[++i]);
     } else if (arg.startsWith('--date=')) {
       result.dates.push(arg.split('=')[1]);
+    } else if (arg === '--from' && args[i + 1]) {
+      result.from = args[++i];
+    } else if (arg.startsWith('--from=')) {
+      result.from = arg.split('=')[1];
+    } else if (arg === '--to' && args[i + 1]) {
+      result.to = args[++i];
+    } else if (arg.startsWith('--to=')) {
+      result.to = arg.split('=')[1];
     } else if (arg === '--days' && args[i + 1]) {
       result.days = parseInt(args[++i], 10);
     } else if (arg.startsWith('--days=')) {
       result.days = parseInt(arg.split('=')[1], 10);
     }
+  }
+  if (result.from && result.to) {
+    const offsetMs = CONFIG.timezoneOffsetMinutes * 60000;
+    const start = new Date(Date.parse(`${result.from}T00:00:00Z`) - offsetMs);
+    const end = new Date(Date.parse(`${result.to}T00:00:00Z`) - offsetMs);
+    if (!Number.isNaN(start.getTime()) && !Number.isNaN(end.getTime())) {
+      const step = start <= end ? 86400000 : -86400000;
+      for (let t = start.getTime(); step > 0 ? t <= end.getTime() : t >= end.getTime(); t += step) {
+        result.dates.push(new Date(t + offsetMs).toISOString().slice(0, 10));
+      }
+    }
+  }
+  const invalid = result.dates.filter((d) => !isValidDateInput(d));
+  if (invalid.length) {
+    console.error(`Invalid --date value(s): ${invalid.join(', ')} (expected YYYY-MM-DD)`);
+    process.exit(1);
+  }
+  if (result.from && !isValidDateInput(result.from)) {
+    console.error(`Invalid --from value: ${result.from} (expected YYYY-MM-DD)`);
+    process.exit(1);
+  }
+  if (result.to && !isValidDateInput(result.to)) {
+    console.error(`Invalid --to value: ${result.to} (expected YYYY-MM-DD)`);
+    process.exit(1);
   }
   if (!result.dates.length) {
     const days = Number.isFinite(result.days) && result.days > 0 ? result.days : 1;
@@ -596,11 +634,15 @@ function buildFrontmatter({ title, dateStr, entryHash }) {
 
 async function renderActivityMarkdown(dateStr, payload, tokens) {
   const { activities = [] } = payload;
-  if (!activities.length) {
+  const filtered = activities.filter((activity) => {
+    const duration = Number(activity.duration || 0);
+    return duration >= 30000;
+  });
+  if (!filtered.length) {
     return { content: `No logged activities on ${dateStr}.`, empty: true };
   }
   const lines = [];
-  for (const activity of activities) {
+  for (const activity of filtered) {
     const durationLabel = formatDurationMinutes(activity.duration);
     lines.push(`${durationLabel || '運動'}ジョグ`);
     lines.push('');

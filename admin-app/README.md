@@ -64,7 +64,8 @@ Markdown posts. Requirements:
    Options:
 
    - `--date YYYY-MM-DD` import a specific date (can be repeated)
-   - `--days N` import the last `N` days (defaults to 1 → yesterday)
+   - `--days N` import the last `N` days (defaults to 1 → today)
+   - `--from YYYY-MM-DD --to YYYY-MM-DD` import a date range (inclusive)
    - Set `FITBIT_IMPORT_DRY_RUN=true` to skip writing files
    - Adjust `FITBIT_IMPORT_TZ_OFFSET` (minutes, default `540` for JST) if you want
      timestamps rendered in a different timezone
