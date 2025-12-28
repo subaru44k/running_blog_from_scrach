@@ -238,9 +238,6 @@ async function getRunActivityTypeIds(tokens) {
     return cachedRunTypeIds;
   }
   const data = await res.json();
-  if (CONFIG.splitDebug) {
-    console.log(`Split debug: activity types payload: ${JSON.stringify(data)}`);
-  }
   const categories = data?.categories || [];
   const runIds = new Set();
   const runNameRe = /(run|jog|jogging|trail run|treadmill run|incline run)/i;
