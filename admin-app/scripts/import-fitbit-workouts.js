@@ -378,7 +378,24 @@ function formatSplitSeconds(sec) {
   if (!Number.isFinite(sec) || sec <= 0) return '-';
   const minutes = Math.floor(sec / 60);
   const seconds = Math.round(sec % 60);
-  return `${minutes}:${String(seconds).padStart(2, '0')}`;
+  return `${minutes}'${String(seconds).padStart(2, '0')}"`;
+}
+
+function formatSplitLines(splits) {
+  const parts = splits.map((split) => {
+    const label = formatSplitSeconds(split.seconds);
+    if (split.isPartial) {
+      const dist = split.distanceKm.toFixed(1);
+      return `${label}(${dist}km)`;
+    }
+    return label;
+  });
+  const lines = [];
+  for (let i = 0; i < parts.length; i += 5) {
+    const line = parts.slice(i, i + 5).join('→');
+    lines.push(i === 0 ? line : `→${line}`);
+  }
+  return lines;
 }
 
 async function getRunSplits(tokens, activity, dateStr) {
@@ -387,7 +404,10 @@ async function getRunSplits(tokens, activity, dateStr) {
   if (laps && laps.length) {
     const approxOneKm = laps.every((lap) => Math.abs((lap.distance || 0) - 1) <= 0.05);
     if (approxOneKm) {
-      return laps.map((lap) => (lap.duration ? lap.duration / 1000 : 0)).filter((v) => v > 0);
+      const lapSplits = laps
+        .map((lap, idx) => ({ distanceKm: idx + 1, seconds: lap.duration ? lap.duration / 1000 : 0 }))
+        .filter((lap) => lap.seconds > 0);
+      if (lapSplits.length) return lapSplits;
     }
     if (CONFIG.splitDebug) {
       console.warn(`Split debug: laps exist but are not ~1km (logId=${logId})`);
@@ -519,6 +539,12 @@ function formatDuration(ms) {
   return parts.join(' ');
 }
 
+function formatDurationMinutes(ms) {
+  if (!Number.isFinite(ms) || ms <= 0) return null;
+  const minutes = Math.round(ms / 60000);
+  return minutes > 0 ? `${minutes}分` : null;
+}
+
 function formatTime(timeStr, dateStr, offsetMinutes) {
   if (!timeStr) return '—';
   // Fitbit startTime is HH:MM. Combine with date and apply offset.
@@ -569,50 +595,22 @@ function buildFrontmatter({ title, dateStr, entryHash }) {
 }
 
 async function renderActivityMarkdown(dateStr, payload, tokens) {
-  const { activities = [], summary = {} } = payload;
+  const { activities = [] } = payload;
   if (!activities.length) {
     return { content: `No logged activities on ${dateStr}.`, empty: true };
   }
   const lines = [];
-  lines.push(`Imported from Fitbit on ${dayjs().format('YYYY-MM-DD HH:mm')}.`);
-  lines.push('');
   for (const activity of activities) {
-    const name = activity.name || 'Workout';
-    const start = formatTime(activity.startTime, dateStr, CONFIG.timezoneOffsetMinutes);
-    lines.push(`### ${name}`);
-    if (activity.startTime) lines.push(`- Start: ${start}`);
-    if (activity.duration) lines.push(`- Duration: ${formatDuration(activity.duration)}`);
-    if (activity.distance) {
-      const unit = activity.distanceUnit || 'km';
-      lines.push(`- Distance: ${activity.distance} ${unit}`);
-    }
-    if (activity.calories) lines.push(`- Calories: ${activity.calories}`);
-    if (activity.averageHeartRate) lines.push(`- Avg HR: ${activity.averageHeartRate} bpm`);
-    if (activity.steps) lines.push(`- Steps: ${activity.steps}`);
-    if (activity.tcxLink) lines.push(`- TCX: ${activity.tcxLink}`);
-    if (activity.logType) lines.push(`- Type: ${activity.logType}`);
+    const durationLabel = formatDurationMinutes(activity.duration);
+    lines.push(`${durationLabel || '運動'}ジョグ`);
+    lines.push('');
     const splits = await getRunSplits(tokens, activity, dateStr);
     if (splits.length) {
-      lines.push('');
-      lines.push('#### 1 km Splits');
-      splits.forEach((split, idx) => {
-        const label = split.isPartial ? `${split.distanceKm.toFixed(2)} km` : `${idx + 1} km`;
-        lines.push(`- ${label}: ${formatSplitSeconds(split.seconds)}`);
-      });
+      const splitLines = formatSplitLines(splits);
+      lines.push(...splitLines);
+    } else {
+      lines.push('スプリットなし');
     }
-    if (activity.description) {
-      lines.push('');
-      lines.push(activity.description.trim());
-    }
-    lines.push('');
-  }
-
-  if (summary.steps) {
-    lines.push('### Daily Summary');
-    lines.push(`- Total Steps: ${summary.steps}`);
-    if (summary.caloriesOut) lines.push(`- Calories Out: ${summary.caloriesOut}`);
-    if (summary.fairlyActiveMinutes) lines.push(`- Fairly Active Minutes: ${summary.fairlyActiveMinutes}`);
-    if (summary.veryActiveMinutes) lines.push(`- Very Active Minutes: ${summary.veryActiveMinutes}`);
     lines.push('');
   }
 
@@ -654,7 +652,7 @@ async function main() {
         continue;
       }
       const slug = buildSlug(dateStr, 'fitbit-workout');
-      const title = `Fitbit Workout ${dateStr}`;
+      const title = '練習';
       const entryHash = crypto.createHash('sha1').update(`${dateStr}-${slug}-${data.summary?.steps || ''}`).digest('hex');
       const markdown = buildFrontmatter({ title, dateStr, entryHash }) + content + '\n';
       writeMarkdown(slug, markdown);
