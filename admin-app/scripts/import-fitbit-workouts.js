@@ -43,11 +43,19 @@ const CONFIG = {
   clientId: process.env.FITBIT_CLIENT_ID,
   clientSecret: process.env.FITBIT_CLIENT_SECRET,
   timezoneOffsetMinutes: parseInt(process.env.FITBIT_IMPORT_TZ_OFFSET || '540', 10),
-  defaultCategory: process.env.FITBIT_DEFAULT_CATEGORY || 'Fitbit',
+  defaultCategory: process.env.FITBIT_DEFAULT_CATEGORY || '練習(デフォルト)',
   defaultAuthor: process.env.FITBIT_DEFAULT_AUTHOR || 'Subaru',
   status: process.env.FITBIT_DEFAULT_STATUS || 'draft',
   dryRun: /^(1|true)$/i.test(process.env.FITBIT_IMPORT_DRY_RUN || 'false'),
   splitDebug: /^(1|true)$/i.test(process.env.FITBIT_SPLIT_DEBUG || 'false'),
+  runActivityNames: (process.env.FITBIT_RUN_ACTIVITY_NAMES || 'Structured Workout,Run,Treadmill run,Trail run,Incline run')
+    .split(',')
+    .map((v) => v.trim())
+    .filter(Boolean),
+  runActivityIds: (process.env.FITBIT_RUN_ACTIVITY_IDS || '')
+    .split(',')
+    .map((v) => Number(v.trim()))
+    .filter((v) => Number.isFinite(v)),
 };
 
 if (!CONFIG.bucket || !CONFIG.clientId || !CONFIG.clientSecret) {
@@ -56,12 +64,27 @@ if (!CONFIG.bucket || !CONFIG.clientId || !CONFIG.clientSecret) {
 }
 
 const s3 = new S3Client({ region: process.env.AWS_REGION || process.env.AWS_DEFAULT_REGION });
+let cachedRunTypeIds = null;
 
 function ensureFetch() {
   if (typeof fetch !== 'function') {
     throw new Error('Global fetch is not available. Run on Node 18+ or polyfill fetch.');
   }
   return fetch;
+}
+
+function sleep(ms) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+function logRateLimitHeaders(res) {
+  if (!res || !CONFIG.splitDebug) return;
+  const limit = res.headers.get('fitbit-rate-limit-limit');
+  const remaining = res.headers.get('fitbit-rate-limit-remaining');
+  const reset = res.headers.get('fitbit-rate-limit-reset');
+  if (limit || remaining || reset) {
+    console.log(`Split debug: rate limit headers limit=${limit || '-'} remaining=${remaining || '-'} reset=${reset || '-'}`);
+  }
 }
 
 async function streamToString(stream) {
@@ -162,22 +185,90 @@ async function ensureAccessToken(tokens) {
 
 async function fetchActivities(tokens, dateStr) {
   const fetchFn = ensureFetch();
-  const res = await fetchFn(`https://api.fitbit.com/1/user/-/activities/date/${dateStr}.json`, {
+  const maxRetries = 3;
+  for (let attempt = 0; attempt <= maxRetries; attempt++) {
+    const res = await fetchFn(`https://api.fitbit.com/1/user/-/activities/date/${dateStr}.json`, {
+      headers: {
+        Authorization: `Bearer ${tokens.access_token}`,
+        'Accept': 'application/json',
+      },
+    });
+    if (res.status === 401) {
+      console.warn('Access token expired, retrying after refresh...');
+      const refreshed = await refreshAccessToken(tokens);
+      return fetchActivities(refreshed, dateStr);
+    }
+    logRateLimitHeaders(res);
+    if (res.status === 429 && attempt < maxRetries) {
+      const waitMs = 1500 * Math.pow(2, attempt);
+      if (CONFIG.splitDebug) {
+        console.warn(`Split debug: rate limited for ${dateStr}, retrying in ${waitMs}ms`);
+      }
+      await sleep(waitMs);
+      continue;
+    }
+    if (!res.ok) {
+      const body = await res.text();
+      throw new Error(`Failed to fetch activities for ${dateStr}: ${res.status} ${body}`);
+    }
+    const json = await res.json();
+    if (CONFIG.splitDebug) {
+      console.log(`Split debug: daily activity payload (${dateStr}): ${JSON.stringify(json)}`);
+    }
+    return json;
+  }
+  throw new Error(`Failed to fetch activities for ${dateStr}: rate limit exceeded`);
+}
+
+async function getRunActivityTypeIds(tokens) {
+  if (cachedRunTypeIds) return cachedRunTypeIds;
+  const fetchFn = ensureFetch();
+  const res = await fetchFn('https://api.fitbit.com/1/activities.json', {
     headers: {
       Authorization: `Bearer ${tokens.access_token}`,
       'Accept': 'application/json',
+      'Accept-Language': 'en_US',
     },
   });
-  if (res.status === 401) {
-    console.warn('Access token expired, retrying after refresh...');
-    const refreshed = await refreshAccessToken(tokens);
-    return fetchActivities(refreshed, dateStr);
-  }
   if (!res.ok) {
-    const body = await res.text();
-    throw new Error(`Failed to fetch activities for ${dateStr}: ${res.status} ${body}`);
+    if (CONFIG.splitDebug) {
+      console.warn(`Split debug: activity types fetch failed (${res.status})`);
+    }
+    cachedRunTypeIds = new Set();
+    return cachedRunTypeIds;
   }
-  return res.json();
+  const data = await res.json();
+  if (CONFIG.splitDebug) {
+    console.log(`Split debug: activity types payload: ${JSON.stringify(data)}`);
+  }
+  const categories = data?.categories || [];
+  const runIds = new Set();
+  const runNameRe = /(run|jog|jogging|trail run|treadmill run|incline run)/i;
+  function collectRunIds(category) {
+    if (!category) return;
+    const catName = String(category.name || '');
+    const isRunCategory = /running/i.test(catName);
+    const activities = category.activities || [];
+    for (const activity of activities) {
+      const name = String(activity?.name || '');
+      if (isRunCategory || runNameRe.test(name)) {
+        const id = Number(activity?.id);
+        if (Number.isFinite(id)) runIds.add(id);
+      }
+    }
+    const subCategories = category.subCategories || [];
+    for (const sub of subCategories) {
+      collectRunIds(sub);
+    }
+  }
+  for (const category of categories) {
+    collectRunIds(category);
+  }
+  for (const id of CONFIG.runActivityIds) {
+    runIds.add(id);
+  }
+  cachedRunTypeIds = runIds;
+  return runIds;
 }
 
 async function fetchActivityLaps(tokens, logId) {
@@ -634,9 +725,22 @@ function buildFrontmatter({ title, dateStr, entryHash }) {
 
 async function renderActivityMarkdown(dateStr, payload, tokens) {
   const { activities = [] } = payload;
+  const runTypeIds = await getRunActivityTypeIds(tokens);
+  const runNameSet = new Set(CONFIG.runActivityNames.map((v) => v.toLowerCase()));
   const filtered = activities.filter((activity) => {
     const duration = Number(activity.duration || 0);
-    return duration >= 30000;
+    if (duration < 30000) return false;
+    const typeId = Number(activity.activityTypeId || activity.activityId);
+    const parentId = Number(activity.activityParentId || activity.activityId);
+    if (runTypeIds.size) {
+      if (Number.isFinite(typeId) && runTypeIds.has(typeId)) return true;
+      if (Number.isFinite(parentId) && runTypeIds.has(parentId)) return true;
+    }
+    const name = `${activity.activityParentName || ''} ${activity.activityName || ''} ${activity.activityTypeName || ''}`.trim().toLowerCase();
+    for (const candidate of runNameSet) {
+      if (candidate && name.includes(candidate)) return true;
+    }
+    return /run|ラン/i.test(name);
   });
   if (!filtered.length) {
     return { content: `No logged activities on ${dateStr}.`, empty: true };

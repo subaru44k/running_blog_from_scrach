@@ -87,3 +87,10 @@ distance time series data is available (fallback uses TCX trackpoints if provide
 Note: The TCX endpoint requires the `location` scope in addition to `activity`.
 If your access token was created without `location`, reauthorize the Fitbit app
 with that scope and rerun the importer.
+
+The importer limits output to running activities by fetching the activity type
+catalog (`GET /1/activities.json`) and filtering for names that contain \"Run\".
+You can override the run detection by setting:
+
+- `FITBIT_RUN_ACTIVITY_NAMES` (comma-separated names, e.g. `Structured Workout,Run`)
+- `FITBIT_RUN_ACTIVITY_IDS` (comma-separated IDs)
