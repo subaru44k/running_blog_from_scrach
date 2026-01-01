@@ -1,0 +1,351 @@
+---
+import Layout from '../layouts/Layout.astro';
+import { calculatePace } from '../lib/pace';
+
+const pageTitle = 'ランニングペース計算';
+const metaDescription = '距離と目標タイムからペースとラップを計算できるランナー向けのペース計算ページ。10km・ハーフ・フルの目標ラップ表も掲載。';
+
+const tenKTargets = ['0:25:00', '0:30:00', '0:35:00', '0:40:00', '0:45:00', '0:50:00', '0:55:00', '1:00:00'];
+const halfTargets = ['0:55:00', '1:00:00', '1:05:00', '1:10:00', '1:15:00', '1:20:00', '1:25:00', '1:30:00', '1:35:00', '1:40:00', '1:50:00', '2:00:00', '2:10:00'];
+const fullTargets = ['2:00:00', '2:10:00', '2:20:00', '2:30:00', '2:40:00', '2:50:00', '3:00:00', '3:10:00', '3:20:00', '3:30:00', '4:00:00', '4:30:00', '5:00:00', '5:30:00', '6:00:00'];
+
+function timeToSeconds(value: string) {
+  const parts = value.split(':').map((p) => Number(p));
+  if (parts.length !== 3 || parts.some((p) => !Number.isFinite(p))) return 0;
+  return parts[0] * 3600 + parts[1] * 60 + parts[2];
+}
+
+function formatTime(seconds: number) {
+  if (!Number.isFinite(seconds)) return '';
+  const s = Math.round(seconds);
+  const h = Math.floor(s / 3600);
+  const m = Math.floor((s % 3600) / 60);
+  const sec = s % 60;
+  if (h > 0) return `${h}:${String(m).padStart(2, '0')}:${String(sec).padStart(2, '0')}`;
+  return `${m}:${String(sec).padStart(2, '0')}`;
+}
+
+function buildRows(distanceKm: number, targets: string[], splitPointsKm: number[]) {
+  return targets.map((t) => {
+    const totalSeconds = timeToSeconds(t);
+    const pace = calculatePace(distanceKm, totalSeconds);
+    return {
+      target: formatTime(totalSeconds),
+      pace: formatTime(pace.pacePerKm),
+      splits: splitPointsKm.map((km) => formatTime(pace.pacePerKm * km)),
+    };
+  });
+}
+
+const tenKRows = buildRows(10, tenKTargets, [3, 5, 10]);
+const halfRows = buildRows(21.0975, halfTargets, [5, 10, 15, 20, 21.0975]);
+const fullRows = buildRows(42.195, fullTargets, [5, 10, 15, 20, 21.0975, 25, 30, 35, 40, 42.195]);
+
+const calculatorText = `ランニングのペースは、練習やレースの質を左右する重要な指標です。とはいえ、体感だけに頼ると序盤に飛ばしすぎたり、終盤に失速したりしがちです。このページでは距離と目標タイムを入力するだけで、1kmや400メートルのペース、5km・10km・ハーフの通過タイムが分かります。トラックでの練習では400メートルのラップが特に役立ち、一定のリズムを保てているかを確認できます。ロードでは5km刻みの通過タイムが目安になり、前半を抑えて後半に余力を残す配分も立てやすくなります。ペースが分かれば、イージー走やテンポ走、距離走など目的に応じた負荷を設定でき、結果的に疲労管理もしやすくなります。目標に対して無理のないペースで積み上げ、必要に応じて少しだけ上げる。そんな地道な調整が、レース本番の安定につながります。`;
+---
+
+<Layout pageTitle={pageTitle} metaDescription={metaDescription} noSidebar={true}>
+  <h1 class="mb-4">ランニングペース計算</h1>
+    <p class="text-sm text-gray-600 dark:text-gray-300 mb-6">
+    距離と目標タイムから、1kmペースと主要ラップを計算します。入力内容は自動で反映されます。
+  </p>
+
+  <section class="card p-5 md:p-6 mb-8">
+    <h2 class="text-lg font-semibold mb-4">ペース計算</h2>
+    <form id="paceForm" class="grid gap-4 md:grid-cols-[1fr_1fr]">
+      <div>
+        <label for="distanceSelect" class="block text-sm font-medium mb-1">距離</label>
+        <select id="distanceSelect" class="w-full border rounded px-3 py-2 bg-white dark:bg-gray-900">
+          <option value="0.4">400メートル</option>
+          <option value="5">5km</option>
+          <option value="10">10km</option>
+          <option value="21.0975">ハーフ</option>
+          <option value="42.195" selected>フル</option>
+          <option value="custom">カスタム</option>
+        </select>
+        <div id="customDistanceWrap" class="mt-2 hidden">
+          <label for="customDistance" class="block text-sm font-medium mb-1">カスタム距離（km）</label>
+          <input id="customDistance" type="number" inputmode="decimal" step="0.01" min="0.1" class="w-full border rounded px-3 py-2" placeholder="例：7.5" />
+        </div>
+      </div>
+      <div>
+        <label class="block text-sm font-medium mb-1">目標タイム（時:分:秒）</label>
+        <div class="flex items-center gap-2">
+          <input id="timeHours" type="number" inputmode="numeric" min="0" class="w-20 border rounded px-2 py-2" value="3" />
+          <span>:</span>
+          <input id="timeMinutes" type="number" inputmode="numeric" min="0" max="59" class="w-20 border rounded px-2 py-2" value="30" />
+          <span>:</span>
+          <input id="timeSeconds" type="number" inputmode="numeric" min="0" max="59" class="w-20 border rounded px-2 py-2" value="0" />
+        </div>
+      </div>
+    </form>
+    <div id="paceError" class="mt-3 text-sm text-red-600 hidden"></div>
+    <div class="mt-4 grid gap-3 md:grid-cols-2">
+      <div class="border rounded px-4 py-3">
+        <div class="text-sm text-gray-500">1kmペース</div>
+        <div id="pacePerKm" class="text-lg font-semibold">-</div>
+      </div>
+      <div class="border rounded px-4 py-3">
+        <div class="text-sm text-gray-500">400メートルペース</div>
+        <div id="pacePer400" class="text-lg font-semibold">-</div>
+      </div>
+      <div class="border rounded px-4 py-3">
+        <div class="text-sm text-gray-500">5km通過</div>
+        <div id="split5k" class="text-lg font-semibold">-</div>
+      </div>
+      <div class="border rounded px-4 py-3">
+        <div class="text-sm text-gray-500">10km通過</div>
+        <div id="split10k" class="text-lg font-semibold">-</div>
+      </div>
+      <div class="border rounded px-4 py-3">
+        <div class="text-sm text-gray-500">ハーフ通過</div>
+        <div id="splitHalf" class="text-lg font-semibold">-</div>
+      </div>
+    </div>
+  </section>
+
+  <section class="mb-8">
+    <h2 class="text-lg font-semibold mb-3">ペースの目安</h2>
+    <p class="text-sm text-gray-600 dark:text-gray-300 leading-relaxed">{calculatorText}</p>
+  </section>
+
+  <section class="card p-5 md:p-6 mb-8">
+    <h2 class="text-lg font-semibold mb-4">10km 目標ラップ表</h2>
+    <div class="overflow-x-auto">
+      <table class="w-full text-sm border-collapse min-w-[520px]">
+        <thead>
+          <tr class="text-left border-b">
+            <th class="py-2">目標</th>
+            <th class="py-2">1km</th>
+            <th class="py-2">3km</th>
+            <th class="py-2">5km</th>
+            <th class="py-2">10km</th>
+          </tr>
+        </thead>
+        <tbody>
+          {tenKRows.map((row) => (
+            <tr class="border-b">
+              <td class="py-2">{row.target}</td>
+              <td class="py-2">{row.pace}</td>
+              <td class="py-2">{row.splits[0]}</td>
+              <td class="py-2">{row.splits[1]}</td>
+              <td class="py-2">{row.splits[2]}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="card p-5 md:p-6 mb-8">
+    <h2 class="text-lg font-semibold mb-4">ハーフマラソン 目標ラップ表</h2>
+    <div class="overflow-x-auto">
+      <table class="w-full text-sm border-collapse min-w-[720px]">
+        <thead>
+          <tr class="text-left border-b">
+            <th class="py-2">目標</th>
+            <th class="py-2">1km</th>
+            <th class="py-2">5km</th>
+            <th class="py-2">10km</th>
+            <th class="py-2">15km</th>
+            <th class="py-2">20km</th>
+            <th class="py-2">ハーフ</th>
+          </tr>
+        </thead>
+        <tbody>
+          {halfRows.map((row) => (
+            <tr class="border-b">
+              <td class="py-2">{row.target}</td>
+              <td class="py-2">{row.pace}</td>
+              <td class="py-2">{row.splits[0]}</td>
+              <td class="py-2">{row.splits[1]}</td>
+              <td class="py-2">{row.splits[2]}</td>
+              <td class="py-2">{row.splits[3]}</td>
+              <td class="py-2">{row.splits[4]}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="card p-5 md:p-6">
+    <h2 class="text-lg font-semibold mb-4">フルマラソン 目標ラップ表</h2>
+    <div class="overflow-x-auto">
+      <table class="w-full text-sm border-collapse min-w-[860px]">
+        <thead>
+          <tr class="text-left border-b">
+            <th class="py-2">目標</th>
+            <th class="py-2">1km</th>
+            <th class="py-2">5km</th>
+            <th class="py-2">10km</th>
+            <th class="py-2">15km</th>
+            <th class="py-2">20km</th>
+            <th class="py-2">ハーフ</th>
+            <th class="py-2">25km</th>
+            <th class="py-2">30km</th>
+            <th class="py-2">35km</th>
+            <th class="py-2">40km</th>
+            <th class="py-2">ゴール</th>
+          </tr>
+        </thead>
+        <tbody>
+          {fullRows.map((row) => (
+            <tr class="border-b">
+              <td class="py-2">{row.target}</td>
+              <td class="py-2">{row.pace}</td>
+              <td class="py-2">{row.splits[0]}</td>
+              <td class="py-2">{row.splits[1]}</td>
+              <td class="py-2">{row.splits[2]}</td>
+              <td class="py-2">{row.splits[3]}</td>
+              <td class="py-2">{row.splits[4]}</td>
+              <td class="py-2">{row.splits[5]}</td>
+              <td class="py-2">{row.splits[6]}</td>
+              <td class="py-2">{row.splits[7]}</td>
+              <td class="py-2">{row.splits[8]}</td>
+              <td class="py-2">{row.splits[9]}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <script type="module" set:html={`
+    const calculatePace = ${calculatePace.toString()};
+
+    function parseNumber(value) {
+      const num = Number(value);
+      return Number.isFinite(num) ? num : NaN;
+    }
+
+    function formatTime(seconds) {
+      if (!Number.isFinite(seconds)) return '';
+      const s = Math.round(seconds);
+      const h = Math.floor(s / 3600);
+      const m = Math.floor((s % 3600) / 60);
+      const sec = s % 60;
+      if (h > 0) return \`\${h}:\${String(m).padStart(2, '0')}:\${String(sec).padStart(2, '0')}\`;
+      return \`\${m}:\${String(sec).padStart(2, '0')}\`;
+    }
+
+    function buildQuery(distanceValue, customKm, h, m, s) {
+      const params = new URLSearchParams();
+      params.set('dist', distanceValue);
+      if (distanceValue === 'custom' && Number.isFinite(customKm)) {
+        params.set('km', String(customKm));
+      }
+      const hh = String(h).padStart(2, '0');
+      const mm = String(m).padStart(2, '0');
+      const ss = String(s).padStart(2, '0');
+      params.set('t', \`\${hh}:\${mm}:\${ss}\`);
+      return params.toString();
+    }
+
+    function readQuery() {
+      const params = new URLSearchParams(window.location.search);
+      const dist = params.get('dist');
+      const km = params.get('km');
+      const t = params.get('t');
+      return { dist, km, t };
+    }
+
+    function applyQuery(inputs) {
+      const { dist, km, t } = readQuery();
+      if (dist) inputs.distanceSelect.value = dist;
+      if (dist === 'custom') inputs.customWrap.classList.remove('hidden');
+      if (km) inputs.customDistance.value = km;
+      if (t && /\\d{1,2}:\\d{2}:\\d{2}/.test(t)) {
+        const [hh, mm, ss] = t.split(':').map((v) => Number(v));
+        if (Number.isFinite(hh)) inputs.timeHours.value = String(hh);
+        if (Number.isFinite(mm)) inputs.timeMinutes.value = String(mm);
+        if (Number.isFinite(ss)) inputs.timeSeconds.value = String(ss);
+      }
+    }
+
+    function showError(el, message) {
+      el.textContent = message;
+      el.classList.remove('hidden');
+    }
+
+    function clearError(el) {
+      el.textContent = '';
+      el.classList.add('hidden');
+    }
+
+    function update() {
+      const distanceValue = distanceSelect.value;
+      const h = parseNumber(timeHours.value);
+      const m = parseNumber(timeMinutes.value);
+      const s = parseNumber(timeSeconds.value);
+      const customKm = parseNumber(customDistance.value);
+
+      clearError(errorEl);
+
+      let distanceKm = NaN;
+      if (distanceValue === 'custom') {
+        distanceKm = customKm;
+      } else {
+        distanceKm = parseNumber(distanceValue);
+      }
+
+      if (!Number.isFinite(distanceKm) || distanceKm <= 0) {
+        showError(errorEl, '距離を正しく入力してください。');
+        return;
+      }
+
+      if (!Number.isFinite(h) || h < 0 || !Number.isFinite(m) || m < 0 || m > 59 || !Number.isFinite(s) || s < 0 || s > 59) {
+        showError(errorEl, '目標タイムは時:分:秒で入力してください。');
+        return;
+      }
+
+      const totalSeconds = h * 3600 + m * 60 + s;
+      if (totalSeconds <= 0) {
+        showError(errorEl, '目標タイムが0秒になっています。');
+        return;
+      }
+
+      const result = calculatePace(distanceKm, totalSeconds);
+      pacePerKm.textContent = \`\${formatTime(result.pacePerKm)}／km\`;
+      pacePer400.textContent = formatTime(result.split400m);
+      split5k.textContent = distanceKm >= 5 ? formatTime(result.split5k) : '対象外';
+      split10k.textContent = distanceKm >= 10 ? formatTime(result.split10k) : '対象外';
+      splitHalf.textContent = distanceKm >= 21.0975 ? formatTime(result.splitHalf) : '対象外';
+
+      const query = buildQuery(distanceValue, customKm, h, m, s);
+      const nextUrl = query ? \`\${window.location.pathname}?\${query}\` : window.location.pathname;
+      window.history.replaceState({}, '', nextUrl);
+    }
+
+    const distanceSelect = document.getElementById('distanceSelect');
+    const customDistance = document.getElementById('customDistance');
+    const customWrap = document.getElementById('customDistanceWrap');
+    const timeHours = document.getElementById('timeHours');
+    const timeMinutes = document.getElementById('timeMinutes');
+    const timeSeconds = document.getElementById('timeSeconds');
+    const errorEl = document.getElementById('paceError');
+    const pacePerKm = document.getElementById('pacePerKm');
+    const pacePer400 = document.getElementById('pacePer400');
+    const split5k = document.getElementById('split5k');
+    const split10k = document.getElementById('split10k');
+    const splitHalf = document.getElementById('splitHalf');
+
+    const inputs = { distanceSelect, customDistance, customWrap, timeHours, timeMinutes, timeSeconds };
+    applyQuery(inputs);
+
+    distanceSelect.addEventListener('change', () => {
+      if (distanceSelect.value === 'custom') {
+        customWrap.classList.remove('hidden');
+      } else {
+        customWrap.classList.add('hidden');
+      }
+      update();
+    });
+    customDistance.addEventListener('input', update);
+    timeHours.addEventListener('input', update);
+    timeMinutes.addEventListener('input', update);
+    timeSeconds.addEventListener('input', update);
+
+    update();
+  `}></script>
+</Layout>
