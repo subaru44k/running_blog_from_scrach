@@ -2,18 +2,55 @@
 import Layout from "../layouts/Layout.astro";
 const title = "PDF圧縮";
 const apiBase = import.meta.env.PUBLIC_PDF_API_BASE || '';
-const pageTitle = 'PDF圧縮 — Subaru is Running';
-const pageDescription = 'PDFファイルをサーバで圧縮し、容量を小さくします。圧縮後は短時間のみ保存し、元ファイルは完了後に削除します。';
+const pageTitle = 'PDF圧縮｜履歴書・提出書類の容量を軽くする';
+const pageDescription = '履歴書や提出書類、スマホで作成したPDFの容量を画質とのバランスを見ながら圧縮できます。サーバで圧縮処理を行い、元ファイルは完了後に削除、圧縮後は数時間のみ保存します。';
 ---
 <Layout noSidebar pageTitle={pageTitle} metaDescription={pageDescription}>
   <section class="card p-6">
     <h1 class="text-2xl font-bold mb-2">{title}</h1>
-    <p class="text-gray-600 dark:text-gray-400 mb-2">
-      PDFを一時的にアップロードしてサーバ側で圧縮します。元ファイルは圧縮完了後に削除し、圧縮後ファイルはダウンロードのため数時間のみ保存します。
-    </p>
     <p class="text-gray-600 dark:text-gray-400 mb-6">
-      個人情報や機密情報を含むPDFは、内容を確認したうえでご利用ください。
+      履歴書や提出書類など、容量制限に合わせたいときに使えるPDF圧縮ツールです。画質とのバランスを見ながら、必要な範囲でサイズを調整できます。
     </p>
+
+    <h2 class="text-lg font-semibold mb-2">こんなときに使えます</h2>
+    <ul class="list-disc pl-5 text-gray-600 dark:text-gray-400 mb-6 space-y-2">
+      <li>
+        履歴書・職務経歴書をメール添付で送りたい
+        <span class="block text-sm">容量制限に合わせつつ、文字の読みやすさを優先できます。</span>
+      </li>
+      <li>
+        学校・保育園・役所にPDF提出が必要
+        <span class="block text-sm">◯MB以下の指定がある場合や、スマホスキャンPDFが重いときに便利です。</span>
+      </li>
+      <li>
+        スマホで撮ったPDFが重い
+        <span class="block text-sm">写真が多いPDFでも、画質と容量のバランスを取りやすくなります。</span>
+      </li>
+    </ul>
+
+    <h2 class="text-lg font-semibold mb-2">おすすめの使い方</h2>
+    <ul class="list-disc pl-5 text-gray-600 dark:text-gray-400 mb-6 space-y-1">
+      <li>まずは「中」で試す</li>
+      <li>文字が潰れる場合は「低（高画質）」へ</li>
+      <li>とにかく容量を下げたい場合は「高（高圧縮）」へ</li>
+    </ul>
+
+    <h2 class="text-lg font-semibold mb-2">注意事項 / できること・できないこと</h2>
+    <ul class="list-disc pl-5 text-gray-600 dark:text-gray-400 mb-6 space-y-1">
+      <li>圧縮後の画質は元に戻せません。元PDFは手元に保存しておくことをおすすめします。</li>
+      <li>PDFの内容によってはサイズがあまり小さくならないことがあります。</li>
+      <li>重要書類は送信前に内容を確認してからご利用ください。</li>
+      <li>個人情報や機密情報を含むPDFは、取り扱いに注意してご利用ください。</li>
+      <li>ファイルサイズが大きい場合は圧縮に時間がかかることがあります。</li>
+      <li>通信環境によってはアップロードやダウンロードが失敗する場合があります。</li>
+    </ul>
+
+    <h2 class="text-lg font-semibold mb-2">データの取り扱い</h2>
+    <ul class="list-disc pl-5 text-gray-600 dark:text-gray-400 mb-6 space-y-1">
+      <li>PDFは一時的にアップロードされ、サーバ側で圧縮処理を行います。</li>
+      <li>元ファイルは圧縮完了後に削除します。</li>
+      <li>圧縮後ファイルはダウンロードのため数時間のみ保存されます。</li>
+    </ul>
 
     <div class="space-y-4">
       <div>
