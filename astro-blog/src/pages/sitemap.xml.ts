@@ -12,6 +12,7 @@ export async function GET() {
   const urls = [
     { loc: site, lastmod: latestPostDate.toISOString() },
     { loc: `${site}archive/`, lastmod: latestPostDate.toISOString() },
+    { loc: `${site}running-pace/`, lastmod: latestPostDate.toISOString() },
     { loc: `${site}pdf-compress/`, lastmod: latestPostDate.toISOString() },
     { loc: `${site}about/`, lastmod: latestPostDate.toISOString() },
     { loc: `${site}contact/`, lastmod: latestPostDate.toISOString() },
