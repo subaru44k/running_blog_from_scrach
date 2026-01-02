@@ -20,8 +20,8 @@ const years = Object.keys(grouped).sort((a, b) => Number(b) - Number(a));
 ---
 
 <Layout>
-  <h1 class="mb-6">Archive</h1>
-  <p class="text-sm text-gray-600 dark:text-gray-300 mb-6">All published posts grouped by year and month.</p>
+  <h1 class="mb-6">アーカイブ</h1>
+  <p class="text-sm text-gray-600 dark:text-gray-300 mb-6">公開済みの記事を年月ごとに表示しています。</p>
 
   <div class="space-y-10">
     {years.map((year) => (
@@ -30,7 +30,7 @@ const years = Object.keys(grouped).sort((a, b) => Number(b) - Number(a));
         <div class="grid md:grid-cols-2 gap-6">
           {Object.keys(grouped[year]).sort((a, b) => Number(b) - Number(a)).map((month) => (
             <div class="card p-4">
-              <h3 class="text-lg font-semibold mb-2">{new Date(Number(year), Number(month)-1, 1).toLocaleString('en-US', { month: 'long' })} {year}</h3>
+              <h3 class="text-lg font-semibold mb-2">{new Date(Number(year), Number(month)-1, 1).toLocaleString('ja-JP', { month: 'long' })} {year}</h3>
               <ul class="space-y-1">
                 {grouped[year][month].map((p) => (
                   <li>

@@ -1,46 +1,54 @@
 ---
 import Layout from "../layouts/Layout.astro";
-const pageTitle = 'Privacy Policy — Subaru is Running';
-const pageDescription = 'Learn how Subaru is Running handles your data: secure upload, short-lived storage, and temporary download links.';
+const pageTitle = 'プライバシーポリシー — Subaru is Running';
+const pageDescription = 'サイトで取り扱うデータ、広告・Cookie、解析の利用目的について説明します。';
 ---
 <Layout noSidebar pageTitle={pageTitle} metaDescription={pageDescription}>
   <section class="card p-6">
-    <h1 class="text-2xl font-bold mb-3">Privacy Policy</h1>
+    <h1 class="text-2xl font-bold mb-3">プライバシーポリシー</h1>
     <p class="text-gray-700 dark:text-gray-300 mb-4">
-      Your privacy matters. This page explains what data this site collects and how it is used.
+      当サイトにおけるデータの取扱いと、広告・Cookie・解析の利用目的について説明します。
     </p>
 
-    <h2 class="text-xl font-semibold mt-5 mb-2">PDF Compressor</h2>
+    <h2 class="text-xl font-semibold mt-5 mb-2">PDF圧縮</h2>
     <ul class="list-disc pl-5 space-y-2 text-gray-700 dark:text-gray-300">
-      <li>Your file is sent securely from your browser to the service for processing.</li>
-      <li>The original upload is deleted as soon as compression completes successfully.</li>
-      <li>Download links are temporary and expire automatically.</li>
-      <li>The compressed (converted) file is also removed automatically after a short time.</li>
-      <li>We do not use your PDFs for analytics or share them with third parties.</li>
+      <li>PDFファイルはブラウザから一時的にアップロードされ、サーバ側で圧縮処理を行います。</li>
+      <li>元ファイルは圧縮完了後に削除します。</li>
+      <li>ダウンロード用リンクは一定時間で無効化されます。</li>
+      <li>圧縮後ファイルはダウンロードのため数時間のみ保存し、その後削除します。</li>
+      <li>PDFの内容を解析目的で利用したり、第三者へ提供したりすることはありません。</li>
     </ul>
 
-    <h2 class="text-xl font-semibold mt-5 mb-2">Site Analytics and Cookies</h2>
+    <h2 class="text-xl font-semibold mt-5 mb-2">アクセス解析とCookie</h2>
     <p class="text-gray-700 dark:text-gray-300 mb-2">
-      This site uses Google Analytics to understand which pages are visited and how the site performs overall.
-      It helps improve content and reliability. We do not use analytics to identify you personally.
+      当サイトはGoogle Analyticsを利用し、閲覧状況や利用傾向を把握して内容の改善に役立てています。個人を特定する目的では利用しません。
     </p>
     <ul class="list-disc pl-5 space-y-2 text-gray-700 dark:text-gray-300 mb-3">
-      <li>Google Analytics may set cookies or use similar storage to measure visits and usage patterns.</li>
-      <li>IP addresses are anonymized in analytics configuration to reduce the amount of data collected.</li>
-      <li>You can opt out of Google Analytics with the
-        <a class="underline" href="https://tools.google.com/dlpage/gaoptout" target="_blank" rel="noopener nofollow">opt‑out browser add‑on</a>
-        or by blocking analytics scripts in your browser settings.</li>
+      <li>Google AnalyticsはCookie等の仕組みを用いてアクセス状況を計測します。</li>
+      <li>IPアドレスは匿名化設定を行っています。</li>
+      <li>
+        解析を停止したい場合は
+        <a class="underline" href="https://tools.google.com/dlpage/gaoptout" target="_blank" rel="noopener nofollow">オプトアウト用アドオン</a>
+        やブラウザ設定で制御できます。
+      </li>
     </ul>
+
+    <h2 class="text-xl font-semibold mt-5 mb-2">広告配信（Google AdSense）</h2>
+    <p class="text-gray-700 dark:text-gray-300 mb-2">
+      当サイトでは、将来Google AdSenseによる広告配信を行う可能性があります。広告配信にはCookie等が使用される場合があります。
+    </p>
+    <ul class="list-disc pl-5 space-y-2 text-gray-700 dark:text-gray-300 mb-3">
+      <li>パーソナライズ広告は、閲覧履歴などの情報をもとに関連性の高い広告を表示します。</li>
+      <li>非パーソナライズ広告は、閲覧履歴に基づかず文脈に合った広告を表示します。</li>
+      <li>Cookieの利用はブラウザ設定で無効化・削除が可能です。</li>
+    </ul>
+
+    <h2 class="text-xl font-semibold mt-5 mb-2">お問い合わせ</h2>
     <p class="text-gray-700 dark:text-gray-300">
-      If our analytics setup changes, this page will be updated to reflect what is collected and why.
+      プライバシーに関するお問い合わせは
+      <a class="underline" href="/contact/">お問い合わせ</a> からご連絡ください。
     </p>
 
-    <h2 class="text-xl font-semibold mt-5 mb-2">Contact</h2>
-    <p class="text-gray-700 dark:text-gray-300">
-      For any privacy questions or data concerns, please contact
-      <a class="underline" href="/contact/">here</a>.
-    </p>
-
-    <p class="text-xs text-gray-500 mt-6">Last updated: {new Date().toISOString().slice(0, 10)}</p>
+    <p class="text-xs text-gray-500 mt-6">最終更新日: 2025-12-28</p>
   </section>
 </Layout>

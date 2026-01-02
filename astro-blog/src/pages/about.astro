@@ -1,35 +1,38 @@
 ---
 import Layout from "../layouts/Layout.astro";
-const pageTitle = 'About This Site — Subaru is Running';
-const pageDescription = 'What Subaru is Running is about, who it is for, and how this site is built.';
+const pageTitle = 'このサイトについて — Subaru is Running';
+const pageDescription = 'ランニングの練習ログと軽量ツールをまとめた個人サイトです。運営者情報とデータ取扱いについて掲載しています。';
 ---
 <Layout noSidebar pageTitle={pageTitle} metaDescription={pageDescription}>
   <section class="card p-6">
-    <h1 class="text-2xl font-bold mb-3">About This Site</h1>
+    <h1 class="text-2xl font-bold mb-3">このサイトについて</h1>
     <p class="text-gray-700 dark:text-gray-300 mb-4">
-      Subaru is Running is a personal site that combines a training blog with a few
-      practical tools for everyday use — like the PDF Compressor. The goal is to
-      share progress, capture lessons from races and workouts, and offer small utilities
-      that are fast, private, and easy to use.
+      Subaru is Running は、ランニングの練習ログやレースの振り返りと、日常で使える軽量ツールを併設した個人サイトです。
+      記録を残しながら学びを共有し、必要な機能だけを速く使えることを目指しています。
     </p>
-    <h2 class="text-xl font-semibold mt-6 mb-2">What you'll find here</h2>
+    <h2 class="text-xl font-semibold mt-6 mb-2">掲載内容</h2>
     <ul class="list-disc pl-5 space-y-2 text-gray-700 dark:text-gray-300">
-      <li>Running logs and race reports, organized by date and category.</li>
-      <li>Simple, privacy‑minded tools, starting with PDF compression.</li>
-      <li>Lightweight UX designed to work well on desktop and mobile.</li>
+      <li>日付とカテゴリで整理した練習ログ・レース記録</li>
+      <li>シンプルで軽量なツール（PDF圧縮など）</li>
+      <li>スマートフォンとPCの両方で読みやすい設計</li>
     </ul>
-    <h2 class="text-xl font-semibold mt-6 mb-2">How the PDF Compressor works</h2>
+    <h2 class="text-xl font-semibold mt-6 mb-2">PDF圧縮のデータ取扱い</h2>
     <p class="text-gray-700 dark:text-gray-300 mb-2">
-      When you compress a PDF here, your file is transferred securely, processed on the server, and the
-      original upload is removed after a successful compression. The download link you receive is temporary
-      and expires automatically.
-    </p>
-    <p class="text-gray-700 dark:text-gray-300 mb-2">
-      Converted files are also kept only briefly so you have time to download them, then they are deleted
-      automatically.
+      PDFは一時的にアップロードしてサーバ側で圧縮します。元ファイルは圧縮完了後に削除し、圧縮後ファイルはダウンロードのため数時間のみ保存します。
     </p>
     <p class="text-gray-700 dark:text-gray-300">
-      The service is designed to keep your files private and to minimize how long they are stored.
+      重要な書類や機密情報を含むPDFは、内容を確認したうえでご利用ください。
+    </p>
+    <h2 class="text-xl font-semibold mt-6 mb-2">運営者について</h2>
+    <p class="text-gray-700 dark:text-gray-300 mb-2">
+      個人運営のサイトです。お問い合わせは <a class="underline" href="/contact/">お問い合わせ</a> からご連絡ください。
+    </p>
+    <p class="text-gray-700 dark:text-gray-300">
+      SNSのリンクは <a class="underline" href="/contact/">お問い合わせ</a> ページに掲載しています。
+    </p>
+    <h2 class="text-xl font-semibold mt-6 mb-2">免責</h2>
+    <p class="text-gray-700 dark:text-gray-300">
+      ツールの利用は自己責任でお願いします。重要書類は事前に内容をご確認のうえご利用ください。
     </p>
   </section>
 </Layout>

@@ -1,52 +1,60 @@
 ---
 import Layout from "../layouts/Layout.astro";
-const title = "PDF Compressor";
+const title = "PDF圧縮";
 const apiBase = import.meta.env.PUBLIC_PDF_API_BASE || '';
-const pageTitle = 'PDF Compressor — Subaru is Running';
-const pageDescription = 'Compress PDF files with adjustable quality, metadata removal, and grayscale. Uploads are secure and source files are deleted after compression.';
+const pageTitle = 'PDF圧縮 — Subaru is Running';
+const pageDescription = 'PDFファイルをサーバで圧縮し、容量を小さくします。圧縮後は短時間のみ保存し、元ファイルは完了後に削除します。';
 ---
 <Layout noSidebar pageTitle={pageTitle} metaDescription={pageDescription}>
   <section class="card p-6">
     <h1 class="text-2xl font-bold mb-2">{title}</h1>
+    <p class="text-gray-600 dark:text-gray-400 mb-2">
+      PDFを一時的にアップロードしてサーバ側で圧縮します。元ファイルは圧縮完了後に削除し、圧縮後ファイルはダウンロードのため数時間のみ保存します。
+    </p>
     <p class="text-gray-600 dark:text-gray-400 mb-6">
-      Compress PDF files in your browser. Your files never leave your device.
+      個人情報や機密情報を含むPDFは、内容を確認したうえでご利用ください。
     </p>
 
     <div class="space-y-4">
       <div>
-        <label class="block font-medium mb-1" for="pdfFile">Select PDF file</label>
-        <input id="pdfFile" type="file" accept="application/pdf" class="block w-full" />
-        <p id="fileInfo" class="mt-1 text-sm text-gray-500"></p>
+        <label class="block font-medium mb-1" for="pdfFile">PDFファイルを選択</label>
+        <div class="flex flex-wrap items-center gap-3">
+          <label for="pdfFile" class="inline-flex items-center rounded-md px-4 py-2 ring-1 ring-inset ring-gray-300 dark:ring-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800 cursor-pointer">
+            ファイルを選択
+          </label>
+          <span id="fileInfo" class="text-sm text-gray-500">未選択</span>
+        </div>
+        <input id="pdfFile" type="file" accept="application/pdf" class="sr-only" />
       </div>
 
       <div>
-        <label class="block font-medium mb-1" for="level">Compression level</label>
+        <label class="block font-medium mb-1" for="level">圧縮レベル</label>
         <div class="flex items-center gap-3">
           <input id="level" type="range" min="1" max="3" step="1" value="2" class="w-56" />
-          <span id="levelLabel" class="text-sm text-gray-700 dark:text-gray-300">Medium</span>
+          <span id="levelLabel" class="text-sm text-gray-700 dark:text-gray-300">中</span>
         </div>
-        <p class="mt-1 text-xs text-gray-500">Low = better quality, larger size. High = smaller size, lower quality.</p>
+        <p class="mt-1 text-xs text-gray-500">低は高画質、 高は高圧縮で容量を小さくします。</p>
       </div>
 
       <div class="flex items-center gap-3">
         <button id="compressBtn" class="rounded-md px-4 py-2 ring-1 ring-inset ring-gray-300 dark:ring-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800 disabled:opacity-50" disabled>
-          Start Compression
+          圧縮を開始
         </button>
-        <button id="downloadBtn" class="hidden rounded-md px-4 py-2 bg-blue-600 text-white hover:bg-blue-700">Download</button>
+        <button id="downloadBtn" class="hidden rounded-md px-4 py-2 bg-blue-600 text-white hover:bg-blue-700">ダウンロード</button>
         <span id="status" class="text-sm text-gray-600 dark:text-gray-400"></span>
       </div>
       <div id="progressText" class="text-xs text-gray-500"></div>
 
       <details class="mt-2">
-        <summary class="cursor-pointer select-none">Advanced options</summary>
+        <summary class="cursor-pointer select-none">詳細オプション</summary>
         <div class="mt-2 space-y-2">
           <label class="flex items-center gap-2">
             <input id="removeMetadata" type="checkbox" class="h-4 w-4" checked />
-            <span class="text-sm">Remove document metadata (when possible)</span>
+            <span class="text-sm">文書メタデータを削除（可能な場合）</span>
           </label>
           <label class="flex items-center gap-2">
             <input id="grayscale" type="checkbox" class="h-4 w-4" />
-            <span class="text-sm">Convert pages to grayscale (smaller size)</span>
+            <span class="text-sm">グレースケールに変換（容量を小さく）</span>
           </label>
         </div>
       </details>
@@ -75,7 +83,7 @@ const pageDescription = 'Compress PDF files with adjustable quality, metadata re
     var progressText = document.getElementById('progressText');
     var preview = document.getElementById('preview');
 
-    function levelText(v) { return (v <= 1 ? 'Low' : (v >= 3 ? 'High' : 'Medium')); }
+    function levelText(v) { return (v <= 1 ? '低（高画質）' : (v >= 3 ? '高（高圧縮）' : '中')); }
     if (level && levelLabel) {
       levelLabel.textContent = levelText(Number(level.value));
       level.addEventListener('input', function () { levelLabel.textContent = levelText(Number(level.value)); });
@@ -95,7 +103,7 @@ const pageDescription = 'Compress PDF files with adjustable quality, metadata re
         if (preview) preview.innerHTML = '';
         var f = (fileInput.files && fileInput.files[0]) ? fileInput.files[0] : null;
         if (compressBtn) compressBtn.disabled = !f;
-        if (fileInfo) fileInfo.textContent = f ? (f.name + ' — ' + formatBytes(f.size)) : '';
+        if (fileInfo) fileInfo.textContent = f ? (f.name + ' — ' + formatBytes(f.size)) : '未選択';
         if (statusEl) statusEl.textContent = '';
         if (downloadBtn) downloadBtn.classList.add('hidden');
         if (progressText) progressText.textContent = '';
@@ -110,7 +118,7 @@ const pageDescription = 'Compress PDF files with adjustable quality, metadata re
       }).then(function (res) {
         if (res.ok) return res.json();
         return res.text().then(function (t) {
-          var err = new Error('Request failed: ' + res.status + (t ? (' ' + t) : ''));
+          var err = new Error('リクエストに失敗しました: ' + res.status + (t ? (' ' + t) : ''));
           err.status = res.status;
           err.body = t;
           throw err;
@@ -135,7 +143,7 @@ const pageDescription = 'Compress PDF files with adjustable quality, metadata re
           if (attempt === retries || !retryable) { throw e; }
           var delay = Math.min(max, base * Math.pow(factor, attempt));
           var wait = Math.floor(Math.random() * delay); // full jitter
-          if (statusEl) statusEl.textContent = 'Retrying in ' + Math.ceil(wait/1000) + 's... (attempt ' + (attempt+2) + '/' + (retries+1) + ')';
+          if (statusEl) statusEl.textContent = '再試行まで ' + Math.ceil(wait/1000) + ' 秒（' + (attempt+2) + '/' + (retries+1) + ' 回目）';
           await sleep(wait);
         }
       }
@@ -153,9 +161,9 @@ const pageDescription = 'Compress PDF files with adjustable quality, metadata re
         };
         xhr.onload = function () {
           if (xhr.status >= 200 && xhr.status < 300) resolve(null);
-          else reject(new Error('S3 upload failed: ' + xhr.status));
+          else reject(new Error('アップロードに失敗しました: ' + xhr.status));
         };
-        xhr.onerror = function () { reject(new Error('Network error during S3 upload')); };
+        xhr.onerror = function () { reject(new Error('アップロード中に通信エラーが発生しました')); };
         xhr.send(file);
       });
     }
@@ -165,22 +173,22 @@ const pageDescription = 'Compress PDF files with adjustable quality, metadata re
         var f = (fileInput && fileInput.files && fileInput.files[0]) ? fileInput.files[0] : null;
         if (!f) return;
         if (!API_BASE) {
-          if (statusEl) statusEl.textContent = 'API base is not configured. Set PUBLIC_PDF_API_BASE.';
+          if (statusEl) statusEl.textContent = 'APIの設定が見つかりません。PUBLIC_PDF_API_BASE を設定してください。';
           return;
         }
         compressBtn.disabled = true;
-        if (statusEl) statusEl.textContent = 'Requesting upload URL...';
+        if (statusEl) statusEl.textContent = 'アップロードURLを取得中...';
         if (progressText) progressText.textContent = '';
         withBackoff(function () { return postJSON(api('/sign-upload'), {
           filename: f.name,
           contentType: f.type || 'application/pdf'
         }); }, { retries: 5, base: 500, max: 6000 }).then(function (sign) {
-          if (statusEl) statusEl.textContent = 'Uploading to S3...';
+          if (statusEl) statusEl.textContent = 'アップロード中...';
           return uploadToS3(sign.uploadUrl, f, function (pct) {
-            if (progressText) progressText.textContent = 'Upload: ' + pct + '%';
+            if (progressText) progressText.textContent = 'アップロード: ' + pct + '%';
           }).then(function () { return sign; });
         }).then(function (sign) {
-          if (statusEl) statusEl.textContent = 'Starting compression...';
+          if (statusEl) statusEl.textContent = '圧縮処理を開始中...';
           var rmEl = document.getElementById('removeMetadata');
           var gsEl = document.getElementById('grayscale');
           return withBackoff(function () { return postJSON(api('/compress'), {
@@ -196,13 +204,13 @@ const pageDescription = 'Compress PDF files with adjustable quality, metadata re
             var base = f.name.replace(/\.pdf$/i, '');
             pendingFilename = base + '.compressed.pdf';
             downloadBtn.classList.remove('hidden');
-            if (statusEl) statusEl.textContent = 'Done. Click Download to save the compressed PDF.';
+            if (statusEl) statusEl.textContent = '圧縮が完了しました。ダウンロードしてください。';
           } else if (statusEl) {
-            statusEl.textContent = 'Compression finished. No downloadUrl returned.';
+            statusEl.textContent = '圧縮が完了しましたが、ダウンロード情報を取得できませんでした。';
           }
         }).catch(function (err) {
           console.error(err);
-          if (statusEl) statusEl.textContent = 'Error: ' + (err && err.message || err);
+          if (statusEl) statusEl.textContent = 'エラー: ' + (err && err.message || err);
         }).finally(function () {
           compressBtn.disabled = !fileInput || !(fileInput.files && fileInput.files[0]);
         });
@@ -212,10 +220,10 @@ const pageDescription = 'Compress PDF files with adjustable quality, metadata re
     if (downloadBtn) {
       downloadBtn.addEventListener('click', function () {
         if (!pendingDownloadUrl) return;
-        if (statusEl) statusEl.textContent = 'Preparing download...';
+        if (statusEl) statusEl.textContent = 'ダウンロード準備中...';
         downloadBtn.disabled = true;
         fetch(pendingDownloadUrl, { method: 'GET' })
-          .then(function (res) { if (!res.ok) throw new Error('Download failed: ' + res.status); return res.blob(); })
+          .then(function (res) { if (!res.ok) throw new Error('ダウンロードに失敗しました: ' + res.status); return res.blob(); })
           .then(function (blob) {
             var link = document.createElement('a');
             var urlObj = URL.createObjectURL(blob);
@@ -224,11 +232,11 @@ const pageDescription = 'Compress PDF files with adjustable quality, metadata re
             document.body.appendChild(link);
             link.click();
             setTimeout(function () { URL.revokeObjectURL(urlObj); if (link.parentNode) link.parentNode.removeChild(link); }, 1000);
-            if (statusEl) statusEl.textContent = 'Download started.';
+            if (statusEl) statusEl.textContent = 'ダウンロードを開始しました。';
           })
           .catch(function (err) {
             console.error(err);
-            if (statusEl) statusEl.textContent = 'Error: ' + (err && err.message || err);
+            if (statusEl) statusEl.textContent = 'エラー: ' + (err && err.message || err);
           })
           .finally(function () { downloadBtn.disabled = false; });
       });
