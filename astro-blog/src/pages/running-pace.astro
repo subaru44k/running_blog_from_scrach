@@ -57,6 +57,7 @@ const calculatorText = `ランニングのペースは、練習やレースの�
         <label for="distanceSelect" class="block text-sm font-medium mb-1">距離</label>
         <select id="distanceSelect" class="w-full border rounded px-3 py-2 bg-white dark:bg-gray-900">
           <option value="0.4">400メートル</option>
+          <option value="3">3km</option>
           <option value="5">5km</option>
           <option value="10">10km</option>
           <option value="21.0975">ハーフ</option>
@@ -88,6 +89,10 @@ const calculatorText = `ランニングのペースは、練習やレースの�
       <div class="border rounded px-4 py-3">
         <div class="text-sm text-gray-500">400メートルペース</div>
         <div id="pacePer400" class="text-lg font-semibold">-</div>
+      </div>
+      <div class="border rounded px-4 py-3">
+        <div class="text-sm text-gray-500">3km通過</div>
+        <div id="split3k" class="text-lg font-semibold">-</div>
       </div>
       <div class="border rounded px-4 py-3">
         <div class="text-sm text-gray-500">5km通過</div>
@@ -308,6 +313,7 @@ const calculatorText = `ランニングのペースは、練習やレースの�
       const result = calculatePace(distanceKm, totalSeconds);
       pacePerKm.textContent = \`\${formatTime(result.pacePerKm)}／km\`;
       pacePer400.textContent = formatTime(result.split400m);
+      split3k.textContent = distanceKm >= 3 ? formatTime(result.pacePerKm * 3) : '対象外';
       split5k.textContent = distanceKm >= 5 ? formatTime(result.split5k) : '対象外';
       split10k.textContent = distanceKm >= 10 ? formatTime(result.split10k) : '対象外';
       splitHalf.textContent = distanceKm >= 21.0975 ? formatTime(result.splitHalf) : '対象外';
@@ -326,6 +332,7 @@ const calculatorText = `ランニングのペースは、練習やレースの�
     const errorEl = document.getElementById('paceError');
     const pacePerKm = document.getElementById('pacePerKm');
     const pacePer400 = document.getElementById('pacePer400');
+    const split3k = document.getElementById('split3k');
     const split5k = document.getElementById('split5k');
     const split10k = document.getElementById('split10k');
     const splitHalf = document.getElementById('splitHalf');
