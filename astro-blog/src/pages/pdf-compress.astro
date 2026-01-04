@@ -30,9 +30,9 @@ const pageDescription = '履歴書や提出書類、スマホで作成したPDF�
 
     <h2 class="text-lg font-semibold mb-2">おすすめの使い方</h2>
     <ul class="list-disc pl-5 text-gray-600 dark:text-gray-400 mb-6 space-y-1">
-      <li>まずは「中」で試す</li>
-      <li>文字が潰れる場合は「低（高画質）」へ</li>
-      <li>とにかく容量を下げたい場合は「高（高圧縮）」へ</li>
+      <li>圧縮後に「高画質 / 標準 / 高圧縮」の3候補が表示されます。</li>
+      <li>サイズ制限がある場合は、上限以内の候補を選んでください。</li>
+      <li>画質を重視する場合は「高画質」、容量重視なら「高圧縮」がおすすめです。</li>
     </ul>
 
     <h2 class="text-lg font-semibold mb-2">注意事項・できること／できないこと</h2>
@@ -82,19 +82,18 @@ const pageDescription = '履歴書や提出書類、スマホで作成したPDF�
       </div>
 
       <div>
-        <label class="block font-medium mb-1" for="level">圧縮レベル</label>
+        <label class="block font-medium mb-1" for="maxSizeMb">上限サイズ（任意）</label>
         <div class="flex items-center gap-3">
-          <input id="level" type="range" min="1" max="3" step="1" value="2" class="w-56" />
-          <span id="levelLabel" class="text-sm text-gray-700 dark:text-gray-300">中</span>
+          <input id="maxSizeMb" type="number" inputmode="decimal" step="0.1" min="0.1" class="w-40 border rounded px-3 py-2" placeholder="例：5" />
+          <span class="text-sm text-gray-700 dark:text-gray-300">MB</span>
         </div>
-        <p class="mt-1 text-xs text-gray-500">低は高画質、 高は高圧縮で容量を小さくします。</p>
+        <p class="mt-1 text-xs text-gray-500">上限を入れると、条件を満たす候補にバッジが付きます。</p>
       </div>
 
       <div class="flex items-center gap-3">
         <button id="compressBtn" class="rounded-md px-4 py-2 ring-1 ring-inset ring-gray-300 dark:ring-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800 disabled:opacity-50" disabled>
           圧縮を開始
         </button>
-        <button id="downloadBtn" class="hidden rounded-md px-4 py-2 bg-blue-600 text-white hover:bg-blue-700">ダウンロード</button>
         <span id="status" class="text-sm text-gray-600 dark:text-gray-400"></span>
       </div>
       <div id="progressText" class="text-xs text-gray-500"></div>
@@ -127,21 +126,13 @@ const pageDescription = '履歴書や提出書類、スマホで作成したPDF�
 
     var fileInput = document.getElementById('pdfFile');
     var fileInfo = document.getElementById('fileInfo');
-    var level = document.getElementById('level');
-    var levelLabel = document.getElementById('levelLabel');
     var compressBtn = document.getElementById('compressBtn');
-    var downloadBtn = document.getElementById('downloadBtn');
     var pendingDownloadUrl = null;
     var pendingFilename = null;
     var statusEl = document.getElementById('status');
     var progressText = document.getElementById('progressText');
     var preview = document.getElementById('preview');
-
-    function levelText(v) { return (v <= 1 ? '低（高画質）' : (v >= 3 ? '高（高圧縮）' : '中')); }
-    if (level && levelLabel) {
-      levelLabel.textContent = levelText(Number(level.value));
-      level.addEventListener('input', function () { levelLabel.textContent = levelText(Number(level.value)); });
-    }
+    var maxSizeMb = document.getElementById('maxSizeMb');
 
     function formatBytes(bytes) {
       if (!isFinite(bytes)) return '';
@@ -152,6 +143,24 @@ const pageDescription = '履歴書や提出書類、スマホで作成したPDF�
       return String(bytes.toFixed(places)) + ' ' + sizes[i];
     }
 
+    function formatMb(value) {
+      if (!isFinite(value)) return '';
+      var rounded = Math.round(value * 10) / 10;
+      return (rounded % 1 === 0) ? String(Math.trunc(rounded)) : String(rounded);
+    }
+
+    function formatPercent(value) {
+      if (!isFinite(value)) return '';
+      return String(Math.round(value));
+    }
+
+    function parseMaxSizeBytes() {
+      if (!maxSizeMb) return null;
+      var mb = Number(maxSizeMb.value);
+      if (!isFinite(mb) || mb <= 0) return null;
+      return mb * 1024 * 1024;
+    }
+
     if (fileInput) {
       fileInput.addEventListener('change', function () {
         if (preview) preview.innerHTML = '';
@@ -159,8 +168,9 @@ const pageDescription = '履歴書や提出書類、スマホで作成したPDF�
         if (compressBtn) compressBtn.disabled = !f;
         if (fileInfo) fileInfo.textContent = f ? (f.name + ' — ' + formatBytes(f.size)) : '未選択';
         if (statusEl) statusEl.textContent = '';
-        if (downloadBtn) downloadBtn.classList.add('hidden');
         if (progressText) progressText.textContent = '';
+        pendingDownloadUrl = null;
+        pendingFilename = null;
       });
     }
 
@@ -222,6 +232,124 @@ const pageDescription = '履歴書や提出書類、スマホで作成したPDF�
       });
     }
 
+    function downloadSignedUrl(url, filename) {
+      if (statusEl) statusEl.textContent = 'ダウンロード準備中...';
+      return fetch(url, { method: 'GET' })
+        .then(function (res) {
+          if (!res.ok) throw new Error('ダウンロードに失敗しました: ' + res.status);
+          return res.blob();
+        })
+        .then(function (blob) {
+          var link = document.createElement('a');
+          var urlObj = URL.createObjectURL(blob);
+          link.href = urlObj;
+          if (filename) link.download = filename;
+          document.body.appendChild(link);
+          link.click();
+          setTimeout(function () { URL.revokeObjectURL(urlObj); if (link.parentNode) link.parentNode.removeChild(link); }, 1000);
+          if (statusEl) statusEl.textContent = 'ダウンロードを開始しました。';
+        });
+    }
+
+    function pickRecommendedKey(variants, maxBytes) {
+      if (!variants || !variants.length) return null;
+      if (!maxBytes) return 'balanced';
+      var within = variants.filter(function (v) { return v.outputSizeBytes <= maxBytes; });
+      if (within.length > 0) {
+        var order = ['balanced', 'high_quality', 'high_compression'];
+        for (var i = 0; i < order.length; i++) {
+          var found = within.find(function (v) { return v.key === order[i]; });
+          if (found) return found.key;
+        }
+      }
+      var min = variants[0];
+      for (var j = 1; j < variants.length; j++) {
+        if (variants[j].outputSizeBytes < min.outputSizeBytes) min = variants[j];
+      }
+      return min.key;
+    }
+
+    function renderVariants(variants, originalSizeBytes, maxBytes, baseName) {
+      if (!preview) return;
+      preview.innerHTML = '';
+      var recommendedKey = pickRecommendedKey(variants, maxBytes);
+      var suffixMap = { high_quality: 'hq', balanced: 'balanced', high_compression: 'small' };
+      var maxMbLabel = maxBytes ? (formatMb(maxBytes / 1024 / 1024) + 'MB以下') : '';
+
+      variants.forEach(function (variant) {
+        var card = document.createElement('div');
+        card.className = 'border rounded-lg p-4 space-y-2';
+
+        var titleRow = document.createElement('div');
+        titleRow.className = 'flex items-center justify-between gap-2';
+        var title = document.createElement('div');
+        title.className = 'text-base font-semibold';
+        title.textContent = variant.labelJa || '';
+        titleRow.appendChild(title);
+
+        var badges = document.createElement('div');
+        badges.className = 'flex items-center gap-2';
+        if (maxBytes && variant.outputSizeBytes <= maxBytes) {
+          var okBadge = document.createElement('span');
+          okBadge.className = 'text-xs px-2 py-0.5 rounded-full bg-green-100 text-green-800';
+          okBadge.textContent = maxMbLabel;
+          badges.appendChild(okBadge);
+        }
+        if (variant.key === recommendedKey) {
+          var recBadge = document.createElement('span');
+          recBadge.className = 'text-xs px-2 py-0.5 rounded-full bg-yellow-100 text-yellow-800';
+          recBadge.textContent = 'おすすめ';
+          badges.appendChild(recBadge);
+        }
+        titleRow.appendChild(badges);
+        card.appendChild(titleRow);
+
+        var sizeText = document.createElement('div');
+        sizeText.className = 'text-sm text-gray-600 dark:text-gray-400';
+        sizeText.textContent = '圧縮後サイズ: ' + formatBytes(variant.outputSizeBytes);
+        card.appendChild(sizeText);
+
+        if (isFinite(originalSizeBytes) && originalSizeBytes > 0) {
+          var ratio = (1 - (variant.outputSizeBytes / originalSizeBytes)) * 100;
+          var ratioText = document.createElement('div');
+          ratioText.className = 'text-sm text-gray-600 dark:text-gray-400';
+          ratioText.textContent = '削減率: ' + formatPercent(ratio) + '%';
+          card.appendChild(ratioText);
+        }
+
+        if (variant.previewUrl) {
+          var img = document.createElement('img');
+          img.src = variant.previewUrl;
+          img.alt = variant.labelJa + 'のプレビュー';
+          img.className = 'w-full rounded border';
+          card.appendChild(img);
+        } else {
+          var noPreview = document.createElement('div');
+          noPreview.className = 'text-sm text-gray-500';
+          noPreview.textContent = 'プレビューは準備中';
+          card.appendChild(noPreview);
+        }
+
+        var btn = document.createElement('button');
+        btn.className = 'rounded-md px-3 py-2 bg-blue-600 text-white hover:bg-blue-700';
+        btn.textContent = 'ダウンロード';
+        btn.dataset.url = variant.downloadUrl || '';
+        var suffix = suffixMap[variant.key] || 'compressed';
+        btn.dataset.filename = baseName ? (baseName + '.' + suffix + '.pdf') : '';
+        btn.addEventListener('click', function () {
+          if (!btn.dataset.url) return;
+          downloadSignedUrl(btn.dataset.url, btn.dataset.filename || undefined)
+            .catch(function (err) {
+              console.error(err);
+              if (statusEl) statusEl.textContent = 'エラー: ' + (err && err.message || err);
+            });
+        });
+        card.appendChild(btn);
+
+        preview.appendChild(card);
+      });
+    }
+
     if (compressBtn) {
       compressBtn.addEventListener('click', function () {
         var f = (fileInput && fileInput.files && fileInput.files[0]) ? fileInput.files[0] : null;
@@ -248,16 +376,31 @@ const pageDescription = '履歴書や提出書類、スマホで作成したPDF�
           return withBackoff(function () { return postJSON(api('/compress'), {
             bucket: sign.bucket,
             key: sign.objectKey,
-            level: Number(level && level.value || 2),
+            multi: true,
             removeMetadata: !!(rmEl && rmEl.checked),
             grayscale: !!(gsEl && gsEl.checked)
           }); }, { retries: 5, base: 700, max: 8000 });
         }).then(function (resp) {
-          if (resp.downloadUrl && downloadBtn) {
+          if (resp && Array.isArray(resp.variants)) {
+            var baseName = f.name.replace(/\.pdf$/i, '');
+            var maxBytes = parseMaxSizeBytes();
+            renderVariants(resp.variants, resp.originalSizeBytes || f.size, maxBytes, baseName);
+            if (statusEl) statusEl.textContent = '圧縮が完了しました。候補から選んでダウンロードしてください。';
+            return;
+          }
+          if (resp && resp.downloadUrl) {
             pendingDownloadUrl = resp.downloadUrl;
-            var base = f.name.replace(/\.pdf$/i, '');
-            pendingFilename = base + '.compressed.pdf';
-            downloadBtn.classList.remove('hidden');
+            pendingFilename = f.name.replace(/\.pdf$/i, '') + '.compressed.pdf';
+            if (preview) {
+              preview.innerHTML = '';
+              renderVariants([{
+                key: 'balanced',
+                labelJa: '圧縮結果',
+                outputSizeBytes: resp.outputSizeBytes || f.size,
+                downloadUrl: resp.downloadUrl,
+                previewUrl: null
+              }], resp.originalSizeBytes || f.size, parseMaxSizeBytes(), f.name.replace(/\.pdf$/i, ''));
+            }
             if (statusEl) statusEl.textContent = '圧縮が完了しました。ダウンロードしてください。';
           } else if (statusEl) {
             statusEl.textContent = '圧縮が完了しましたが、ダウンロード情報を取得できませんでした。';
@@ -268,31 +411,6 @@ const pageDescription = '履歴書や提出書類、スマホで作成したPDF�
         }).finally(function () {
           compressBtn.disabled = !fileInput || !(fileInput.files && fileInput.files[0]);
         });
-      });
-    }
-
-    if (downloadBtn) {
-      downloadBtn.addEventListener('click', function () {
-        if (!pendingDownloadUrl) return;
-        if (statusEl) statusEl.textContent = 'ダウンロード準備中...';
-        downloadBtn.disabled = true;
-        fetch(pendingDownloadUrl, { method: 'GET' })
-          .then(function (res) { if (!res.ok) throw new Error('ダウンロードに失敗しました: ' + res.status); return res.blob(); })
-          .then(function (blob) {
-            var link = document.createElement('a');
-            var urlObj = URL.createObjectURL(blob);
-            link.href = urlObj;
-            if (pendingFilename) link.download = pendingFilename;
-            document.body.appendChild(link);
-            link.click();
-            setTimeout(function () { URL.revokeObjectURL(urlObj); if (link.parentNode) link.parentNode.removeChild(link); }, 1000);
-            if (statusEl) statusEl.textContent = 'ダウンロードを開始しました。';
-          })
-          .catch(function (err) {
-            console.error(err);
-            if (statusEl) statusEl.textContent = 'エラー: ' + (err && err.message || err);
-          })
-          .finally(function () { downloadBtn.disabled = false; });
       });
     }
   </script>
