@@ -3,7 +3,7 @@ import Layout from "../layouts/Layout.astro";
 const title = "PDF圧縮";
 const apiBase = import.meta.env.PUBLIC_PDF_API_BASE || '';
 const pageTitle = 'PDF圧縮｜履歴書・提出書類の容量を軽くする';
-const pageDescription = '履歴書や提出書類、スマホで作成したPDFの容量を画質とのバランスを見ながら圧縮できます。サーバで圧縮処理を行い、元ファイルは完了後に削除、圧縮後は数時間のみ保存します。';
+const pageDescription = '履歴書や提出書類、スマホで作成したPDFの容量を画質とのバランスを見ながら圧縮できます。サーバで圧縮処理を行い、元PDFは短時間のみ保存され一定時間後に自動削除されます。圧縮後ファイルも一定時間のみ保存され、自動削除されます。';
 ---
 <Layout noSidebar pageTitle={pageTitle} metaDescription={pageDescription}>
   <section class="card p-6">
@@ -65,8 +65,8 @@ const pageDescription = '履歴書や提出書類、スマホで作成したPDF�
     <h2 class="text-lg font-semibold mb-2">データの取り扱い</h2>
     <ul class="list-disc pl-5 text-gray-600 dark:text-gray-400 mb-6 space-y-1">
       <li>PDFは一時的にアップロードされ、サーバ側で圧縮処理を行います。</li>
-      <li>元ファイルは圧縮完了後に削除します。</li>
-      <li>圧縮後ファイルはダウンロードのため数時間のみ保存されます。</li>
+      <li>元PDFは短時間のみ保存され、一定時間後に自動的に削除されます。</li>
+      <li>圧縮後ファイルも一定時間のみ保存され、その後自動的に削除されます。</li>
     </ul>
 
     <div class="space-y-4">
@@ -127,12 +127,13 @@ const pageDescription = '履歴書や提出書類、スマホで作成したPDF�
     var fileInput = document.getElementById('pdfFile');
     var fileInfo = document.getElementById('fileInfo');
     var compressBtn = document.getElementById('compressBtn');
-    var pendingDownloadUrl = null;
-    var pendingFilename = null;
     var statusEl = document.getElementById('status');
     var progressText = document.getElementById('progressText');
     var preview = document.getElementById('preview');
     var maxSizeMb = document.getElementById('maxSizeMb');
+    var activeOptions = null;
+    var activeBaseName = null;
+    var variantsState = [];
 
     function formatBytes(bytes) {
       if (!isFinite(bytes)) return '';
@@ -169,8 +170,6 @@ const pageDescription = '履歴書や提出書類、スマホで作成したPDF�
         if (fileInfo) fileInfo.textContent = f ? (f.name + ' — ' + formatBytes(f.size)) : '未選択';
         if (statusEl) statusEl.textContent = '';
         if (progressText) progressText.textContent = '';
-        pendingDownloadUrl = null;
-        pendingFilename = null;
       });
     }
 
@@ -254,7 +253,7 @@ const pageDescription = '履歴書や提出書類、スマホで作成したPDF�
     function pickRecommendedKey(variants, maxBytes) {
       if (!variants || !variants.length) return null;
       if (!maxBytes) return 'balanced';
-      var within = variants.filter(function (v) { return v.outputSizeBytes <= maxBytes; });
+      var within = variants.filter(function (v) { return isFinite(v.outputSizeBytes) && v.outputSizeBytes <= maxBytes; });
       if (within.length > 0) {
         var order = ['balanced', 'high_quality', 'high_compression'];
         for (var i = 0; i < order.length; i++) {
@@ -262,11 +261,12 @@ const pageDescription = '履歴書や提出書類、スマホで作成したPDF�
           if (found) return found.key;
         }
       }
-      var min = variants[0];
-      for (var j = 1; j < variants.length; j++) {
-        if (variants[j].outputSizeBytes < min.outputSizeBytes) min = variants[j];
+      var min = null;
+      for (var j = 0; j < variants.length; j++) {
+        if (!isFinite(variants[j].outputSizeBytes)) continue;
+        if (!min || variants[j].outputSizeBytes < min.outputSizeBytes) min = variants[j];
       }
-      return min.key;
+      return min ? min.key : variants[0].key;
     }
 
     function renderVariants(variants, originalSizeBytes, maxBytes, baseName) {
@@ -289,7 +289,7 @@ const pageDescription = '履歴書や提出書類、スマホで作成したPDF�
 
         var badges = document.createElement('div');
         badges.className = 'flex items-center gap-2';
-        if (maxBytes && variant.outputSizeBytes <= maxBytes) {
+        if (maxBytes && isFinite(variant.outputSizeBytes) && variant.outputSizeBytes <= maxBytes) {
           var okBadge = document.createElement('span');
           okBadge.className = 'text-xs px-2 py-0.5 rounded-full bg-green-100 text-green-800';
           okBadge.textContent = maxMbLabel;
@@ -306,10 +306,16 @@ const pageDescription = '履歴書や提出書類、スマホで作成したPDF�
 
         var sizeText = document.createElement('div');
         sizeText.className = 'text-sm text-gray-600 dark:text-gray-400';
-        sizeText.textContent = '圧縮後サイズ: ' + formatBytes(variant.outputSizeBytes);
+        if (isFinite(variant.outputSizeBytes)) {
+          sizeText.textContent = '圧縮後サイズ: ' + formatBytes(variant.outputSizeBytes);
+        } else if (variant.state === 'pending') {
+          sizeText.textContent = '圧縮中...';
+        } else {
+          sizeText.textContent = '圧縮に失敗しました。';
+        }
         card.appendChild(sizeText);
 
-        if (isFinite(originalSizeBytes) && originalSizeBytes > 0) {
+        if (isFinite(originalSizeBytes) && originalSizeBytes > 0 && isFinite(variant.outputSizeBytes)) {
           var ratio = (1 - (variant.outputSizeBytes / originalSizeBytes)) * 100;
           var ratioText = document.createElement('div');
           ratioText.className = 'text-sm text-gray-600 dark:text-gray-400';
@@ -323,6 +329,16 @@ const pageDescription = '履歴書や提出書類、スマホで作成したPDF�
           img.alt = variant.labelJa + 'のプレビュー';
           img.className = 'w-full rounded border';
           card.appendChild(img);
+        } else if (variant.state === 'pending') {
+          var waiting = document.createElement('div');
+          waiting.className = 'text-sm text-gray-500';
+          waiting.textContent = 'プレビューを生成中...';
+          card.appendChild(waiting);
+        } else if (variant.state === 'error') {
+          var noPreview = document.createElement('div');
+          noPreview.className = 'text-sm text-gray-500';
+          noPreview.textContent = 'プレビューは表示できません';
+          card.appendChild(noPreview);
         } else {
           var noPreview = document.createElement('div');
           noPreview.className = 'text-sm text-gray-500';
@@ -330,21 +346,40 @@ const pageDescription = '履歴書や提出書類、スマホで作成したPDF�
           card.appendChild(noPreview);
         }
 
-        var btn = document.createElement('button');
-        btn.className = 'rounded-md px-3 py-2 bg-blue-600 text-white hover:bg-blue-700';
-        btn.textContent = 'ダウンロード';
-        btn.dataset.url = variant.downloadUrl || '';
-        var suffix = suffixMap[variant.key] || 'compressed';
-        btn.dataset.filename = baseName ? (baseName + '.' + suffix + '.pdf') : '';
-        btn.addEventListener('click', function () {
-          if (!btn.dataset.url) return;
-          downloadSignedUrl(btn.dataset.url, btn.dataset.filename || undefined)
-            .catch(function (err) {
-              console.error(err);
-              if (statusEl) statusEl.textContent = 'エラー: ' + (err && err.message || err);
-            });
-        });
-        card.appendChild(btn);
+        if (variant.state === 'error' && variant.errorMessage) {
+          var errText = document.createElement('div');
+          errText.className = 'text-xs text-red-600';
+          errText.textContent = 'エラー: ' + variant.errorMessage;
+          card.appendChild(errText);
+        }
+
+        if (variant.downloadUrl) {
+          var btn = document.createElement('button');
+          btn.className = 'rounded-md px-3 py-2 bg-blue-600 text-white hover:bg-blue-700';
+          btn.textContent = 'ダウンロード';
+          btn.dataset.url = variant.downloadUrl || '';
+          var suffix = suffixMap[variant.key] || 'compressed';
+          btn.dataset.filename = baseName ? (baseName + '.' + suffix + '.pdf') : '';
+          btn.addEventListener('click', function () {
+            if (!btn.dataset.url) return;
+            downloadSignedUrl(btn.dataset.url, btn.dataset.filename || undefined)
+              .catch(function (err) {
+                console.error(err);
+                if (statusEl) statusEl.textContent = 'エラー: ' + (err && err.message || err);
+              });
+          });
+          card.appendChild(btn);
+        }
+
+        if (variant.state === 'error' && typeof variant.onRetry === 'function') {
+          var retryBtn = document.createElement('button');
+          retryBtn.className = 'rounded-md px-3 py-2 ring-1 ring-inset ring-gray-300 dark:ring-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800';
+          retryBtn.textContent = '再試行';
+          retryBtn.addEventListener('click', function () {
+            variant.onRetry();
+          });
+          card.appendChild(retryBtn);
+        }
 
         preview.appendChild(card);
       });
@@ -361,6 +396,7 @@ const pageDescription = '履歴書や提出書類、スマホで作成したPDF�
         compressBtn.disabled = true;
         if (statusEl) statusEl.textContent = 'アップロードURLを取得中...';
         if (progressText) progressText.textContent = '';
+        if (preview) preview.innerHTML = '';
         withBackoff(function () { return postJSON(api('/sign-upload'), {
           filename: f.name,
           contentType: f.type || 'application/pdf'
@@ -370,27 +406,92 @@ const pageDescription = '履歴書や提出書類、スマホで作成したPDF�
             if (progressText) progressText.textContent = 'アップロード: ' + pct + '%';
           }).then(function () { return sign; });
         }).then(function (sign) {
-          if (statusEl) statusEl.textContent = '圧縮処理を開始中...';
+          if (statusEl) statusEl.textContent = '圧縮中...（3件中 0件完了）';
           var rmEl = document.getElementById('removeMetadata');
           var gsEl = document.getElementById('grayscale');
-          return withBackoff(function () { return postJSON(api('/compress'), {
-            bucket: sign.bucket,
-            key: sign.objectKey,
-            multi: true,
+          activeOptions = {
             removeMetadata: !!(rmEl && rmEl.checked),
-            grayscale: !!(gsEl && gsEl.checked)
-          }); }, { retries: 5, base: 700, max: 8000 });
-        }).then(function (resp) {
-          if (resp && Array.isArray(resp.variants)) {
-            var baseName = f.name.replace(/\.pdf$/i, '');
-            var maxBytes = parseMaxSizeBytes();
-            renderVariants(resp.variants, resp.originalSizeBytes || f.size, maxBytes, baseName);
-            if (statusEl) statusEl.textContent = '圧縮が完了しました。候補から選んでダウンロードしてください。';
-            return;
+            grayscale: !!(gsEl && gsEl.checked),
+          };
+          activeBaseName = f.name.replace(/\.pdf$/i, '');
+          variantsState = [
+            { key: 'high_quality', labelJa: '高画質', level: 1, state: 'pending' },
+            { key: 'balanced', labelJa: '標準', level: 2, state: 'pending' },
+            { key: 'high_compression', labelJa: '高圧縮', level: 3, state: 'pending' },
+          ];
+          renderVariants(variantsState, f.size, parseMaxSizeBytes(), activeBaseName);
+
+          function updateStatus() {
+            if (!statusEl) return;
+            var doneCount = variantsState.filter(function (v) { return v.state !== 'pending'; }).length;
+            statusEl.textContent = '圧縮中...（3件中 ' + doneCount + '件完了）';
           }
+
+          function compressOne(level) {
+            return withBackoff(function () {
+              return postJSON(api('/compress'), {
+                bucket: sign.bucket,
+                key: sign.objectKey,
+                level: level,
+                removeMetadata: activeOptions.removeMetadata,
+                grayscale: activeOptions.grayscale,
+                keepSource: true
+              });
+            }, { retries: 5, base: 700, max: 8000 });
+          }
+
+          function attachRetry(variant) {
+            variant.onRetry = function () {
+              variant.state = 'pending';
+              variant.errorMessage = null;
+              variant.downloadUrl = null;
+              variant.outputSizeBytes = NaN;
+              renderVariants(variantsState, f.size, parseMaxSizeBytes(), activeBaseName);
+              if (statusEl) statusEl.textContent = '再試行中...';
+              compressOne(variant.level).then(function (resp) {
+                variant.state = 'success';
+                variant.downloadUrl = resp && resp.downloadUrl;
+                variant.outputSizeBytes = resp && resp.outputSizeBytes;
+                renderVariants(variantsState, resp.originalSizeBytes || f.size, parseMaxSizeBytes(), activeBaseName);
+              }).catch(function (err) {
+                variant.state = 'error';
+                variant.errorMessage = (err && err.message) ? err.message : '不明なエラー';
+                renderVariants(variantsState, f.size, parseMaxSizeBytes(), activeBaseName);
+              }).finally(function () {
+                updateStatus();
+              });
+            };
+          }
+
+          variantsState.forEach(function (variant) { attachRetry(variant); });
+
+          var requests = variantsState.map(function (variant) {
+            return compressOne(variant.level).then(function (resp) {
+              variant.state = 'success';
+              variant.downloadUrl = resp && resp.downloadUrl;
+              variant.outputSizeBytes = resp && resp.outputSizeBytes;
+              renderVariants(variantsState, resp.originalSizeBytes || f.size, parseMaxSizeBytes(), activeBaseName);
+            }).catch(function (err) {
+              variant.state = 'error';
+              variant.errorMessage = (err && err.message) ? err.message : '不明なエラー';
+              renderVariants(variantsState, f.size, parseMaxSizeBytes(), activeBaseName);
+            }).finally(function () {
+              updateStatus();
+            });
+          });
+
+          return Promise.allSettled(requests).then(function () {
+            if (statusEl) {
+              var successCount = variantsState.filter(function (v) { return v.state === 'success'; }).length;
+              if (successCount > 0) {
+                statusEl.textContent = '圧縮が完了しました。候補から選んでダウンロードしてください。';
+              } else {
+                statusEl.textContent = '圧縮に失敗しました。時間をおいて再試行してください。';
+              }
+            }
+          });
+        }).then(function (resp) {
           if (resp && resp.downloadUrl) {
-            pendingDownloadUrl = resp.downloadUrl;
-            pendingFilename = f.name.replace(/\.pdf$/i, '') + '.compressed.pdf';
             if (preview) {
               preview.innerHTML = '';
               renderVariants([{
@@ -398,7 +499,8 @@ const pageDescription = '履歴書や提出書類、スマホで作成したPDF�
                 labelJa: '圧縮結果',
                 outputSizeBytes: resp.outputSizeBytes || f.size,
                 downloadUrl: resp.downloadUrl,
-                previewUrl: null
+                previewUrl: null,
+                state: 'success'
               }], resp.originalSizeBytes || f.size, parseMaxSizeBytes(), f.name.replace(/\.pdf$/i, ''));
             }
             if (statusEl) statusEl.textContent = '圧縮が完了しました。ダウンロードしてください。';

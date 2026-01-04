@@ -19,6 +19,13 @@ function mapLevel(level) {
   return { preset: '/ebook', colorRes: 150, grayRes: 150, monoRes: 300 };
 }
 
+function levelSuffix(level) {
+  const lvl = Number(level);
+  if (lvl === 1) return 'hq';
+  if (lvl === 3) return 'small';
+  return 'balanced';
+}
+
 function runGs(args) {
   return new Promise((resolve, reject) => {
     const proc = spawn('gs', args, { stdio: ['ignore', 'pipe', 'pipe'] });
@@ -121,7 +128,7 @@ exports.handler = async (event) => {
     const headers = event.headers || {};
     const contentType = headerLookup(headers, 'content-type') || headerLookup(headers, 'Content-Type') || '';
 
-    let fileBuf, filename, level, removeMetadata, grayscale, s3Bucket, s3Key, wantDownloadUrl, multi;
+    let fileBuf, filename, level, removeMetadata, grayscale, s3Bucket, s3Key, wantDownloadUrl, multi, keepSource;
 
     if (/multipart\/form-data/i.test(contentType)) {
       if (!event.isBase64Encoded) throw new Error('Multipart body must be base64-encoded');
@@ -134,6 +141,7 @@ exports.handler = async (event) => {
       removeMetadata = String(fields.removeMetadata || 'false') === 'true';
       grayscale = String(fields.grayscale || 'false') === 'true';
       multi = String(fields.multi || 'false') === 'true';
+      keepSource = String(fields.keepSource || 'false') === 'true';
       wantDownloadUrl = false;
     } else {
       // Expect JSON: either
@@ -145,6 +153,7 @@ exports.handler = async (event) => {
       removeMetadata = !!data.removeMetadata;
       grayscale = !!data.grayscale;
       multi = !!data.multi;
+      keepSource = !!data.keepSource;
       if (data.bucket && data.key) {
         s3Bucket = data.bucket;
         s3Key = data.key;
@@ -181,8 +190,8 @@ exports.handler = async (event) => {
 
     if (wantDownloadUrl && s3Bucket) {
       const s3 = new S3Client({ region: process.env.AWS_REGION || process.env.AWS_DEFAULT_REGION });
+      const originalStat = await fsp.stat(inFile);
       if (multi) {
-        const originalStat = await fsp.stat(inFile);
         const variantsSpec = [
           { key: 'high_quality', labelJa: '高画質', level: 1, suffix: 'hq' },
           { key: 'balanced', labelJa: '標準', level: 2, suffix: 'balanced' },
@@ -229,7 +238,7 @@ exports.handler = async (event) => {
 
         // Best-effort: delete original upload to save storage cost
         try {
-          if (s3Key && /^uploads\//.test(s3Key)) {
+          if (!keepSource && s3Key && /^uploads\//.test(s3Key)) {
             await s3.send(new DeleteObjectCommand({ Bucket: s3Bucket, Key: s3Key }));
           }
         } catch (e) {
@@ -248,11 +257,13 @@ exports.handler = async (event) => {
 
       const args = buildGsArgs({ inFile, outFile, level, grayscale, removeMetadata });
       await runGs(args);
-      const outKey = `outputs/${base}.compressed.pdf`;
+      const outStat = await fsp.stat(outFile);
+      const suffix = levelSuffix(level);
+      const outKey = `outputs/${base}.${suffix}.pdf`;
       await uploadFile(s3, s3Bucket, outKey, outFile, 'application/pdf');
       // Best-effort: delete original upload to save storage cost
       try {
-        if (s3Key && /^uploads\//.test(s3Key)) {
+        if (!keepSource && s3Key && /^uploads\//.test(s3Key)) {
           await s3.send(new DeleteObjectCommand({ Bucket: s3Bucket, Key: s3Key }));
         }
       } catch (e) {
@@ -262,7 +273,15 @@ exports.handler = async (event) => {
       return {
         statusCode: 200,
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ bucket: s3Bucket, key: outKey, downloadUrl }),
+        body: JSON.stringify({
+          bucket: s3Bucket,
+          key: outKey,
+          downloadUrl,
+          outputSizeBytes: outStat.size,
+          originalSizeBytes: originalStat.size,
+          level: Number(level),
+          keptSource: !!keepSource,
+        }),
       };
     } else {
       const args = buildGsArgs({ inFile, outFile, level, grayscale, removeMetadata });
