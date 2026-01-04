@@ -446,12 +446,14 @@ const pageDescription = '履歴書や提出書類、スマホで作成したPDF�
               variant.errorMessage = null;
               variant.downloadUrl = null;
               variant.outputSizeBytes = NaN;
+              variant.previewUrl = null;
               renderVariants(variantsState, f.size, parseMaxSizeBytes(), activeBaseName);
               if (statusEl) statusEl.textContent = '再試行中...';
               compressOne(variant.level).then(function (resp) {
                 variant.state = 'success';
                 variant.downloadUrl = resp && resp.downloadUrl;
                 variant.outputSizeBytes = resp && resp.outputSizeBytes;
+                variant.previewUrl = resp && resp.previewUrl;
                 renderVariants(variantsState, resp.originalSizeBytes || f.size, parseMaxSizeBytes(), activeBaseName);
               }).catch(function (err) {
                 variant.state = 'error';
@@ -470,6 +472,7 @@ const pageDescription = '履歴書や提出書類、スマホで作成したPDF�
               variant.state = 'success';
               variant.downloadUrl = resp && resp.downloadUrl;
               variant.outputSizeBytes = resp && resp.outputSizeBytes;
+              variant.previewUrl = resp && resp.previewUrl;
               renderVariants(variantsState, resp.originalSizeBytes || f.size, parseMaxSizeBytes(), activeBaseName);
             }).catch(function (err) {
               variant.state = 'error';

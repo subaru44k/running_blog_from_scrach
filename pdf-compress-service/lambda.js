@@ -270,6 +270,20 @@ exports.handler = async (event) => {
         // Ignore deletion errors; do not fail compression response
       }
       const downloadUrl = await getSignedUrl(s3, new GetObjectCommand({ Bucket: s3Bucket, Key: outKey }), { expiresIn: Number(process.env.DOWNLOAD_URL_TTL || 600) });
+      let previewUrl = null;
+      const previewPath = path.join(tmpDir, `preview-${suffix}.png`);
+      try {
+        await generatePreviewPng(outFile, previewPath);
+        const previewKey = `previews/${base}.${suffix}.p1.png`;
+        await uploadFile(s3, s3Bucket, previewKey, previewPath, 'image/png');
+        previewUrl = await getSignedUrl(
+          s3,
+          new GetObjectCommand({ Bucket: s3Bucket, Key: previewKey }),
+          { expiresIn: Number(process.env.DOWNLOAD_URL_TTL || 600) }
+        );
+      } catch (e) {
+        // Preview generation is best-effort; allow null previewUrl on failure
+      }
       return {
         statusCode: 200,
         headers: { 'Content-Type': 'application/json' },
@@ -281,6 +295,7 @@ exports.handler = async (event) => {
           originalSizeBytes: originalStat.size,
           level: Number(level),
           keptSource: !!keepSource,
+          previewUrl,
         }),
       };
     } else {
