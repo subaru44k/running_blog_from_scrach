@@ -23,7 +23,7 @@ async function main() {
   const pdf = join(root, 'pdf-compress', 'index.html');
 
   await assertFileContains(home, '<title>Subaru is Running', 'Home page');
-  await assertFileContains(pdf, 'PDF Compressor', 'PDF page');
+  await assertFileContains(pdf, 'PDF圧縮', 'PDF page');
 
   console.log('Sanity checks passed for:', root);
 }
@@ -32,4 +32,3 @@ main().catch((err) => {
   console.error('Sanity check failed:', err.message || err);
   process.exit(1);
 });
-
