@@ -219,11 +219,14 @@ const pageDescription = '履歴書や提出書類、スキャナ・複合機・�
       }
     }
 
-    function uploadToS3(url, file, onProgress) {
+    function uploadToS3Post(sign, file, onProgress) {
       return new Promise(function (resolve, reject) {
+        if (!sign || !sign.url || !sign.fields) {
+          reject(new Error('アップロード情報が不正です'));
+          return;
+        }
         var xhr = new XMLHttpRequest();
-        xhr.open('PUT', url);
-        xhr.setRequestHeader('Content-Type', file.type || 'application/pdf');
+        xhr.open('POST', sign.url);
         xhr.upload.onprogress = function (e) {
           if (!e.lengthComputable) return;
           var pct = Math.round((e.loaded / e.total) * 100);
@@ -231,10 +234,18 @@ const pageDescription = '履歴書や提出書類、スキャナ・複合機・�
         };
         xhr.onload = function () {
           if (xhr.status >= 200 && xhr.status < 300) resolve(null);
-          else reject(new Error('アップロードに失敗しました: ' + xhr.status));
+          else {
+            var detail = xhr.responseText ? (' ' + xhr.responseText) : '';
+            reject(new Error('アップロードに失敗しました: ' + xhr.status + detail));
+          }
         };
         xhr.onerror = function () { reject(new Error('アップロード中に通信エラーが発生しました')); };
-        xhr.send(file);
+        var formData = new FormData();
+        Object.keys(sign.fields).forEach(function (key) {
+          formData.append(key, sign.fields[key]);
+        });
+        formData.append('file', file);
+        xhr.send(formData);
       });
     }
 
@@ -415,7 +426,7 @@ const pageDescription = '履歴書や提出書類、スキャナ・複合機・�
           contentLength: f.size
         }); }, { retries: 5, base: 500, max: 6000 }).then(function (sign) {
           if (statusEl) statusEl.textContent = 'アップロード中...';
-          return uploadToS3(sign.uploadUrl, f, function (pct) {
+          return uploadToS3Post(sign, f, function (pct) {
             if (progressText) progressText.textContent = 'アップロード: ' + pct + '%';
           }).then(function () { return sign; });
         }).then(function (sign) {

@@ -67,8 +67,8 @@ site:
 features:
   pdf_compress:
     steps:
-      - sign-upload: create presigned PUT URL
-      - upload: PUT PDF to S3 uploads/
+      - sign-upload: create presigned POST (url + fields)
+      - upload: POST PDF to S3 uploads/
       - compress: call /compress level=1/2/3 (parallel)
       - outputs: store outputs/*.pdf
       - previews: store previews/*.png (best-effort)

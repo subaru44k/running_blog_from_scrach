@@ -100,7 +100,7 @@ support direct uploads and deployment.
 ### Sign-Upload Lambda (lambdas/sign-upload-v3)
 
 - Purpose
-  - Issues pre‑signed PUT URLs so the browser can upload PDFs directly to S3
+  - Issues presigned POST (url + fields) so the browser can upload PDFs directly to S3
 
 - Deploy (zip)
   - `cd lambdas/sign-upload-v3 && npm install --production && zip -r function.zip .`
@@ -121,7 +121,7 @@ support direct uploads and deployment.
   [
     {
       "AllowedOrigins": ["https://subaru-is-running.com", "http://localhost:4321"],
-      "AllowedMethods": ["PUT", "GET", "HEAD"],
+      "AllowedMethods": ["POST", "PUT", "GET", "HEAD", "OPTIONS"],
       "AllowedHeaders": ["*"],
       "ExposeHeaders": ["ETag"],
       "MaxAgeSeconds": 3000

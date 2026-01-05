@@ -46,3 +46,4 @@ pnpm-debug.log*
 lambdas/**/node_modules/
 lambdas/**/function.zip
 lambdas/**/package-lock.json
+!lambdas/sign-upload-v3/package-lock.json

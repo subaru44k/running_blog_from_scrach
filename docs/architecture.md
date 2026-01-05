@@ -55,7 +55,7 @@ flowchart LR
 - UI文言は日本語に統一し、信頼性/透明性の説明（about/contact/privacy）を明示。
 
 ## PDF圧縮のデータフロー
-- PDFアップロードは最大50MBまで。
+- PDFアップロードは最大50MBまで（S3のpresigned POSTポリシーで強制）。
 - downloadUrl / previewUrl の有効期限はデフォルト10分（DOWNLOAD_URL_TTLで変更可）、uploadUrlもデフォルト10分（UPLOAD_URL_TTL）。
 
 ```mermaid
@@ -65,9 +65,9 @@ sequenceDiagram
   participant S3 as S3 (uploads/outputs/previews)
   participant Compress as pdf-compress-service
 
-  User->>Sign: POST /sign-upload (filename, contentType)
-  Sign-->>User: uploadUrl, objectKey, bucket
-  User->>S3: PUT uploadUrl (PDF)
+  User->>Sign: POST /sign-upload (filename, contentType, contentLength)
+  Sign-->>User: url + fields, objectKey, bucket
+  User->>S3: POST url + fields + file
   User->>Compress: POST /compress (bucket, key, level, options, keepSource)
   Compress->>S3: GET uploads/{objectKey}
   Compress->>Compress: Ghostscript で圧縮

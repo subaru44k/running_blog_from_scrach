@@ -1,6 +1,6 @@
 import crypto from 'crypto';
-import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
-import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
+import { S3Client } from '@aws-sdk/client-s3';
+import { createPresignedPost } from '@aws-sdk/s3-presigned-post';
 
 const BUCKET = process.env.BUCKET_NAME;
 const EXPIRES_SECONDS = Number(process.env.UPLOAD_URL_TTL || 600);
@@ -57,14 +57,24 @@ export const handler = async (event) => {
     const safeName = sanitizeFilename(filename);
     const objectKey = `uploads/${Date.now()}-${crypto.randomBytes(6).toString('hex')}-${safeName}`;
 
-    const command = new PutObjectCommand({
+    const { url, fields } = await createPresignedPost(s3, {
       Bucket: BUCKET,
       Key: objectKey,
-      ContentType: contentType || 'application/pdf',
+      Conditions: [
+        ['content-length-range', 0, MAX_UPLOAD_BYTES],
+        ['eq', '$key', objectKey],
+      ],
+      Fields: {
+        key: objectKey,
+      },
+      Expires: EXPIRES_SECONDS,
     });
-    const uploadUrl = await getSignedUrl(s3, command, { expiresIn: EXPIRES_SECONDS });
 
-    return { statusCode: 200, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ uploadUrl, objectKey, bucket: BUCKET, expiresIn: EXPIRES_SECONDS }) };
+    return {
+      statusCode: 200,
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ url, fields, objectKey, bucket: BUCKET, expiresIn: EXPIRES_SECONDS }),
+    };
   } catch (err) {
     return { statusCode: 500, body: JSON.stringify({ error: 'Failed to create upload URL', detail: String(err && err.message || err) }) };
   }
