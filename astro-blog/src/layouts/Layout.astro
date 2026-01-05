@@ -4,7 +4,13 @@ import '../styles/global.css';
 import { getCollection } from 'astro:content';
 import { filterPostsForBuild } from '../lib/build-filter';
 const { site, url } = Astro;
-const { noSidebar = false, pageTitle, metaDescription } = Astro.props as { noSidebar?: boolean; pageTitle?: string; metaDescription?: string };
+const { noSidebar = false, pageTitle, metaDescription, noIndex = false, disableCanonical = false } = Astro.props as {
+  noSidebar?: boolean;
+  pageTitle?: string;
+  metaDescription?: string;
+  noIndex?: boolean;
+  disableCanonical?: boolean;
+};
 const canonicalUrl = new URL(url.pathname, site).toString();
 const siteTitle = 'Subaru is Running';
 const siteDescription = 'Training logs, race reports, and running notes by Subaru.';
@@ -101,7 +107,8 @@ const initialMonthRows = buildInitialMonth(initialYear, initialMonth);
 		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
 		<meta name="generator" content={Astro.generator} />
 		<title>{headTitle}</title>
-		<link rel="canonical" href={canonicalUrl} />
+		{!disableCanonical && <link rel="canonical" href={canonicalUrl} />}
+		{noIndex && <meta name="robots" content="noindex,follow" />}
 		<meta property="og:url" content={canonicalUrl} />
     <meta name="description" content={headDescription} />
     <meta property="og:title" content={headTitle} />
