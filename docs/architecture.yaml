@@ -1,0 +1,86 @@
+repo:
+  components:
+    astro_blog:
+      paths:
+        - astro-blog/src/pages
+        - astro-blog/src/layouts/Layout.astro
+        - astro-blog/src/content
+      build:
+        buildspec: astro-blog/buildspec.yml
+        output_dir: astro-blog/dist
+      deploy_targets:
+        - TODO: CloudFront + S3 (exact resource names)
+      url_routes:
+        canonical:
+          - /
+          - /running-pace/
+          - /pdf-compress/
+          - /contact/
+          - /privacy/
+          - /about/
+          - /404.html
+        generated:
+          - /sitemap.xml
+          - /category-map.json
+    admin_app:
+      purpose: "管理UIとスクリプトによるブログ編集/生成"
+      entry: admin-app/server.js
+      scripts:
+        - admin-app/scripts/import-fitbit-workouts.js
+        - admin-app/scripts/generate-monthly-summary.js
+    lambdas:
+      fitbit_callback:
+        path: lambdas/fitbit-callback
+        handler: index.mjs
+        infra: cloudformation.yaml
+      sign_upload_v3:
+        path: lambdas/sign-upload-v3
+        handler: index.mjs
+    pdf_compress_service:
+      path: pdf-compress-service
+      docker:
+        dockerfile: pdf-compress-service/Dockerfile
+      lambda_entry: pdf-compress-service/lambda.js
+
+site:
+  routing:
+    canonical_routes:
+      - /
+      - /running-pace/
+      - /pdf-compress/
+      - /contact/
+      - /privacy/
+      - /about/
+    not_found_policy:
+      status: 404
+      body: /404.html
+      seo:
+        canonical: disabled
+        robots: noindex,follow
+
+features:
+  pdf_compress:
+    steps:
+      - sign-upload: create presigned PUT URL
+      - upload: PUT PDF to S3 uploads/
+      - compress: call /compress level=1/2/3 (parallel)
+      - outputs: store outputs/*.pdf
+      - previews: store previews/*.png (best-effort)
+    aws_resources: TODO
+    security_notes:
+      - temp files are stored for a limited time (S3 lifecycle assumed)
+      - keepSource=true avoids race deletion during parallel processing
+  fitbit:
+    oauth:
+      callback_lambda: fitbit-callback
+      token_storage: S3 token.json
+    draft_generation:
+      script: admin-app/scripts/import-fitbit-workouts.js
+    storage: TODO
+
+assumptions:
+  - TODO: CloudFront Distribution ID and error response settings are managed outside docs
+  - TODO: S3 lifecycle policies for uploads/outputs/previews
+  - TODO: API Gateway endpoints for pdf-compress and sign-upload lambdas
+  - TODO: Exact production domains for admin-app (if any)
+  - TODO: OAuth app scopes and admin-app env var templates
