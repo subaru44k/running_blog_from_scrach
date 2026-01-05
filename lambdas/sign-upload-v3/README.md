@@ -25,7 +25,7 @@ S3 bucket CORS (Console → S3 → Permissions → CORS)
 - [
   {
     "AllowedOrigins": ["https://subaru-is-running.com", "http://localhost:4321"],
-    "AllowedMethods": ["POST", "PUT", "GET", "HEAD", "OPTIONS"],
+    "AllowedMethods": ["POST", "PUT", "GET", "HEAD"],
     "AllowedHeaders": ["*"],
     "ExposeHeaders": ["ETag"],
     "MaxAgeSeconds": 3000

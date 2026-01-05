@@ -113,6 +113,7 @@ support direct uploads and deployment.
 - API Gateway (HTTP API)
 - Route: `POST /sign-upload` → integrate with this Lambda (payload v2.0)
   - CORS: configure in API Gateway (allowed origins, method POST, header content-type)
+  - Lambda: `pdf-sign-upload` (ap-northeast-1)
 
 ## S3 Setup
 
@@ -121,7 +122,7 @@ support direct uploads and deployment.
   [
     {
       "AllowedOrigins": ["https://subaru-is-running.com", "http://localhost:4321"],
-      "AllowedMethods": ["POST", "PUT", "GET", "HEAD", "OPTIONS"],
+      "AllowedMethods": ["POST", "PUT", "GET", "HEAD"],
       "AllowedHeaders": ["*"],
       "ExposeHeaders": ["ETag"],
       "MaxAgeSeconds": 3000
