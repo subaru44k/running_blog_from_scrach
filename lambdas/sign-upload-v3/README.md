@@ -1,18 +1,22 @@
 Sign Upload Lambda (AWS SDK v3)
 
 Purpose
-- Issues a short-lived pre-signed URL so the browser can upload a PDF directly to S3, bypassing API Gateway/Lambda size limits.
+- Issues a short-lived presigned POST (url + fields) so the browser can upload a PDF directly to S3, bypassing API Gateway/Lambda size limits.
 
 Runtime
 - Node.js 20.x
 
 Files
-- index.mjs: Lambda handler using `@aws-sdk/client-s3` + `@aws-sdk/s3-request-presigner`.
+- index.mjs: Lambda handler using `@aws-sdk/client-s3` + `@aws-sdk/s3-presigned-post`.
 - package.json: declares v3 dependencies for packaging.
 
 Environment variables
 - BUCKET_NAME: target S3 bucket for uploads (required)
 - UPLOAD_URL_TTL: URL lifetime in seconds (default 600)
+
+Upload limits
+- Maximum upload size: 50MB (enforced by presigned POST policy: content-length-range)
+- Clients should send contentLength to pre-check before issuing a presigned POST
 
 Required IAM for the Lambda role
 - s3:PutObject on arn:aws:s3:::<BUCKET_NAME>/*
@@ -21,7 +25,7 @@ S3 bucket CORS (Console → S3 → Permissions → CORS)
 - [
   {
     "AllowedOrigins": ["https://subaru-is-running.com", "http://localhost:4321"],
-    "AllowedMethods": ["PUT", "GET", "HEAD"],
+    "AllowedMethods": ["POST", "PUT", "GET", "HEAD", "OPTIONS"],
     "AllowedHeaders": ["*"],
     "ExposeHeaders": ["ETag"],
     "MaxAgeSeconds": 3000
@@ -60,6 +64,6 @@ Console setup steps
    - CORS: Configure in API Gateway (recommended); allow your site origins, method POST, header content-type
    - Stage: $default with Auto-deploy ON
 6) Test
-   - curl -X POST "$API_BASE/sign-upload" -H "content-type: application/json" -d '{"filename":"test.pdf","contentType":"application/pdf"}'
-   - Response includes: { uploadUrl, objectKey, bucket }
-   - PUT your file to uploadUrl with Content-Type: application/pdf
+   - curl -X POST "$API_BASE/sign-upload" -H "content-type: application/json" -d '{"filename":"test.pdf","contentType":"application/pdf","contentLength":1234}'
+   - Response includes: { url, fields, objectKey, bucket }
+   - POST your file to url with fields + file (multipart/form-data)
