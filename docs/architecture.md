@@ -7,15 +7,13 @@
 ```mermaid
 flowchart LR
   subgraph Public[公開サイト]
-    Astro[astro-blog
-静的サイト]
+    Astro["astro-blog<br/>静的サイト"]
     CF[CloudFront]
     S3Site[S3 静的ホスティング]
   end
 
   subgraph Admin[運用・作成]
-    AdminApp[admin-app
-(EJS/Express)]
+    AdminApp["admin-app<br/>EJS/Express"]
     Scripts[管理スクリプト]
   end
 
@@ -27,8 +25,7 @@ flowchart LR
 
   subgraph PDF[PDF圧縮]
     Sign[sign-upload-v3 Lambda]
-    Compress[pdf-compress-service
-(Lambda/Docker + Ghostscript)]
+    Compress["pdf-compress-service<br/>Lambda/Docker + Ghostscript"]
     UploadS3[S3 uploads/outputs/previews]
   end
 
