@@ -41,7 +41,7 @@ const tenKRows = buildRows(10, tenKTargets, [3, 5, 10]);
 const halfRows = buildRows(21.0975, halfTargets, [5, 10, 15, 20, 21.0975]);
 const fullRows = buildRows(42.195, fullTargets, [5, 10, 15, 20, 21.0975, 25, 30, 35, 40, 42.195]);
 
-const calculatorText = `ランニングのペースは、練習やレースの質を左右する重要な指標です。とはいえ、体感だけに頼ると序盤に飛ばしすぎたり、終盤に失速したりしがちです。このページでは距離と目標タイムを入力するだけで、1kmや400メートルのペース、5km・10km・ハーフの通過タイムが分かります。トラックでの練習では400メートルのラップが特に役立ち、一定のリズムを保てているかを確認できます。ロードでは5km刻みの通過タイムが目安になり、前半を抑えて後半に余力を残す配分も立てやすくなります。ペースが分かれば、イージー走やテンポ走、距離走など目的に応じた負荷を設定でき、結果的に疲労管理もしやすくなります。目標に対して無理のないペースで積み上げ、必要に応じて少しだけ上げる。そんな地道な調整が、レース本番の安定につながります。`;
+// Intentionally inline paragraphs for clarity and emphasis in the UI.
 ---
 
 <Layout
@@ -109,10 +109,57 @@ const calculatorText = `ランニングのペースは、練習やレースの�
         <div id="splitHalf" class="text-lg font-semibold">-</div>
       </div>
     </div>
-    <div class="mt-6">
-      <h3 class="text-sm font-semibold mb-2">ペースの目安</h3>
-      <p class="text-sm text-gray-600 dark:text-gray-300 leading-relaxed">{calculatorText}</p>
-    </div>
+    <details class="mt-6">
+      <summary class="cursor-pointer text-sm text-gray-600 dark:text-gray-300 hover:text-gray-800 dark:hover:text-gray-100">
+        ペースの考え方について（補足）
+      </summary>
+      <div class="mt-3 space-y-3">
+        <p class="text-sm text-gray-600 dark:text-gray-300 leading-relaxed">
+          ランニングにおけるペースは、練習やレースの出来を直接決めるものというより、
+          <span class="font-semibold">練習では設定タイムの目安</span>になり、
+          <span class="font-semibold">レースでは目標タイムに向けたベースライン</span>となるものです。
+          目標タイムがある場合、「そのタイムを達成するには、1kmあたりどれくらいのペースで走る必要があるのか」を事前に把握しておくことで、練習内容やレース当日の判断がしやすくなります。
+        </p>
+
+        <p class="text-sm text-gray-600 dark:text-gray-300 leading-relaxed">
+          このページでは、距離と目標タイムを入力することで、
+          <span class="font-semibold">1kmあたりのペース、400メートルあたりのペース、3km・5km・10km・ハーフの通過タイム</span>を数値として確認できます。
+        </p>
+
+        <p class="text-sm text-gray-600 dark:text-gray-300 leading-relaxed">
+          レース本番では、アドレナリンの影響で<span class="font-semibold">序盤に想定より速く入ってしまう</span>ことがよくあります。
+          一方で、過去の失敗経験や「突っ込みすぎたくない」という意識から、
+          <span class="font-semibold">必要以上に慎重になってペースを抑えすぎてしまう</span>こともあります。
+          どちらも、結果的に目標としていたタイムに届かなくなる原因になり得ます。
+        </p>
+
+        <p class="text-sm text-gray-600 dark:text-gray-300 leading-relaxed">
+          レースに向けては、
+          <span class="font-semibold">序盤の各距離（1km、3km、5kmなど）での目標ペースや通過タイムを事前に頭に入れておき</span>、
+          当日は <span class="font-semibold">GPS 時計や距離表示を使って客観的に確認しながら走る</span>のが現実的です。
+          よほど距離に自信がある場合を除いて、
+          <span class="font-semibold">少なくともレース距離の半分くらいまでは目標ペースを守る</span>意識で進めると、後半に大きく崩れにくくなります。
+        </p>
+
+        <p class="text-sm text-gray-600 dark:text-gray-300 leading-relaxed">
+          練習では、<span class="font-semibold">レースで想定しているペースで走れる能力を獲得すること</span>が重要になります。
+          理想を言えば、想定ペースのままレース距離を走れればそれ自体が目標達成ですが、現実的には難しいため、レースを想定しながらバリエーションをつけて練習していくのが良いでしょう。
+          例えば、レースペースで一定距離を繰り返す<span class="font-semibold">レペティション</span>、ペースに強弱をつける<span class="font-semibold">変化走</span>、一定の負荷を繰り返す<span class="font-semibold">インターバル</span>、少しペースを落として距離を踏む距離走などを組み合わせることで、無理なくレースに近い負荷を作ることができます。
+        </p>
+
+        <p class="text-sm text-gray-600 dark:text-gray-300 leading-relaxed">
+          また、どんな練習よりも大切なのは<span class="font-semibold">継続できること</span>です。
+          疲労が強い状態で無理に高強度の練習を行ったり、違和感を抱えたまま走り続けたりすると、結果的に長い期間走れなくなることもあります。
+          情熱と冷静さのバランスを取りながら、走り続けられる状態を保つことが、長期的には一番の近道だと思います。
+        </p>
+
+        <p class="text-sm text-gray-600 dark:text-gray-300 leading-relaxed">
+          このページで計算できるペースや通過タイムは、
+          <span class="font-semibold">その通りに走るための正解ではなく、判断するための材料</span>です。
+          練習やレースの状況に応じて参考にしながら、自分なりの判断を重ねていくためのベースラインとして使ってもらえればと思います。
+        </p>
+      </div>
+    </details>
   </section>
 
   <section id="table" class="scroll-mt-20">
