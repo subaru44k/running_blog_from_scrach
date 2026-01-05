@@ -428,6 +428,14 @@ const pageDescription = '履歴書や提出書類、スキャナ・複合機・�
             statusEl.textContent = '圧縮中...（3件中 ' + doneCount + '件完了）';
           }
 
+          function normalizeDownloadUrl(resp) {
+            return resp && (resp.downloadUrl || resp.download_url) || null;
+          }
+
+          function normalizePreviewUrl(resp) {
+            return resp && (resp.previewUrl || resp.preview_url) || null;
+          }
+
           function compressOne(level) {
             return withBackoff(function () {
               return postJSON(api('/compress'), {
@@ -446,18 +454,20 @@ const pageDescription = '履歴書や提出書類、スキャナ・複合機・�
               variant.state = 'pending';
               variant.errorMessage = null;
               variant.downloadUrl = null;
-              variant.outputSizeBytes = NaN;
-              variant.previewUrl = null;
-              renderVariants(variantsState, f.size, parseMaxSizeBytes(), activeBaseName);
-              if (statusEl) statusEl.textContent = '再試行中...';
-              compressOne(variant.level).then(function (resp) {
-                variant.state = 'success';
-                variant.downloadUrl = resp && resp.downloadUrl;
-                variant.outputSizeBytes = resp && resp.outputSizeBytes;
-                variant.previewUrl = resp && resp.previewUrl;
-                renderVariants(variantsState, resp.originalSizeBytes || f.size, parseMaxSizeBytes(), activeBaseName);
-              }).catch(function (err) {
-                variant.state = 'error';
+            variant.outputSizeBytes = NaN;
+            variant.previewUrl = null;
+            renderVariants(variantsState, f.size, parseMaxSizeBytes(), activeBaseName);
+            if (statusEl) statusEl.textContent = '再試行中...';
+            compressOne(variant.level).then(function (resp) {
+              var downloadUrl = normalizeDownloadUrl(resp);
+              if (!downloadUrl) throw new Error('ダウンロード情報が取得できませんでした。');
+              variant.state = 'success';
+              variant.downloadUrl = downloadUrl;
+              variant.outputSizeBytes = resp && resp.outputSizeBytes;
+              variant.previewUrl = normalizePreviewUrl(resp);
+              renderVariants(variantsState, resp.originalSizeBytes || f.size, parseMaxSizeBytes(), activeBaseName);
+            }).catch(function (err) {
+              variant.state = 'error';
                 variant.errorMessage = (err && err.message) ? err.message : '不明なエラー';
                 renderVariants(variantsState, f.size, parseMaxSizeBytes(), activeBaseName);
               }).finally(function () {
@@ -470,10 +480,12 @@ const pageDescription = '履歴書や提出書類、スキャナ・複合機・�
 
           var requests = variantsState.map(function (variant) {
             return compressOne(variant.level).then(function (resp) {
+              var downloadUrl = normalizeDownloadUrl(resp);
+              if (!downloadUrl) throw new Error('ダウンロード情報が取得できませんでした。');
               variant.state = 'success';
-              variant.downloadUrl = resp && resp.downloadUrl;
+              variant.downloadUrl = downloadUrl;
               variant.outputSizeBytes = resp && resp.outputSizeBytes;
-              variant.previewUrl = resp && resp.previewUrl;
+              variant.previewUrl = normalizePreviewUrl(resp);
               renderVariants(variantsState, resp.originalSizeBytes || f.size, parseMaxSizeBytes(), activeBaseName);
             }).catch(function (err) {
               variant.state = 'error';
@@ -494,23 +506,6 @@ const pageDescription = '履歴書や提出書類、スキャナ・複合機・�
               }
             }
           });
-        }).then(function (resp) {
-          if (resp && resp.downloadUrl) {
-            if (preview) {
-              preview.innerHTML = '';
-              renderVariants([{
-                key: 'balanced',
-                labelJa: '圧縮結果',
-                outputSizeBytes: resp.outputSizeBytes || f.size,
-                downloadUrl: resp.downloadUrl,
-                previewUrl: null,
-                state: 'success'
-              }], resp.originalSizeBytes || f.size, parseMaxSizeBytes(), f.name.replace(/\.pdf$/i, ''));
-            }
-            if (statusEl) statusEl.textContent = '圧縮が完了しました。ダウンロードしてください。';
-          } else if (statusEl) {
-            statusEl.textContent = '圧縮が完了しましたが、ダウンロード情報を取得できませんでした。';
-          }
         }).catch(function (err) {
           console.error(err);
           if (statusEl) statusEl.textContent = 'エラー: ' + (err && err.message || err);
