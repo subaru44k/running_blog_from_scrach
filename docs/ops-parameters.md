@@ -7,7 +7,7 @@ PDF圧縮はコスト攻撃・過剰利用のリスクがあるため、**同時
 
 | 項目 | 現在値 | どこで設定するか | 目的 | 変更時の注意 | 確認方法 |
 | --- | --- | --- | --- | --- | --- |
-| PDF圧縮Lambda Reserved Concurrency | 6 | Lambda設定（Concurrency） | コスト上限化、DoS緩和 | 超過時はスロットリング（429/5xx） | AWS Console → Lambda → 対象関数 → Concurrency |
+| PDF圧縮Lambda Reserved Concurrency | 20 | Lambda設定（Concurrency） | コスト上限化、DoS緩和 | 超過時はスロットリング（429/5xx） | AWS Console → Lambda → 対象関数 → Concurrency |
 | Upload URL TTL | 600秒（10分） | sign-upload-v3 の `UPLOAD_URL_TTL` | 署名URLの漏えい影響を限定 | 短すぎるとアップロード失敗が増える | Lambda環境変数 / レスポンスの `expiresIn` |
 | Download/Preview URL TTL | 600秒（10分） | pdf-compress-service の `DOWNLOAD_URL_TTL` | 署名URLの漏えい影響を限定 | 短すぎるとダウンロード切れが増える | Lambda環境変数 / レスポンスの `expiresIn` |
 | 最大アップロードサイズ | 50MB | S3 presigned POST の `content-length-range` + フロント `MAX_UPLOAD_BYTES` | 大容量攻撃の抑止 | APIとフロントの両方を同時更新 | sign-upload-v3 のポリシー / UIの即時バリデーション |
@@ -51,6 +51,21 @@ PDF圧縮はコスト攻撃・過剰利用のリスクがあるため、**同時
   - Lambda: `Throttles`, `Errors`, `Duration`
   - API Gateway: `4XXError`, `5XXError`, `Latency`
   - S3: `4xxErrors`, `5xxErrors`
+
+## キルスイッチ（自動遮断）
+- 目的: **S3転送アウトの暴走を止める最終手段**（誤爆しにくい条件のみ）
+- 自動発火条件: `pdf-compress-lambda` の `Throttles` が
+  - 5分 `Sum >= 50` を **2回連続**（10分）で ALARM
+- 遮断内容:
+  - `pdf-compress-uploads-prod` の `outputs/*` と `previews/*` の `GetObject` を Deny
+  - presigned URL も含めて無効化される
+- 解除手順（手動）:
+  - `pdf-compress-kill-switch` を `{"mode":"disable"}` で実行
+- 再遮断（手動）:
+  - `pdf-compress-kill-switch` を `{"mode":"enable"}` で実行
+- 運用メモ:
+  - Reserved Concurrency の値変更は監視条件に影響しない
+  - 誤爆時は Lambda 実行のみで復旧できる
 
 ## 変更時チェックリスト
 - TTL変更時:
