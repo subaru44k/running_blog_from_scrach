@@ -5,7 +5,8 @@ Astroで生成する静的サイト本体。ブログ、PDF圧縮、ペース計
 
 ## 主要ファイル
 - `astro-blog/src/pages/*.astro`
-  - `index.astro`: トップページ/ブログ一覧
+  - `index.astro`: トップページ（ツールへのハブ）
+  - `blog.astro`: ブログUI（最新記事＋サイドバー機能）
   - `running-pace.astro`: ペース計算ツール
   - `pdf-compress.astro`: PDF圧縮UI（署名→圧縮API）
   - `contact.astro`, `privacy.astro`, `about.astro`, `404.astro`

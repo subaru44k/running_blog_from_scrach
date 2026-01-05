@@ -1,60 +1,51 @@
 ---
 import Layout from '../layouts/Layout.astro';
-import { getCollection } from 'astro:content';
-import { filterPostsForBuild } from '../lib/build-filter';
-
-// Load published posts and take the latest 6
-const posts = filterPostsForBuild(await getCollection('blog', ({ data }) => data.status === 'publish'));
-posts.sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
-const latest = posts.slice(0, 6);
-
-function excerpt(html: string, max = 220) {
-  const text = html.replace(/<[^>]+>/g, '').replace(/\s+/g, ' ').trim();
-  return text.length > max ? text.slice(0, max - 1) + '…' : text;
-}
-
-function imageForCategory(cat: string): string {
-  switch (cat) {
-    case '練習(弱)':
-      return '/images/workouts/abstract-04.svg'; // mild
-    case '練習(中)':
-      return '/images/workouts/abstract-03.svg'; // moderate
-    case '練習(強)':
-      return '/images/workouts/abstract-08.svg'; // strong
-    case '試合':
-      return '/images/workouts/abstract-02.svg'; // strongest
-    case '練習(デフォルト)':
-    default:
-      return '/images/workouts/abstract-01.svg'; // neutral
-  }
-}
+const pageTitle = 'Subaru is Running — ツールと記録のハブ';
+const pageDescription = 'ランナー向けのペース計算と無料のPDF圧縮ツール、トレーニングログをまとめたハブページです。';
 ---
 
-<Layout>
-  <h1 class="mb-6">最新の記事</h1>
-
-  <section class="grid gap-6 sm:gap-8 grid-cols-1 md:grid-cols-2">
-    {latest.map((post) => (
-      <article class="card card-hover p-0 flex flex-col overflow-hidden">
-        <img src={imageForCategory(post.data.category)} alt={`Image for ${post.data.title}`} width="1200" height="630" class="w-full aspect-[1200/630] object-cover" loading="lazy" />
-        <div class="p-6 flex flex-col">
-          <div class="flex items-center gap-3 text-xs text-gray-500 mb-2">
-            <span class="badge">{post.data.category}</span>
-            <time datetime={post.data.date.toISOString()}>{post.data.date.toDateString()}</time>
-          </div>
-          <h2 class="text-xl font-bold mb-2">
-            <a class="no-underline" href={`/${post.slug}/`}>{post.data.title}</a>
-          </h2>
-          <p class="text-sm text-gray-600 dark:text-gray-300 mb-4">{excerpt(post.body)}</p>
-          <div class="mt-auto">
-            <a class="inline-flex items-center gap-1 text-sm font-medium" href={`/${post.slug}/`}>
-              続きを読む
-              <span aria-hidden>→</span>
-            </a>
-          </div>
-        </div>
-      </article>
-    ))}
+<Layout noSidebar pageTitle={pageTitle} metaDescription={pageDescription}>
+  <section class="card p-6 mb-8">
+    <h1 class="text-2xl font-bold mb-3">Subaru is Running</h1>
+    <p class="text-gray-700 dark:text-gray-300">
+      Subaru is Running は、ランナー向けのペース計算ツールと、誰でも使える無料のPDF圧縮ツールを提供するサイトです。
+    </p>
   </section>
 
+  <section class="grid gap-6 md:grid-cols-2">
+    <article class="card p-6">
+      <h2 class="text-xl font-semibold mb-2">PDF圧縮ツール（無料・登録不要）</h2>
+      <p class="text-gray-700 dark:text-gray-300 mb-4">
+        サイズ制限で提出できないPDFを、面倒な設定なしでそのまま圧縮できます。圧縮後のサイズ確認やプレビューも、その場で可能です。
+      </p>
+      <a class="inline-flex items-center gap-2 rounded-md px-4 py-2 ring-1 ring-inset ring-gray-300 dark:ring-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800" href="/pdf-compress/">
+        PDFを圧縮する
+      </a>
+    </article>
+
+    <article class="card p-6">
+      <h2 class="text-xl font-semibold mb-2">ランニングのペース計算・ペース表</h2>
+      <p class="text-gray-700 dark:text-gray-300 mb-4">
+        目標タイムを入力するだけで、平均ペースや通過タイムを自動計算します。10km・ハーフ・フルマラソンの目標タイム別ペース表も掲載しています。
+      </p>
+      <div class="flex flex-wrap gap-3">
+        <a class="inline-flex items-center gap-2 rounded-md px-4 py-2 ring-1 ring-inset ring-gray-300 dark:ring-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800" href="/running-pace/">
+          ペースを計算する
+        </a>
+        <a class="inline-flex items-center gap-2 rounded-md px-4 py-2 ring-1 ring-inset ring-gray-300 dark:ring-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800" href="/running-pace/">
+          ペース表を見る
+        </a>
+      </div>
+    </article>
+  </section>
+
+  <section class="card p-6 mt-6">
+    <h2 class="text-xl font-semibold mb-2">トレーニングログ（ブログ）</h2>
+    <p class="text-gray-700 dark:text-gray-300 mb-4">
+      管理人が自身の練習やレースの記録を綴っています。成功・失敗や怪我からの復帰まで含めた、リアルな練習過程を残しています。
+    </p>
+    <a class="inline-flex items-center gap-2 rounded-md px-4 py-2 ring-1 ring-inset ring-gray-300 dark:ring-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800" href="/blog/">
+      ブログを見る
+    </a>
+  </section>
 </Layout>

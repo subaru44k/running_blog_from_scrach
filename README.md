@@ -7,8 +7,8 @@ support direct uploads and deployment.
 ## Repo Layout
 
 - `astro-blog/`
-  - Astro v5 website (blog + tools pages)
-  - Pages: Blog, Running Pace (`/running-pace/`), PDF Compressor (`/pdf-compress/`), About, Contact, Privacy, 404
+  - Astro v5 website (tools hub + blog + tools pages)
+  - Pages: Hub (`/`), Blog (`/blog/`), Running Pace (`/running-pace/`), PDF Compressor (`/pdf-compress/`), About, Contact, Privacy, 404
   - Async calendar data at `GET /cal-map/{YYYY}/{MM}.json` reduces page weight
   - Google Analytics (gtag) with IP anonymization and AdSense snippet
   - CodeBuild buildspec (`astro-blog/buildspec.yml`) for S3 + CloudFront deploy

@@ -42,7 +42,9 @@ flowchart LR
 ```
 
 ## URL設計と404方針
-- 正規ルート（例）: `/`, `/running-pace/`, `/pdf-compress/`, `/contact/`, `/privacy/`。
+- `/` はツールへのハブページ。
+- ブログUIは `/blog/` に集約（記事URLは `/<slug>/` のまま）。
+- 正規ルート（例）: `/`, `/blog/`, `/running-pace/`, `/pdf-compress/`, `/contact/`, `/privacy/`。
 - `/blog` や `/pace` は正規ルートではなく 404 が正しい挙動。
 - CloudFront配下の存在しないURLは **HTTP 404** を返す（soft 404回避）。
 - 404ページは Astro が生成する `/404.html` 相当の内容を返す。
@@ -92,4 +94,3 @@ sequenceDiagram
   Admin->>Fitbit: 活動データ取得
   Admin->>Admin: Markdown生成（Astro content）
 ```
-

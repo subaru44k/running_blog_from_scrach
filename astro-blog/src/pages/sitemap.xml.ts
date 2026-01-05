@@ -11,6 +11,7 @@ export async function GET() {
   const latestPostDate = posts[0]?.data.date ?? new Date();
   const urls = [
     { loc: site, lastmod: latestPostDate.toISOString() },
+    { loc: `${site}blog/`, lastmod: latestPostDate.toISOString() },
     { loc: `${site}archive/`, lastmod: latestPostDate.toISOString() },
     { loc: `${site}running-pace/`, lastmod: latestPostDate.toISOString() },
     { loc: `${site}pdf-compress/`, lastmod: latestPostDate.toISOString() },
