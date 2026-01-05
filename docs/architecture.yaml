@@ -53,6 +53,10 @@ site:
       - /contact/
       - /privacy/
       - /about/
+    section_anchors:
+      /running-pace/:
+        - "#calculator"
+        - "#table"
     not_found_policy:
       status: 404
       body: /404.html

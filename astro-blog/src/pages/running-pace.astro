@@ -2,8 +2,8 @@
 import Layout from '../layouts/Layout.astro';
 import { calculatePace } from '../lib/pace';
 
-const pageTitle = 'ランニングペース計算';
-const metaDescription = '距離と目標タイムからペースとラップを計算できるランナー向けのペース計算ページ。10km・ハーフ・フルの目標ラップ表も掲載。';
+const pageTitle = 'ランニングのペース計算・ペース表｜10km・ハーフ・フル対応';
+const metaDescription = 'ランニングのペースを簡単に計算できる無料ツールと、km別・距離別のペース表を掲載。10km、ハーフ、フルマラソンに対応。';
 
 const tenKTargets = ['0:25:00', '0:30:00', '0:35:00', '0:40:00', '0:45:00', '0:50:00', '0:55:00', '1:00:00'];
 const halfTargets = ['0:55:00', '1:00:00', '1:05:00', '1:10:00', '1:15:00', '1:20:00', '1:25:00', '1:30:00', '1:35:00', '1:40:00', '1:50:00', '2:00:00', '2:10:00'];
@@ -45,13 +45,13 @@ const calculatorText = `ランニングのペースは、練習やレースの�
 ---
 
 <Layout pageTitle={pageTitle} metaDescription={metaDescription} noSidebar={true}>
-  <h1 class="mb-4">ランニングペース計算</h1>
-    <p class="text-sm text-gray-600 dark:text-gray-300 mb-6">
+  <h1 class="mb-4">ランニングのペース計算・ペース表</h1>
+  <p class="text-sm text-gray-600 dark:text-gray-300 mb-6">
     距離と目標タイムから、1kmペースと主要ラップを計算します。入力内容は自動で反映されます。
   </p>
 
-  <section class="card p-5 md:p-6 mb-8">
-    <h2 class="text-lg font-semibold mb-4">ペース計算</h2>
+  <section id="calculator" class="card p-5 md:p-6 mb-8 scroll-mt-20">
+    <h2 class="text-lg font-semibold mb-4">ペースを計算する</h2>
     <form id="paceForm" class="grid gap-4 md:grid-cols-[1fr_1fr]">
       <div>
         <label for="distanceSelect" class="block text-sm font-medium mb-1">距離</label>
@@ -107,112 +107,116 @@ const calculatorText = `ランニングのペースは、練習やレースの�
         <div id="splitHalf" class="text-lg font-semibold">-</div>
       </div>
     </div>
-  </section>
-
-  <section class="mb-8">
-    <h2 class="text-lg font-semibold mb-3">ペースの目安</h2>
-    <p class="text-sm text-gray-600 dark:text-gray-300 leading-relaxed">{calculatorText}</p>
-  </section>
-
-  <section class="card p-5 md:p-6 mb-8">
-    <h2 class="text-lg font-semibold mb-4">10km 目標ラップ表</h2>
-    <div class="overflow-x-auto">
-      <table class="w-full text-sm border-collapse min-w-[520px]">
-        <thead>
-          <tr class="text-left border-b">
-            <th class="py-2">目標</th>
-            <th class="py-2">1km</th>
-            <th class="py-2">3km</th>
-            <th class="py-2">5km</th>
-            <th class="py-2">10km</th>
-          </tr>
-        </thead>
-        <tbody>
-          {tenKRows.map((row) => (
-            <tr class="border-b">
-              <td class="py-2">{row.target}</td>
-              <td class="py-2">{row.pace}</td>
-              <td class="py-2">{row.splits[0]}</td>
-              <td class="py-2">{row.splits[1]}</td>
-              <td class="py-2">{row.splits[2]}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+    <div class="mt-6">
+      <h3 class="text-sm font-semibold mb-2">ペースの目安</h3>
+      <p class="text-sm text-gray-600 dark:text-gray-300 leading-relaxed">{calculatorText}</p>
     </div>
   </section>
 
-  <section class="card p-5 md:p-6 mb-8">
-    <h2 class="text-lg font-semibold mb-4">ハーフマラソン 目標ラップ表</h2>
-    <div class="overflow-x-auto">
-      <table class="w-full text-sm border-collapse min-w-[720px]">
-        <thead>
-          <tr class="text-left border-b">
-            <th class="py-2">目標</th>
-            <th class="py-2">1km</th>
-            <th class="py-2">5km</th>
-            <th class="py-2">10km</th>
-            <th class="py-2">15km</th>
-            <th class="py-2">20km</th>
-            <th class="py-2">ハーフ</th>
-          </tr>
-        </thead>
-        <tbody>
-          {halfRows.map((row) => (
-            <tr class="border-b">
-              <td class="py-2">{row.target}</td>
-              <td class="py-2">{row.pace}</td>
-              <td class="py-2">{row.splits[0]}</td>
-              <td class="py-2">{row.splits[1]}</td>
-              <td class="py-2">{row.splits[2]}</td>
-              <td class="py-2">{row.splits[3]}</td>
-              <td class="py-2">{row.splits[4]}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
-  </section>
+  <section id="table" class="scroll-mt-20">
+    <h2 class="text-lg font-semibold mb-4">ペース表を見る</h2>
+    <div class="grid gap-6">
+      <section class="card p-5 md:p-6">
+        <h3 class="text-lg font-semibold mb-4">10km 目標ラップ表</h3>
+        <div class="overflow-x-auto">
+          <table class="w-full text-sm border-collapse min-w-[520px]">
+            <thead>
+              <tr class="text-left border-b">
+                <th class="py-2">目標</th>
+                <th class="py-2">1km</th>
+                <th class="py-2">3km</th>
+                <th class="py-2">5km</th>
+                <th class="py-2">10km</th>
+              </tr>
+            </thead>
+            <tbody>
+              {tenKRows.map((row) => (
+                <tr class="border-b">
+                  <td class="py-2">{row.target}</td>
+                  <td class="py-2">{row.pace}</td>
+                  <td class="py-2">{row.splits[0]}</td>
+                  <td class="py-2">{row.splits[1]}</td>
+                  <td class="py-2">{row.splits[2]}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </section>
 
-  <section class="card p-5 md:p-6">
-    <h2 class="text-lg font-semibold mb-4">フルマラソン 目標ラップ表</h2>
-    <div class="overflow-x-auto">
-      <table class="w-full text-sm border-collapse min-w-[860px]">
-        <thead>
-          <tr class="text-left border-b">
-            <th class="py-2">目標</th>
-            <th class="py-2">1km</th>
-            <th class="py-2">5km</th>
-            <th class="py-2">10km</th>
-            <th class="py-2">15km</th>
-            <th class="py-2">20km</th>
-            <th class="py-2">ハーフ</th>
-            <th class="py-2">25km</th>
-            <th class="py-2">30km</th>
-            <th class="py-2">35km</th>
-            <th class="py-2">40km</th>
-            <th class="py-2">ゴール</th>
-          </tr>
-        </thead>
-        <tbody>
-          {fullRows.map((row) => (
-            <tr class="border-b">
-              <td class="py-2">{row.target}</td>
-              <td class="py-2">{row.pace}</td>
-              <td class="py-2">{row.splits[0]}</td>
-              <td class="py-2">{row.splits[1]}</td>
-              <td class="py-2">{row.splits[2]}</td>
-              <td class="py-2">{row.splits[3]}</td>
-              <td class="py-2">{row.splits[4]}</td>
-              <td class="py-2">{row.splits[5]}</td>
-              <td class="py-2">{row.splits[6]}</td>
-              <td class="py-2">{row.splits[7]}</td>
-              <td class="py-2">{row.splits[8]}</td>
-              <td class="py-2">{row.splits[9]}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+      <section class="card p-5 md:p-6">
+        <h3 class="text-lg font-semibold mb-4">ハーフマラソン 目標ラップ表</h3>
+        <div class="overflow-x-auto">
+          <table class="w-full text-sm border-collapse min-w-[720px]">
+            <thead>
+              <tr class="text-left border-b">
+                <th class="py-2">目標</th>
+                <th class="py-2">1km</th>
+                <th class="py-2">5km</th>
+                <th class="py-2">10km</th>
+                <th class="py-2">15km</th>
+                <th class="py-2">20km</th>
+                <th class="py-2">ハーフ</th>
+              </tr>
+            </thead>
+            <tbody>
+              {halfRows.map((row) => (
+                <tr class="border-b">
+                  <td class="py-2">{row.target}</td>
+                  <td class="py-2">{row.pace}</td>
+                  <td class="py-2">{row.splits[0]}</td>
+                  <td class="py-2">{row.splits[1]}</td>
+                  <td class="py-2">{row.splits[2]}</td>
+                  <td class="py-2">{row.splits[3]}</td>
+                  <td class="py-2">{row.splits[4]}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="card p-5 md:p-6">
+        <h3 class="text-lg font-semibold mb-4">フルマラソン 目標ラップ表</h3>
+        <div class="overflow-x-auto">
+          <table class="w-full text-sm border-collapse min-w-[860px]">
+            <thead>
+              <tr class="text-left border-b">
+                <th class="py-2">目標</th>
+                <th class="py-2">1km</th>
+                <th class="py-2">5km</th>
+                <th class="py-2">10km</th>
+                <th class="py-2">15km</th>
+                <th class="py-2">20km</th>
+                <th class="py-2">ハーフ</th>
+                <th class="py-2">25km</th>
+                <th class="py-2">30km</th>
+                <th class="py-2">35km</th>
+                <th class="py-2">40km</th>
+                <th class="py-2">ゴール</th>
+              </tr>
+            </thead>
+            <tbody>
+              {fullRows.map((row) => (
+                <tr class="border-b">
+                  <td class="py-2">{row.target}</td>
+                  <td class="py-2">{row.pace}</td>
+                  <td class="py-2">{row.splits[0]}</td>
+                  <td class="py-2">{row.splits[1]}</td>
+                  <td class="py-2">{row.splits[2]}</td>
+                  <td class="py-2">{row.splits[3]}</td>
+                  <td class="py-2">{row.splits[4]}</td>
+                  <td class="py-2">{row.splits[5]}</td>
+                  <td class="py-2">{row.splits[6]}</td>
+                  <td class="py-2">{row.splits[7]}</td>
+                  <td class="py-2">{row.splits[8]}</td>
+                  <td class="py-2">{row.splits[9]}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </section>
     </div>
   </section>
 
@@ -319,8 +323,9 @@ const calculatorText = `ランニングのペースは、練習やレースの�
       splitHalf.textContent = distanceKm >= 21.0975 ? formatTime(result.splitHalf) : '対象外';
 
       const query = buildQuery(distanceValue, customKm, h, m, s);
-      const nextUrl = query ? \`\${window.location.pathname}?\${query}\` : window.location.pathname;
-      window.history.replaceState({}, '', nextUrl);
+      const url = new URL(window.location.href);
+      url.search = query ? \`?\${query}\` : '';
+      window.history.replaceState({}, '', url.toString());
     }
 
     const distanceSelect = document.getElementById('distanceSelect');
