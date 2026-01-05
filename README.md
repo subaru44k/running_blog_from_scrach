@@ -8,8 +8,8 @@ support direct uploads and deployment.
 
 - `astro-blog/`
   - Astro v5 website (blog + tools pages)
-  - Pages: Blog, PDF Compressor (`/pdf-compress/`), About, Contact, Privacy
-  - Async calendar data at `GET /cal-map.json` reduces page weight
+  - Pages: Blog, Running Pace (`/running-pace/`), PDF Compressor (`/pdf-compress/`), About, Contact, Privacy, 404
+  - Async calendar data at `GET /cal-map/{YYYY}/{MM}.json` reduces page weight
   - Google Analytics (gtag) with IP anonymization and AdSense snippet
   - CodeBuild buildspec (`astro-blog/buildspec.yml`) for S3 + CloudFront deploy
 - `pdf-compress-service/`
@@ -43,13 +43,13 @@ support direct uploads and deployment.
 - PDF Compressor flow
   - Browser POSTs `PUBLIC_PDF_API_BASE/sign-upload` → gets `{ uploadUrl, objectKey, bucket }`
   - Browser PUTs the PDF to `uploadUrl`
-  - Browser POSTs `PUBLIC_PDF_API_BASE/compress` with `{ bucket, key, level, removeMetadata, grayscale }`
-  - Service returns `{ downloadUrl }` for the compressed PDF
-  - Frontend auto-downloads via blob; Start button includes exponential backoff for 429/5xx
+  - Browser POSTs `PUBLIC_PDF_API_BASE/compress` in parallel for levels 1/2/3
+  - Service returns `{ downloadUrl, outputSizeBytes, previewUrl }` per level
+  - Frontend shows 3 variants and lets the user download a chosen result
 
 - Calendar performance
   - Initial month grid is server-rendered for instant UX
-  - Full calendar map loads async from `/cal-map.json` and is cached in `localStorage`
+  - Calendar map loads async per month from `/cal-map/{YYYY}/{MM}.json` and is cached in `localStorage`
 
 - Analytics & Ads
   - GA (gtag) is included with `anonymize_ip: true` (see `src/layouts/Layout.astro`)
@@ -74,9 +74,10 @@ support direct uploads and deployment.
 
 - What it does
   - Reads a PDF (from S3 or base64 payload), compresses via Ghostscript, and returns a link
-  - S3 mode (recommended): `{ bucket, key, level, removeMetadata, grayscale }`
-    - Upload object is deleted automatically on success
-    - Returns `{ downloadUrl }` (short‑lived pre‑signed GET)
+  - S3 mode (recommended): `{ bucket, key, level, removeMetadata, grayscale, keepSource }`
+    - Output keys are level-specific (`hq`, `balanced`, `small`)
+    - Returns `{ downloadUrl, outputSizeBytes, previewUrl }` (short‑lived pre‑signed GET)
+    - Source deletion is best‑effort when `keepSource=false`
   - Base64 mode (for local testing): `{ fileBase64, filename? ... }` → returns base64 PDF
 
 - Build & push (ECR)
@@ -126,8 +127,8 @@ support direct uploads and deployment.
   ]
   ```
 - Lifecycle policies
-  - Expire uploads/ and outputs/ after a short time (e.g., 1 day) to control storage
-  - The compression Lambda deletes the uploaded source file after successful compression
+  - Expire uploads/, outputs/, previews/ after a short time (e.g., 1 day) to control storage
+  - Source deletion is best‑effort and can be skipped with `keepSource=true`
 
 ## Rate Limiting & Resilience
 
@@ -167,4 +168,3 @@ support direct uploads and deployment.
   - `--date YYYY-MM-DD` or `--days N` customise the range
   - `FITBIT_IMPORT_DRY_RUN=true` to preview without writing files
 - Frontmatter defaults can be tuned with `FITBIT_DEFAULT_*` env vars; timezone offset defaults to JST (`540` minutes)
-
