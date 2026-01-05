@@ -3,13 +3,14 @@ import Layout from "../layouts/Layout.astro";
 const pageTitle = 'プライバシーポリシー — Subaru is Running';
 const pageDescription = 'サイトで取り扱うデータ、広告・Cookie、解析の利用目的について説明します。';
 ---
-<Layout noSidebar pageTitle={pageTitle} metaDescription={pageDescription}>
+<Layout
+  noSidebar
+  pageTitle={pageTitle}
+  metaDescription={pageDescription}
+  pageHeading="プライバシーポリシー"
+  pageLead="当サイトにおけるデータの取扱いと、広告・Cookie・解析の利用目的について説明します。"
+>
   <section class="card p-6">
-    <h1 class="text-2xl font-bold mb-3">プライバシーポリシー</h1>
-    <p class="text-gray-700 dark:text-gray-300 mb-4">
-      当サイトにおけるデータの取扱いと、広告・Cookie・解析の利用目的について説明します。
-    </p>
-
     <h2 class="text-xl font-semibold mt-5 mb-2">PDF圧縮</h2>
     <ul class="list-disc pl-5 space-y-2 text-gray-700 dark:text-gray-300">
       <li>PDFファイルはブラウザから一時的にアップロードされ、サーバ側で圧縮処理を行います。</li>

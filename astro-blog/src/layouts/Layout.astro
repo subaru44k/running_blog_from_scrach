@@ -4,12 +4,24 @@ import '../styles/global.css';
 import { getCollection } from 'astro:content';
 import { filterPostsForBuild } from '../lib/build-filter';
 const { site, url } = Astro;
-const { noSidebar = false, pageTitle, metaDescription, noIndex = false, disableCanonical = false } = Astro.props as {
+const {
+  noSidebar = false,
+  pageTitle,
+  metaDescription,
+  noIndex = false,
+  disableCanonical = false,
+  pageHeading,
+  pageLead,
+  hidePageHeader = false,
+} = Astro.props as {
   noSidebar?: boolean;
   pageTitle?: string;
   metaDescription?: string;
   noIndex?: boolean;
   disableCanonical?: boolean;
+  pageHeading?: string;
+  pageLead?: string;
+  hidePageHeader?: boolean;
 };
 const canonicalUrl = new URL(url.pathname, site).toString();
 const siteTitle = 'Subaru is Running';
@@ -176,6 +188,12 @@ const initialMonthRows = buildInitialMonth(initialYear, initialMonth);
 		{ noSidebar ? (
 			<div class="container-page py-8">
 				<main class="min-w-0">
+          {!hidePageHeader && pageHeading && (
+            <header class="mb-6">
+              <h1 class="mb-2">{pageHeading}</h1>
+              {pageLead && <p class="text-sm text-gray-600 dark:text-gray-300">{pageLead}</p>}
+            </header>
+          )}
 					<slot />
 				</main>
 			</div>
@@ -495,6 +513,12 @@ const initialMonthRows = buildInitialMonth(initialYear, initialMonth);
   })();
 </script>
 			<main class="order-2 lg:order-2 min-w-0">
+        {!hidePageHeader && pageHeading && (
+          <header class="mb-6">
+            <h1 class="mb-2">{pageHeading}</h1>
+            {pageLead && <p class="text-sm text-gray-600 dark:text-gray-300">{pageLead}</p>}
+          </header>
+        )}
 				<slot />
 			</main>
 

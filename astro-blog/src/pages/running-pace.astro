@@ -44,11 +44,13 @@ const fullRows = buildRows(42.195, fullTargets, [5, 10, 15, 20, 21.0975, 25, 30,
 const calculatorText = `ランニングのペースは、練習やレースの質を左右する重要な指標です。とはいえ、体感だけに頼ると序盤に飛ばしすぎたり、終盤に失速したりしがちです。このページでは距離と目標タイムを入力するだけで、1kmや400メートルのペース、5km・10km・ハーフの通過タイムが分かります。トラックでの練習では400メートルのラップが特に役立ち、一定のリズムを保てているかを確認できます。ロードでは5km刻みの通過タイムが目安になり、前半を抑えて後半に余力を残す配分も立てやすくなります。ペースが分かれば、イージー走やテンポ走、距離走など目的に応じた負荷を設定でき、結果的に疲労管理もしやすくなります。目標に対して無理のないペースで積み上げ、必要に応じて少しだけ上げる。そんな地道な調整が、レース本番の安定につながります。`;
 ---
 
-<Layout pageTitle={pageTitle} metaDescription={metaDescription} noSidebar={true}>
-  <h1 class="mb-4">ランニングのペース計算・ペース表</h1>
-  <p class="text-sm text-gray-600 dark:text-gray-300 mb-6">
-    距離と目標タイムから、1kmペースと主要ラップを計算します。入力内容は自動で反映されます。
-  </p>
+<Layout
+  pageTitle={pageTitle}
+  metaDescription={metaDescription}
+  noSidebar={true}
+  pageHeading="ランニングのペース計算・ペース表"
+  pageLead="距離と目標タイムから、1kmペースと主要ラップを計算します。入力内容は自動で反映されます。"
+>
 
   <section id="calculator" class="card p-5 md:p-6 mb-8 scroll-mt-20">
     <h2 class="text-lg font-semibold mb-4">ペースを計算する</h2>

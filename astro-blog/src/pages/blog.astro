@@ -30,8 +30,7 @@ function imageForCategory(cat: string): string {
 }
 ---
 
-<Layout>
-  <h1 class="mb-6">最新の記事</h1>
+<Layout pageHeading="最新の記事">
 
   <section class="grid gap-6 sm:gap-8 grid-cols-1 md:grid-cols-2">
     {latest.map((post) => (

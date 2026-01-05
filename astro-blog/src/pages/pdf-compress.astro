@@ -5,13 +5,14 @@ const apiBase = import.meta.env.PUBLIC_PDF_API_BASE || '';
 const pageTitle = 'PDF圧縮｜履歴書・提出書類の容量を軽くする';
 const pageDescription = '履歴書や提出書類、スキャナ・複合機・コンビニでスキャンしたPDFの容量を画質とのバランスを見ながら圧縮できます。サーバで圧縮処理を行い、元PDFは短時間のみ保存され一定時間後に自動削除されます。圧縮後ファイルも一定時間のみ保存され、自動削除されます。';
 ---
-<Layout noSidebar pageTitle={pageTitle} metaDescription={pageDescription}>
+<Layout
+  noSidebar
+  pageTitle={pageTitle}
+  metaDescription={pageDescription}
+  pageHeading={title}
+  pageLead="履歴書や提出書類など、容量制限に合わせたいときに使えるPDF圧縮ツールです。画質とのバランスを見ながら、必要な範囲でサイズを調整できます。"
+>
   <section class="card p-6">
-    <h1 class="text-2xl font-bold mb-2">{title}</h1>
-    <p class="text-gray-600 dark:text-gray-400 mb-6">
-      履歴書や提出書類など、容量制限に合わせたいときに使えるPDF圧縮ツールです。画質とのバランスを見ながら、必要な範囲でサイズを調整できます。
-    </p>
-
     <h2 class="text-lg font-semibold mb-2">こんなときに使えます</h2>
     <ul class="list-disc pl-5 text-gray-600 dark:text-gray-400 mb-6 space-y-2">
       <li>

@@ -19,9 +19,7 @@ for (const p of posts) {
 const years = Object.keys(grouped).sort((a, b) => Number(b) - Number(a));
 ---
 
-<Layout>
-  <h1 class="mb-6">アーカイブ</h1>
-  <p class="text-sm text-gray-600 dark:text-gray-300 mb-6">公開済みの記事を年月ごとに表示しています。</p>
+<Layout pageHeading="アーカイブ" pageLead="公開済みの記事を年月ごとに表示しています。">
 
   <div class="space-y-10">
     {years.map((year) => (
