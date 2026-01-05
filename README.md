@@ -78,6 +78,8 @@ support direct uploads and deployment.
     - Output keys are level-specific (`hq`, `balanced`, `small`)
     - Returns `{ downloadUrl, outputSizeBytes, previewUrl }` (short‑lived pre‑signed GET)
     - Source deletion is best‑effort when `keepSource=false`
+    - PDFアップロードは最大50MBまで（sign-upload-v3でチェック）
+    - downloadUrl/previewUrl の有効期限はデフォルト10分（`DOWNLOAD_URL_TTL`）
   - Base64 mode (for local testing): `{ fileBase64, filename? ... }` → returns base64 PDF
 
 - Build & push (ECR)
@@ -103,9 +105,9 @@ support direct uploads and deployment.
 - Deploy (zip)
   - `cd lambdas/sign-upload-v3 && npm install --production && zip -r function.zip .`
   - Create Lambda (Node.js 20), upload `function.zip` in the console
-  - Env vars:
+- Env vars:
     - `BUCKET_NAME=<uploads bucket>`
-    - `UPLOAD_URL_TTL=600` (optional)
+    - `UPLOAD_URL_TTL=600` (optional, デフォルト10分)
   - IAM: `s3:PutObject` on `arn:aws:s3:::<bucket>/*`
 
 - API Gateway (HTTP API)

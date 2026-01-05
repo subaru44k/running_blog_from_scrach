@@ -72,6 +72,10 @@ features:
       - compress: call /compress level=1/2/3 (parallel)
       - outputs: store outputs/*.pdf
       - previews: store previews/*.png (best-effort)
+    upload_max_mb: 50
+    url_ttl_seconds:
+      download_preview: 600
+      upload: 600
     aws_resources: TODO
     security_notes:
       - temp files are stored for a limited time (S3 lifecycle assumed)

@@ -6,6 +6,8 @@ const { spawn } = require('child_process');
 const { S3Client, GetObjectCommand, PutObjectCommand, DeleteObjectCommand } = require('@aws-sdk/client-s3');
 const { getSignedUrl } = require('@aws-sdk/s3-request-presigner');
 
+const DOWNLOAD_URL_EXPIRES = Number(process.env.DOWNLOAD_URL_TTL || 600);
+
 function headerLookup(headers, key) {
   if (!headers) return undefined;
   const found = Object.keys(headers).find((k) => k.toLowerCase() === key.toLowerCase());
@@ -208,7 +210,7 @@ exports.handler = async (event) => {
           const downloadUrl = await getSignedUrl(
             s3,
             new GetObjectCommand({ Bucket: s3Bucket, Key: outKey }),
-            { expiresIn: Number(process.env.DOWNLOAD_URL_TTL || 600) }
+            { expiresIn: DOWNLOAD_URL_EXPIRES }
           );
 
           let previewUrl = null;
@@ -220,7 +222,7 @@ exports.handler = async (event) => {
             previewUrl = await getSignedUrl(
               s3,
               new GetObjectCommand({ Bucket: s3Bucket, Key: previewKey }),
-              { expiresIn: Number(process.env.DOWNLOAD_URL_TTL || 600) }
+              { expiresIn: DOWNLOAD_URL_EXPIRES }
             );
           } catch (e) {
             // Preview generation is best-effort; allow null previewUrl on failure
@@ -251,6 +253,7 @@ exports.handler = async (event) => {
           body: JSON.stringify({
             originalSizeBytes: originalStat.size,
             variants,
+            expiresIn: DOWNLOAD_URL_EXPIRES,
           }),
         };
       }
@@ -269,7 +272,11 @@ exports.handler = async (event) => {
       } catch (e) {
         // Ignore deletion errors; do not fail compression response
       }
-      const downloadUrl = await getSignedUrl(s3, new GetObjectCommand({ Bucket: s3Bucket, Key: outKey }), { expiresIn: Number(process.env.DOWNLOAD_URL_TTL || 600) });
+      const downloadUrl = await getSignedUrl(
+        s3,
+        new GetObjectCommand({ Bucket: s3Bucket, Key: outKey }),
+        { expiresIn: DOWNLOAD_URL_EXPIRES }
+      );
       let previewUrl = null;
       const previewPath = path.join(tmpDir, `preview-${suffix}.png`);
       try {
@@ -279,7 +286,7 @@ exports.handler = async (event) => {
         previewUrl = await getSignedUrl(
           s3,
           new GetObjectCommand({ Bucket: s3Bucket, Key: previewKey }),
-          { expiresIn: Number(process.env.DOWNLOAD_URL_TTL || 600) }
+          { expiresIn: DOWNLOAD_URL_EXPIRES }
         );
       } catch (e) {
         // Preview generation is best-effort; allow null previewUrl on failure
@@ -296,6 +303,7 @@ exports.handler = async (event) => {
           level: Number(level),
           keptSource: !!keepSource,
           previewUrl,
+          expiresIn: DOWNLOAD_URL_EXPIRES,
         }),
       };
     } else {

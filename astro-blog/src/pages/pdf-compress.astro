@@ -79,6 +79,7 @@ const pageDescription = '履歴書や提出書類、スキャナ・複合機・�
           </label>
           <span id="fileInfo" class="text-sm text-gray-500">未選択</span>
         </div>
+        <p class="mt-2 text-xs text-gray-500">対応ファイル: PDF / 最大50MB</p>
         <input id="pdfFile" type="file" accept="application/pdf" class="sr-only" />
       </div>
 
@@ -135,6 +136,7 @@ const pageDescription = '履歴書や提出書類、スキャナ・複合機・�
     var activeOptions = null;
     var activeBaseName = null;
     var variantsState = [];
+    var MAX_UPLOAD_BYTES = 50 * 1024 * 1024;
 
     function formatBytes(bytes) {
       if (!isFinite(bytes)) return '';
@@ -171,6 +173,10 @@ const pageDescription = '履歴書や提出書類、スキャナ・複合機・�
         if (fileInfo) fileInfo.textContent = f ? (f.name + ' — ' + formatBytes(f.size)) : '未選択';
         if (statusEl) statusEl.textContent = '';
         if (progressText) progressText.textContent = '';
+        if (f && f.size > MAX_UPLOAD_BYTES) {
+          if (compressBtn) compressBtn.disabled = true;
+          if (statusEl) statusEl.textContent = 'ファイルサイズが大きすぎます。最大50MBまでです。';
+        }
       });
     }
 
@@ -390,6 +396,11 @@ const pageDescription = '履歴書や提出書類、スキャナ・複合機・�
       compressBtn.addEventListener('click', function () {
         var f = (fileInput && fileInput.files && fileInput.files[0]) ? fileInput.files[0] : null;
         if (!f) return;
+        if (f.size > MAX_UPLOAD_BYTES) {
+          if (statusEl) statusEl.textContent = 'ファイルサイズが大きすぎます。最大50MBまでです。';
+          if (compressBtn) compressBtn.disabled = true;
+          return;
+        }
         if (!API_BASE) {
           if (statusEl) statusEl.textContent = 'APIの設定が見つかりません。PUBLIC_PDF_API_BASE を設定してください。';
           return;
@@ -400,7 +411,8 @@ const pageDescription = '履歴書や提出書類、スキャナ・複合機・�
         if (preview) preview.innerHTML = '';
         withBackoff(function () { return postJSON(api('/sign-upload'), {
           filename: f.name,
-          contentType: f.type || 'application/pdf'
+          contentType: f.type || 'application/pdf',
+          contentLength: f.size
         }); }, { retries: 5, base: 500, max: 6000 }).then(function (sign) {
           if (statusEl) statusEl.textContent = 'アップロード中...';
           return uploadToS3(sign.uploadUrl, f, function (pct) {
@@ -508,9 +520,23 @@ const pageDescription = '履歴書や提出書類、スキャナ・複合機・�
           });
         }).catch(function (err) {
           console.error(err);
-          if (statusEl) statusEl.textContent = 'エラー: ' + (err && err.message || err);
+          if (statusEl) {
+            var message = err && err.message ? err.message : String(err || '');
+            if (err && err.body) {
+              try {
+                var parsed = JSON.parse(err.body);
+                if (parsed && parsed.message) message = parsed.message;
+              } catch {}
+            }
+            if (err && err.status === 400 && message) {
+              statusEl.textContent = message;
+            } else {
+              statusEl.textContent = 'エラー: ' + message;
+            }
+          }
         }).finally(function () {
-          compressBtn.disabled = !fileInput || !(fileInput.files && fileInput.files[0]);
+          var nextFile = (fileInput && fileInput.files && fileInput.files[0]) ? fileInput.files[0] : null;
+          compressBtn.disabled = !nextFile || nextFile.size > MAX_UPLOAD_BYTES;
         });
       });
     }

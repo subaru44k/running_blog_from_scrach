@@ -55,6 +55,8 @@ flowchart LR
 - UI文言は日本語に統一し、信頼性/透明性の説明（about/contact/privacy）を明示。
 
 ## PDF圧縮のデータフロー
+- PDFアップロードは最大50MBまで。
+- downloadUrl / previewUrl の有効期限はデフォルト10分（DOWNLOAD_URL_TTLで変更可）、uploadUrlもデフォルト10分（UPLOAD_URL_TTL）。
 
 ```mermaid
 sequenceDiagram

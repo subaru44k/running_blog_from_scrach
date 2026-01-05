@@ -4,6 +4,7 @@ import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 
 const BUCKET = process.env.BUCKET_NAME;
 const EXPIRES_SECONDS = Number(process.env.UPLOAD_URL_TTL || 600);
+const MAX_UPLOAD_BYTES = 50 * 1024 * 1024;
 
 const s3 = new S3Client({ region: process.env.AWS_REGION || process.env.AWS_DEFAULT_REGION });
 
@@ -29,7 +30,30 @@ export const handler = async (event) => {
   }
 
   try {
-    const { filename, contentType } = parseEventBody(event);
+    const { filename, contentType, contentLength } = parseEventBody(event);
+    const lengthNum = Number(contentLength);
+    if (Number.isFinite(lengthNum) && lengthNum > MAX_UPLOAD_BYTES) {
+      return {
+        statusCode: 400,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          error: 'File too large',
+          message: 'PDFの最大サイズは50MBです。',
+          maxBytes: MAX_UPLOAD_BYTES,
+          maxMB: 50,
+        }),
+      };
+    }
+    if (contentType && !/^application\/pdf($|;)/.test(String(contentType))) {
+      return {
+        statusCode: 400,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          error: 'Invalid content type',
+          message: 'PDFのみ対応しています。',
+        }),
+      };
+    }
     const safeName = sanitizeFilename(filename);
     const objectKey = `uploads/${Date.now()}-${crypto.randomBytes(6).toString('hex')}-${safeName}`;
 
