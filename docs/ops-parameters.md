@@ -11,7 +11,8 @@ PDF圧縮はコスト攻撃・過剰利用のリスクがあるため、**同時
 | Upload URL TTL | 600秒（10分） | sign-upload-v3 の `UPLOAD_URL_TTL` | 署名URLの漏えい影響を限定 | 短すぎるとアップロード失敗が増える | Lambda環境変数 / レスポンスの `expiresIn` |
 | Download/Preview URL TTL | 600秒（10分） | pdf-compress-service の `DOWNLOAD_URL_TTL` | 署名URLの漏えい影響を限定 | 短すぎるとダウンロード切れが増える | Lambda環境変数 / レスポンスの `expiresIn` |
 | 最大アップロードサイズ | 50MB | S3 presigned POST の `content-length-range` + フロント `MAX_UPLOAD_BYTES` | 大容量攻撃の抑止 | APIとフロントの両方を同時更新 | sign-upload-v3 のポリシー / UIの即時バリデーション |
-| S3 Lifecycle | 1日で削除 | S3 Lifecycle rules | 保存コストの抑制 | 保存期間が短すぎると再DLできない | S3 Console → Lifecycle rules |
+| Cleanup Lambda | 10分おき / 1時間超を削除 | EventBridge + Lambda | 保存コストの抑制 | TTLを短くしすぎると再DLできない | Lambdaログ / EventBridge Rule |
+| S3 Lifecycle | 1日で削除 | S3 Lifecycle rules | 保存コストの抑制（最終保険） | 保存期間が短すぎると再DLできない | S3 Console → Lifecycle rules |
 | API Gateway throttle | 要確認 | API Gateway Stage | 連続呼び出しの制御 | 429増加・UX低下の可能性 | API Gateway → Stage → Throttling |
 
 ## presigned URL TTL の内訳
@@ -31,7 +32,8 @@ PDF圧縮はコスト攻撃・過剰利用のリスクがあるため、**同時
 - WAFや追加レート制限は**未設定前提**（必要に応じて導入検討）。
 
 ## S3 保護
-- Lifecycle: uploads/outputs/previews を **1日で削除**。
+- Cleanup Lambda: uploads/outputs/previews を **1時間超で削除**（10分おき）。
+- Lifecycle: uploads/outputs/previews を **1日で削除**（最終保険）。
 - CORS（現在値）:
   ```json
   [

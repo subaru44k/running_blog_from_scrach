@@ -30,6 +30,7 @@ Codex/MCP の実行時にコピペしやすいことを優先しています。
 | `pdf-compress-lambda` | `ap-northeast-1` | 圧縮本体（Ghostscript） | 20 |
 | `pdf-sign-upload` | `ap-northeast-1` | presigned POST 発行 | なし |
 | `pdf-compress-kill-switch` | `ap-northeast-1` | S3 ダウンロード遮断/解除 | なし |
+| `pdf-compress-cleanup-s3-prod` | `ap-northeast-1` | uploads/previews/outputs の1時間超を削除 | なし |
 
 > MCP指定例: `--function-name pdf-compress-lambda`
 
@@ -78,6 +79,7 @@ Codex/MCP の実行時にコピペしやすいことを優先しています。
 | `/aws/lambda/pdf-compress-lambda` | `ap-northeast-1` | 圧縮本体 |
 | `/aws/lambda/pdf-sign-upload` | `ap-northeast-1` | presigned POST 発行 |
 | `/aws/lambda/pdf-compress-kill-switch` | `ap-northeast-1` | kill switch |
+| `/aws/lambda/pdf-compress-cleanup-s3-prod` | `ap-northeast-1` | cleanup |
 
 ### IAM Role
 
@@ -85,6 +87,16 @@ Codex/MCP の実行時にコピペしやすいことを優先しています。
 | --- | --- | --- |
 | `lambda-pdf-compress-exec` | `ap-northeast-1` | pdf-compress-lambda / pdf-sign-upload |
 | `pdf-compress-kill-switch-role` | `ap-northeast-1` | kill switch |
+| `pdf-compress-cleanup-s3-prod-role` | `ap-northeast-1` | cleanup |
+
+### EventBridge（スケジュール）
+
+| Rule Name | Region | Schedule | 用途 |
+| --- | --- | --- | --- |
+| `pdf-compress-cleanup-s3-prod-every-10min` | `ap-northeast-1` | `rate(10 minutes)` | cleanup 起動 |
+
+> cleanup Lambda の環境変数: `BUCKET=pdf-compress-uploads-prod`, `PREFIXES=uploads/,previews/,outputs/`, `TTL_SECONDS=3600`  
+> 手動テスト: Lambda を手動実行し、ログの `scanned/deleted` を確認
 
 ### ECR
 
@@ -131,6 +143,7 @@ Codex/MCP の実行時にコピペしやすいことを優先しています。
 --function-name pdf-compress-lambda
 --function-name pdf-sign-upload
 --function-name pdf-compress-kill-switch
+--function-name pdf-compress-cleanup-s3-prod
 
 # API Gateway (HTTP API)
 --api-id 6zzbxx14u6
@@ -163,4 +176,7 @@ CLOUDFRONT_DIST_ID=EMED5317DC581
 APIGW_API_ID=6zzbxx14u6
 ECR_REPO=pdf-compress-service
 ECR_REGISTRY=470447451992.dkr.ecr.ap-northeast-1.amazonaws.com
+
+CLEANUP_LAMBDA=pdf-compress-cleanup-s3-prod
+CLEANUP_RULE=pdf-compress-cleanup-s3-prod-every-10min
 ```

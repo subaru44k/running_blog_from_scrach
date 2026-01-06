@@ -4,6 +4,7 @@ This repo hosts the public website and supporting services for “Subaru is Runn
 It includes an Astro blog, a PDF compression microservice, and small Lambdas that
 support direct uploads and deployment.
 AWS リソース名・Region・識別情報は `docs/aws-resources.md` を参照してください。
+一時ファイルの cleanup（uploads/previews/outputs の削除）も `docs/aws-resources.md` を参照してください。
 
 ## Repo Layout
 
