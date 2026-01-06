@@ -10,68 +10,39 @@ const pageDescription = '履歴書や提出書類、スキャナ・複合機・�
   pageTitle={pageTitle}
   metaDescription={pageDescription}
   pageHeading={title}
-  pageLead="履歴書や提出書類など、容量制限に合わせたいときに使えるPDF圧縮ツールです。画質とのバランスを見ながら、必要な範囲でサイズを調整できます。"
 >
-  <section class="card p-6">
-    <h2 class="text-lg font-semibold mb-2">こんなときに使えます</h2>
-    <ul class="list-disc pl-5 text-gray-600 dark:text-gray-400 mb-6 space-y-2">
-      <li>
-        履歴書・職務経歴書をメール添付で送りたい
-        <span class="block text-sm">容量制限に合わせつつ、文字の読みやすさを優先できます。</span>
-      </li>
-      <li>
-        学校・保育園・役所にPDF提出が必要
-        <span class="block text-sm">◯MB以下の指定がある場合や、スキャンしたPDFが重いときに便利です。</span>
-      </li>
-      <li>
-        スキャナや複合機でスキャンしたPDFが重い
-        <span class="block text-sm">画像ベースのPDFでも、画質と容量のバランスを取りやすくなります。</span>
-      </li>
-    </ul>
-
-    <h2 class="text-lg font-semibold mb-2">おすすめの使い方</h2>
-    <ul class="list-disc pl-5 text-gray-600 dark:text-gray-400 mb-6 space-y-1">
-      <li>圧縮後に「高画質 / 標準 / 高圧縮」の3候補が表示されます。</li>
-      <li>サイズ制限がある場合は、上限以内の候補を選んでください。</li>
-      <li>画質を重視する場合は「高画質」、容量重視なら「高圧縮」がおすすめです。</li>
-    </ul>
-
-    <h2 class="text-lg font-semibold mb-2">注意事項・できること／できないこと</h2>
-    <ul class="list-disc pl-5 text-gray-600 dark:text-gray-400 mb-6 space-y-1">
-      <li>圧縮後の画質は元に戻せません。元PDFは手元に保存しておくことをおすすめします。</li>
-      <li>画像が多いPDFは圧縮効果が出やすい一方、内容によってはサイズがあまり小さくならない場合があります。</li>
-      <li>文字中心のPDFは、見た目がほとんど変わらずサイズも大きく変わらないことがあります。</li>
-      <li>重要書類は送信・提出前に内容を確認してからご利用ください。</li>
-      <li>個人情報や機密情報を含むPDFは、取り扱いに注意してご利用ください。</li>
-      <li>ファイルサイズが大きい場合は圧縮に時間がかかることがあります。</li>
-      <li>通信環境によってはアップロードやダウンロードが失敗する場合があります。</li>
-    </ul>
-
-    <h2 class="text-lg font-semibold mb-2">よくある質問</h2>
-    <dl class="text-gray-600 dark:text-gray-400 mb-6 space-y-3">
-      <div>
-        <dt class="font-medium">Q. なぜ思ったほどサイズが小さくならないのですか？</dt>
-        <dd class="text-sm">画像が少ないPDFや、すでに最適化されているPDFは効果が出にくいことがあります。内容によって結果が変わります。</dd>
+  <section class="rounded-2xl border border-gray-200 dark:border-gray-800 bg-gradient-to-br from-white to-blue-50/60 dark:from-gray-950 dark:to-gray-900 p-6 md:p-8">
+    <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-6">
+      <div class="max-w-xl space-y-3">
+        <p class="text-gray-700 dark:text-gray-300 leading-relaxed">
+          履歴書や提出書類のPDFを、画質とのバランスを見ながら圧縮できます。<br />
+          サーバで圧縮処理を行い、元PDFと圧縮後ファイルは一定時間後に自動削除されます。<br />
+          3候補のプレビューとサイズを見比べて、目的に合うものを選べます。
+        </p>
+        <div class="flex flex-wrap gap-2 text-xs text-gray-600 dark:text-gray-400">
+          <span class="rounded-full bg-white/80 dark:bg-gray-900/80 px-3 py-1 ring-1 ring-gray-200 dark:ring-gray-700">無料・登録不要</span>
+          <span class="rounded-full bg-white/80 dark:bg-gray-900/80 px-3 py-1 ring-1 ring-gray-200 dark:ring-gray-700">ブラウザで完結</span>
+          <span class="rounded-full bg-white/80 dark:bg-gray-900/80 px-3 py-1 ring-1 ring-gray-200 dark:ring-gray-700">ファイルは一定時間後に自動削除</span>
+        </div>
       </div>
       <div>
-        <dt class="font-medium">Q. 画質はどのくらい落ちますか？</dt>
-        <dd class="text-sm">圧縮レベルによって変わります。まずは「中」で試し、文字が潰れる場合は「低（高画質）」に戻すと安心です。</dd>
+        <a href="#tool" class="inline-flex items-center rounded-md bg-blue-600 px-5 py-2.5 text-white hover:bg-blue-700">いますぐ圧縮する</a>
       </div>
+    </div>
+  </section>
+
+  <section id="tool" class="card p-6 mt-8">
+    <div class="flex items-start justify-between gap-4 mb-6">
       <div>
-        <dt class="font-medium">Q. 提出書類に使っても大丈夫ですか？</dt>
-        <dd class="text-sm">提出先の指定を満たせる場合に限り利用できます。必ず内容と見え方を確認してから送信してください。</dd>
+        <h2 class="text-lg font-semibold">PDF圧縮ツール</h2>
+        <p class="text-sm text-gray-600 dark:text-gray-400">STEPに沿って進めるだけで、圧縮候補が表示されます。</p>
       </div>
-    </dl>
+      <span class="text-xs text-gray-500">対応ファイル: PDF / 最大50MB</span>
+    </div>
 
-    <h2 class="text-lg font-semibold mb-2">データの取り扱い</h2>
-    <ul class="list-disc pl-5 text-gray-600 dark:text-gray-400 mb-6 space-y-1">
-      <li>PDFは一時的にアップロードされ、サーバ側で圧縮処理を行います。</li>
-      <li>元PDFは短時間のみ保存され、一定時間後に自動的に削除されます。</li>
-      <li>圧縮後ファイルも一定時間のみ保存され、その後自動的に削除されます。</li>
-    </ul>
-
-    <div class="space-y-4">
+    <div class="space-y-6">
       <div>
+        <div class="text-xs font-semibold text-gray-500 mb-2">STEP 1 アップロード</div>
         <label class="block font-medium mb-1" for="pdfFile">PDFファイルを選択</label>
         <div class="flex flex-wrap items-center gap-3">
           <label for="pdfFile" class="inline-flex items-center rounded-md px-4 py-2 ring-1 ring-inset ring-gray-300 dark:ring-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800 cursor-pointer">
@@ -79,11 +50,11 @@ const pageDescription = '履歴書や提出書類、スキャナ・複合機・�
           </label>
           <span id="fileInfo" class="text-sm text-gray-500">未選択</span>
         </div>
-        <p class="mt-2 text-xs text-gray-500">対応ファイル: PDF / 最大50MB</p>
         <input id="pdfFile" type="file" accept="application/pdf" class="sr-only" />
       </div>
 
       <div>
+        <div class="text-xs font-semibold text-gray-500 mb-2">STEP 2 設定</div>
         <label class="block font-medium mb-1" for="maxSizeMb">上限サイズ（任意）</label>
         <div class="flex items-center gap-3">
           <input id="maxSizeMb" type="number" inputmode="decimal" step="0.1" min="0.1" class="w-40 border rounded px-3 py-2" placeholder="例：5" />
@@ -92,13 +63,18 @@ const pageDescription = '履歴書や提出書類、スキャナ・複合機・�
         <p class="mt-1 text-xs text-gray-500">上限を入れると、条件を満たす候補にバッジが付きます。</p>
       </div>
 
-      <div class="flex items-center gap-3">
-        <button id="compressBtn" class="rounded-md px-4 py-2 ring-1 ring-inset ring-gray-300 dark:ring-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800 disabled:opacity-50" disabled>
-          圧縮を開始
-        </button>
-        <span id="status" class="text-sm text-gray-600 dark:text-gray-400"></span>
+      <div>
+        <div class="text-xs font-semibold text-gray-500 mb-2">STEP 3 圧縮</div>
+        <div class="flex items-center gap-3">
+          <button id="compressBtn" class="rounded-md px-4 py-2 ring-1 ring-inset ring-gray-300 dark:ring-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800 disabled:opacity-50" disabled>
+            圧縮を開始
+          </button>
+        </div>
+        <div id="statusBanner" class="hidden mt-3 rounded-md border px-4 py-3 text-sm">
+          <span id="statusText"></span>
+        </div>
+        <div id="progressText" class="text-xs text-gray-500 mt-2"></div>
       </div>
-      <div id="progressText" class="text-xs text-gray-500"></div>
 
       <details class="mt-2">
         <summary class="cursor-pointer select-none">詳細オプション</summary>
@@ -113,9 +89,62 @@ const pageDescription = '履歴書や提出書類、スキャナ・複合機・�
           </label>
         </div>
       </details>
-
-      <div id="preview" class="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4"></div>
     </div>
+  </section>
+
+  <section id="resultCard" class="card p-6 mt-6 hidden">
+    <div class="flex items-start justify-between gap-4 mb-4">
+      <div>
+        <h2 class="text-lg font-semibold">圧縮結果</h2>
+        <p id="resultStatus" class="text-sm text-gray-600 dark:text-gray-400">圧縮結果はここに表示されます。</p>
+      </div>
+    </div>
+    <div id="preview" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
+  </section>
+
+  <section class="card p-6 mt-8">
+    <h2 class="text-xl font-semibold mb-3">解説・安全性</h2>
+    <div class="rounded-md border border-gray-200 dark:border-gray-800 bg-gray-50/60 dark:bg-gray-900/40 p-4 text-sm text-gray-700 dark:text-gray-300 mb-5">
+      まずは「ファイル選択 → 圧縮開始」だけでOKです。3候補のサイズとプレビューを見て、提出条件や読みやすさに合うものを選んでください。
+    </div>
+
+    <h3 class="text-base font-semibold mb-2">役立つ場面</h3>
+    <ul class="list-disc pl-5 text-gray-600 dark:text-gray-400 mb-5 space-y-1">
+      <li>履歴書・職務経歴書をメール添付で送りたい（容量制限に合わせたい）</li>
+      <li>学校・保育園・役所にPDF提出が必要（指定サイズがある）</li>
+      <li>スキャナや複合機でスキャンしたPDFが重い（画像ベースのPDF）</li>
+    </ul>
+
+    <h3 class="text-base font-semibold mb-2">注意点・制限</h3>
+    <ul class="list-disc pl-5 text-gray-600 dark:text-gray-400 mb-5 space-y-1">
+      <li>圧縮後の画質は元に戻せません。元PDFは手元に保存しておくことをおすすめします。</li>
+      <li>内容によってはサイズがあまり小さくならないことがあります。</li>
+      <li>重要書類は送信・提出前に内容を確認してからご利用ください。</li>
+      <li>通信環境によってはアップロードやダウンロードが失敗する場合があります。</li>
+    </ul>
+
+    <h3 class="text-base font-semibold mb-2">データの取り扱い</h3>
+    <ul class="list-disc pl-5 text-gray-600 dark:text-gray-400 mb-5 space-y-1">
+      <li>PDFは一時的にアップロードされ、サーバ側で圧縮処理を行います。</li>
+      <li>元PDFは短時間のみ保存され、一定時間後に自動的に削除されます。</li>
+      <li>圧縮後ファイルも一定時間のみ保存され、その後自動的に削除されます。</li>
+    </ul>
+
+    <h3 class="text-base font-semibold mb-2">よくある質問</h3>
+    <dl class="text-gray-600 dark:text-gray-400 space-y-3">
+      <div>
+        <dt class="font-medium">Q. なぜ思ったほどサイズが小さくならないのですか？</dt>
+        <dd class="text-sm">画像が少ないPDFや、すでに最適化されているPDFは効果が出にくいことがあります。</dd>
+      </div>
+      <div>
+        <dt class="font-medium">Q. 画質はどのくらい落ちますか？</dt>
+        <dd class="text-sm">候補ごとに差があるので、文字の読みやすさを基準に選んでください。</dd>
+      </div>
+      <div>
+        <dt class="font-medium">Q. 提出書類に使っても大丈夫ですか？</dt>
+        <dd class="text-sm">提出先の指定を満たせる場合に限り利用できます。必ず内容と見え方を確認してください。</dd>
+      </div>
+    </dl>
   </section>
 
   <script define:vars={{ apiBase }}>
@@ -129,14 +158,45 @@ const pageDescription = '履歴書や提出書類、スキャナ・複合機・�
     var fileInput = document.getElementById('pdfFile');
     var fileInfo = document.getElementById('fileInfo');
     var compressBtn = document.getElementById('compressBtn');
-    var statusEl = document.getElementById('status');
+    var statusBanner = document.getElementById('statusBanner');
+    var statusEl = document.getElementById('statusText');
     var progressText = document.getElementById('progressText');
     var preview = document.getElementById('preview');
+    var resultCard = document.getElementById('resultCard');
+    var resultStatus = document.getElementById('resultStatus');
     var maxSizeMb = document.getElementById('maxSizeMb');
     var activeOptions = null;
     var activeBaseName = null;
     var variantsState = [];
     var MAX_UPLOAD_BYTES = 50 * 1024 * 1024;
+    var didScrollToResult = false;
+
+    function setStatus(message, type) {
+      if (!statusEl || !statusBanner) return;
+      statusEl.textContent = message || '';
+      if (!message) {
+        statusBanner.classList.add('hidden');
+        return;
+      }
+      statusBanner.classList.remove('hidden');
+      statusBanner.classList.remove(
+        'bg-blue-50','border-blue-200','text-blue-900',
+        'bg-green-50','border-green-200','text-green-900',
+        'bg-red-50','border-red-200','text-red-900'
+      );
+      if (type === 'success') {
+        statusBanner.classList.add('bg-green-50','border-green-200','text-green-900');
+      } else if (type === 'error') {
+        statusBanner.classList.add('bg-red-50','border-red-200','text-red-900');
+      } else {
+        statusBanner.classList.add('bg-blue-50','border-blue-200','text-blue-900');
+      }
+    }
+
+    function setResultStatus(message) {
+      if (!resultStatus) return;
+      resultStatus.textContent = message || '';
+    }
 
     function formatBytes(bytes) {
       if (!isFinite(bytes)) return '';
@@ -171,11 +231,12 @@ const pageDescription = '履歴書や提出書類、スキャナ・複合機・�
         var f = (fileInput.files && fileInput.files[0]) ? fileInput.files[0] : null;
         if (compressBtn) compressBtn.disabled = !f;
         if (fileInfo) fileInfo.textContent = f ? (f.name + ' — ' + formatBytes(f.size)) : '未選択';
-        if (statusEl) statusEl.textContent = '';
+        setStatus('', 'info');
         if (progressText) progressText.textContent = '';
+        if (resultStatus) setResultStatus('圧縮結果はここに表示されます。');
         if (f && f.size > MAX_UPLOAD_BYTES) {
           if (compressBtn) compressBtn.disabled = true;
-          if (statusEl) statusEl.textContent = 'ファイルサイズが大きすぎます。最大50MBまでです。';
+          setStatus('ファイルサイズが大きすぎます。最大50MBまでです。', 'error');
         }
       });
     }
@@ -213,7 +274,7 @@ const pageDescription = '履歴書や提出書類、スキャナ・複合機・�
           if (attempt === retries || !retryable) { throw e; }
           var delay = Math.min(max, base * Math.pow(factor, attempt));
           var wait = Math.floor(Math.random() * delay); // full jitter
-          if (statusEl) statusEl.textContent = '再試行まで ' + Math.ceil(wait/1000) + ' 秒（' + (attempt+2) + '/' + (retries+1) + ' 回目）';
+          setStatus('再試行まで ' + Math.ceil(wait/1000) + ' 秒（' + (attempt+2) + '/' + (retries+1) + ' 回目）', 'info');
           await sleep(wait);
         }
       }
@@ -250,7 +311,7 @@ const pageDescription = '履歴書や提出書類、スキャナ・複合機・�
     }
 
     function downloadSignedUrl(url, filename) {
-      if (statusEl) statusEl.textContent = 'ダウンロード準備中...';
+      setStatus('ダウンロード準備中...', 'info');
       return fetch(url, { method: 'GET' })
         .then(function (res) {
           if (!res.ok) throw new Error('ダウンロードに失敗しました: ' + res.status);
@@ -264,7 +325,7 @@ const pageDescription = '履歴書や提出書類、スキャナ・複合機・�
           document.body.appendChild(link);
           link.click();
           setTimeout(function () { URL.revokeObjectURL(urlObj); if (link.parentNode) link.parentNode.removeChild(link); }, 1000);
-          if (statusEl) statusEl.textContent = 'ダウンロードを開始しました。';
+          setStatus('ダウンロードを開始しました。', 'success');
         });
     }
 
@@ -383,7 +444,7 @@ const pageDescription = '履歴書や提出書類、スキャナ・複合機・�
             downloadSignedUrl(btn.dataset.url, btn.dataset.filename || undefined)
               .catch(function (err) {
                 console.error(err);
-                if (statusEl) statusEl.textContent = 'エラー: ' + (err && err.message || err);
+                setStatus('エラー: ' + (err && err.message || err), 'error');
               });
           });
           card.appendChild(btn);
@@ -408,29 +469,32 @@ const pageDescription = '履歴書や提出書類、スキャナ・複合機・�
         var f = (fileInput && fileInput.files && fileInput.files[0]) ? fileInput.files[0] : null;
         if (!f) return;
         if (f.size > MAX_UPLOAD_BYTES) {
-          if (statusEl) statusEl.textContent = 'ファイルサイズが大きすぎます。最大50MBまでです。';
+          setStatus('ファイルサイズが大きすぎます。最大50MBまでです。', 'error');
           if (compressBtn) compressBtn.disabled = true;
           return;
         }
         if (!API_BASE) {
-          if (statusEl) statusEl.textContent = 'APIの設定が見つかりません。PUBLIC_PDF_API_BASE を設定してください。';
+          setStatus('APIの設定が見つかりません。PUBLIC_PDF_API_BASE を設定してください。', 'error');
           return;
         }
         compressBtn.disabled = true;
-        if (statusEl) statusEl.textContent = 'アップロードURLを取得中...';
+        setStatus('アップロードURLを取得中...', 'info');
         if (progressText) progressText.textContent = '';
         if (preview) preview.innerHTML = '';
+        if (resultCard) resultCard.classList.remove('hidden');
+        if (resultStatus) setResultStatus('圧縮結果を準備しています。');
+        didScrollToResult = false;
         withBackoff(function () { return postJSON(api('/sign-upload'), {
           filename: f.name,
           contentType: f.type || 'application/pdf',
           contentLength: f.size
         }); }, { retries: 5, base: 500, max: 6000 }).then(function (sign) {
-          if (statusEl) statusEl.textContent = 'アップロード中...';
+          setStatus('アップロード中...', 'info');
           return uploadToS3Post(sign, f, function (pct) {
             if (progressText) progressText.textContent = 'アップロード: ' + pct + '%';
           }).then(function () { return sign; });
         }).then(function (sign) {
-          if (statusEl) statusEl.textContent = '圧縮中...（3件中 0件完了）';
+          setStatus('圧縮中...（3件中 0件完了）', 'info');
           var rmEl = document.getElementById('removeMetadata');
           var gsEl = document.getElementById('grayscale');
           activeOptions = {
@@ -448,7 +512,7 @@ const pageDescription = '履歴書や提出書類、スキャナ・複合機・�
           function updateStatus() {
             if (!statusEl) return;
             var doneCount = variantsState.filter(function (v) { return v.state !== 'pending'; }).length;
-            statusEl.textContent = '圧縮中...（3件中 ' + doneCount + '件完了）';
+            setStatus('圧縮中...（3件中 ' + doneCount + '件完了）', 'info');
           }
 
           function normalizeDownloadUrl(resp) {
@@ -477,20 +541,20 @@ const pageDescription = '履歴書や提出書類、スキャナ・複合機・�
               variant.state = 'pending';
               variant.errorMessage = null;
               variant.downloadUrl = null;
-            variant.outputSizeBytes = NaN;
-            variant.previewUrl = null;
-            renderVariants(variantsState, f.size, parseMaxSizeBytes(), activeBaseName);
-            if (statusEl) statusEl.textContent = '再試行中...';
-            compressOne(variant.level).then(function (resp) {
-              var downloadUrl = normalizeDownloadUrl(resp);
-              if (!downloadUrl) throw new Error('ダウンロード情報が取得できませんでした。');
-              variant.state = 'success';
-              variant.downloadUrl = downloadUrl;
-              variant.outputSizeBytes = resp && resp.outputSizeBytes;
-              variant.previewUrl = normalizePreviewUrl(resp);
-              renderVariants(variantsState, resp.originalSizeBytes || f.size, parseMaxSizeBytes(), activeBaseName);
-            }).catch(function (err) {
-              variant.state = 'error';
+              variant.outputSizeBytes = NaN;
+              variant.previewUrl = null;
+              renderVariants(variantsState, f.size, parseMaxSizeBytes(), activeBaseName);
+              setStatus('再試行中...', 'info');
+              compressOne(variant.level).then(function (resp) {
+                var downloadUrl = normalizeDownloadUrl(resp);
+                if (!downloadUrl) throw new Error('ダウンロード情報が取得できませんでした。');
+                variant.state = 'success';
+                variant.downloadUrl = downloadUrl;
+                variant.outputSizeBytes = resp && resp.outputSizeBytes;
+                variant.previewUrl = normalizePreviewUrl(resp);
+                renderVariants(variantsState, resp.originalSizeBytes || f.size, parseMaxSizeBytes(), activeBaseName);
+              }).catch(function (err) {
+                variant.state = 'error';
                 variant.errorMessage = (err && err.message) ? err.message : '不明なエラー';
                 renderVariants(variantsState, f.size, parseMaxSizeBytes(), activeBaseName);
               }).finally(function () {
@@ -523,9 +587,15 @@ const pageDescription = '履歴書や提出書類、スキャナ・複合機・�
             if (statusEl) {
               var successCount = variantsState.filter(function (v) { return v.state === 'success'; }).length;
               if (successCount > 0) {
-                statusEl.textContent = '圧縮が完了しました。候補から選んでダウンロードしてください。';
+                setStatus('圧縮が完了しました。候補から選んでダウンロードしてください。', 'success');
+                setResultStatus('圧縮結果を表示しました。候補から選んでダウンロードしてください。');
+                if (!didScrollToResult && resultCard && typeof resultCard.scrollIntoView === 'function') {
+                  didScrollToResult = true;
+                  resultCard.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
               } else {
-                statusEl.textContent = '圧縮に失敗しました。時間をおいて再試行してください。';
+                setStatus('圧縮に失敗しました。時間をおいて再試行してください。', 'error');
+                setResultStatus('圧縮に失敗しました。時間をおいて再試行してください。');
               }
             }
           });
@@ -540,10 +610,11 @@ const pageDescription = '履歴書や提出書類、スキャナ・複合機・�
               } catch {}
             }
             if (err && err.status === 400 && message) {
-              statusEl.textContent = message;
+              setStatus(message, 'error');
             } else {
-              statusEl.textContent = 'エラー: ' + message;
+              setStatus('エラー: ' + message, 'error');
             }
+            setResultStatus('圧縮に失敗しました。時間をおいて再試行してください。');
           }
         }).finally(function () {
           var nextFile = (fileInput && fileInput.files && fileInput.files[0]) ? fileInput.files[0] : null;
