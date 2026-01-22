@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { getLeaderboard, getPrompt, submitDrawing } from '../../lib/draw/apiMock';
 import type { LeaderboardResponse, PromptInfo, SubmitResult } from '../../lib/draw/types';
 import ResultCard from './ResultCard';
@@ -33,6 +33,9 @@ export default function DrawResult() {
   const [nameInput, setNameInput] = useState('');
   const [submissionId, setSubmissionId] = useState<string>('');
   const RESULT_VERSION = 'v2-fixed-90';
+  const [displayScore, setDisplayScore] = useState(0);
+  const [showDetails, setShowDetails] = useState(false);
+  const [isAnimating, setIsAnimating] = useState(false);
 
   const loadSavedResult = () => {
     try {
@@ -112,6 +115,33 @@ export default function DrawResult() {
     }
   }, [state.result, nickname, imageDataUrl]);
 
+  useEffect(() => {
+    if (!state.result) return;
+    setDisplayScore(0);
+    setShowDetails(false);
+    setIsAnimating(true);
+    const target = state.result.score;
+    const duration = 800;
+    const start = performance.now();
+    let raf = 0;
+    const step = (now: number) => {
+      const elapsed = now - start;
+      const progress = Math.min(1, elapsed / duration);
+      setDisplayScore(Math.floor(target * progress));
+      if (progress < 1) {
+        raf = requestAnimationFrame(step);
+      } else {
+        setDisplayScore(target);
+        setTimeout(() => {
+          setShowDetails(true);
+          setIsAnimating(false);
+        }, 200);
+      }
+    };
+    raf = requestAnimationFrame(step);
+    return () => cancelAnimationFrame(raf);
+  }, [state.result]);
+
   const saveName = (value: string) => {
     const trimmed = value.trim().slice(0, 20);
     const next = trimmed.length === 0 ? '' : trimmed;
@@ -183,6 +213,43 @@ export default function DrawResult() {
     ? `https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText)}`
     : 'https://twitter.com/intent/tweet';
 
+  const commentPair = useMemo(() => {
+    if (!state.result) return { positive: '', improvement: '' };
+    const s = state.result.score;
+    if (s >= 90) return { positive: '輪郭が整っていて印象が強いです。', improvement: 'もう少し配置を意識すると良いです。' };
+    if (s >= 80) return { positive: '形の捉え方が素直で伝わります。', improvement: 'もう少し線に強弱があると良いです。' };
+    if (s >= 70) return { positive: '勢いがあって楽しく見えます。', improvement: 'もう少し中心を意識すると良いです。' };
+    return { positive: '線が伸びやかで気持ちいいです。', improvement: 'もう少し輪郭を意識すると良いです。' };
+  }, [state.result]);
+
+  const rankMessage = state.result ? (() => {
+    if (state.result.score >= 75) {
+      return {
+        title: '🎉 ランキング入り！',
+        sub: '今日の上位20作品に入りました',
+      };
+    }
+    const diff = Math.max(0, 75 - state.result.score);
+    return {
+      title: `あと${diff}点でランキング！`,
+      sub: '',
+    };
+  })() : null;
+
+  const retry = () => {
+    if (!promptId) return;
+    sessionStorage.removeItem('drawImage');
+    localStorage.removeItem('drawImage');
+    localStorage.removeItem('drawResult');
+    localStorage.removeItem('drawResultVersion');
+    localStorage.removeItem('drawSubmissionId');
+    localStorage.removeItem('drawScore');
+    sessionStorage.removeItem('drawNickname');
+    setShowNameModal(false);
+    const params = new URLSearchParams({ promptId });
+    window.location.href = `/draw/play?${params.toString()}`;
+  };
+
   return (
     <div className="space-y-6">
       <div className="rounded-lg border bg-gray-50 p-4">
@@ -204,20 +271,26 @@ export default function DrawResult() {
 
       {state.result && imageDataUrl && (
         <div className="space-y-4">
-          <ResultCard result={state.result} imageDataUrl={imageDataUrl} />
+          <ResultCard
+            result={state.result}
+            imageDataUrl={imageDataUrl}
+            displayScore={displayScore}
+            showDetails={showDetails}
+            positiveComment={commentPair.positive}
+            improvementComment={commentPair.improvement}
+          />
+          {rankMessage && (
+            <div className="rounded-lg border bg-gray-50 p-4">
+              <div className="text-lg font-semibold">{rankMessage.title}</div>
+              {rankMessage.sub && <div className="text-sm text-gray-600">{rankMessage.sub}</div>}
+            </div>
+          )}
           <div className="flex flex-wrap items-center gap-3">
-            {state.result.isRanked ? (
-              <div className="text-sm font-semibold text-blue-600">
-                ランキング入り！ {state.result.rank}位
-              </div>
-            ) : (
-              <div className="text-sm text-gray-600">今回はランク外（75点以上で掲載）</div>
-            )}
             <button
               type="button"
               className="ml-auto px-4 py-2 rounded-md bg-gray-900 text-white"
               onClick={handleShare}
-              disabled={sharing}
+              disabled={sharing || state.loading || isAnimating}
             >
               {sharing ? '共有画像を生成中…' : '共有画像を保存'}
             </button>
@@ -240,7 +313,7 @@ export default function DrawResult() {
           <div className="space-y-3">
             <Leaderboard items={mergedLeaderboard} highlightId={submissionId} />
             {!hasMine && state.result && (
-              <div className="rounded-lg border border-dashed p-3 text-sm text-gray-700">
+              <div className="border-t pt-3 text-sm text-gray-700">
                 あなた：{state.result.score}点（{displayName}）
               </div>
             )}
@@ -250,8 +323,15 @@ export default function DrawResult() {
         )}
       </div>
 
-      <div className="text-sm">
-        <a href="/draw/" className="text-blue-600 underline">もう一度描く</a>
+      <div className="pt-2">
+        <button
+          type="button"
+          className="w-full md:w-auto px-5 py-3 rounded-md bg-blue-600 text-white"
+          onClick={retry}
+          disabled={state.loading}
+        >
+          もう一度描く（今日のお題）
+        </button>
       </div>
 
       {showNameModal && state.result && (

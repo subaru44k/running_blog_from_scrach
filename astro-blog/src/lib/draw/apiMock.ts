@@ -22,7 +22,7 @@ const toDataUrl = (svg: string) => {
   return `data:image/svg+xml;base64,${encoded}`;
 };
 
-const randomScore = () => 90;
+const randomScore = () => 60 + Math.floor(Math.random() * 36);
 
 export async function getPrompt(): Promise<PromptInfo> {
   await delay(400);
