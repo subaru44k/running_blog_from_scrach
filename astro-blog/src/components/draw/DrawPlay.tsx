@@ -61,13 +61,6 @@ export default function DrawPlay() {
           <div className="text-xs text-gray-500">残り時間</div>
           <Timer seconds={30} running={!finished} onComplete={() => finish(imageDataUrl || undefined)} />
         </div>
-        <button
-          className="px-4 py-2 rounded-md ring-1 ring-inset ring-gray-300"
-          onClick={() => finish(imageDataUrl || undefined)}
-          disabled={finished || !imageDataUrl}
-        >
-          終了する
-        </button>
       </div>
 
       <CanvasDraw

@@ -28,6 +28,7 @@ const wrapText = (ctx: CanvasRenderingContext2D, text: string, maxWidth: number)
 export async function buildShareCard(params: {
   promptText: string;
   score: number;
+  nickname: string;
   oneLiner: string;
   imageDataUrl: string;
 }): Promise<string> {
@@ -56,13 +57,18 @@ export async function buildShareCard(params: {
 
   ctx.fillStyle = '#111827';
   ctx.font = 'bold 88px sans-serif';
-  ctx.fillText(`${params.score}点`, 620, 320);
+  ctx.fillText(`${params.score}点`, 620, 300);
 
   ctx.font = '28px sans-serif';
+  ctx.fillStyle = '#111827';
+  const nameText = params.nickname.length > 12 ? `${params.nickname.slice(0, 12)}…` : params.nickname;
+  ctx.fillText(nameText, 620, 350);
+
+  ctx.font = '26px sans-serif';
   ctx.fillStyle = '#374151';
   const oneLinerLines = wrapText(ctx, params.oneLiner, 500).slice(0, 2);
   oneLinerLines.forEach((line, idx) => {
-    ctx.fillText(line, 620, 380 + idx * 36);
+    ctx.fillText(line, 620, 400 + idx * 34);
   });
 
   ctx.font = '20px sans-serif';

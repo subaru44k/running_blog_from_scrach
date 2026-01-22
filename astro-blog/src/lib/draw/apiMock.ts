@@ -22,7 +22,7 @@ const toDataUrl = (svg: string) => {
   return `data:image/svg+xml;base64,${encoded}`;
 };
 
-const randomScore = () => 60 + Math.floor(Math.random() * 36);
+const randomScore = () => 90;
 
 export async function getPrompt(): Promise<PromptInfo> {
   await delay(400);
@@ -66,6 +66,7 @@ export async function getLeaderboard(promptId: string, limit = 20): Promise<Lead
       rank: i + 1,
       score,
       nickname: i % 3 === 0 ? '匿名' : `Runner${i + 1}`,
+      submissionId: `mock-${promptId}-${i + 1}`,
       imageDataUrl: toDataUrl(svg),
     };
   });

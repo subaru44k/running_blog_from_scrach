@@ -24,6 +24,7 @@ export type LeaderboardItem = {
   rank: number;
   score: number;
   nickname: string;
+  submissionId: string;
   imageDataUrl: string;
 };
 

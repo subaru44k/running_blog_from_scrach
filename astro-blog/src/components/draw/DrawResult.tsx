@@ -28,12 +28,39 @@ export default function DrawResult() {
   const [state, setState] = useState<ResultState>({ loading: true });
   const [sharing, setSharing] = useState(false);
   const [promptId, setPromptId] = useState<string | null>(null);
+  const [nickname, setNickname] = useState<string>('');
+  const [showNameModal, setShowNameModal] = useState(false);
+  const [nameInput, setNameInput] = useState('');
+  const [submissionId, setSubmissionId] = useState<string>('');
+  const RESULT_VERSION = 'v2-fixed-90';
+
+  const loadSavedResult = () => {
+    try {
+      const version = localStorage.getItem('drawResultVersion');
+      if (version !== RESULT_VERSION) return null;
+      const raw = localStorage.getItem('drawResult');
+      if (!raw) return null;
+      return JSON.parse(raw) as SubmitResult;
+    } catch {
+      return null;
+    }
+  };
 
   useEffect(() => {
     const storedImage = sessionStorage.getItem('drawImage');
-    if (storedImage) setImageDataUrl(storedImage);
+    if (storedImage) {
+      setImageDataUrl(storedImage);
+    } else {
+      const persistedImage = localStorage.getItem('drawImage');
+      if (persistedImage) setImageDataUrl(persistedImage);
+    }
     const params = new URLSearchParams(window.location.search);
     setPromptId(params.get('promptId') || sessionStorage.getItem('drawPromptId') || 'prompt-unknown');
+    const savedName = sessionStorage.getItem('drawNickname') || '';
+    setNickname(savedName);
+    setNameInput(savedName);
+    const savedSubmissionId = localStorage.getItem('drawSubmissionId') || '';
+    setSubmissionId(savedSubmissionId);
     const storedPrompt = getPromptFromStorage();
     if (storedPrompt) {
       setPrompt(storedPrompt);
@@ -49,19 +76,57 @@ export default function DrawResult() {
     }
     if (!promptId) return;
     let mounted = true;
+    const saved = loadSavedResult();
+    if (saved) {
+      setState({ loading: true, result: saved });
+      getLeaderboard(promptId, 20).then((leaderboard) => {
+        if (!mounted) return;
+        setState({ loading: false, result: saved, leaderboard });
+      });
+      return () => { mounted = false; };
+    }
     setState({ loading: true });
     submitDrawing({ promptId, imageDataUrl })
       .then(async (result) => {
         if (!mounted) return;
         const leaderboard = await getLeaderboard(promptId, 20);
         setState({ loading: false, result, leaderboard });
+        localStorage.setItem('drawResult', JSON.stringify(result));
+        localStorage.setItem('drawResultVersion', RESULT_VERSION);
+        localStorage.setItem('drawSubmissionId', result.submissionId);
+        setSubmissionId(result.submissionId);
+        localStorage.setItem('drawPromptText', prompt?.promptText || '');
+        localStorage.setItem('drawScore', String(result.score));
       })
       .catch((err) => {
         if (!mounted) return;
         setState({ loading: false, error: err?.message || '採点に失敗しました。' });
       });
     return () => { mounted = false; };
-  }, [imageDataUrl, promptId]);
+  }, [imageDataUrl, promptId, prompt?.promptText]);
+
+  useEffect(() => {
+    if (state.result) {
+      localStorage.setItem('drawImage', imageDataUrl || '');
+      if (!nickname) setShowNameModal(true);
+    }
+  }, [state.result, nickname, imageDataUrl]);
+
+  const saveName = (value: string) => {
+    const trimmed = value.trim().slice(0, 20);
+    const next = trimmed.length === 0 ? '' : trimmed;
+    setNickname(next);
+    setNameInput(next);
+    sessionStorage.setItem('drawNickname', next);
+    setShowNameModal(false);
+  };
+
+  const cancelName = () => {
+    setNickname('');
+    setNameInput('');
+    sessionStorage.setItem('drawNickname', '');
+    setShowNameModal(false);
+  };
 
   const handleShare = async () => {
     if (!prompt || !state.result || !imageDataUrl) return;
@@ -70,6 +135,7 @@ export default function DrawResult() {
       const dataUrl = await buildShareCard({
         promptText: prompt.promptText,
         score: state.result.score,
+        nickname: nickname || '匿名',
         oneLiner: state.result.oneLiner,
         imageDataUrl,
       });
@@ -80,6 +146,42 @@ export default function DrawResult() {
       setSharing(false);
     }
   };
+
+  const displayName = nickname && nickname.length > 0 ? nickname : '匿名';
+  const leaderboardItems = state.leaderboard?.items || [];
+  const mergedLeaderboard = (() => {
+    if (!state.result || !state.result.isRanked) return leaderboardItems;
+    const rank = state.result.rank && state.result.rank <= leaderboardItems.length ? state.result.rank : 1;
+    const next = leaderboardItems.map((item, idx) => ({
+      ...item,
+      rank: idx + 1,
+    }));
+    const insertIndex = Math.max(0, Math.min(rank - 1, next.length - 1));
+    next[insertIndex] = {
+      rank,
+      score: state.result.score,
+      nickname: displayName,
+      submissionId: state.result.submissionId,
+      imageDataUrl: imageDataUrl || next[insertIndex]?.imageDataUrl || '',
+    };
+    return next;
+  })();
+
+  const hasMine = submissionId
+    ? mergedLeaderboard.some((item) => item.submissionId === submissionId)
+    : false;
+
+  const shareText = (() => {
+    if (!state.result || !prompt) return '';
+    if (nickname && nickname.trim().length > 0) {
+      return `${prompt.promptText} ${state.result.score}点！${displayName} #30秒お絵描き https://subaru-is-running.com/draw/`;
+    }
+    return `${prompt.promptText} ${state.result.score}点！ #30秒お絵描き https://subaru-is-running.com/draw/`;
+  })();
+
+  const shareUrl = shareText
+    ? `https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText)}`
+    : 'https://twitter.com/intent/tweet';
 
   return (
     <div className="space-y-6">
@@ -119,14 +221,30 @@ export default function DrawResult() {
             >
               {sharing ? '共有画像を生成中…' : '共有画像を保存'}
             </button>
+            <a
+              className="px-4 py-2 rounded-md ring-1 ring-inset ring-gray-300"
+              href={shareUrl}
+              target="_blank"
+              rel="noreferrer"
+            >
+              Xで投稿
+            </a>
           </div>
+          <div className="text-xs text-gray-500">※ 共有カード画像は保存して、Xで手動添付してください</div>
         </div>
       )}
 
       <div className="space-y-2">
         <div className="text-lg font-semibold">今日のランキング Top20</div>
         {state.leaderboard ? (
-          <Leaderboard items={state.leaderboard.items} />
+          <div className="space-y-3">
+            <Leaderboard items={mergedLeaderboard} highlightId={submissionId} />
+            {!hasMine && state.result && (
+              <div className="rounded-lg border border-dashed p-3 text-sm text-gray-700">
+                あなた：{state.result.score}点（{displayName}）
+              </div>
+            )}
+          </div>
         ) : (
           <div className="text-sm text-gray-500">読み込み中…</div>
         )}
@@ -135,6 +253,39 @@ export default function DrawResult() {
       <div className="text-sm">
         <a href="/draw/" className="text-blue-600 underline">もう一度描く</a>
       </div>
+
+      {showNameModal && state.result && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
+          <div className="w-full max-w-sm rounded-lg bg-white p-5 shadow-lg space-y-4">
+            <div className="text-lg font-semibold">名前を入力（任意）</div>
+            <input
+              type="text"
+              value={nameInput}
+              maxLength={20}
+              className="w-full border rounded px-3 py-2"
+              placeholder="匿名"
+              onChange={(e) => setNameInput(e.target.value.replace(/\n/g, ''))}
+            />
+            <div className="text-xs text-gray-500">1〜20文字。未入力は匿名になります。</div>
+            <div className="flex items-center justify-end gap-2">
+              <button
+                type="button"
+                className="px-3 py-2 rounded-md ring-1 ring-inset ring-gray-300"
+                onClick={cancelName}
+              >
+                キャンセル
+              </button>
+              <button
+                type="button"
+                className="px-3 py-2 rounded-md bg-blue-600 text-white"
+                onClick={() => saveName(nameInput)}
+              >
+                保存
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
