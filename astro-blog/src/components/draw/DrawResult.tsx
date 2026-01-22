@@ -29,8 +29,6 @@ export default function DrawResult() {
   const [sharing, setSharing] = useState(false);
   const [promptId, setPromptId] = useState<string | null>(null);
   const [nickname, setNickname] = useState<string>('');
-  const [showNameModal, setShowNameModal] = useState(false);
-  const [nameInput, setNameInput] = useState('');
   const [submissionId, setSubmissionId] = useState<string>('');
   const RESULT_VERSION = 'v2-fixed-90';
   const [displayScore, setDisplayScore] = useState(0);
@@ -61,7 +59,6 @@ export default function DrawResult() {
     setPromptId(params.get('promptId') || sessionStorage.getItem('drawPromptId') || 'prompt-unknown');
     const savedName = sessionStorage.getItem('drawNickname') || '';
     setNickname(savedName);
-    setNameInput(savedName);
     const savedSubmissionId = localStorage.getItem('drawSubmissionId') || '';
     setSubmissionId(savedSubmissionId);
     const storedPrompt = getPromptFromStorage();
@@ -142,20 +139,15 @@ export default function DrawResult() {
     return () => cancelAnimationFrame(raf);
   }, [state.result]);
 
-  const saveName = (value: string) => {
+  const updateName = (value: string) => {
     const trimmed = value.trim().slice(0, 20);
     const next = trimmed.length === 0 ? '' : trimmed;
     setNickname(next);
-    setNameInput(next);
-    sessionStorage.setItem('drawNickname', next);
-    setShowNameModal(false);
-  };
-
-  const cancelName = () => {
-    setNickname('');
-    setNameInput('');
-    sessionStorage.setItem('drawNickname', '');
-    setShowNameModal(false);
+    if (next) {
+      sessionStorage.setItem('drawNickname', next);
+    } else {
+      sessionStorage.removeItem('drawNickname');
+    }
   };
 
   const handleShare = async () => {
@@ -197,8 +189,12 @@ export default function DrawResult() {
     return next;
   })();
 
+  const displayLeaderboard = mergedLeaderboard.map((item) => (
+    item.submissionId === submissionId ? { ...item, nickname: displayName } : item
+  ));
+
   const hasMine = submissionId
-    ? mergedLeaderboard.some((item) => item.submissionId === submissionId)
+    ? displayLeaderboard.some((item) => item.submissionId === submissionId)
     : false;
 
   const shareText = (() => {
@@ -245,7 +241,6 @@ export default function DrawResult() {
     localStorage.removeItem('drawSubmissionId');
     localStorage.removeItem('drawScore');
     sessionStorage.removeItem('drawNickname');
-    setShowNameModal(false);
     const params = new URLSearchParams({ promptId });
     window.location.href = `/draw/play?${params.toString()}`;
   };
@@ -271,6 +266,18 @@ export default function DrawResult() {
 
       {state.result && imageDataUrl && (
         <div className="space-y-4">
+          <div className="rounded-lg border bg-white p-4">
+            <label className="block text-sm font-medium text-gray-700">表示名（任意）</label>
+            <input
+              type="text"
+              value={nickname}
+              maxLength={20}
+              className="mt-2 w-full border rounded px-3 py-2"
+              placeholder="匿名"
+              onChange={(e) => updateName(e.target.value.replace(/\n/g, ''))}
+            />
+            <div className="mt-1 text-xs text-gray-500">入力しなければ匿名のまま表示されます</div>
+          </div>
           <ResultCard
             result={state.result}
             imageDataUrl={imageDataUrl}
@@ -311,7 +318,7 @@ export default function DrawResult() {
         <div className="text-lg font-semibold">今日のランキング Top20</div>
         {state.leaderboard ? (
           <div className="space-y-3">
-            <Leaderboard items={mergedLeaderboard} highlightId={submissionId} />
+            <Leaderboard items={displayLeaderboard} highlightId={submissionId} />
             {!hasMine && state.result && (
               <div className="border-t pt-3 text-sm text-gray-700">
                 あなた：{state.result.score}点（{displayName}）
@@ -334,38 +341,6 @@ export default function DrawResult() {
         </button>
       </div>
 
-      {showNameModal && state.result && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
-          <div className="w-full max-w-sm rounded-lg bg-white p-5 shadow-lg space-y-4">
-            <div className="text-lg font-semibold">名前を入力（任意）</div>
-            <input
-              type="text"
-              value={nameInput}
-              maxLength={20}
-              className="w-full border rounded px-3 py-2"
-              placeholder="匿名"
-              onChange={(e) => setNameInput(e.target.value.replace(/\n/g, ''))}
-            />
-            <div className="text-xs text-gray-500">1〜20文字。未入力は匿名になります。</div>
-            <div className="flex items-center justify-end gap-2">
-              <button
-                type="button"
-                className="px-3 py-2 rounded-md ring-1 ring-inset ring-gray-300"
-                onClick={cancelName}
-              >
-                キャンセル
-              </button>
-              <button
-                type="button"
-                className="px-3 py-2 rounded-md bg-blue-600 text-white"
-                onClick={() => saveName(nameInput)}
-              >
-                保存
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 }
