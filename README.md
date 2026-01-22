@@ -10,7 +10,7 @@ AWS リソース名・Region・識別情報は `docs/aws-resources.md` を参照
 
 - `astro-blog/`
   - Astro v5 website (tools hub + blog + tools pages)
-  - Pages: Hub (`/`), Blog (`/blog/`), Running Pace (`/running-pace/`), PDF Compressor (`/pdf-compress/`), About, Contact, Privacy, 404
+  - Pages: Hub (`/`), Blog (`/blog/`), Draw Mock (`/draw/`), Running Pace (`/running-pace/`), PDF Compressor (`/pdf-compress/`), About, Contact, Privacy, 404
   - Async calendar data at `GET /cal-map/{YYYY}/{MM}.json` reduces page weight
   - Google Analytics (gtag) with IP anonymization and AdSense snippet
   - CodeBuild buildspec (`astro-blog/buildspec.yml`) for S3 + CloudFront deploy

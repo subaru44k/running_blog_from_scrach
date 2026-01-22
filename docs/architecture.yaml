@@ -5,6 +5,9 @@ repo:
         - astro-blog/src/pages
         - astro-blog/src/layouts/Layout.astro
         - astro-blog/src/content
+      integrations:
+        - tailwind
+        - react
       build:
         buildspec: astro-blog/buildspec.yml
         output_dir: astro-blog/dist
@@ -14,6 +17,9 @@ repo:
         canonical:
           - /
           - /blog/
+          - /draw/
+          - /draw/play/
+          - /draw/result/
           - /running-pace/
           - /pdf-compress/
           - /contact/
@@ -48,6 +54,9 @@ site:
     canonical_routes:
       - /
       - /blog/
+      - /draw/
+      - /draw/play/
+      - /draw/result/
       - /running-pace/
       - /pdf-compress/
       - /contact/
@@ -87,6 +96,15 @@ features:
     draft_generation:
       script: admin-app/scripts/import-fitbit-workouts.js
     storage: TODO
+  draw_mock:
+    routes:
+      - /draw/
+      - /draw/play/
+      - /draw/result/
+    behavior:
+      - front-only mock (no backend)
+      - prompt/score/leaderboard returned by client mock API
+      - share card generated in browser
 
 assumptions:
   - TODO: CloudFront Distribution ID and error response settings are managed outside docs

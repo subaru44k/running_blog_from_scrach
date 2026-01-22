@@ -1,0 +1,19 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import DrawStart from '../../components/draw/DrawStart';
+
+const pageTitle = '30秒お絵描き採点ゲーム｜Subaru is Running';
+const metaDescription = '30秒でお題を描いて採点するフロントモック。今日のお題でチャレンジして、結果とランキングをチェックできます。';
+---
+
+<Layout
+  pageTitle={pageTitle}
+  metaDescription={metaDescription}
+  noSidebar={true}
+  pageHeading="30秒お絵描き採点ゲーム"
+  pageLead="今日のお題にチャレンジして、30秒で描いた絵を採点します。"
+>
+  <section class="card p-5 md:p-6">
+    <DrawStart client:load />
+  </section>
+</Layout>

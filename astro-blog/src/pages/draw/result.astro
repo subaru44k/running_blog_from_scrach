@@ -1,0 +1,19 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import DrawResult from '../../components/draw/DrawResult';
+
+const pageTitle = '採点結果｜30秒お絵描き採点ゲーム';
+const metaDescription = '採点結果とランキングを表示します。自分の絵のスコアと短評、共有カードを確認できます。';
+---
+
+<Layout
+  pageTitle={pageTitle}
+  metaDescription={metaDescription}
+  noSidebar={true}
+  pageHeading="採点結果"
+  pageLead="点数と短評、ランキングをチェックできます。"
+>
+  <section class="card p-5 md:p-6">
+    <DrawResult client:load />
+  </section>
+</Layout>

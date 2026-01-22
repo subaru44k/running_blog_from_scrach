@@ -42,6 +42,7 @@ flowchart LR
 ## URL設計と404方針
 - `/` はツールへのハブページ。
 - ブログUIは `/blog/` に集約（記事URLは `/<slug>/` のまま）。
+- `/draw/` は「30秒お絵描き採点ゲーム」のフロントモック。`/draw/play/` と `/draw/result/` を含む。
 - 正規ルート（例）: `/`, `/blog/`, `/running-pace/`, `/pdf-compress/`, `/contact/`, `/privacy/`。
 - `/running-pace/` は同一ページ内に `#calculator`（計算）と `#table`（表）のアンカーを持つ。
 - `/blog` や `/pace` は正規ルートではなく 404 が正しい挙動。
@@ -54,6 +55,11 @@ flowchart LR
 - 404ページは noindex,follow。
 - sitemap は Astro 側で生成（`sitemap.xml.ts`）。
 - UI文言は日本語に統一し、信頼性/透明性の説明（about/contact/privacy）を明示。
+
+## 30秒お絵描き採点ゲーム（フロントモック）
+- `/draw/` → `/draw/play/` → `/draw/result/` の3ページ構成。
+- 採点・ランキング・お題は **フロント内のモックAPI** で返し、実バックエンドは持たない。
+- 共有カード画像はブラウザ内の Canvas で生成してPNG保存する。
 
 ## PDF圧縮のデータフロー
 - PDFアップロードは最大50MBまで（S3のpresigned POSTポリシーで強制）。

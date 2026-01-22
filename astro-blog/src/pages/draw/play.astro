@@ -1,0 +1,19 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import DrawPlay from '../../components/draw/DrawPlay';
+
+const pageTitle = 'お絵描きチャレンジ｜30秒お絵描き採点ゲーム';
+const metaDescription = '30秒の制限時間でお題を描くチャレンジ画面。ペン/消しゴムで描いて採点へ進みます。';
+---
+
+<Layout
+  pageTitle={pageTitle}
+  metaDescription={metaDescription}
+  noSidebar={true}
+  pageHeading="30秒お絵描きチャレンジ"
+  pageLead="タイマーが0になったら自動で終了します。"
+>
+  <section class="card p-5 md:p-6">
+    <DrawPlay client:load />
+  </section>
+</Layout>
