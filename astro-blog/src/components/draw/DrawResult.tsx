@@ -108,9 +108,8 @@ export default function DrawResult() {
   useEffect(() => {
     if (state.result) {
       localStorage.setItem('drawImage', imageDataUrl || '');
-      if (!nickname) setShowNameModal(true);
     }
-  }, [state.result, nickname, imageDataUrl]);
+  }, [state.result, imageDataUrl]);
 
   useEffect(() => {
     if (!state.result) return;
