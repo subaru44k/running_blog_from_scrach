@@ -108,6 +108,7 @@ features:
       - secondary review may update the comment to a richer short summary
       - secondary review is fetched via client mock API for ranked entries only
       - share card generated in browser
+      - draw routes are excluded from sitemap and not linked from global nav
 
 assumptions:
   - TODO: CloudFront Distribution ID and error response settings are managed outside docs
