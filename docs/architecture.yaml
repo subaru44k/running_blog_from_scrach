@@ -48,6 +48,14 @@ repo:
       docker:
         dockerfile: pdf-compress-service/Dockerfile
       lambda_entry: pdf-compress-service/lambda.js
+    draw_backend:
+      path: backend/draw
+      handlers:
+        - backend/draw/src/handlers/uploadUrl.ts
+        - backend/draw/src/handlers/submit.ts
+        - backend/draw/src/handlers/secondaryStatus.ts
+        - backend/draw/src/handlers/secondaryWorker.ts
+        - backend/draw/src/handlers/leaderboard.ts
 
 site:
   routing:
@@ -96,17 +104,19 @@ features:
     draft_generation:
       script: admin-app/scripts/import-fitbit-workouts.js
     storage: TODO
-  draw_mock:
+  draw_backend:
     routes:
       - /draw/
       - /draw/play/
       - /draw/result/
     behavior:
-      - front-only mock (no backend)
-      - prompt/score/leaderboard returned by client mock API
+      - API Gateway + Lambda backend for upload/submit/secondary/leaderboard
+      - image upload via S3 signed PUT
+      - CloudFront signed URL for image viewing (900s)
+      - secondary review is async via SQS
       - primary review displays only score + short comment + up to 2 badges
       - secondary review may update the comment to a richer short summary
-      - secondary review is fetched via client mock API for ranked entries only
+      - secondary review is fetched via polling API for ranked entries only
       - share card generated in browser
       - draw routes are excluded from sitemap and not linked from global nav
 

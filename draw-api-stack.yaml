@@ -1,0 +1,138 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: Draw API (HTTP API) for 30s drawing game
+
+Parameters:
+  UploadUrlLambdaArn:
+    Type: String
+    Default: arn:aws:lambda:ap-northeast-1:470447451992:function:draw-upload-url-prod
+  SubmitLambdaArn:
+    Type: String
+    Default: arn:aws:lambda:ap-northeast-1:470447451992:function:draw-submit-prod
+  SecondaryStatusLambdaArn:
+    Type: String
+    Default: arn:aws:lambda:ap-northeast-1:470447451992:function:draw-secondary-status-prod
+  LeaderboardLambdaArn:
+    Type: String
+    Default: arn:aws:lambda:ap-northeast-1:470447451992:function:draw-leaderboard-prod
+
+Resources:
+  DrawHttpApi:
+    Type: AWS::ApiGatewayV2::Api
+    Properties:
+      Name: draw-api
+      ProtocolType: HTTP
+      CorsConfiguration:
+        AllowOrigins:
+          - https://subaru-is-running.com
+          - http://localhost:4321
+        AllowMethods:
+          - GET
+          - POST
+          - OPTIONS
+        AllowHeaders:
+          - "*"
+
+  UploadUrlIntegration:
+    Type: AWS::ApiGatewayV2::Integration
+    Properties:
+      ApiId: !Ref DrawHttpApi
+      IntegrationType: AWS_PROXY
+      IntegrationUri: !Ref UploadUrlLambdaArn
+      PayloadFormatVersion: "2.0"
+
+  SubmitIntegration:
+    Type: AWS::ApiGatewayV2::Integration
+    Properties:
+      ApiId: !Ref DrawHttpApi
+      IntegrationType: AWS_PROXY
+      IntegrationUri: !Ref SubmitLambdaArn
+      PayloadFormatVersion: "2.0"
+
+  SecondaryStatusIntegration:
+    Type: AWS::ApiGatewayV2::Integration
+    Properties:
+      ApiId: !Ref DrawHttpApi
+      IntegrationType: AWS_PROXY
+      IntegrationUri: !Ref SecondaryStatusLambdaArn
+      PayloadFormatVersion: "2.0"
+
+  LeaderboardIntegration:
+    Type: AWS::ApiGatewayV2::Integration
+    Properties:
+      ApiId: !Ref DrawHttpApi
+      IntegrationType: AWS_PROXY
+      IntegrationUri: !Ref LeaderboardLambdaArn
+      PayloadFormatVersion: "2.0"
+
+  RouteUploadUrl:
+    Type: AWS::ApiGatewayV2::Route
+    Properties:
+      ApiId: !Ref DrawHttpApi
+      RouteKey: "POST /api/draw/upload-url"
+      Target: !Sub "integrations/${UploadUrlIntegration}"
+
+  RouteSubmit:
+    Type: AWS::ApiGatewayV2::Route
+    Properties:
+      ApiId: !Ref DrawHttpApi
+      RouteKey: "POST /api/draw/submit"
+      Target: !Sub "integrations/${SubmitIntegration}"
+
+  RouteSecondary:
+    Type: AWS::ApiGatewayV2::Route
+    Properties:
+      ApiId: !Ref DrawHttpApi
+      RouteKey: "GET /api/draw/secondary"
+      Target: !Sub "integrations/${SecondaryStatusIntegration}"
+
+  RouteLeaderboard:
+    Type: AWS::ApiGatewayV2::Route
+    Properties:
+      ApiId: !Ref DrawHttpApi
+      RouteKey: "GET /api/draw/leaderboard"
+      Target: !Sub "integrations/${LeaderboardIntegration}"
+
+  DrawStage:
+    Type: AWS::ApiGatewayV2::Stage
+    Properties:
+      ApiId: !Ref DrawHttpApi
+      StageName: "$default"
+      AutoDeploy: true
+
+  PermissionUploadUrl:
+    Type: AWS::Lambda::Permission
+    Properties:
+      Action: lambda:InvokeFunction
+      FunctionName: !Ref UploadUrlLambdaArn
+      Principal: apigateway.amazonaws.com
+      SourceArn: !Sub "arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${DrawHttpApi}/*/*/api/draw/upload-url"
+
+  PermissionSubmit:
+    Type: AWS::Lambda::Permission
+    Properties:
+      Action: lambda:InvokeFunction
+      FunctionName: !Ref SubmitLambdaArn
+      Principal: apigateway.amazonaws.com
+      SourceArn: !Sub "arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${DrawHttpApi}/*/*/api/draw/submit"
+
+  PermissionSecondary:
+    Type: AWS::Lambda::Permission
+    Properties:
+      Action: lambda:InvokeFunction
+      FunctionName: !Ref SecondaryStatusLambdaArn
+      Principal: apigateway.amazonaws.com
+      SourceArn: !Sub "arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${DrawHttpApi}/*/*/api/draw/secondary"
+
+  PermissionLeaderboard:
+    Type: AWS::Lambda::Permission
+    Properties:
+      Action: lambda:InvokeFunction
+      FunctionName: !Ref LeaderboardLambdaArn
+      Principal: apigateway.amazonaws.com
+      SourceArn: !Sub "arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${DrawHttpApi}/*/*/api/draw/leaderboard"
+
+Outputs:
+  ApiId:
+    Value: !Ref DrawHttpApi
+  ApiEndpoint:
+    Value: !GetAtt DrawHttpApi.ApiEndpoint

@@ -1,4 +1,4 @@
-# AWS リソース一覧（pdf-compress / prod）
+# AWS リソース一覧（pdf-compress / draw / prod）
 
 このドキュメントは、運用・テスト・kill switch 実行時に必要な **AWS リソース名・リージョン・識別情報** を一箇所にまとめたものです。  
 Codex/MCP の実行時にコピペしやすいことを優先しています。
@@ -180,3 +180,62 @@ ECR_REGISTRY=470447451992.dkr.ecr.ap-northeast-1.amazonaws.com
 CLEANUP_LAMBDA=pdf-compress-cleanup-s3-prod
 CLEANUP_RULE=pdf-compress-cleanup-s3-prod-every-10min
 ```
+
+---
+
+## 運用リソース（draw / prod）
+
+### CloudFront
+
+| Distribution ID | Domain | 用途 |
+| --- | --- | --- |
+| `E2CQHMEVDKG7MU` | `d1ih441smws3tt.cloudfront.net` | draw 画像配信用 |
+
+### CloudFront Key Group
+
+| 項目 | 値 |
+| --- | --- |
+| Key Group ID | `f2034b56-9310-4e45-add9-14ec838a2a86` |
+| Public Key ID | `K1LW2OJ3ER8YUH` |
+| Private Key Secret | `draw/cf-private-key` |
+
+### Lambda
+
+| Function Name | Region | 用途 |
+| --- | --- | --- |
+| `draw-upload-url-prod` | `ap-northeast-1` | 署名PUT URL発行 |
+| `draw-submit-prod` | `ap-northeast-1` | 一次採点（ink gate含む） |
+| `draw-secondary-status-prod` | `ap-northeast-1` | 二次結果ポーリング |
+| `draw-secondary-worker-prod` | `ap-northeast-1` | SQS二次レビュー |
+| `draw-leaderboard-prod` | `ap-northeast-1` | ランキング取得 |
+
+### S3
+
+| Bucket | Region | 用途 |
+| --- | --- | --- |
+| `draw-uploads-20260124-58904f87` | `ap-northeast-1` | draw 画像保存 |
+
+### DynamoDB
+
+| Table | Region | 用途 |
+| --- | --- | --- |
+| `DrawSubmissions` | `ap-northeast-1` | 投稿データ |
+| `DrawRateLimit` | `ap-northeast-1` | 固定窓レート制限 |
+
+### SQS
+
+| Queue | Region | 用途 |
+| --- | --- | --- |
+| `draw-secondary-queue-prod` | `ap-northeast-1` | 二次レビュー非同期 |
+
+### API Gateway (HTTP API)
+
+| 項目 | 値 |
+| --- | --- |
+| API Name | `draw-api` |
+| API ID | `2vzy10yq0e` |
+| Stage | `$default` |
+| Region | `ap-northeast-1` |
+| Routes | `POST /api/draw/upload-url`, `POST /api/draw/submit`, `GET /api/draw/secondary`, `GET /api/draw/leaderboard` |
+
+| Endpoint | `https://2vzy10yq0e.execute-api.ap-northeast-1.amazonaws.com` |
