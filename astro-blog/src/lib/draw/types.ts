@@ -32,3 +32,8 @@ export type LeaderboardResponse = {
   promptId: string;
   items: LeaderboardItem[];
 };
+
+export type SecondaryReviewResult = {
+  submissionId: string;
+  enrichedComment: string;
+};

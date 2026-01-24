@@ -104,6 +104,9 @@ features:
     behavior:
       - front-only mock (no backend)
       - prompt/score/leaderboard returned by client mock API
+      - primary review displays only score + short comment + up to 2 badges
+      - secondary review may update the comment to a richer short summary
+      - secondary review is fetched via client mock API for ranked entries only
       - share card generated in browser
 
 assumptions:

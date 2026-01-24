@@ -1,4 +1,4 @@
-import type { LeaderboardResponse, PromptInfo, SubmitResult } from './types';
+import type { LeaderboardResponse, PromptInfo, SecondaryReviewResult, SubmitResult } from './types';
 
 const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
@@ -34,7 +34,7 @@ export async function submitDrawing(params: {
   imageDataUrl: string;
   nickname?: string;
 }): Promise<SubmitResult> {
-  await delay(1600);
+  await delay(0);
   const score = randomScore();
   const breakdown = {
     likeness: Math.floor(score * 0.35),
@@ -49,11 +49,44 @@ export async function submitDrawing(params: {
     breakdown,
     oneLiner: score >= 80 ? '形の捉え方が良く、勢いが伝わります。' : '輪郭が安定していて見やすいです。',
     tips: [
-      '耳の位置を少し高くすると表情が締まります。',
-      '輪郭は太さを揃えると安定感が出ます。',
+      '勢い',
+      'まとまり',
+      '表情',
+      '発想',
     ],
     isRanked,
     rank,
+  };
+}
+
+export async function getSecondaryReview(params: {
+  promptId: string;
+  submissionId: string;
+  score: number;
+}): Promise<SecondaryReviewResult> {
+  await delay(0);
+  const { score, submissionId } = params;
+  if (score >= 90) {
+    return {
+      submissionId,
+      enrichedComment: '輪郭の迷いが少なく、視線がすっと流れます。余白の置き方を少し揃えるとさらに締まります。次は影を一つだけ足してみましょう。',
+    };
+  }
+  if (score >= 80) {
+    return {
+      submissionId,
+      enrichedComment: '形のバランスが良く、勢いも感じられます。中心の軸を意識するとより安定します。次は大きな形から描いてみてください。',
+    };
+  }
+  if (score >= 70) {
+    return {
+      submissionId,
+      enrichedComment: '雰囲気が出ていて素直に伝わります。輪郭の強弱を少し揃えると見やすくなります。次は目の位置を基準に整えましょう。',
+    };
+  }
+  return {
+    submissionId,
+    enrichedComment: '線のリズムが気持ちよく見えます。大きな形を先に決めるとまとまりやすくなります。次は外枠を一筆で取ってみてください。',
   };
 }
 
