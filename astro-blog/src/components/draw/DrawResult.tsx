@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { getLeaderboard, getPrompt, submitDrawing } from '../../lib/draw/apiMock';
 import type { LeaderboardResponse, PromptInfo, SubmitResult } from '../../lib/draw/types';
 import ResultCard from './ResultCard';
@@ -34,6 +34,9 @@ export default function DrawResult() {
   const [displayScore, setDisplayScore] = useState(0);
   const [showDetails, setShowDetails] = useState(false);
   const [isAnimating, setIsAnimating] = useState(false);
+  const [flashMine, setFlashMine] = useState(false);
+  const mineRowRef = useRef<HTMLDivElement | null>(null);
+  const leaderboardRef = useRef<HTMLDivElement | null>(null);
 
   const loadSavedResult = () => {
     try {
@@ -231,6 +234,20 @@ export default function DrawResult() {
     };
   })() : null;
 
+  useEffect(() => {
+    if (!hasMine || !mineRowRef.current || !leaderboardRef.current) return;
+    const flagKey = 'draw_result_autoscrolled';
+    if (sessionStorage.getItem(flagKey)) return;
+    const rect = leaderboardRef.current.getBoundingClientRect();
+    const inView = rect.top >= 0 && rect.bottom <= window.innerHeight;
+    if (inView) return;
+    sessionStorage.setItem(flagKey, 'true');
+    mineRowRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    setFlashMine(true);
+    const timer = setTimeout(() => setFlashMine(false), 1200);
+    return () => clearTimeout(timer);
+  }, [hasMine, displayLeaderboard.length]);
+
   const retry = () => {
     if (!promptId) return;
     sessionStorage.removeItem('drawImage');
@@ -240,6 +257,7 @@ export default function DrawResult() {
     localStorage.removeItem('drawSubmissionId');
     localStorage.removeItem('drawScore');
     sessionStorage.removeItem('drawNickname');
+    sessionStorage.removeItem('draw_result_autoscrolled');
     const params = new URLSearchParams({ promptId });
     window.location.href = `/draw/play?${params.toString()}`;
   };
@@ -315,14 +333,29 @@ export default function DrawResult() {
 
       <div className="space-y-2">
         <div className="text-lg font-semibold">今日のランキング Top20</div>
+        {state.result && hasMine && (
+          <div className="flex items-center gap-3 rounded-lg border bg-blue-50 p-3">
+            <div className="text-sm font-semibold">あなたは {state.result.rank} 位です</div>
+            <span className="text-xs font-semibold rounded-full bg-blue-600 text-white px-2 py-1">TOP20</span>
+            <button
+              type="button"
+              className="ml-auto text-sm text-blue-700 underline"
+              onClick={() => mineRowRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' })}
+            >
+              自分の行へ移動
+            </button>
+          </div>
+        )}
+        {state.result && !hasMine && (
+          <div className="rounded-lg border bg-gray-50 p-3 text-sm text-gray-700">
+            <div className="font-semibold">あなたの記録</div>
+            <div className="mt-1">{displayName}・{state.result.score}点</div>
+            <div className="text-xs text-gray-500">ランキングには入りませんでした（Top20）</div>
+          </div>
+        )}
         {state.leaderboard ? (
-          <div className="space-y-3">
-            <Leaderboard items={displayLeaderboard} highlightId={submissionId} />
-            {!hasMine && state.result && (
-              <div className="border-t pt-3 text-sm text-gray-700">
-                あなた：{state.result.score}点（{displayName}）
-              </div>
-            )}
+          <div className="space-y-3" ref={leaderboardRef}>
+            <Leaderboard items={displayLeaderboard} highlightId={submissionId} mineRef={mineRowRef} flashMine={flashMine} />
           </div>
         ) : (
           <div className="text-sm text-gray-500">読み込み中…</div>
