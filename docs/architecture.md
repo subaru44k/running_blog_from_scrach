@@ -42,7 +42,7 @@ flowchart LR
 ## URL設計と404方針
 - `/` はツールへのハブページ。
 - ブログUIは `/blog/` に集約（記事URLは `/<slug>/` のまま）。
-- `/draw/` は「30秒お絵描き採点ゲーム」のフロントモック。`/draw/play/` と `/draw/result/` を含む。
+- `/draw/` は「30秒お絵描き採点ゲーム」のフロントページ。`/draw/play/` と `/draw/result/` を含む。
 - 正規ルート（例）: `/`, `/blog/`, `/running-pace/`, `/pdf-compress/`, `/contact/`, `/privacy/`。
 - `/running-pace/` は同一ページ内に `#calculator`（計算）と `#table`（表）のアンカーを持つ。
 - `/blog` や `/pace` は正規ルートではなく 404 が正しい挙動。
@@ -56,9 +56,10 @@ flowchart LR
 - sitemap は Astro 側で生成（`sitemap.xml.ts`）。
 - UI文言は日本語に統一し、信頼性/透明性の説明（about/contact/privacy）を明示。
 
-## 30秒お絵描き採点ゲーム（フロントモック）
+## 30秒お絵描き採点ゲーム（フロント + API）
 - `/draw/` → `/draw/play/` → `/draw/result/` の3ページ構成。
 - 画像アップロード・採点・ランキングは **API Gateway + Lambda** のバックエンドで提供。
+- フロントは `PUBLIC_DRAW_API_BASE` を用いて `/api/draw/*` を呼び出す。
 - 画像は S3 にアップロードし、閲覧は CloudFront 署名URL（900秒）で返す。
 - 二次レビューは SQS で非同期処理し、フロントはポーリングで取得する。
 - 一次審査の表示は「点数 + 短いコメント + 最大2つのバッジ」のみ（簡潔表示）。

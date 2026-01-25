@@ -34,7 +34,7 @@
    - DynamoDB保存
    - ランクイン候補のみ SQS へ二次投入
 4. **secondary**: SQSワーカーが二次レビュー（スタブ）実行
-5. **secondary status**: `GET /api/draw/secondary?submissionId=...`
+5. **secondary status**: `GET /api/draw/secondary?promptId=...&submissionId=...`
    - 202 pending / 200 done / 404 not_found
 6. **leaderboard**: `GET /api/draw/leaderboard?promptId=...`
    - CloudFront署名URLを付与して返却
@@ -78,8 +78,11 @@
 - IMAGE_TTL_SECONDS=900
 - SUBMISSION_TTL_DAYS=7
 
+## フロント環境変数
+- `PUBLIC_DRAW_API_BASE`: `/api/draw/*` のベースURL（HTTP APIのエンドポイント）
+
 ## デプロイ手順（概要）
-- Lambdaコードをzip化してアップロード
+- Lambdaコードを **CJS (.cjs)** でビルドしてzip化してアップロード
 - API Gateway に Lambda を統合
 - SQS トリガーを secondary worker に設定
 - Secrets Manager に CloudFront 秘密鍵を保存
@@ -91,8 +94,14 @@
 curl -X POST https://<api>/api/draw/upload-url -H 'Content-Type: application/json' -d '{"promptId":"prompt-2026-01-19"}'
 curl -X POST https://<api>/api/draw/submit -H 'Content-Type: application/json' -d '{"promptId":"prompt-2026-01-19","submissionId":"...","imageKey":"draw/...png"}'
 curl "https://<api>/api/draw/leaderboard?promptId=prompt-2026-01-19&limit=20"
-curl "https://<api>/api/draw/secondary?submissionId=<ulid>"
+curl "https://<api>/api/draw/secondary?promptId=prompt-2026-01-19&submissionId=<ulid>"
 ```
+
+## フロントの手動確認（/draw）
+1) `/draw/` でお題を取得し、`/draw/play/` に遷移する  
+2) 30秒描画 → 自動送信で `upload-url → PUT → submit` が行われる  
+3) `/draw/result/` でスコアが表示される（一次結果）  
+4) ランクイン時は `/api/draw/secondary` をポーリングしてコメント更新  
 
 ## Bedrock差し替えポイント（TODO）
 - `backend/draw/src/handlers/submit.ts` の一次採点部分

@@ -1,4 +1,4 @@
-import { ScanCommand } from '@aws-sdk/lib-dynamodb';
+import { QueryCommand } from '@aws-sdk/lib-dynamodb';
 import { ddb } from '../lib/ddb';
 import { DRAW_TABLE } from '../lib/env';
 import { json, options } from '../lib/http';
@@ -8,18 +8,18 @@ export const handler = async (event: any) => {
   const origin = event?.headers?.origin || event?.headers?.Origin;
   if (event?.requestContext?.http?.method === 'OPTIONS') return options(origin);
   try {
+    const promptId = event?.queryStringParameters?.promptId;
     const submissionId = event?.queryStringParameters?.submissionId;
-    if (!submissionId) return json(400, { status: 'not_found' }, origin);
+    if (!promptId || !submissionId) return json(400, { status: 'not_found' }, origin);
 
-    const scan = await ddb.send(new ScanCommand({
+    const query = await ddb.send(new QueryCommand({
       TableName: DRAW_TABLE,
-      FilterExpression: 'submissionId = :sid',
-      ExpressionAttributeValues: { ':sid': submissionId },
-      Limit: 1,
+      KeyConditionExpression: 'promptId = :pk AND submissionId = :sk',
+      ExpressionAttributeValues: { ':pk': promptId, ':sk': submissionId },
       ProjectionExpression: 'submissionId, secondaryStatus, enrichedComment',
     }));
 
-    const item = scan.Items?.[0] as any | undefined;
+    const item = query.Items?.[0] as any | undefined;
     if (!item) return json(404, { status: 'not_found' }, origin);
 
     if (item.secondaryStatus === 'pending') {

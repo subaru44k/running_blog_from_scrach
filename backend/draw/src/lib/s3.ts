@@ -1,7 +1,10 @@
 import { GetObjectCommand, PutObjectCommand, S3Client } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 
-const s3 = new S3Client({});
+const s3 = new S3Client({
+  requestChecksumCalculation: 'never',
+  responseChecksumValidation: 'never',
+});
 
 export const createPutUrl = async (bucket: string, key: string, expiresIn: number, contentType = 'image/png') => {
   const command = new PutObjectCommand({

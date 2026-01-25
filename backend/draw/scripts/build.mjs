@@ -20,9 +20,13 @@ await Promise.all(entries.map((entry) =>
     bundle: true,
     platform: 'node',
     target: 'node20',
-    format: 'esm',
+    format: 'cjs',
     sourcemap: true,
-    outfile: join(outDir, entry.split('/').pop().replace('.ts', '.mjs')),
+    outfile: join(outDir, entry.split('/').pop().replace('.ts', '.cjs')),
+    treeShaking: false,
+    footer: {
+      js: 'module.exports = { handler };',
+    },
     external: [],
   })
 ));

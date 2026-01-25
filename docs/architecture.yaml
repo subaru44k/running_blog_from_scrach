@@ -111,12 +111,15 @@ features:
       - /draw/result/
     behavior:
       - API Gateway + Lambda backend for upload/submit/secondary/leaderboard
+      - frontend uses PUBLIC_DRAW_API_BASE to call /api/draw/*
+      - Lambda handlers are bundled as CommonJS (.cjs) for Node 20 runtime compatibility
       - image upload via S3 signed PUT
       - CloudFront signed URL for image viewing (900s)
       - secondary review is async via SQS
       - primary review displays only score + short comment + up to 2 badges
       - secondary review may update the comment to a richer short summary
       - secondary review is fetched via polling API for ranked entries only
+      - secondary status API requires promptId and submissionId
       - share card generated in browser
       - draw routes are excluded from sitemap and not linked from global nav
 

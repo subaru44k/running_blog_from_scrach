@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
-import { getLeaderboard, getPrompt, getSecondaryReview, submitDrawing } from '../../lib/draw/apiMock';
+import { ApiError, getLeaderboard, getSecondaryReview, submitDrawing } from '../../lib/draw/api';
+import { getPrompt } from '../../lib/draw/apiMock';
 import type { LeaderboardResponse, PromptInfo, SecondaryReviewResult, SubmitResult } from '../../lib/draw/types';
 import ResultCard from './ResultCard';
 import Leaderboard from './Leaderboard';
@@ -44,6 +45,7 @@ export default function DrawResult() {
   const [promptId, setPromptId] = useState<string | null>(null);
   const [nickname, setNickname] = useState<string>('');
   const [submissionId, setSubmissionId] = useState<string>('');
+  const [imageKey, setImageKey] = useState<string>('');
   const RESULT_VERSION = 'v3-judge-flow';
   const [displayScore, setDisplayScore] = useState(0);
   const [firstReview, setFirstReview] = useState<FirstReviewResult | null>(null);
@@ -105,6 +107,8 @@ export default function DrawResult() {
     setNickname(savedName);
     const savedSubmissionId = localStorage.getItem('drawSubmissionId') || '';
     setSubmissionId(savedSubmissionId);
+    const savedImageKey = localStorage.getItem('drawImageKey') || '';
+    setImageKey(savedImageKey);
     const storedPrompt = getPromptFromStorage();
     if (storedPrompt) {
       setPrompt(storedPrompt);
@@ -124,7 +128,11 @@ export default function DrawResult() {
   };
 
   const runPrimary = async () => {
-    if (!imageDataUrl || !promptId) return;
+    if (!promptId || !submissionId || !imageKey) {
+      setState({ error: '送信情報が見つかりませんでした。もう一度描いてください。' });
+      setJudgeState('error');
+      return;
+    }
     clearPrimaryTimers();
     secondaryStartedRef.current = false;
     setPrimarySlow(false);
@@ -146,7 +154,7 @@ export default function DrawResult() {
 
     primaryTimerRef.current = window.setTimeout(async () => {
       try {
-        const result = await submitDrawing({ promptId, imageDataUrl });
+        const result = await submitDrawing({ promptId, submissionId, imageKey, nickname: nickname || undefined });
         setFirstReview(buildFirstReview(result));
         const leaderboard = await getLeaderboard(promptId, 20);
         setState({ result, leaderboard });
@@ -158,7 +166,10 @@ export default function DrawResult() {
         localStorage.setItem('drawPromptText', prompt?.promptText || '');
         localStorage.setItem('drawScore', String(result.score));
       } catch (err: any) {
-        setState({ error: err?.message || '採点に失敗しました。' });
+        const message = err instanceof ApiError && err.status === 429
+          ? 'アクセスが集中しています。時間をおいて再試行してください。'
+          : err?.message || '採点に失敗しました。';
+        setState({ error: message });
         setJudgeState('error');
       } finally {
         clearPrimaryTimers();
@@ -182,7 +193,7 @@ export default function DrawResult() {
       setState({ result: saved });
       getLeaderboard(promptId, 20).then((leaderboard) => {
         setState({ result: saved, leaderboard });
-        setJudgeState('secondary_done');
+        setJudgeState('primary_done');
         setDisplayScore(saved.score);
       });
       return;
@@ -192,7 +203,7 @@ export default function DrawResult() {
       clearPrimaryTimers();
       clearSecondaryTimers();
     };
-  }, [imageDataUrl, promptId, prompt?.promptText]);
+  }, [imageDataUrl, promptId, prompt?.promptText, submissionId, imageKey, nickname]);
 
   useEffect(() => {
     if (state.result) {
@@ -231,14 +242,17 @@ export default function DrawResult() {
     if (secondaryStartedRef.current) return;
     secondaryStartedRef.current = true;
     setJudgeState('judging_secondary');
-    const delay = 2500 + Math.floor(Math.random() * 3501);
-    secondaryTimerRef.current = window.setTimeout(() => {
-      getSecondaryReview({
-        promptId: promptId || '',
-        submissionId: state.result?.submissionId || '',
-        score: state.result?.score || 0,
-      })
-        .then((review: SecondaryReviewResult) => {
+    const delays = [
+      ...Array.from({ length: 10 }, () => 1000),
+      ...Array.from({ length: 7 }, () => 3000),
+    ];
+    let index = 0;
+    const poll = async () => {
+      if (!state.result) return;
+      try {
+        const res = await getSecondaryReview(promptId, state.result.submissionId);
+        if (res.status === 'done') {
+          const review: SecondaryReviewResult = res.result;
           if (review?.enrichedComment) {
             setSecondaryComment(truncateText(review.enrichedComment, 120));
           }
@@ -246,16 +260,28 @@ export default function DrawResult() {
           setFlashMine(true);
           const flashTimer = window.setTimeout(() => setFlashMine(false), 1200);
           secondaryTimerRef.current = flashTimer;
-        })
-        .catch(() => {
-          setSecondaryComment(null);
+          return;
+        }
+        if (res.status === 'not_found') {
           setJudgeState('primary_done');
-        });
-    }, delay);
+          return;
+        }
+      } catch {
+        setJudgeState('primary_done');
+        return;
+      }
+      if (index >= delays.length) {
+        setJudgeState('primary_done');
+        return;
+      }
+      const wait = delays[index++];
+      secondaryTimerRef.current = window.setTimeout(poll, wait);
+    };
+    poll();
     return () => {
       clearSecondaryTimers();
     };
-  }, [state.result]);
+  }, [state.result, judgeState]);
 
   const updateName = (value: string) => {
     const trimmed = value.trim().slice(0, 20);
@@ -366,6 +392,7 @@ export default function DrawResult() {
     localStorage.removeItem('drawResultVersion');
     localStorage.removeItem('drawSubmissionId');
     localStorage.removeItem('drawScore');
+    localStorage.removeItem('drawImageKey');
     sessionStorage.removeItem('drawNickname');
     sessionStorage.removeItem('draw_result_autoscrolled');
     runPrimary();
@@ -379,6 +406,7 @@ export default function DrawResult() {
     localStorage.removeItem('drawResultVersion');
     localStorage.removeItem('drawSubmissionId');
     localStorage.removeItem('drawScore');
+    localStorage.removeItem('drawImageKey');
     sessionStorage.removeItem('drawNickname');
     sessionStorage.removeItem('draw_result_autoscrolled');
     const params = new URLSearchParams({ promptId });
