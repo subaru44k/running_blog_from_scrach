@@ -122,6 +122,8 @@ features:
       - secondary status API requires promptId and submissionId
       - share card generated in browser
       - submit API accepts optional promptText from the client
+      - primary scoring uses Bedrock Claude 3 Haiku (fallback to stub)
+      - secondary review uses Bedrock Claude 3 Sonnet (fallback behavior keeps pending then failed)
       - draw routes are included in sitemap and linked from global nav
 
 assumptions:

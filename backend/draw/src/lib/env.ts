@@ -17,3 +17,6 @@ export const SUBMISSION_TTL_DAYS = Number(process.env.SUBMISSION_TTL_DAYS || 7);
 export const RATE_LIMIT_WINDOW_SECONDS = Number(process.env.RATE_LIMIT_WINDOW_SECONDS || 300);
 export const RATE_LIMIT_UPLOAD = Number(process.env.RATE_LIMIT_UPLOAD || 10);
 export const RATE_LIMIT_SUBMIT = Number(process.env.RATE_LIMIT_SUBMIT || 5);
+
+export const PRIMARY_MODEL_ID = process.env.PRIMARY_MODEL_ID || 'anthropic.claude-3-haiku-20240307-v1:0';
+export const SECONDARY_MODEL_ID = process.env.SECONDARY_MODEL_ID || 'anthropic.claude-3-sonnet-20240229-v1:0';

@@ -6,10 +6,12 @@ import { getObjectBuffer } from '../lib/s3';
 import { computeInkRatio, isInkGateFail } from '../lib/inkGate';
 import { scoreStub } from '../lib/scoreStub';
 import { ddb } from '../lib/ddb';
-import { DRAW_BUCKET, DRAW_TABLE, RATE_LIMIT_SUBMIT, SECONDARY_QUEUE_URL, SUBMISSION_TTL_DAYS } from '../lib/env';
+import { DRAW_BUCKET, DRAW_TABLE, PRIMARY_MODEL_ID, RATE_LIMIT_SUBMIT, SECONDARY_QUEUE_URL, SUBMISSION_TTL_DAYS } from '../lib/env';
 import { getClientIp } from '../lib/ip';
 import type { SubmitResult } from '../types';
 import { SQSClient } from '@aws-sdk/client-sqs';
+import { invokeClaudeJson } from '../lib/bedrock';
+import { buildPrimaryUser, primarySystemPrompt } from '../lib/aiPrompts';
 
 const sqs = new SQSClient({});
 
@@ -34,11 +36,28 @@ const computeRank = (items: Array<{ scoreSortKey?: string }>, newKey: string) =>
   return list.indexOf(newKey) + 1;
 };
 
+const clampScore = (value: number) => Math.min(100, Math.max(0, Math.round(value)));
+
+const normalizePrimary = (input: any) => {
+  const breakdown = {
+    likeness: clampScore(input?.breakdown?.likeness ?? input?.likeness ?? 0),
+    composition: clampScore(input?.breakdown?.composition ?? input?.composition ?? 0),
+    originality: clampScore(input?.breakdown?.originality ?? input?.originality ?? 0),
+  };
+  const avg = Math.round((breakdown.likeness + breakdown.composition + breakdown.originality) / 3);
+  const rawScore = clampScore(input?.score ?? avg);
+  const bounded = Math.min(Math.max(rawScore, Math.max(0, avg - 10)), Math.min(100, avg + 10));
+  const oneLiner = String(input?.oneLiner || '前向きで良い雰囲気です。').slice(0, 90);
+  const tipsRaw = Array.isArray(input?.tips) ? input.tips : [];
+  const tips = tipsRaw.map((t) => String(t).trim()).filter(Boolean).slice(0, 3);
+  return { score: bounded, breakdown, oneLiner, tips };
+};
+
 export const handler = async (event: any) => {
   const origin = event?.headers?.origin || event?.headers?.Origin;
   if (event?.requestContext?.http?.method === 'OPTIONS') return options(origin);
   try {
-    const { promptId, submissionId, imageKey, nickname } = parseJson(event);
+    const { promptId, submissionId, imageKey, nickname, promptText } = parseJson(event);
     if (!promptId || !submissionId || !imageKey) {
       return json(400, { error: 'promptId, submissionId, imageKey required' }, origin);
     }
@@ -60,7 +79,19 @@ export const handler = async (event: any) => {
       result = gateResult(submissionId);
       scoreSortKey = makeScoreSortKey(result.score, createdAt, submissionId);
     } else {
-      const scored = scoreStub();
+      let scored = scoreStub();
+      try {
+        const imageBase64 = imageBuffer.toString('base64');
+        const ai = await invokeClaudeJson<any>(
+          PRIMARY_MODEL_ID,
+          primarySystemPrompt,
+          buildPrimaryUser(String(promptText || 'お題不明'), imageBase64),
+        );
+        const normalized = normalizePrimary(ai);
+        scored = { ...scored, ...normalized };
+      } catch (err) {
+        console.error('primary_bedrock_failed', err);
+      }
       result = {
         submissionId,
         score: scored.score,
@@ -96,6 +127,7 @@ export const handler = async (event: any) => {
         createdAt,
         expiresAt,
         nickname: nickname || '匿名',
+        promptText: promptText || '',
         imageKey,
         score: result.score,
         breakdown: result.breakdown,

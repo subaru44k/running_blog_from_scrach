@@ -66,6 +66,8 @@ flowchart LR
 - 二次審査ではランクイン候補のみコメントが短いリッチ版に更新される。
 - 共有カード画像はブラウザ内の Canvas で生成してPNG保存する。
 - `/draw/` 系は sitemap に含める。グローバルナビから「お絵かきゲーム」として導線を提供する。
+- 一次採点は Bedrock Claude 3 Haiku（JSON出力）を使用、失敗時はスタブにフォールバック。
+- 二次講評は Bedrock Claude 3 Sonnet を使用し、失敗時は pending → failed で終了。
 
 ## PDF圧縮のデータフロー
 - PDFアップロードは最大50MBまで（S3のpresigned POSTポリシーで強制）。

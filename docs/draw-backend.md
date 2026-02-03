@@ -30,10 +30,10 @@
    - S3 PUT 署名URL発行
 2. **画像PUT**: ブラウザから S3 へ直接PUT
 3. **submit**: `POST /api/draw/submit`（`promptText` は任意）
-   - 画像取得 → inkRatio gate → 一次採点（スタブ）
+   - 画像取得 → inkRatio gate → 一次採点（Bedrock/Haiku、失敗時はスタブ）
    - DynamoDB保存
    - ランクイン候補のみ SQS へ二次投入
-4. **secondary**: SQSワーカーが二次レビュー（スタブ）実行
+4. **secondary**: SQSワーカーが二次レビュー（Bedrock/Sonnet、失敗時はfailed）実行
 5. **secondary status**: `GET /api/draw/secondary?promptId=...&submissionId=...`
    - 202 pending / 200 done / 404 not_found
 6. **leaderboard**: `GET /api/draw/leaderboard?promptId=...`
@@ -75,6 +75,8 @@
 - CLOUDFRONT_DOMAIN
 - CF_KEY_PAIR_ID
 - CF_PRIVATE_KEY_SECRET_ID
+- PRIMARY_MODEL_ID（一次採点: Claude 3 Haiku）
+- SECONDARY_MODEL_ID（二次講評: Claude 3 Sonnet）
 - IMAGE_TTL_SECONDS=900
 - SUBMISSION_TTL_DAYS=7
 
