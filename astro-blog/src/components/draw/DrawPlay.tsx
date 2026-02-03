@@ -51,6 +51,7 @@ export default function DrawPlay() {
       const nickname = sessionStorage.getItem('drawNickname') || undefined;
       const result = await submitDrawing({
         promptId: prompt.promptId,
+        promptText: prompt.promptText,
         submissionId: upload.submissionId,
         imageKey: upload.imageKey,
         nickname: nickname || undefined,

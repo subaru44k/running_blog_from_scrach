@@ -65,6 +65,7 @@ export async function putToS3(putUrl: string, blob: Blob, contentType: string) {
 
 export async function submitDrawing(params: {
   promptId: string;
+  promptText?: string;
   submissionId: string;
   imageKey: string;
   nickname?: string;

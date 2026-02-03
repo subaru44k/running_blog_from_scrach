@@ -23,7 +23,8 @@ type JudgeState =
 type FirstReviewResult = {
   score: number;
   shortComment: string;
-  badges?: string[];
+  tips?: string[];
+  breakdown?: SubmitResult['breakdown'];
 };
 
 const getPromptFromStorage = () => {
@@ -75,22 +76,17 @@ export default function DrawResult() {
     }
   };
 
-  const truncateText = (text: string, limit = 70) => {
-    if (text.length <= limit) return text;
-    return `${text.slice(0, limit)}…`;
-  };
-
   const buildFirstReview = (result: SubmitResult): FirstReviewResult => {
     const fallbackComment = '勢いがあって気持ちいいです。';
-    const shortComment = truncateText(result.oneLiner?.trim() || fallbackComment, 70);
+    const shortComment = (result.oneLiner?.trim() || fallbackComment);
     const tips = (result.tips || []).map((tip) => tip.trim()).filter(Boolean);
-    const fallbackBadges = result.score >= 85
-      ? ['勢い', 'まとまり']
+    const fallbackTips = result.score >= 85
+      ? ['勢い', 'まとまり', '表情']
       : result.score >= 70
-        ? ['雰囲気', '素直さ']
-        : ['丁寧さ', 'のびのび'];
-    const badges = (tips.length > 0 ? tips : fallbackBadges).slice(0, 2);
-    return { score: result.score, shortComment, badges };
+        ? ['雰囲気', '素直さ', '丁寧さ']
+        : ['丁寧さ', 'のびのび', '伸びしろ'];
+    const displayTips = (tips.length > 0 ? tips : fallbackTips).slice(0, 3);
+    return { score: result.score, shortComment, tips: displayTips, breakdown: result.breakdown };
   };
 
   useEffect(() => {
@@ -154,7 +150,13 @@ export default function DrawResult() {
 
     primaryTimerRef.current = window.setTimeout(async () => {
       try {
-        const result = await submitDrawing({ promptId, submissionId, imageKey, nickname: nickname || undefined });
+        const result = await submitDrawing({
+          promptId,
+          promptText: prompt?.promptText || localStorage.getItem('drawPromptText') || '',
+          submissionId,
+          imageKey,
+          nickname: nickname || undefined,
+        });
         setFirstReview(buildFirstReview(result));
         const leaderboard = await getLeaderboard(promptId, 20);
         setState({ result, leaderboard });
@@ -253,9 +255,7 @@ export default function DrawResult() {
         const res = await getSecondaryReview(promptId, state.result.submissionId);
         if (res.status === 'done') {
           const review: SecondaryReviewResult = res.result;
-          if (review?.enrichedComment) {
-            setSecondaryComment(truncateText(review.enrichedComment, 120));
-          }
+          if (review?.enrichedComment) setSecondaryComment(review.enrichedComment);
           setJudgeState('secondary_done');
           setFlashMine(true);
           const flashTimer = window.setTimeout(() => setFlashMine(false), 1200);
@@ -472,7 +472,8 @@ export default function DrawResult() {
             score={displayScore}
             shortComment={firstReview.shortComment}
             richComment={displayComment}
-            badges={firstReview.badges}
+            tips={firstReview.tips}
+            breakdown={firstReview.breakdown}
             secondaryPending={judgeState === 'judging_secondary'}
             showRichComment={judgeState === 'secondary_done'}
           />

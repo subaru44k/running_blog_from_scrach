@@ -121,6 +121,7 @@ features:
       - secondary review is fetched via polling API for ranked entries only
       - secondary status API requires promptId and submissionId
       - share card generated in browser
+      - submit API accepts optional promptText from the client
       - draw routes are included in sitemap and linked from global nav
 
 assumptions:

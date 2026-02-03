@@ -29,7 +29,7 @@
    - submissionId(ULID) 生成
    - S3 PUT 署名URL発行
 2. **画像PUT**: ブラウザから S3 へ直接PUT
-3. **submit**: `POST /api/draw/submit`
+3. **submit**: `POST /api/draw/submit`（`promptText` は任意）
    - 画像取得 → inkRatio gate → 一次採点（スタブ）
    - DynamoDB保存
    - ランクイン候補のみ SQS へ二次投入
@@ -92,7 +92,7 @@
 ## curl検証例
 ```bash
 curl -X POST https://<api>/api/draw/upload-url -H 'Content-Type: application/json' -d '{"promptId":"prompt-2026-01-19"}'
-curl -X POST https://<api>/api/draw/submit -H 'Content-Type: application/json' -d '{"promptId":"prompt-2026-01-19","submissionId":"...","imageKey":"draw/...png"}'
+curl -X POST https://<api>/api/draw/submit -H 'Content-Type: application/json' -d '{"promptId":"prompt-2026-01-19","promptText":"30秒で熊を描いて","submissionId":"...","imageKey":"draw/...png"}'
 curl "https://<api>/api/draw/leaderboard?promptId=prompt-2026-01-19&limit=20"
 curl "https://<api>/api/draw/secondary?promptId=prompt-2026-01-19&submissionId=<ulid>"
 ```
