@@ -354,33 +354,17 @@ export default function DrawResult() {
     : 'https://twitter.com/intent/tweet';
 
   const rankMessage = state.result ? (() => {
-    if (state.result.score >= 75) {
+    if (state.result.isRanked) {
       return {
         title: '🎉 ランキング入り！',
         sub: '今日の上位20作品に入りました',
       };
     }
-    const diff = Math.max(0, 75 - state.result.score);
     return {
-      title: `あと${diff}点でランキング！`,
-      sub: '',
+      title: '今回はランク外（Top20）',
+      sub: 'もう一度チャレンジしてみよう！',
     };
   })() : null;
-
-  useEffect(() => {
-    if (!hasMine || !mineRowRef.current || !leaderboardRef.current) return;
-    if (judgeState !== 'secondary_done') return;
-    const flagKey = 'draw_result_autoscrolled';
-    if (sessionStorage.getItem(flagKey)) return;
-    const rect = leaderboardRef.current.getBoundingClientRect();
-    const inView = rect.top >= 0 && rect.bottom <= window.innerHeight;
-    if (inView) return;
-    sessionStorage.setItem(flagKey, 'true');
-    mineRowRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' });
-    setFlashMine(true);
-    const timer = setTimeout(() => setFlashMine(false), 1200);
-    return () => clearTimeout(timer);
-  }, [hasMine, displayLeaderboard.length, judgeState]);
 
   const retry = () => {
     if (!promptId) return;
@@ -394,7 +378,6 @@ export default function DrawResult() {
     localStorage.removeItem('drawScore');
     localStorage.removeItem('drawImageKey');
     sessionStorage.removeItem('drawNickname');
-    sessionStorage.removeItem('draw_result_autoscrolled');
     runPrimary();
   };
 
@@ -408,7 +391,6 @@ export default function DrawResult() {
     localStorage.removeItem('drawScore');
     localStorage.removeItem('drawImageKey');
     sessionStorage.removeItem('drawNickname');
-    sessionStorage.removeItem('draw_result_autoscrolled');
     const params = new URLSearchParams({ promptId });
     window.location.href = `/draw/play?${params.toString()}`;
   };
@@ -482,6 +464,19 @@ export default function DrawResult() {
             <div className="rounded-lg border bg-gray-50 p-4">
               <div className="text-lg font-semibold">{rankMessage.title}</div>
               {rankMessage.sub && <div className="text-sm text-gray-600">{rankMessage.sub}</div>}
+              {judgeState === 'secondary_done' && hasMine && (
+                <button
+                  type="button"
+                  className="mt-3 text-sm text-blue-700 underline"
+                  onClick={() => {
+                    mineRowRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    setFlashMine(true);
+                    window.setTimeout(() => setFlashMine(false), 1200);
+                  }}
+                >
+                  ランキングで自分の順位を見る
+                </button>
+              )}
             </div>
           )}
 
