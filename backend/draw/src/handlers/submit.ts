@@ -49,7 +49,7 @@ const normalizePrimary = (input: any) => {
   const bounded = Math.min(Math.max(rawScore, Math.max(0, avg - 10)), Math.min(100, avg + 10));
   const oneLiner = String(input?.oneLiner || '前向きで良い雰囲気です。').slice(0, 90);
   const tipsRaw = Array.isArray(input?.tips) ? input.tips : [];
-  const tips = tipsRaw.map((t) => String(t).trim()).filter(Boolean).slice(0, 3);
+  const tips = tipsRaw.map((t: unknown) => String(t).trim()).filter(Boolean).slice(0, 3);
   return { score: bounded, breakdown, oneLiner, tips };
 };
 
@@ -74,23 +74,38 @@ export const handler = async (event: any) => {
     let rank: number | undefined = undefined;
     let scoreSortKey = '';
     let secondaryStatus: 'pending' | 'skipped' | 'failed' | 'done' = 'skipped';
+    const tokenRecordedAt = new Date().toISOString();
+    let primaryModelId: string | null = null;
+    let primaryInputTokens: number | null = null;
+    let primaryOutputTokens: number | null = null;
+    let primaryTotalTokens: number | null = null;
+    let primaryLatencyMs: number | null = null;
+    let aiFallbackUsed = false;
 
     if (isInkGateFail(inkRatio)) {
       result = gateResult(submissionId);
       scoreSortKey = makeScoreSortKey(result.score, createdAt, submissionId);
+      aiFallbackUsed = true;
     } else {
       let scored = scoreStub();
       try {
         const imageBase64 = imageBuffer.toString('base64');
+        const startedAt = Date.now();
         const ai = await invokeClaudeJson<any>(
           PRIMARY_MODEL_ID,
           primarySystemPrompt,
           buildPrimaryUser(String(promptText || 'お題不明'), imageBase64),
         );
-        const normalized = normalizePrimary(ai);
+        primaryLatencyMs = Date.now() - startedAt;
+        primaryModelId = ai.modelId;
+        primaryInputTokens = ai.usage.inputTokens;
+        primaryOutputTokens = ai.usage.outputTokens;
+        primaryTotalTokens = ai.usage.totalTokens;
+        const normalized = normalizePrimary(ai.data);
         scored = { ...scored, ...normalized };
       } catch (err) {
         console.error('primary_bedrock_failed', err);
+        aiFallbackUsed = true;
       }
       result = {
         submissionId,
@@ -138,6 +153,18 @@ export const handler = async (event: any) => {
         secondaryStatus,
         enrichedComment: null,
         secondaryAttempts: 0,
+        primaryModelId,
+        primaryInputTokens,
+        primaryOutputTokens,
+        primaryTotalTokens,
+        primaryLatencyMs,
+        aiFallbackUsed,
+        tokenRecordedAt,
+        secondaryModelId: null,
+        secondaryInputTokens: null,
+        secondaryOutputTokens: null,
+        secondaryTotalTokens: null,
+        secondaryLatencyMs: null,
         GSI1PK: promptId,
         scoreSortKey,
       },

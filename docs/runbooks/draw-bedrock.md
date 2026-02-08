@@ -2,7 +2,7 @@
 
 ## モデル
 - 一次採点: Claude 3 Haiku（PRIMARY_MODEL_ID）
-- 二次講評: Claude 3 Sonnet（SECONDARY_MODEL_ID）
+- 二次講評: Claude Haiku 4.5（SECONDARY_MODEL_ID）
 
 ## 必要IAM
 - `bedrock:InvokeModel`

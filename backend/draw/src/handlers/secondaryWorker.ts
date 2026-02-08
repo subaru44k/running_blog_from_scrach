@@ -43,7 +43,8 @@ export const handler = async (event: any) => {
         const promptText = String(item.promptText || 'お題不明');
         const imageBuffer = await getObjectBuffer(DRAW_BUCKET, imageKey);
         const imageBase64 = imageBuffer.toString('base64');
-        enrichedComment = await invokeClaudeText(
+        const startedAt = Date.now();
+        const ai = await invokeClaudeText(
           SECONDARY_MODEL_ID,
           secondarySystemPrompt,
           buildSecondaryUser({
@@ -55,6 +56,21 @@ export const handler = async (event: any) => {
             tips: Array.isArray(item.tips) ? item.tips : [],
           }),
         );
+        enrichedComment = ai.text;
+        const tokenRecordedAt = new Date().toISOString();
+        await ddb.send(new UpdateCommand({
+          TableName: DRAW_TABLE,
+          Key: { promptId, submissionId },
+          UpdateExpression: 'SET secondaryModelId = :modelId, secondaryInputTokens = :inTok, secondaryOutputTokens = :outTok, secondaryTotalTokens = :totalTok, secondaryLatencyMs = :latency, tokenRecordedAt = :recordedAt',
+          ExpressionAttributeValues: {
+            ':modelId': ai.modelId,
+            ':inTok': ai.usage.inputTokens,
+            ':outTok': ai.usage.outputTokens,
+            ':totalTok': ai.usage.totalTokens,
+            ':latency': Date.now() - startedAt,
+            ':recordedAt': tokenRecordedAt,
+          },
+        }));
       } catch (err) {
         console.error('secondary_bedrock_failed', err);
         // keep existing behavior: failed after second attempt; first failure keeps pending

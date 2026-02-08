@@ -33,7 +33,7 @@
    - 画像取得 → inkRatio gate → 一次採点（Bedrock/Haiku、失敗時はスタブ）
    - DynamoDB保存
    - ランクイン候補のみ SQS へ二次投入
-4. **secondary**: SQSワーカーが二次レビュー（Bedrock/Sonnet、失敗時はfailed）実行
+4. **secondary**: SQSワーカーが二次レビュー（Bedrock/Haiku 4.5、失敗時はfailed）実行
 5. **secondary status**: `GET /api/draw/secondary?promptId=...&submissionId=...`
    - 202 pending / 200 done / 404 not_found
 6. **leaderboard**: `GET /api/draw/leaderboard?promptId=...`
@@ -44,6 +44,10 @@
 - PK: `promptId` (string)
 - SK: `submissionId` (ULID)
 - attrs: createdAt, expiresAt, nickname, imageKey, score, breakdown, oneLiner, tips, isRanked, rank, secondaryStatus, enrichedComment, secondaryAttempts
+- AI usage attrs:
+  - primaryModelId, primaryInputTokens, primaryOutputTokens, primaryTotalTokens, primaryLatencyMs
+  - secondaryModelId, secondaryInputTokens, secondaryOutputTokens, secondaryTotalTokens, secondaryLatencyMs
+  - tokenRecordedAt, aiFallbackUsed
 - TTL: expiresAt
 - GSI1 (Leaderboard):
   - GSI1PK: promptId
@@ -76,7 +80,7 @@
 - CF_KEY_PAIR_ID
 - CF_PRIVATE_KEY_SECRET_ID
 - PRIMARY_MODEL_ID（一次採点: Claude 3 Haiku）
-- SECONDARY_MODEL_ID（二次講評: Claude 3 Sonnet）
+- SECONDARY_MODEL_ID（二次講評: Claude Haiku 4.5）
 - IMAGE_TTL_SECONDS=900
 - SUBMISSION_TTL_DAYS=7
 
@@ -108,3 +112,7 @@ curl "https://<api>/api/draw/secondary?promptId=prompt-2026-01-19&submissionId=<
 ## Bedrock差し替えポイント（TODO）
 - `backend/draw/src/handlers/submit.ts` の一次採点部分
 - `backend/draw/src/handlers/secondaryWorker.ts` の二次レビュー生成
+
+## コスト計算用メモ
+- 各投稿で一次/二次の `input/output/total tokens` を `DrawSubmissions` に保存する。
+- 推定コストはモデルごとの単価を掛けて計算する（`inputTokens * inputUnitPrice + outputTokens * outputUnitPrice`）。

@@ -38,7 +38,32 @@ type ClaudeContent =
   | { type: 'text'; text: string }
   | { type: 'image'; source: { type: 'base64'; media_type: 'image/png'; data: string } };
 
-const invokeClaude = async (modelId: string, system: string, userContent: ClaudeContent[], maxTokens: number, temperature: number) => {
+export type BedrockUsage = {
+  inputTokens: number;
+  outputTokens: number;
+  totalTokens: number;
+};
+
+export type BedrockTextResult = {
+  text: string;
+  usage: BedrockUsage;
+  modelId: string;
+};
+
+const toNumber = (value: unknown) => {
+  const n = Number(value ?? 0);
+  return Number.isFinite(n) ? n : 0;
+};
+
+const extractUsage = (payload: any): BedrockUsage => {
+  const usage = payload?.usage || {};
+  const inputTokens = toNumber(usage.input_tokens);
+  const outputTokens = toNumber(usage.output_tokens);
+  const totalTokens = toNumber(usage.total_tokens || inputTokens + outputTokens);
+  return { inputTokens, outputTokens, totalTokens };
+};
+
+const invokeClaude = async (modelId: string, system: string, userContent: ClaudeContent[], maxTokens: number, temperature: number): Promise<BedrockTextResult> => {
   const body = {
     anthropic_version: 'bedrock-2023-05-31',
     max_tokens: maxTokens,
@@ -59,15 +84,29 @@ const invokeClaude = async (modelId: string, system: string, userContent: Claude
   }));
   const raw = await readBody(res.body);
   const json = raw ? JSON.parse(raw) : {};
-  return extractText(json);
+  return {
+    text: extractText(json),
+    usage: extractUsage(json),
+    modelId,
+  };
 };
 
-export const invokeClaudeJson = async <T>(modelId: string, system: string, userContent: ClaudeContent[]): Promise<T> => {
-  const text = await invokeClaude(modelId, system, userContent, 512, 0.3);
+export type BedrockJsonResult<T> = {
+  data: T;
+  usage: BedrockUsage;
+  modelId: string;
+};
+
+export const invokeClaudeJson = async <T>(modelId: string, system: string, userContent: ClaudeContent[]): Promise<BedrockJsonResult<T>> => {
+  const result = await invokeClaude(modelId, system, userContent, 512, 0.3);
   try {
-    return JSON.parse(text) as T;
+    return {
+      data: JSON.parse(result.text) as T,
+      usage: result.usage,
+      modelId: result.modelId,
+    };
   } catch {
-    throw new Error(`Failed to parse JSON from Bedrock: ${text.slice(0, 200)}`);
+    throw new Error(`Failed to parse JSON from Bedrock: ${result.text.slice(0, 200)}`);
   }
 };
 

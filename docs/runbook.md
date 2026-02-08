@@ -9,6 +9,8 @@
 - inkRatio gate の閾値を上げる
 - 二次レビュー条件（rank上位のみ）を厳しくする
 - 二次レビューのリトライ回数を減らす
+- DrawSubmissions の `primaryInputTokens` / `secondaryInputTokens` / `...OutputTokens` を集計し、増加区間を特定する
+- `primaryModelId` / `secondaryModelId` を確認し、意図しないモデル切替がないか確認する
 
 ## 期限切れ/削除（TTL）
 - DrawSubmissions: expiresAt により自動削除

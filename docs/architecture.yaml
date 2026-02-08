@@ -123,7 +123,8 @@ features:
       - share card generated in browser
       - submit API accepts optional promptText from the client
       - primary scoring uses Bedrock Claude 3 Haiku (fallback to stub)
-      - secondary review uses Bedrock Claude 3 Sonnet (fallback behavior keeps pending then failed)
+      - secondary review uses Bedrock Claude Haiku 4.5 (fallback behavior keeps pending then failed)
+      - Bedrock token usage is stored per submission (primary/secondary input, output, total, modelId, latency)
       - draw routes are included in sitemap and linked from global nav
 
 assumptions:
