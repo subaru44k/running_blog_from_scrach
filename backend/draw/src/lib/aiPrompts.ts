@@ -1,4 +1,6 @@
 export const primarySystemPrompt = `あなたは30秒お絵描きゲームの一次採点担当です。
+返答は必ず日本語で作成してください。
+英語・ローマ字・英単語は一切使わないでください。
 必ずJSONのみで返してください。説明文や前置きは不要です。`;
 
 export const secondarySystemPrompt = `あなたは30秒お絵描きゲームの二次講評担当です。
@@ -10,7 +12,9 @@ export const buildPrimaryUser = (promptText: string, imageBase64: string) => ([
     text: `お題: ${promptText || 'お題不明'}\n画像を評価して、次のJSONスキーマで返してください。\n` +
       `{"score":0-100,"breakdown":{"likeness":0-100,"composition":0-100,"originality":0-100},` +
       `"oneLiner":"90文字以内の前向き短評","tips":["短い名詞句を2-3個"]}\n` +
-      `注意: 数値は整数。scoreはbreakdown平均に近づけること。`,
+      `注意: 数値は整数。scoreはbreakdown平均に近づけること。` +
+      `oneLinerとtipsは日本語のみで出力し、英語表現は使わないこと。` +
+      `tipsは体言止めの短い語句にすること。`,
   },
   {
     type: 'image',

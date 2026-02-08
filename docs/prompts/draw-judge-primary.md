@@ -21,8 +21,8 @@
 - 数値は整数
 - score は breakdown 平均に近づける
 - tips は2〜3個
+- oneLiner / tips は日本語のみ（英語・ローマ字は禁止）
 
 ## フォールバック
 - JSONパース失敗 / 例外時は scoreStub にフォールバック
 - サーバ側で 0..100 に clamp、score は breakdown 平均±10に補正
-
