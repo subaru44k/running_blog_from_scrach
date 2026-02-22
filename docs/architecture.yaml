@@ -126,6 +126,7 @@ features:
       - secondary review uses Bedrock Claude Haiku 4.5 (fallback behavior keeps pending then failed)
       - Bedrock token usage is stored per submission (primary/secondary input, output, total, modelId, latency)
       - draw routes are included in sitemap and linked from global nav
+      - draw backend resources use cost allocation tags (Service=draw, Env=prod)
 
 assumptions:
   - TODO: CloudFront Distribution ID and error response settings are managed outside docs

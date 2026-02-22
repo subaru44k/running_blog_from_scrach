@@ -185,6 +185,22 @@ CLEANUP_RULE=pdf-compress-cleanup-s3-prod-every-10min
 
 ## 運用リソース（draw / prod）
 
+### Cost Allocation タグ（draw）
+
+Cost Explorer で draw 機能のコストを絞り込めるように、draw 関連リソースには次のタグを付与する。
+
+| Key | Value |
+| --- | --- |
+| `Project` | `subaru-is-running` |
+| `Service` | `draw` |
+| `Env` | `prod` |
+| `Owner` | `shinya` |
+| `CostRisk` | `high` |
+
+Cost Explorer での基本フィルタ:
+- `Tag: Service = draw`
+- 必要に応じて `Tag: Env = prod`
+
 ### CloudFront
 
 | Distribution ID | Domain | 用途 |
@@ -239,3 +255,13 @@ CLEANUP_RULE=pdf-compress-cleanup-s3-prod-every-10min
 | Routes | `POST /api/draw/upload-url`, `POST /api/draw/submit`, `GET /api/draw/secondary`, `GET /api/draw/leaderboard` |
 
 | Endpoint | `https://2vzy10yq0e.execute-api.ap-northeast-1.amazonaws.com` |
+
+### タグ適用済みリソース（draw）
+
+- Lambda: `draw-upload-url-prod`, `draw-submit-prod`, `draw-secondary-status-prod`, `draw-secondary-worker-prod`, `draw-leaderboard-prod`
+- DynamoDB: `DrawSubmissions`, `DrawRateLimit`
+- S3: `draw-uploads-20260124-58904f87`
+- SQS: `draw-secondary-queue-prod`
+- Secrets Manager: `draw/cf-private-key`
+- API Gateway(HTTP API): `draw-api` (`2vzy10yq0e`)
+- CloudFront: `E2CQHMEVDKG7MU`
