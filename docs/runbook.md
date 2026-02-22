@@ -15,6 +15,14 @@
 ## 期限切れ/削除（TTL）
 - DrawSubmissions: expiresAt により自動削除
 - DrawRateLimit: expiresAt により自動削除
+- Draw画像（S3）: `draw-monthly-cleanup-prod` が毎月1日に前月データを整理し、Top20以外を削除
+
+## 月次クリーンアップ運用
+- EventBridge `draw-monthly-cleanup-prod-monthly` が `draw-monthly-cleanup-prod` を起動
+- 削除対象は `draw/prompt-YYYY-MM/` 配下のみ（prefixガードあり）
+- 同率の順位は投稿時刻優先（既存 scoreSortKey ルール）
+- 手動再実行が必要な場合は Lambda テストイベントで `{"month":"YYYY-MM"}` を指定する
+- 実行後は CloudWatch Logs の `draw_monthly_cleanup_summary` で `scanned/deleted/keepCount` を確認する
 
 ## 障害時
 - /secondary が 404 を返す: secondaryStatus が failed/未生成の可能性

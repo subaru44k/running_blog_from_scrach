@@ -1,6 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { ApiError, getLeaderboard, getSecondaryReview, submitDrawing } from '../../lib/draw/api';
-import { getPrompt } from '../../lib/draw/apiMock';
+import { ApiError, getLeaderboard, getPrompt, getSecondaryReview, submitDrawing } from '../../lib/draw/api';
 import type { LeaderboardResponse, PromptInfo, SecondaryReviewResult, SubmitResult } from '../../lib/draw/types';
 import ResultCard from './ResultCard';
 import Leaderboard from './Leaderboard';
@@ -98,7 +97,9 @@ export default function DrawResult() {
       if (persistedImage) setImageDataUrl(persistedImage);
     }
     const params = new URLSearchParams(window.location.search);
-    setPromptId(params.get('promptId') || sessionStorage.getItem('drawPromptId') || 'prompt-unknown');
+    const month = params.get('month') || undefined;
+    const promptIdFromQuery = params.get('promptId') || sessionStorage.getItem('drawPromptId') || 'prompt-unknown';
+    setPromptId(promptIdFromQuery);
     const savedName = sessionStorage.getItem('drawNickname') || '';
     setNickname(savedName);
     const savedSubmissionId = localStorage.getItem('drawSubmissionId') || '';
@@ -106,11 +107,17 @@ export default function DrawResult() {
     const savedImageKey = localStorage.getItem('drawImageKey') || '';
     setImageKey(savedImageKey);
     const storedPrompt = getPromptFromStorage();
-    if (storedPrompt) {
+    if (storedPrompt && (!promptIdFromQuery || storedPrompt.promptId === promptIdFromQuery)) {
       setPrompt(storedPrompt);
       return;
     }
-    getPrompt().then((value) => setPrompt(value)).catch(() => setPrompt(null));
+    getPrompt(month)
+      .then((value) => {
+        setPrompt(value);
+        setPromptId(value.promptId);
+        sessionStorage.setItem('drawPrompt', JSON.stringify(value));
+      })
+      .catch(() => setPrompt(null));
   }, []);
 
   const clearPrimaryTimers = () => {
@@ -150,7 +157,7 @@ export default function DrawResult() {
 
     primaryTimerRef.current = window.setTimeout(async () => {
       try {
-        const result = await submitDrawing({
+      const result = await submitDrawing({
           promptId,
           promptText: prompt?.promptText || localStorage.getItem('drawPromptText') || '',
           submissionId,

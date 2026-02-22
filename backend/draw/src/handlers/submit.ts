@@ -12,6 +12,7 @@ import type { SubmitResult } from '../types';
 import { SQSClient } from '@aws-sdk/client-sqs';
 import { invokeClaudeJson } from '../lib/bedrock';
 import { buildPrimaryUser, primarySystemPrompt } from '../lib/aiPrompts';
+import { resolveDrawPrompt } from '../lib/prompt';
 
 const sqs = new SQSClient({});
 
@@ -57,10 +58,17 @@ export const handler = async (event: any) => {
   const origin = event?.headers?.origin || event?.headers?.Origin;
   if (event?.requestContext?.http?.method === 'OPTIONS') return options(origin);
   try {
-    const { promptId, submissionId, imageKey, nickname, promptText } = parseJson(event);
-    if (!promptId || !submissionId || !imageKey) {
-      return json(400, { error: 'promptId, submissionId, imageKey required' }, origin);
+    const { promptId: promptIdRaw, submissionId, imageKey, nickname, promptText, month } = parseJson(event);
+    if (!submissionId || !imageKey) {
+      return json(400, { error: 'submissionId, imageKey required' }, origin);
     }
+    const imagePromptId = (() => {
+      const m = /^draw\/(prompt-\d{4}-\d{2})\/[^/]+\.png$/.exec(String(imageKey));
+      return m ? m[1] : undefined;
+    })();
+    const prompt = resolveDrawPrompt({ promptId: imagePromptId || promptIdRaw, month });
+    const promptId = prompt.promptId;
+    const resolvedPromptText = prompt.promptText;
     const ip = getClientIp(event);
     await rateLimit(`ip#submit#${ip}`, RATE_LIMIT_SUBMIT);
 
@@ -94,7 +102,7 @@ export const handler = async (event: any) => {
         const ai = await invokeClaudeJson<any>(
           PRIMARY_MODEL_ID,
           primarySystemPrompt,
-          buildPrimaryUser(String(promptText || 'お題不明'), imageBase64),
+          buildPrimaryUser(String(resolvedPromptText || promptText || 'お題不明'), imageBase64),
         );
         primaryLatencyMs = Date.now() - startedAt;
         primaryModelId = ai.modelId;
@@ -142,7 +150,7 @@ export const handler = async (event: any) => {
         createdAt,
         expiresAt,
         nickname: nickname || '匿名',
-        promptText: promptText || '',
+        promptText: resolvedPromptText || '',
         imageKey,
         score: result.score,
         breakdown: result.breakdown,

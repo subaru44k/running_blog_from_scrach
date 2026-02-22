@@ -23,13 +23,15 @@ export default function DrawPlay() {
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const promptId = params.get('promptId');
+    const month = params.get('month');
     const stored = getPromptFromStorage();
     if (stored && (!promptId || stored.promptId === promptId)) {
       setPrompt(stored);
       return;
     }
     if (promptId) {
-      setPrompt({ promptId, promptText: '30秒で熊を描いて' });
+      const fallback = month ? `30秒でお題(${month})を描いて` : '30秒でお題を描いて';
+      setPrompt({ promptId, promptText: fallback });
       return;
     }
   }, []);
@@ -64,6 +66,8 @@ export default function DrawPlay() {
       localStorage.setItem('drawImageKey', upload.imageKey);
       localStorage.setItem('drawImage', url);
       const params = new URLSearchParams({ promptId: prompt.promptId });
+      const month = prompt.promptId.replace(/^prompt-/, '');
+      if (/^\d{4}-\d{2}$/.test(month)) params.set('month', month);
       window.location.href = `/draw/result?${params.toString()}`;
     } catch (err: any) {
       let message = '送信に失敗しました。時間をおいて再試行してください。';

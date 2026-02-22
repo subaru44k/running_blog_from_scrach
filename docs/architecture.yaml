@@ -51,11 +51,13 @@ repo:
     draw_backend:
       path: backend/draw
       handlers:
+        - backend/draw/src/handlers/prompt.ts
         - backend/draw/src/handlers/uploadUrl.ts
         - backend/draw/src/handlers/submit.ts
         - backend/draw/src/handlers/secondaryStatus.ts
         - backend/draw/src/handlers/secondaryWorker.ts
         - backend/draw/src/handlers/leaderboard.ts
+        - backend/draw/src/handlers/monthlyCleanup.ts
 
 site:
   routing:
@@ -111,8 +113,10 @@ features:
       - /draw/result/
     behavior:
       - API Gateway + Lambda backend for upload/submit/secondary/leaderboard
+      - GET /api/draw/prompt provides server-authoritative monthly prompt
       - frontend uses PUBLIC_DRAW_API_BASE to call /api/draw/*
       - Lambda handlers are bundled as CommonJS (.cjs) for Node 20 runtime compatibility
+      - prompt switches monthly (JST) with fixed sequence; 2026-02 is index 0 (熊)
       - image upload via S3 signed PUT
       - CloudFront signed URL for image viewing (900s)
       - secondary review is async via SQS
@@ -121,12 +125,13 @@ features:
       - secondary review is fetched via polling API for ranked entries only
       - secondary status API requires promptId and submissionId
       - share card generated in browser
-      - submit API accepts optional promptText from the client
+      - submit/upload APIs resolve promptId and promptText server-side from month rules
       - primary scoring uses Bedrock Claude 3 Haiku (fallback to stub)
       - secondary review uses Bedrock Claude Haiku 4.5 (fallback behavior keeps pending then failed)
       - Bedrock token usage is stored per submission (primary/secondary input, output, total, modelId, latency)
       - draw routes are included in sitemap and linked from global nav
       - draw backend resources use cost allocation tags (Service=draw, Env=prod)
+      - monthly cleanup keeps only previous month's Top20 images and deletes others from S3
 
 assumptions:
   - TODO: CloudFront Distribution ID and error response settings are managed outside docs

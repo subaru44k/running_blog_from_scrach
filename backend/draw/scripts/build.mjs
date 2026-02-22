@@ -7,11 +7,13 @@ const outDir = resolve(root, 'dist');
 await mkdir(outDir, { recursive: true });
 
 const entries = [
+  'src/handlers/prompt.ts',
   'src/handlers/uploadUrl.ts',
   'src/handlers/submit.ts',
   'src/handlers/secondaryStatus.ts',
   'src/handlers/secondaryWorker.ts',
   'src/handlers/leaderboard.ts',
+  'src/handlers/monthlyCleanup.ts',
 ];
 
 await Promise.all(entries.map((entry) =>

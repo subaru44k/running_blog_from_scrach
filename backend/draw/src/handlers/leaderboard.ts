@@ -4,15 +4,18 @@ import { DRAW_TABLE } from '../lib/env';
 import { buildSignedUrl } from '../lib/cfSign';
 import { json, options } from '../lib/http';
 import type { LeaderboardResponse } from '../types';
+import { resolveDrawPrompt } from '../lib/prompt';
 
 export const handler = async (event: any) => {
   const origin = event?.headers?.origin || event?.headers?.Origin;
   if (event?.requestContext?.http?.method === 'OPTIONS') return options(origin);
   try {
-    const promptId = event?.queryStringParameters?.promptId;
+    const promptIdQuery = event?.queryStringParameters?.promptId;
+    const month = event?.queryStringParameters?.month;
     const limitParam = event?.queryStringParameters?.limit;
     const limit = Math.min(Number(limitParam || 20) || 20, 50);
-    if (!promptId) return json(400, { error: 'promptId required' }, origin);
+    const prompt = resolveDrawPrompt({ promptId: promptIdQuery, month });
+    const promptId = prompt.promptId;
 
     const response = await ddb.send(new QueryCommand({
       TableName: DRAW_TABLE,

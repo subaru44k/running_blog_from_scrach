@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { getPrompt } from '../../lib/draw/apiMock';
+import { getPrompt } from '../../lib/draw/api';
 import type { PromptInfo } from '../../lib/draw/types';
 
 type State = {
@@ -13,7 +13,8 @@ export default function DrawStart() {
 
   useEffect(() => {
     let mounted = true;
-    getPrompt()
+    const month = new URLSearchParams(window.location.search).get('month') || undefined;
+    getPrompt(month)
       .then((prompt) => {
         if (!mounted) return;
         sessionStorage.setItem('drawPrompt', JSON.stringify(prompt));
@@ -29,6 +30,8 @@ export default function DrawStart() {
   const start = () => {
     if (!state.prompt) return;
     const params = new URLSearchParams({ promptId: state.prompt.promptId });
+    const month = new URLSearchParams(window.location.search).get('month');
+    if (month) params.set('month', month);
     window.location.href = `/draw/play?${params.toString()}`;
   };
 

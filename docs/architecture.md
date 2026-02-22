@@ -60,6 +60,7 @@ flowchart LR
 - `/draw/` → `/draw/play/` → `/draw/result/` の3ページ構成。
 - 画像アップロード・採点・ランキングは **API Gateway + Lambda** のバックエンドで提供。
 - フロントは `PUBLIC_DRAW_API_BASE` を用いて `/api/draw/*` を呼び出す。
+- お題は `GET /api/draw/prompt` でサーバーが月次決定（JST、`2026-02` を基準月として36題を順送り）。
 - 画像は S3 にアップロードし、閲覧は CloudFront 署名URL（900秒）で返す。
 - 二次レビューは SQS で非同期処理し、フロントはポーリングで取得する。
 - 一次審査の表示は「点数 + 短いコメント + 最大2つのバッジ」のみ（簡潔表示）。
@@ -67,7 +68,8 @@ flowchart LR
 - 共有カード画像はブラウザ内の Canvas で生成してPNG保存する。
 - `/draw/` 系は sitemap に含める。グローバルナビから「お絵かきゲーム」として導線を提供する。
 - 一次採点は Bedrock Claude 3 Haiku（JSON出力）を使用、失敗時はスタブにフォールバック。
-- 二次講評は Bedrock Claude 3 Sonnet を使用し、失敗時は pending → failed で終了。
+- 二次講評は Bedrock Claude Haiku 4.5 を使用し、失敗時は pending → failed で終了。
+- 画像保管は当月は全件保持し、毎月1日の月次ジョブで「前月Top20以外」を削除する。
 
 ## PDF圧縮のデータフロー
 - PDFアップロードは最大50MBまで（S3のpresigned POSTポリシーで強制）。

@@ -1,4 +1,4 @@
-import type { LeaderboardResponse, SecondaryReviewResult, SubmitResult } from './types';
+import type { LeaderboardResponse, PromptInfo, SecondaryReviewResult, SubmitResult } from './types';
 
 const apiBase = (import.meta as any).env?.PUBLIC_DRAW_API_BASE || '';
 
@@ -6,6 +6,8 @@ type UploadUrlResponse = {
   submissionId: string;
   imageKey: string;
   putUrl: string;
+  promptId?: string;
+  promptText?: string;
 };
 
 type SecondaryStatus =
@@ -45,11 +47,21 @@ const requestJson = async <T>(input: RequestInfo, init?: RequestInit): Promise<T
 
 export async function getUploadUrl(promptId: string): Promise<UploadUrlResponse> {
   if (!apiBase) throw new ApiError('APIの設定が見つかりません。PUBLIC_DRAW_API_BASE を設定してください。');
+  const month = (() => {
+    const m = /^prompt-(\d{4}-\d{2})$/.exec(promptId || '');
+    return m ? m[1] : undefined;
+  })();
   return requestJson<UploadUrlResponse>(buildUrl('/api/draw/upload-url'), {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ promptId }),
+    body: JSON.stringify({ promptId, month }),
   });
+}
+
+export async function getPrompt(month?: string): Promise<PromptInfo> {
+  if (!apiBase) throw new ApiError('APIの設定が見つかりません。PUBLIC_DRAW_API_BASE を設定してください。');
+  const qs = month ? `?month=${encodeURIComponent(month)}` : '';
+  return requestJson<PromptInfo>(buildUrl(`/api/draw/prompt${qs}`));
 }
 
 export async function putToS3(putUrl: string, blob: Blob, contentType: string) {
@@ -80,7 +92,12 @@ export async function submitDrawing(params: {
 
 export async function getLeaderboard(promptId: string, limit = 20): Promise<LeaderboardResponse> {
   if (!apiBase) throw new ApiError('APIの設定が見つかりません。PUBLIC_DRAW_API_BASE を設定してください。');
-  const qs = new URLSearchParams({ promptId, limit: String(limit) });
+  const qs = new URLSearchParams({ limit: String(limit) });
+  if (/^prompt-\d{4}-\d{2}$/.test(promptId)) {
+    qs.set('month', promptId.replace(/^prompt-/, ''));
+  } else {
+    qs.set('promptId', promptId);
+  }
   return requestJson<LeaderboardResponse>(buildUrl(`/api/draw/leaderboard?${qs.toString()}`));
 }
 
