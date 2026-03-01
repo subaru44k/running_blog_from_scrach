@@ -30,10 +30,10 @@ const buildPrimaryUser = (promptText, imageBase64) => ([
     type: 'text',
     text:
       `お題: ${promptText || 'お題不明'}\n画像を評価して、次のJSONスキーマで返してください。\n` +
-      `{"score":0-100,"breakdown":{"likeness":0-100,"composition":0-100,"originality":0-100},` +
+      `{"rubric":{"promptMatch":0-10,"composition":0-10,"shapeClarity":0-10,"lineStability":0-10,"creativity":0-10,"completeness":0-10},` +
       `"oneLiner":"90文字以内の前向き短評","tips":["短い名詞句を2-3個"]}\n` +
-      `注意: 数値は整数。scoreはbreakdown平均に近づけること。` +
-      `scoreとbreakdownは1点刻みで評価し、5点刻み（例: 70/75/80）に寄せすぎないこと。` +
+      `注意: 数値は整数。rubricの各項目は0〜10。` +
+      `rubricは1点刻み。5や10の多用を避け、曖昧なら6/7/8/9を優先すること。` +
       `oneLinerとtipsは日本語のみで出力し、英語表現は使わないこと。` +
       `tipsは体言止めの短い語句にすること。`,
   },
@@ -51,17 +51,39 @@ const toInt = (v) => {
 const clampScore = (v) => Math.max(0, Math.min(100, toInt(v)));
 
 const normalizePrimary = (input) => {
+  const rubric = input?.rubric
+    ? {
+      promptMatch: Math.max(0, Math.min(10, toInt(input.rubric.promptMatch))),
+      composition: Math.max(0, Math.min(10, toInt(input.rubric.composition))),
+      shapeClarity: Math.max(0, Math.min(10, toInt(input.rubric.shapeClarity))),
+      lineStability: Math.max(0, Math.min(10, toInt(input.rubric.lineStability))),
+      creativity: Math.max(0, Math.min(10, toInt(input.rubric.creativity))),
+      completeness: Math.max(0, Math.min(10, toInt(input.rubric.completeness))),
+    }
+    : {
+      promptMatch: Math.max(0, Math.min(10, toInt((input?.breakdown?.likeness ?? input?.likeness ?? 50) / 10))),
+      composition: Math.max(0, Math.min(10, toInt((input?.breakdown?.composition ?? input?.composition ?? 50) / 10))),
+      shapeClarity: Math.max(0, Math.min(10, toInt((input?.breakdown?.likeness ?? input?.likeness ?? 50) / 10))),
+      lineStability: Math.max(0, Math.min(10, toInt(((input?.breakdown?.composition ?? input?.composition ?? 50) * 0.5 + (input?.breakdown?.originality ?? input?.originality ?? 50) * 0.5) / 10))),
+      creativity: Math.max(0, Math.min(10, toInt((input?.breakdown?.originality ?? input?.originality ?? 50) / 10))),
+      completeness: Math.max(0, Math.min(10, toInt(((input?.score ?? 60) * 0.8 + (input?.breakdown?.composition ?? input?.composition ?? 50) * 0.2) / 10))),
+    };
   const breakdown = {
-    likeness: clampScore(input?.breakdown?.likeness ?? input?.likeness ?? 0),
-    composition: clampScore(input?.breakdown?.composition ?? input?.composition ?? 0),
-    originality: clampScore(input?.breakdown?.originality ?? input?.originality ?? 0),
+    likeness: clampScore((rubric.promptMatch * 0.6 + rubric.shapeClarity * 0.4) * 10),
+    composition: clampScore((rubric.composition * 0.7 + rubric.completeness * 0.3) * 10),
+    originality: clampScore((rubric.creativity * 0.7 + rubric.lineStability * 0.3) * 10),
   };
-  const avg = Math.round((breakdown.likeness + breakdown.composition + breakdown.originality) / 3);
-  const rawScore = clampScore(input?.score ?? avg);
-  const bounded = Math.min(Math.max(rawScore, Math.max(0, avg - 10)), Math.min(100, avg + 10));
+  const score = clampScore(
+    (rubric.promptMatch * 24
+      + rubric.composition * 16
+      + rubric.shapeClarity * 18
+      + rubric.lineStability * 12
+      + rubric.creativity * 16
+      + rubric.completeness * 14) / 10,
+  );
   const oneLiner = String(input?.oneLiner || '').trim();
   const tips = Array.isArray(input?.tips) ? input.tips.map((x) => String(x).trim()).filter(Boolean).slice(0, 3) : [];
-  return { score: bounded, breakdown, oneLiner, tips };
+  return { score, breakdown, oneLiner, tips };
 };
 
 const readBodyString = async (body) => {

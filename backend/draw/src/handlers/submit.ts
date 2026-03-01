@@ -39,19 +39,76 @@ const computeRank = (items: Array<{ scoreSortKey?: string }>, newKey: string) =>
 
 const clampScore = (value: number) => Math.min(100, Math.max(0, Math.round(value)));
 
-const normalizePrimary = (input: any) => {
-  const breakdown = {
-    likeness: clampScore(input?.breakdown?.likeness ?? input?.likeness ?? 0),
-    composition: clampScore(input?.breakdown?.composition ?? input?.composition ?? 0),
-    originality: clampScore(input?.breakdown?.originality ?? input?.originality ?? 0),
+type PrimaryRubric = {
+  promptMatch: number;
+  composition: number;
+  shapeClarity: number;
+  lineStability: number;
+  creativity: number;
+  completeness: number;
+};
+
+const clampRubric = (value: unknown) => Math.min(10, Math.max(0, Math.round(Number(value ?? 5) || 5)));
+
+const normalizeRubric = (input: any): PrimaryRubric => {
+  if (input?.rubric) {
+    return {
+      promptMatch: clampRubric(input.rubric.promptMatch),
+      composition: clampRubric(input.rubric.composition),
+      shapeClarity: clampRubric(input.rubric.shapeClarity),
+      lineStability: clampRubric(input.rubric.lineStability),
+      creativity: clampRubric(input.rubric.creativity),
+      completeness: clampRubric(input.rubric.completeness),
+    };
+  }
+  // Backward-compatibility for legacy breakdown style output.
+  return {
+    promptMatch: clampRubric((input?.breakdown?.likeness ?? input?.likeness ?? 50) / 10),
+    composition: clampRubric((input?.breakdown?.composition ?? input?.composition ?? 50) / 10),
+    shapeClarity: clampRubric((input?.breakdown?.likeness ?? input?.likeness ?? 50) / 10),
+    lineStability: clampRubric(((input?.breakdown?.composition ?? input?.composition ?? 50) * 0.5 + (input?.breakdown?.originality ?? input?.originality ?? 50) * 0.5) / 10),
+    creativity: clampRubric((input?.breakdown?.originality ?? input?.originality ?? 50) / 10),
+    completeness: clampRubric(((input?.score ?? 60) * 0.8 + (input?.breakdown?.composition ?? input?.composition ?? 50) * 0.2) / 10),
   };
-  const avg = Math.round((breakdown.likeness + breakdown.composition + breakdown.originality) / 3);
-  const rawScore = clampScore(input?.score ?? avg);
-  const bounded = Math.min(Math.max(rawScore, Math.max(0, avg - 10)), Math.min(100, avg + 10));
+};
+
+const computeScoreFromRubric = (rubric: PrimaryRubric) => {
+  const weighted =
+    rubric.promptMatch * 24 +
+    rubric.composition * 16 +
+    rubric.shapeClarity * 18 +
+    rubric.lineStability * 12 +
+    rubric.creativity * 16 +
+    rubric.completeness * 14;
+  return clampScore(weighted / 10);
+};
+
+const toLegacyBreakdown = (rubric: PrimaryRubric) => ({
+  likeness: clampScore((rubric.promptMatch * 0.6 + rubric.shapeClarity * 0.4) * 10),
+  composition: clampScore((rubric.composition * 0.7 + rubric.completeness * 0.3) * 10),
+  originality: clampScore((rubric.creativity * 0.7 + rubric.lineStability * 0.3) * 10),
+});
+
+const computeDeterministicJitter = (submissionId: string) => {
+  let hash = 2166136261; // FNV-1a 32-bit
+  for (let i = 0; i < submissionId.length; i += 1) {
+    hash ^= submissionId.charCodeAt(i);
+    hash = Math.imul(hash, 16777619);
+  }
+  const mod = (hash >>> 0) % 3;
+  if (mod === 0) return -1;
+  if (mod === 1) return 0;
+  return 1;
+};
+
+const normalizePrimary = (input: any) => {
+  const rubric = normalizeRubric(input);
+  const breakdown = toLegacyBreakdown(rubric);
+  const score = computeScoreFromRubric(rubric);
   const oneLiner = String(input?.oneLiner || '前向きで良い雰囲気です。').slice(0, 90);
   const tipsRaw = Array.isArray(input?.tips) ? input.tips : [];
   const tips = tipsRaw.map((t: unknown) => String(t).trim()).filter(Boolean).slice(0, 3);
-  return { score: bounded, breakdown, oneLiner, tips };
+  return { score, breakdown, oneLiner, tips, rubric };
 };
 
 export const handler = async (event: any) => {
@@ -88,6 +145,7 @@ export const handler = async (event: any) => {
     let primaryOutputTokens: number | null = null;
     let primaryTotalTokens: number | null = null;
     let primaryLatencyMs: number | null = null;
+    let primaryRubric: PrimaryRubric | null = null;
     let aiFallbackUsed = false;
 
     if (isInkGateFail(inkRatio)) {
@@ -111,13 +169,17 @@ export const handler = async (event: any) => {
         primaryTotalTokens = ai.usage.totalTokens;
         const normalized = normalizePrimary(ai.data);
         scored = { ...scored, ...normalized };
+        primaryRubric = normalized.rubric;
       } catch (err) {
         console.error('primary_bedrock_failed', err);
         aiFallbackUsed = true;
       }
+      const jitteredScore = scored.score >= 60
+        ? clampScore(scored.score + computeDeterministicJitter(submissionId))
+        : scored.score;
       result = {
         submissionId,
-        score: scored.score,
+        score: jitteredScore,
         breakdown: scored.breakdown,
         oneLiner: scored.oneLiner,
         tips: scored.tips,
@@ -166,6 +228,7 @@ export const handler = async (event: any) => {
         primaryOutputTokens,
         primaryTotalTokens,
         primaryLatencyMs,
+        primaryRubric,
         aiFallbackUsed,
         tokenRecordedAt,
         secondaryModelId: null,

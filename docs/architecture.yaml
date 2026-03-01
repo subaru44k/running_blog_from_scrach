@@ -133,6 +133,9 @@ features:
       - share card generated in browser
       - submit/upload APIs resolve promptId and promptText server-side from month rules
       - primary scoring uses Bedrock Claude 3 Haiku (fallback to stub)
+      - primary scoring asks AI for a 6-axis rubric (0-10 each) and computes final score server-side (weighted)
+      - tie-break smoothing applies deterministic score jitter (-1/0/+1) from submissionId when score>=60
+      - legacy breakdown (likeness/composition/originality) is derived from rubric for frontend compatibility
       - secondary review uses Bedrock Claude Haiku 4.5 (fallback behavior keeps pending then failed)
       - Bedrock token usage is stored per submission (primary/secondary input, output, total, modelId, latency)
       - draw routes are included in sitemap and linked from global nav

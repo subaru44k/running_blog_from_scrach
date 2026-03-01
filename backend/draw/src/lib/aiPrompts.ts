@@ -10,14 +10,15 @@ export const buildPrimaryUser = (promptText: string, imageBase64: string) => ([
   {
     type: 'text',
     text: `お題: ${promptText || 'お題不明'}\n画像を評価して、次のJSONスキーマで返してください。\n` +
-      `{"score":0-100,"breakdown":{"likeness":0-100,"composition":0-100,"originality":0-100},` +
+      `{"rubric":{"promptMatch":0-10,"composition":0-10,"shapeClarity":0-10,"lineStability":0-10,"creativity":0-10,"completeness":0-10},` +
       `"oneLiner":"90文字以内の前向き短評","tips":["短い名詞句を2-3個"]}\n` +
-      `注意: 数値は整数。scoreはbreakdown平均に近づけること。` +
-      `scoreとbreakdownは1点刻みで評価すること。` +
+      `注意: 数値は整数。rubricの各項目は0〜10。` +
+      `rubricは1点刻みで評価すること。` +
       `5点刻み（例: 70/75/80）への偏りを避けること。` +
-      `5の倍数は原則として使用禁止。どうしても使う場合のみ例外的に使用すること。` +
+      `5や10の多用を避け、必要時のみ例外的に使用すること。` +
       `同点を減らすため、画像ごとの差分を反映し、近い評価帯でも1〜3点の差を積極的に付けること。` +
-      `曖昧な場合は5の倍数を避け、71/72/73/74/76/77/78/79/81/82/83/84などの値を優先すること。` +
+      `rubricの6項目のうち、少なくとも2項目は他作品との差が出るように評価すること。` +
+      `曖昧な場合は6/7/8/9を優先すること。` +
       `oneLinerとtipsは日本語のみで出力し、英語表現は使わないこと。` +
       `tipsは体言止めの短い語句にすること。`,
   },

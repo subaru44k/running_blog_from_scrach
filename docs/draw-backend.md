@@ -36,6 +36,9 @@
 3. **画像PUT**: ブラウザから S3 へ直接PUT
 4. **submit**: `POST /api/draw/submit`（`promptText` は任意）
    - 画像取得 → inkRatio gate → 一次採点（Bedrock/Haiku、失敗時はスタブ）
+   - 一次採点はAIに6項目rubric（0-10）を生成させ、最終scoreはサーバー側で重み付き算出
+   - 同点を減らすため、score>=60 の場合のみ `submissionId` 由来の決定的 jitter（-1/0/+1）を適用
+   - 既存フロント互換のため breakdown(likeness/composition/originality) はrubricから集約して返却
    - `imageKey` 内の promptId を優先し、サーバー側でお題テキストを確定
    - DynamoDB保存
    - ランクイン候補のみ SQS へ二次投入
@@ -55,7 +58,7 @@
 ### DrawSubmissions
 - PK: `promptId` (string)
 - SK: `submissionId` (ULID)
-- attrs: createdAt, expiresAt, nickname, imageKey, score, breakdown, oneLiner, tips, isRanked, rank, secondaryStatus, enrichedComment, secondaryAttempts
+- attrs: createdAt, expiresAt, nickname, imageKey, score, breakdown, oneLiner, tips, isRanked, rank, secondaryStatus, enrichedComment, secondaryAttempts, primaryRubric
 - AI usage attrs:
   - primaryModelId, primaryInputTokens, primaryOutputTokens, primaryTotalTokens, primaryLatencyMs
   - secondaryModelId, secondaryInputTokens, secondaryOutputTokens, secondaryTotalTokens, secondaryLatencyMs

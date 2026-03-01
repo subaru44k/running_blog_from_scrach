@@ -1,15 +1,17 @@
 # 一次採点プロンプト（Bedrock Claude 3 Haiku）
 
-目的: 画像とお題から一次採点（スコア/内訳/短評/チップ）をJSONで返す。
+目的: 画像とお題から一次採点（rubric/短評/チップ）をJSONで返し、最終スコアはサーバ側で算出する。
 
 ## 出力スキーマ（JSONのみ）
 ```
 {
-  "score": 0-100,
-  "breakdown": {
-    "likeness": 0-100,
-    "composition": 0-100,
-    "originality": 0-100
+  "rubric": {
+    "promptMatch": 0-10,
+    "composition": 0-10,
+    "shapeClarity": 0-10,
+    "lineStability": 0-10,
+    "creativity": 0-10,
+    "completeness": 0-10
   },
   "oneLiner": "日本語1-2文、90文字以内",
   "tips": ["短い名詞句", "短い名詞句", "短い名詞句"]
@@ -19,14 +21,15 @@
 ## 制約
 - JSON以外は返さない
 - 数値は整数
-- score は breakdown 平均に近づける
-- score / breakdown は1点刻み
-- 5点刻み（70/75/80など）は原則禁止。特段の理由がある場合のみ例外的に使用
+- rubric は各項目 0-10 の整数、1点刻み
+- 5/10 の多用は禁止（必要時のみ例外）
 - 同点を減らすため、近い評価帯でも1〜3点差を積極的に付ける
-- 曖昧な場合は 71/72/73/74/76/77/78/79/81/82/83/84 などの値を優先
+- rubricの6項目のうち、少なくとも2項目は他作品との差が出るように評価する
+- 曖昧な場合は 6/7/8/9 を優先
 - tips は2〜3個
 - oneLiner / tips は日本語のみ（英語・ローマ字は禁止）
 
 ## フォールバック
 - JSONパース失敗 / 例外時は scoreStub にフォールバック
-- サーバ側で 0..100 に clamp、score は breakdown 平均±10に補正
+- サーバ側で rubric を clamp し、重み付きで score(0..100) を算出
+- legacy互換のため breakdown(likeness/composition/originality) に集約して返却
