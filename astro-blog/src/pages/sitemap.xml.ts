@@ -16,6 +16,7 @@ export async function GET() {
     { loc: `${site}running-pace/`, lastmod: latestPostDate.toISOString() },
     { loc: `${site}pdf-compress/`, lastmod: latestPostDate.toISOString() },
     { loc: `${site}draw/`, lastmod: latestPostDate.toISOString() },
+    { loc: `${site}draw/archive/`, lastmod: latestPostDate.toISOString() },
     { loc: `${site}draw/play/`, lastmod: latestPostDate.toISOString() },
     { loc: `${site}draw/result/`, lastmod: latestPostDate.toISOString() },
     { loc: `${site}about/`, lastmod: latestPostDate.toISOString() },

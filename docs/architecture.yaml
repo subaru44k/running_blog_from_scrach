@@ -11,6 +11,10 @@ repo:
       build:
         buildspec: astro-blog/buildspec.yml
         output_dir: astro-blog/dist
+        quick_check:
+          command: npm run build:quick --prefix astro-blog
+          env:
+            ASTRO_BUILD_NO_POSTS: "1"
       deploy_targets:
         - TODO: CloudFront + S3 (exact resource names)
       url_routes:
@@ -18,6 +22,7 @@ repo:
           - /
           - /blog/
           - /draw/
+          - /draw/archive/
           - /draw/play/
           - /draw/result/
           - /running-pace/
@@ -65,6 +70,7 @@ site:
       - /
       - /blog/
       - /draw/
+      - /draw/archive/
       - /draw/play/
       - /draw/result/
       - /running-pace/
@@ -130,6 +136,7 @@ features:
       - secondary review uses Bedrock Claude Haiku 4.5 (fallback behavior keeps pending then failed)
       - Bedrock token usage is stored per submission (primary/secondary input, output, total, modelId, latency)
       - draw routes are included in sitemap and linked from global nav
+      - /draw/archive/ provides monthly Top20 history from 2026-02 onward (client fetches month-by-month leaderboard)
       - draw backend resources use cost allocation tags (Service=draw, Env=prod)
       - monthly cleanup keeps only previous month's Top20 images and deletes others from S3
 

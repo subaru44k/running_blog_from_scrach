@@ -2,6 +2,7 @@
 
 このリポジトリは、Astro 静的サイト（公開サイト）、管理用ツール群、Fitbit連携のLambda群、PDF圧縮サービス（Docker/Lambda）で構成されます。公開サイトは静的配信、ツールはAPIと外部サービス連携を前提としています。
 運用上のガードレール（同時実行・TTL・サイズ上限・CORSなど）は `docs/ops-parameters.md` に集約しています。
+フロントの検証用には、ブログ記事生成を省略する `ASTRO_BUILD_NO_POSTS=1` のクイックビルドを利用できます。
 
 ## 全体像
 
@@ -42,7 +43,7 @@ flowchart LR
 ## URL設計と404方針
 - `/` はツールへのハブページ。
 - ブログUIは `/blog/` に集約（記事URLは `/<slug>/` のまま）。
-- `/draw/` は「30秒お絵描き採点ゲーム」のフロントページ。`/draw/play/` と `/draw/result/` を含む。
+- `/draw/` は「30秒お絵描き採点ゲーム」のフロントページ。`/draw/archive/`（月別Top20）・`/draw/play/`・`/draw/result/` を含む。
 - 正規ルート（例）: `/`, `/blog/`, `/running-pace/`, `/pdf-compress/`, `/contact/`, `/privacy/`。
 - `/running-pace/` は同一ページ内に `#calculator`（計算）と `#table`（表）のアンカーを持つ。
 - `/blog` や `/pace` は正規ルートではなく 404 が正しい挙動。
@@ -66,6 +67,7 @@ flowchart LR
 - 一次審査の表示は「点数 + 短いコメント + 最大2つのバッジ」のみ（簡潔表示）。
 - 二次審査ではランクイン候補のみコメントが短いリッチ版に更新される。
 - 共有カード画像はブラウザ内の Canvas で生成してPNG保存する。
+- `/draw/archive/` は 2026-02 以降の各月Top20をクライアント側で取得して表示する。
 - `/draw/` 系は sitemap に含める。グローバルナビから「お絵かきゲーム」として導線を提供する。
 - 一次採点は Bedrock Claude 3 Haiku（JSON出力）を使用、失敗時はスタブにフォールバック。
 - 二次講評は Bedrock Claude Haiku 4.5 を使用し、失敗時は pending → failed で終了。

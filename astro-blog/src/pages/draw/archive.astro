@@ -1,0 +1,17 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import DrawArchive from '../../components/draw/DrawArchive';
+
+const pageTitle = 'お絵かきゲーム 月別ランキングTop20｜Subaru is Running';
+const metaDescription = '30秒お絵描き採点ゲームの月別ランキングTop20を確認できます。2026-02以降の各月のお題と上位作品を一覧表示します。';
+---
+
+<Layout
+  pageTitle={pageTitle}
+  metaDescription={metaDescription}
+  noSidebar={true}
+  pageHeading="お絵かきゲーム 月別ランキングTop20"
+  pageLead="2026-02以降の月ごとの上位作品を確認できます。"
+>
+  <DrawArchive client:load />
+</Layout>

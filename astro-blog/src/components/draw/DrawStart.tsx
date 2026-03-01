@@ -51,6 +51,12 @@ export default function DrawStart() {
       <div className="text-xs text-gray-500">
         このページをブックマークしてね。/draw からいつでも遊べます。
       </div>
+      <a
+        href="/draw/archive/"
+        className="inline-block text-sm font-medium text-blue-700 hover:underline dark:text-blue-300"
+      >
+        過去の月別ランキングを見る
+      </a>
     </div>
   );
 }

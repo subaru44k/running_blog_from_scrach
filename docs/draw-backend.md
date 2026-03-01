@@ -48,6 +48,9 @@
    - 対象は「前月の prompt」
    - S3 `draw/prompt-YYYY-MM/` 配下から Top20 以外を削除
 
+### フロント表示（履歴ページ）
+- `/draw/archive/` は 2026-02 以降の各月について `prompt` と `leaderboard` を順次取得し、月別Top20を表示する。
+
 ## DynamoDB スキーマ
 ### DrawSubmissions
 - PK: `promptId` (string)

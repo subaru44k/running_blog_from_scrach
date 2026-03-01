@@ -6,6 +6,7 @@
     "convert:mt": "node scripts/convert_mt.cjs",
     "dev": "astro dev",
     "build": "astro build",
+    "build:quick": "ASTRO_BUILD_NO_POSTS=1 astro build",
     "test:sanity": "node scripts/sanity-check.mjs",
     "gen:summary": "node ../admin-app/scripts/generate-monthly-summary.js",
     "build:with-summary": "npm run gen:summary && npm run build",

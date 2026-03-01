@@ -37,6 +37,7 @@ AWS リソース名・Region・識別情報は `docs/aws-resources.md` を参照
 
 - Build locally
   - `npm run build`
+  - 記事生成を省略したクイック確認: `npm run build:quick`（`ASTRO_BUILD_NO_POSTS=1`）
   - Sanity check built output: `node scripts/sanity-check.mjs astro-blog/dist`
 
 - Key env vars (build-time)
