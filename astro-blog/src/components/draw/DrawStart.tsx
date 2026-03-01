@@ -41,7 +41,13 @@ export default function DrawStart() {
       {state.error && <div className="text-sm text-red-600">{state.error}</div>}
       {state.prompt && (
         <div className="space-y-3">
-          <div className="text-xs text-gray-500">{state.prompt.dateJst} のお題</div>
+          <div className="text-xs text-gray-500">
+            {(() => {
+              const m = /^prompt-(\d{4}-\d{2})$/.exec(state.prompt?.promptId || '');
+              if (m) return `${m[1]} のお題`;
+              return `${state.prompt.dateJst} のお題`;
+            })()}
+          </div>
           <div className="text-xl font-semibold">{state.prompt.promptText}</div>
           <button className="px-4 py-2 rounded-md bg-blue-600 text-white" onClick={start}>
             スタート

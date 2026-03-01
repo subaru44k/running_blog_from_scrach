@@ -17,8 +17,9 @@ export default function DrawPlay() {
   const [prompt, setPrompt] = useState<{ promptId: string; promptText: string } | null>(null);
   const [finished, setFinished] = useState(false);
   const [imageDataUrl, setImageDataUrl] = useState<string | null>(null);
-  const [status, setStatus] = useState<'idle' | 'uploading' | 'submitting' | 'error'>('idle');
+  const [status, setStatus] = useState<'idle' | 'uploading' | 'submitting' | 'redirecting' | 'error'>('idle');
   const [error, setError] = useState<string | null>(null);
+  const [isSlow, setIsSlow] = useState(false);
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
@@ -35,6 +36,17 @@ export default function DrawPlay() {
       return;
     }
   }, []);
+
+  useEffect(() => {
+    if (status !== 'uploading' && status !== 'submitting') {
+      setIsSlow(false);
+      return;
+    }
+    const timer = window.setTimeout(() => {
+      setIsSlow(true);
+    }, 2500);
+    return () => window.clearTimeout(timer);
+  }, [status]);
 
   const finish = async (dataUrl?: string) => {
     if (finished) return;
@@ -65,6 +77,7 @@ export default function DrawPlay() {
       localStorage.setItem('drawPromptText', prompt.promptText);
       localStorage.setItem('drawImageKey', upload.imageKey);
       localStorage.setItem('drawImage', url);
+      setStatus('redirecting');
       const params = new URLSearchParams({ promptId: prompt.promptId });
       const month = prompt.promptId.replace(/^prompt-/, '');
       if (/^\d{4}-\d{2}$/.test(month)) params.set('month', month);
@@ -77,6 +90,7 @@ export default function DrawPlay() {
         message = err.message;
       }
       setError(message);
+      setFinished(false);
       setStatus('error');
     }
   };
@@ -110,21 +124,57 @@ export default function DrawPlay() {
       />
       <div className="text-xs text-gray-500">※ 30秒で自動終了します。</div>
       {status !== 'idle' && (
-        <div className="rounded-lg border bg-white p-3 text-sm text-gray-700">
-          {status === 'uploading' && <div>アップロード中…</div>}
-          {status === 'submitting' && <div>提出中…</div>}
-          {status === 'error' && (
-            <div className="space-y-2">
-              <div className="text-red-600">{error}</div>
-              <button
-                type="button"
-                className="px-3 py-2 rounded-md bg-gray-900 text-white"
-                onClick={() => finish(imageDataUrl || undefined)}
-              >
-                再試行
-              </button>
-            </div>
-          )}
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/45 px-4">
+          <div className="w-full max-w-md rounded-xl bg-white p-5 shadow-xl dark:bg-gray-900">
+            {(status === 'uploading' || status === 'submitting' || status === 'redirecting') && (
+              <div className="space-y-3">
+                <div className="mx-auto h-6 w-6 animate-spin rounded-full border-2 border-gray-300 border-t-blue-600" />
+                <p className="text-center text-base font-medium text-gray-900 dark:text-gray-100">
+                  {status === 'uploading' && '画像を送信中…'}
+                  {status === 'submitting' && '採点リクエスト送信中…'}
+                  {status === 'redirecting' && '結果ページへ移動中…'}
+                </p>
+                {(status === 'uploading' || status === 'submitting') && (
+                  <p className="text-center text-xs text-gray-500 dark:text-gray-400">
+                    送信中のため操作できません
+                  </p>
+                )}
+                {isSlow && (status === 'uploading' || status === 'submitting') && (
+                  <p className="rounded-md bg-amber-50 p-2 text-center text-xs text-amber-800 dark:bg-amber-900/20 dark:text-amber-200">
+                    少し時間がかかっています。通信環境により数秒かかる場合があります。
+                  </p>
+                )}
+              </div>
+            )}
+            {status === 'error' && (
+              <div className="space-y-3">
+                <p className="text-sm text-red-600">{error}</p>
+                <div className="flex flex-wrap gap-2">
+                  <button
+                    type="button"
+                    className="px-3 py-2 rounded-md bg-gray-900 text-white"
+                    onClick={() => finish(imageDataUrl || undefined)}
+                  >
+                    再試行
+                  </button>
+                  <button
+                    type="button"
+                    className="px-3 py-2 rounded-md border border-gray-300 text-gray-700 dark:border-gray-600 dark:text-gray-200"
+                    onClick={() => {
+                      const month = prompt?.promptId?.replace(/^prompt-/, '');
+                      if (month && /^\d{4}-\d{2}$/.test(month)) {
+                        window.location.href = `/draw/?month=${month}`;
+                        return;
+                      }
+                      window.location.href = '/draw/';
+                    }}
+                  >
+                    お題に戻る
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
         </div>
       )}
     </div>
