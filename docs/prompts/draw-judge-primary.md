@@ -20,6 +20,7 @@
 - JSON以外は返さない
 - 数値は整数
 - score は breakdown 平均に近づける
+- score / breakdown は1点刻み（5点刻みへの偏りを避ける）
 - tips は2〜3個
 - oneLiner / tips は日本語のみ（英語・ローマ字は禁止）
 

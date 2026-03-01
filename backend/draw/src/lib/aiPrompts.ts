@@ -13,6 +13,7 @@ export const buildPrimaryUser = (promptText: string, imageBase64: string) => ([
       `{"score":0-100,"breakdown":{"likeness":0-100,"composition":0-100,"originality":0-100},` +
       `"oneLiner":"90文字以内の前向き短評","tips":["短い名詞句を2-3個"]}\n` +
       `注意: 数値は整数。scoreはbreakdown平均に近づけること。` +
+      `scoreとbreakdownは1点刻みで評価し、5点刻み（例: 70/75/80）に寄せすぎないこと。` +
       `oneLinerとtipsは日本語のみで出力し、英語表現は使わないこと。` +
       `tipsは体言止めの短い語句にすること。`,
   },
