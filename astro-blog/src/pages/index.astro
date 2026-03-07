@@ -6,39 +6,42 @@ const pageDescription = 'ランナー向けのペース計算と無料のPDF圧�
 
 <Layout noSidebar pageTitle={pageTitle} metaDescription={pageDescription}>
   {/* Hero section */}
-  <section class="mb-10 rounded-2xl bg-gradient-to-br from-emerald-50 via-white to-sky-50 dark:from-emerald-950/40 dark:via-gray-950/40 dark:to-sky-950/40 px-6 py-10 md:px-10">
-    <div class="grid gap-10 md:grid-cols-2 md:items-center">
+  <section class="card mb-10 overflow-hidden px-6 py-10 md:px-10">
+    <div class="grid gap-10 md:grid-cols-[1.1fr_0.9fr] md:items-center">
       <div>
-        <h1 class="text-3xl md:text-4xl font-bold tracking-tight mb-4">
+        <span class="badge mb-4">Subaru is Running</span>
+        <h1 class="max-w-3xl text-4xl md:text-5xl font-semibold tracking-tight mb-4">
           ランニングと日常に、すぐ使えるツールを。
         </h1>
-        <p class="text-gray-700 dark:text-gray-300 text-base md:text-lg mb-6">
+        <p class="max-w-2xl text-slate-700 dark:text-slate-300 text-base md:text-lg mb-6 leading-8">
           ペース計算やPDF圧縮など、<br />必要な機能をシンプルに使える個人サイトです。
         </p>
         <div class="flex flex-wrap gap-3 mb-4">
-          <a class="inline-flex items-center gap-2 rounded-md px-4 py-2 bg-emerald-600 text-white hover:bg-emerald-700" href="/pdf-compress/">
+          <a class="inline-flex items-center gap-2 rounded-full px-5 py-3 bg-brand-600 text-white shadow-soft transition hover:bg-brand-700 hover:-translate-y-0.5 no-underline" href="/pdf-compress/">
             PDFを圧縮する
           </a>
-          <a class="inline-flex items-center gap-2 rounded-md px-4 py-2 ring-1 ring-inset ring-gray-300 dark:ring-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800" href="/running-pace/#calculator">
+          <a class="inline-flex items-center gap-2 rounded-full px-5 py-3 border border-slate-200 bg-white/90 text-slate-800 shadow-soft transition hover:bg-white hover:-translate-y-0.5 no-underline dark:border-slate-700 dark:bg-slate-900/80 dark:text-slate-100" href="/running-pace/#calculator">
             ペースを計算する
           </a>
         </div>
-        <div class="flex flex-wrap gap-2 text-xs text-gray-600 dark:text-gray-400">
-          <span class="rounded-full px-3 py-1 bg-white/70 dark:bg-gray-900/60 ring-1 ring-inset ring-gray-200 dark:ring-gray-800">無料・登録不要</span>
-          <span class="rounded-full px-3 py-1 bg-white/70 dark:bg-gray-900/60 ring-1 ring-inset ring-gray-200 dark:ring-gray-800">ブラウザで完結</span>
-          <span class="rounded-full px-3 py-1 bg-white/70 dark:bg-gray-900/60 ring-1 ring-inset ring-gray-200 dark:ring-gray-800">ファイルは一定時間後に自動削除</span>
+        <div class="flex flex-wrap gap-2 text-xs text-slate-600 dark:text-slate-400">
+          <span class="badge">無料・登録不要</span>
+          <span class="badge">ブラウザで完結</span>
+          <span class="badge">ファイルは一定時間後に自動削除</span>
         </div>
       </div>
-      <div class="flex items-center justify-center">
-        <svg class="w-full max-w-sm text-emerald-200 dark:text-emerald-900/60" viewBox="0 0 420 320" fill="none" aria-hidden="true">
-          <rect x="40" y="40" width="340" height="220" rx="24" fill="currentColor" />
-          <rect x="80" y="80" width="180" height="18" rx="9" fill="white" opacity="0.7" />
-          <rect x="80" y="120" width="220" height="14" rx="7" fill="white" opacity="0.6" />
-          <rect x="80" y="148" width="200" height="14" rx="7" fill="white" opacity="0.6" />
-          <path d="M280 210c24-20 52-32 80-36" stroke="white" stroke-width="8" stroke-linecap="round" opacity="0.8" />
-          <path d="M240 220c8-24 28-46 54-58" stroke="white" stroke-width="8" stroke-linecap="round" opacity="0.8" />
-          <circle cx="300" cy="210" r="8" fill="white" opacity="0.9" />
-          <circle cx="240" cy="220" r="8" fill="white" opacity="0.9" />
+      <div class="relative flex items-center justify-center">
+        <div class="absolute inset-0 rounded-[2rem] bg-gradient-to-br from-brand-100/80 via-transparent to-cyan-100/70 blur-3xl dark:from-brand-900/30 dark:to-cyan-900/20"></div>
+        <svg class="relative w-full max-w-sm text-brand-300 dark:text-brand-900/70" viewBox="0 0 420 320" fill="none" aria-hidden="true">
+          <rect x="40" y="40" width="340" height="220" rx="28" fill="currentColor" />
+          <rect x="66" y="64" width="288" height="172" rx="22" fill="white" fill-opacity="0.85" />
+          <rect x="92" y="92" width="158" height="16" rx="8" fill="currentColor" fill-opacity="0.26" />
+          <rect x="92" y="122" width="208" height="12" rx="6" fill="currentColor" fill-opacity="0.18" />
+          <rect x="92" y="146" width="186" height="12" rx="6" fill="currentColor" fill-opacity="0.18" />
+          <path d="M275 204c28-23 55-35 82-39" stroke="currentColor" stroke-width="9" stroke-linecap="round" opacity="0.86" />
+          <path d="M232 220c10-25 31-47 56-58" stroke="currentColor" stroke-width="9" stroke-linecap="round" opacity="0.7" />
+          <circle cx="296" cy="204" r="9" fill="currentColor" opacity="0.9" />
+          <circle cx="232" cy="220" r="9" fill="currentColor" opacity="0.84" />
         </svg>
       </div>
     </div>
@@ -46,57 +49,57 @@ const pageDescription = 'ランナー向けのペース計算と無料のPDF圧�
 
   {/* Feature cards */}
   <section class="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
-    <article class="card p-6 border border-emerald-100 dark:border-emerald-900/40">
-      <div class="mb-4 flex h-10 w-10 items-center justify-center rounded-lg bg-emerald-100 text-emerald-700 dark:bg-emerald-900/60 dark:text-emerald-200">
+    <article class="card card-hover p-6 border border-brand-100/80 dark:border-brand-900/30">
+      <div class="mb-4 flex h-11 w-11 items-center justify-center rounded-2xl bg-brand-100 text-brand-700 dark:bg-brand-900/55 dark:text-brand-200">
         <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" aria-hidden="true">
           <path d="M7 7h7l3 3v7a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V9a2 2 0 0 1 2-2Z" stroke="currentColor" stroke-width="1.5" />
           <path d="M14 7v3h3" stroke="currentColor" stroke-width="1.5" />
         </svg>
       </div>
-      <h2 class="text-xl font-semibold mb-2">PDF圧縮</h2>
-      <p class="text-gray-700 dark:text-gray-300 mb-4">
+      <h2 class="text-xl font-semibold mb-2 mt-0">PDF圧縮</h2>
+      <p class="text-slate-700 dark:text-slate-300 mb-4">
         スキャナや複合機で作成したPDFを、<br />面倒な設定なしで手軽に圧縮できます。
       </p>
-      <p class="text-xs text-gray-500 dark:text-gray-400 mb-4">登録不要・ブラウザで完結</p>
-      <a class="inline-flex items-center gap-2 rounded-md px-4 py-2 bg-emerald-600 text-white hover:bg-emerald-700" href="/pdf-compress/">
+      <p class="text-xs uppercase tracking-[0.18em] text-slate-500 dark:text-slate-400 mb-4">登録不要・ブラウザで完結</p>
+      <a class="inline-flex items-center gap-2 rounded-full px-4 py-2.5 bg-brand-600 text-white shadow-soft transition hover:bg-brand-700 hover:-translate-y-0.5 no-underline" href="/pdf-compress/">
         PDFを圧縮する
       </a>
     </article>
 
-    <article class="card p-6">
-      <div class="mb-4 flex h-10 w-10 items-center justify-center rounded-lg bg-sky-100 text-sky-700 dark:bg-sky-900/60 dark:text-sky-200">
+    <article class="card card-hover p-6">
+      <div class="mb-4 flex h-11 w-11 items-center justify-center rounded-2xl bg-cyan-100 text-cyan-700 dark:bg-cyan-900/60 dark:text-cyan-200">
         <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" aria-hidden="true">
           <path d="M4 17h16M6 14l3-3 3 3 6-6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
         </svg>
       </div>
-      <h2 class="text-xl font-semibold mb-2">ペース計算・ペース表</h2>
-      <p class="text-gray-700 dark:text-gray-300 mb-4">
+      <h2 class="text-xl font-semibold mb-2 mt-0">ペース計算・ペース表</h2>
+      <p class="text-slate-700 dark:text-slate-300 mb-4">
         目標タイムから平均ペースや通過タイムを計算できます。<br />練習やレースのペース設定に役立ちます。
       </p>
-      <p class="text-xs text-gray-500 dark:text-gray-400 mb-4">10km / ハーフ / フル対応</p>
+      <p class="text-xs uppercase tracking-[0.18em] text-slate-500 dark:text-slate-400 mb-4">10km / ハーフ / フル対応</p>
       <div class="flex flex-wrap gap-3">
-        <a class="inline-flex items-center gap-2 rounded-md px-4 py-2 ring-1 ring-inset ring-gray-300 dark:ring-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800" href="/running-pace/#calculator">
+        <a class="inline-flex items-center gap-2 rounded-full px-4 py-2.5 border border-slate-200 bg-white text-slate-800 shadow-soft transition hover:-translate-y-0.5 hover:bg-white no-underline dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100" href="/running-pace/#calculator">
           ペースを計算する
         </a>
-        <a class="inline-flex items-center gap-2 rounded-md px-4 py-2 ring-1 ring-inset ring-gray-200 dark:ring-gray-800 text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-800" href="/running-pace/#table">
+        <a class="inline-flex items-center gap-2 rounded-full px-4 py-2.5 border border-slate-200/90 bg-stone-50 text-slate-700 transition hover:bg-white no-underline dark:border-slate-700 dark:bg-slate-900/70 dark:text-slate-200" href="/running-pace/#table">
           ペース表を見る
         </a>
       </div>
     </article>
 
-    <article class="card p-6">
-      <div class="mb-4 flex h-10 w-10 items-center justify-center rounded-lg bg-gray-100 text-gray-700 dark:bg-gray-900/60 dark:text-gray-200">
+    <article class="card card-hover p-6">
+      <div class="mb-4 flex h-11 w-11 items-center justify-center rounded-2xl bg-stone-200 text-stone-700 dark:bg-slate-800 dark:text-slate-200">
         <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" aria-hidden="true">
           <path d="M7 6h10M7 10h10M7 14h6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
           <rect x="4" y="4" width="16" height="16" rx="3" stroke="currentColor" stroke-width="1.5" />
         </svg>
       </div>
-      <h2 class="text-xl font-semibold mb-2">トレーニングログ</h2>
-      <p class="text-gray-700 dark:text-gray-300 mb-4">
+      <h2 class="text-xl font-semibold mb-2 mt-0">トレーニングログ</h2>
+      <p class="text-slate-700 dark:text-slate-300 mb-4">
         管理人自身の練習やレースの記録をまとめています。<br />必要な部分だけ拾い読みできます。
       </p>
-      <p class="text-xs text-gray-500 dark:text-gray-400 mb-4">個人の記録です</p>
-      <a class="inline-flex items-center gap-2 rounded-md px-4 py-2 ring-1 ring-inset ring-gray-300 dark:ring-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800" href="/blog/">
+      <p class="text-xs uppercase tracking-[0.18em] text-slate-500 dark:text-slate-400 mb-4">個人の記録です</p>
+      <a class="inline-flex items-center gap-2 rounded-full px-4 py-2.5 border border-slate-200 bg-white text-slate-800 shadow-soft transition hover:-translate-y-0.5 hover:bg-white no-underline dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100" href="/blog/">
         ブログを見る
       </a>
     </article>

@@ -7,25 +7,44 @@
     @apply antialiased;
   }
   body {
-    @apply bg-gray-50 text-gray-900 dark:bg-gray-950 dark:text-gray-100 font-sans;
+    @apply relative min-h-screen bg-stone-50 text-slate-900 dark:bg-slate-950 dark:text-slate-100 font-sans;
+    background-image:
+      radial-gradient(circle at top left, rgba(47, 134, 114, 0.14), transparent 34%),
+      radial-gradient(circle at top right, rgba(14, 116, 144, 0.12), transparent 28%),
+      linear-gradient(180deg, rgba(255, 255, 255, 0.96) 0%, rgba(247, 249, 248, 1) 48%, rgba(242, 245, 244, 1) 100%);
+    background-attachment: fixed;
+  }
+  body::before {
+    content: '';
+    @apply pointer-events-none fixed inset-x-0 top-0 h-72;
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.78), rgba(255, 255, 255, 0));
+  }
+  .dark body {
+    background-image:
+      radial-gradient(circle at top left, rgba(57, 179, 153, 0.16), transparent 30%),
+      radial-gradient(circle at top right, rgba(34, 197, 94, 0.10), transparent 24%),
+      linear-gradient(180deg, rgba(3, 7, 18, 0.98) 0%, rgba(10, 15, 26, 1) 48%, rgba(15, 23, 42, 1) 100%);
   }
   a {
-    @apply text-brand-600 hover:text-brand-700 dark:text-brand-400 dark:hover:text-brand-300 underline-offset-2 hover:underline;
+    @apply text-brand-600 hover:text-brand-700 dark:text-brand-300 dark:hover:text-brand-200 underline-offset-4 transition-colors;
   }
   h1 {
-    @apply text-3xl md:text-4xl font-extrabold tracking-tight mb-4;
+    @apply font-serif text-4xl md:text-5xl font-semibold tracking-tight text-slate-950 dark:text-slate-50 mb-4;
   }
   h2 {
-    @apply text-2xl md:text-3xl font-bold tracking-tight mt-10 mb-3;
+    @apply font-serif text-2xl md:text-[2rem] font-semibold tracking-tight text-slate-950 dark:text-slate-100 mt-10 mb-3;
   }
   h3 {
-    @apply text-xl md:text-2xl font-semibold mt-8 mb-2;
+    @apply text-xl md:text-2xl font-semibold text-slate-900 dark:text-slate-100 mt-8 mb-2;
   }
   p {
-    @apply leading-7;
+    @apply leading-7 text-slate-700 dark:text-slate-300;
   }
   code {
-    @apply font-mono text-sm bg-gray-100 dark:bg-gray-800 px-1.5 py-0.5 rounded;
+    @apply font-mono text-sm bg-white/80 dark:bg-slate-900 px-1.5 py-0.5 rounded border border-slate-200/80 dark:border-slate-700/80;
+  }
+  ::selection {
+    @apply bg-brand-200/80 text-slate-950;
   }
   /* Blank line between paragraphs ≈ 1.5 line breaks */
   .prose p { margin: 0; }
@@ -38,13 +57,25 @@
     @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8;
   }
   .card {
-    @apply bg-white dark:bg-gray-900 rounded-xl shadow-soft ring-1 ring-gray-900/5 dark:ring-white/5;
+    @apply rounded-2xl bg-white/90 dark:bg-slate-900/80 shadow-panel ring-1 ring-slate-900/10 dark:ring-white/10 backdrop-blur-md;
   }
   .card-hover {
-    @apply transition-shadow hover:shadow-lg;
+    @apply transition duration-200 hover:-translate-y-0.5 hover:shadow-panel;
   }
   .badge {
-    @apply inline-flex items-center rounded-md bg-gray-100 dark:bg-gray-800 px-2 py-0.5 text-xs font-medium text-gray-700 dark:text-gray-300 ring-1 ring-inset ring-gray-200 dark:ring-gray-700;
+    @apply inline-flex items-center rounded-full bg-white/90 dark:bg-slate-900/90 px-2.5 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-600 dark:text-slate-300 ring-1 ring-inset ring-slate-200/80 dark:ring-slate-700/80;
+  }
+  .nav-chip {
+    @apply rounded-full px-3.5 py-2 text-sm font-medium text-slate-700 ring-1 ring-inset ring-slate-200/80 transition-all hover:bg-white hover:text-slate-950 hover:ring-slate-300 dark:text-slate-200 dark:ring-slate-700/80 dark:hover:bg-slate-900 dark:hover:text-white dark:hover:ring-slate-500;
+  }
+  .nav-chip-current {
+    @apply bg-white text-slate-950 shadow-soft ring-slate-300 dark:bg-slate-900 dark:text-white dark:ring-slate-500;
+  }
+  .panel-muted {
+    @apply rounded-2xl border border-white/70 bg-white/70 dark:border-slate-800/70 dark:bg-slate-900/60 backdrop-blur;
+  }
+  .page-lead {
+    @apply max-w-3xl text-[15px] md:text-base leading-7 text-slate-600 dark:text-slate-300;
   }
   /* Collapse duplicate <br> sequences in legacy posts (imported content where lines already include <br>) */
   .old-post .prose br + br { display: none; }

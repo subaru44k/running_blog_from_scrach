@@ -30,23 +30,32 @@ function imageForCategory(cat: string): string {
 }
 ---
 
-<Layout pageHeading="最新の記事">
+<Layout
+  pageTitle="ブログ｜最新の記事"
+  metaDescription="練習記録やレース振り返りを中心に、最新の記事をまとめています。"
+  pageHeading="最新の記事"
+  pageLead="直近の練習ログやレース記録を、読みやすい形でまとめています。記録の流れを追いたいときの入口として使えます。"
+>
+
+  <section class="panel-muted mb-8 px-5 py-4 text-sm text-slate-700 dark:text-slate-300">
+    新しい記事から順に並んでいます。過去の記録をまとめて見たい場合は <a href="/archive/" class="font-medium no-underline">記事一覧</a> も利用できます。
+  </section>
 
   <section class="grid gap-6 sm:gap-8 grid-cols-1 md:grid-cols-2">
     {latest.map((post) => (
       <article class="card card-hover p-0 flex flex-col overflow-hidden">
         <img src={imageForCategory(post.data.category)} alt={`Image for ${post.data.title}`} width="1200" height="630" class="w-full aspect-[1200/630] object-cover" loading="lazy" />
         <div class="p-6 flex flex-col">
-          <div class="flex items-center gap-3 text-xs text-gray-500 mb-2">
+          <div class="flex items-center gap-3 text-xs text-slate-500 mb-3">
             <span class="badge">{post.data.category}</span>
             <time datetime={post.data.date.toISOString()}>{post.data.date.toDateString()}</time>
           </div>
-          <h2 class="text-xl font-bold mb-2">
+          <h2 class="text-xl font-semibold mb-3 mt-0">
             <a class="no-underline" href={`/${post.slug}/`}>{post.data.title}</a>
           </h2>
-          <p class="text-sm text-gray-600 dark:text-gray-300 mb-4">{excerpt(post.body)}</p>
+          <p class="text-sm text-slate-600 dark:text-slate-300 mb-5">{excerpt(post.body)}</p>
           <div class="mt-auto">
-            <a class="inline-flex items-center gap-1 text-sm font-medium" href={`/${post.slug}/`}>
+            <a class="inline-flex items-center gap-1 rounded-full border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-800 shadow-soft transition hover:-translate-y-0.5 no-underline dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100" href={`/${post.slug}/`}>
               続きを読む
               <span aria-hidden>→</span>
             </a>

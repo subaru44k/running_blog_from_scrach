@@ -21,20 +21,29 @@ const years = Object.keys(grouped).sort((a, b) => Number(b) - Number(a));
 
 <Layout pageHeading="アーカイブ" pageLead="公開済みの記事を年月ごとに表示しています。">
 
+  <section class="panel-muted mb-8 px-5 py-4 text-sm text-slate-700 dark:text-slate-300">
+    年ごと・月ごとにまとめて見返したいときのための一覧です。日々のログを時系列で追いやすくしています。
+  </section>
+
   <div class="space-y-10">
     {years.map((year) => (
       <section>
-        <h2 class="text-2xl font-bold mb-3">{year}</h2>
+        <h2 class="text-2xl font-semibold mb-3">{year}</h2>
         <div class="grid md:grid-cols-2 gap-6">
           {Object.keys(grouped[year]).sort((a, b) => Number(b) - Number(a)).map((month) => (
-            <div class="card p-4">
-              <h3 class="text-lg font-semibold mb-2">{new Date(Number(year), Number(month)-1, 1).toLocaleString('ja-JP', { month: 'long' })} {year}</h3>
+            <div class="card p-5">
+              <div class="mb-3 flex items-center justify-between gap-3">
+                <h3 class="text-lg font-semibold mb-0 mt-0">{new Date(Number(year), Number(month)-1, 1).toLocaleString('ja-JP', { month: 'long' })} {year}</h3>
+                <span class="badge">{grouped[year][month].length} posts</span>
+              </div>
               <ul class="space-y-1">
                 {grouped[year][month].map((p) => (
                   <li>
-                    <a href={`/${p.slug}/`} class="no-underline hover:underline">
-                      <span class="text-sm text-gray-500 mr-2">{p.data.date.toISOString().slice(0,10)}</span>
+                    <a href={`/${p.slug}/`} class="group flex items-start gap-3 rounded-xl px-3 py-2 no-underline transition hover:bg-white/80 dark:hover:bg-slate-900/80">
+                      <span class="shrink-0 text-sm text-slate-500">{p.data.date.toISOString().slice(0,10)}</span>
+                      <span class="text-slate-800 dark:text-slate-100 group-hover:text-slate-950 dark:group-hover:text-white">
                       {p.data.title}
+                      </span>
                     </a>
                   </li>
                 ))}
