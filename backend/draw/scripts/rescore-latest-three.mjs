@@ -73,17 +73,43 @@ const normalizePrimary = (input) => {
     composition: clampScore((rubric.composition * 0.7 + rubric.completeness * 0.3) * 10),
     originality: clampScore((rubric.creativity * 0.7 + rubric.lineStability * 0.3) * 10),
   };
-  const score = clampScore(
-    (rubric.promptMatch * 24
-      + rubric.composition * 16
-      + rubric.shapeClarity * 18
-      + rubric.lineStability * 12
-      + rubric.creativity * 16
-      + rubric.completeness * 14) / 10,
-  );
+  const weighted =
+    rubric.promptMatch * 24
+    + rubric.composition * 16
+    + rubric.shapeClarity * 18
+    + rubric.lineStability * 12
+    + rubric.creativity * 16
+    + rubric.completeness * 14;
+  const base = weighted / 10;
+  const values = [
+    rubric.promptMatch,
+    rubric.composition,
+    rubric.shapeClarity,
+    rubric.lineStability,
+    rubric.creativity,
+    rubric.completeness,
+  ];
+  const mean = values.reduce((a, b) => a + b, 0) / values.length;
+  const variance = values.reduce((acc, v) => acc + (v - mean) ** 2, 0) / values.length;
+  const spread = Math.sqrt(variance) * 2.2;
+  const synergy = Math.max(0, rubric.promptMatch - 7) * Math.max(0, rubric.creativity - 7) * 0.8;
+  const penalty = Math.max(0, 6 - rubric.completeness) * 1.8;
+  const score = clampScore(base + spread + synergy - penalty);
   const oneLiner = String(input?.oneLiner || '').trim();
   const tips = Array.isArray(input?.tips) ? input.tips.map((x) => String(x).trim()).filter(Boolean).slice(0, 3) : [];
   return { score, breakdown, oneLiner, tips };
+};
+
+const computeDeterministicJitter = (submissionId) => {
+  let hash = 2166136261;
+  for (let i = 0; i < submissionId.length; i += 1) {
+    hash ^= submissionId.charCodeAt(i);
+    hash = Math.imul(hash, 16777619);
+  }
+  const mod = (hash >>> 0) % 3;
+  if (mod === 0) return -1;
+  if (mod === 1) return 0;
+  return 1;
 };
 
 const readBodyString = async (body) => {
@@ -178,8 +204,14 @@ const unquoteJsonString = (v) => {
 
 const parseByRegexFallback = (text) => {
   const score = Number((text.match(/"score"\s*:\s*(-?\d+)/) || [])[1]);
+  const promptMatch = Number((text.match(/"promptMatch"\s*:\s*(-?\d+)/) || [])[1]);
+  const compositionRubric = Number((text.match(/"composition"\s*:\s*(-?\d+)/) || [])[1]);
+  const shapeClarity = Number((text.match(/"shapeClarity"\s*:\s*(-?\d+)/) || [])[1]);
+  const lineStability = Number((text.match(/"lineStability"\s*:\s*(-?\d+)/) || [])[1]);
+  const creativity = Number((text.match(/"creativity"\s*:\s*(-?\d+)/) || [])[1]);
+  const completeness = Number((text.match(/"completeness"\s*:\s*(-?\d+)/) || [])[1]);
   const likeness = Number((text.match(/"likeness"\s*:\s*(-?\d+)/) || [])[1]);
-  const composition = Number((text.match(/"composition"\s*:\s*(-?\d+)/) || [])[1]);
+  const compositionLegacy = Number((text.match(/"composition"\s*:\s*(-?\d+)/) || [])[1]);
   const originality = Number((text.match(/"originality"\s*:\s*(-?\d+)/) || [])[1]);
 
   const oneLinerRaw = (text.match(/"oneLiner"\s*:\s*"([\s\S]*?)"\s*,\s*"tips"/) || [])[1]
@@ -194,17 +226,47 @@ const parseByRegexFallback = (text) => {
     tips.push(unquoteJsonString(m[1]));
   }
 
-  if (!Number.isFinite(score)) throw new Error('score parse failed');
-  return {
-    score,
-    breakdown: {
-      likeness: Number.isFinite(likeness) ? likeness : 0,
-      composition: Number.isFinite(composition) ? composition : 0,
-      originality: Number.isFinite(originality) ? originality : 0,
-    },
-    oneLiner: unquoteJsonString(oneLinerRaw),
-    tips: tips.slice(0, 3),
-  };
+  const hasRubric =
+    Number.isFinite(promptMatch)
+    || Number.isFinite(compositionRubric)
+    || Number.isFinite(shapeClarity)
+    || Number.isFinite(lineStability)
+    || Number.isFinite(creativity)
+    || Number.isFinite(completeness);
+
+  const hasLegacyBreakdown =
+    Number.isFinite(likeness)
+    || Number.isFinite(compositionLegacy)
+    || Number.isFinite(originality);
+
+  if (!hasRubric && !hasLegacyBreakdown && !Number.isFinite(score)) {
+    throw new Error('score parse failed');
+  }
+
+  return hasRubric
+    ? {
+      rubric: {
+        promptMatch: Number.isFinite(promptMatch) ? promptMatch : undefined,
+        composition: Number.isFinite(compositionRubric) ? compositionRubric : undefined,
+        shapeClarity: Number.isFinite(shapeClarity) ? shapeClarity : undefined,
+        lineStability: Number.isFinite(lineStability) ? lineStability : undefined,
+        creativity: Number.isFinite(creativity) ? creativity : undefined,
+        completeness: Number.isFinite(completeness) ? completeness : undefined,
+      },
+      score: Number.isFinite(score) ? score : undefined,
+      oneLiner: unquoteJsonString(oneLinerRaw),
+      tips: tips.slice(0, 3),
+    }
+    : {
+      score: Number.isFinite(score) ? score : undefined,
+      breakdown: {
+        likeness: Number.isFinite(likeness) ? likeness : 0,
+        composition: Number.isFinite(compositionLegacy) ? compositionLegacy : 0,
+        originality: Number.isFinite(originality) ? originality : 0,
+      },
+      oneLiner: unquoteJsonString(oneLinerRaw),
+      tips: tips.slice(0, 3),
+    };
 };
 
 const parseModelJson = (text) => {
@@ -276,24 +338,45 @@ const run = async () => {
 
   const results = [];
   for (const [idx, item] of latest.entries()) {
-    const imageBuf = await getObjectBuffer(BUCKET, item.imageKey);
-    const rescored = await invokePrimary(item.promptText || 'お題不明', imageBuf.toString('base64'));
-    results.push({
-      order: idx + 1,
-      submissionId: item.submissionId,
-      createdAt: item.createdAt,
-      oldScore: toInt(item.score),
-      newScore: rescored.score,
-      diff: rescored.score - toInt(item.score),
-      newOneLiner: rescored.oneLiner,
-      newTips: rescored.tips,
-    });
+    try {
+      const imageBuf = await getObjectBuffer(BUCKET, item.imageKey);
+      const rescored = await invokePrimary(item.promptText || 'お題不明', imageBuf.toString('base64'));
+      const finalScore = rescored.score >= 60
+        ? clampScore(rescored.score + computeDeterministicJitter(item.submissionId))
+        : rescored.score;
+      results.push({
+        order: idx + 1,
+        submissionId: item.submissionId,
+        createdAt: item.createdAt,
+        oldScore: toInt(item.score),
+        newScore: finalScore,
+        diff: finalScore - toInt(item.score),
+        newOneLiner: rescored.oneLiner,
+        newTips: rescored.tips,
+      });
+    } catch (err) {
+      const code = err?.Code || err?.name || 'Error';
+      if (code === 'NoSuchKey') {
+        results.push({
+          order: idx + 1,
+          submissionId: item.submissionId,
+          createdAt: item.createdAt,
+          oldScore: toInt(item.score),
+          newScore: null,
+          diff: null,
+          newOneLiner: 'SKIPPED: NoSuchKey',
+          newTips: [],
+        });
+        continue;
+      }
+      throw err;
+    }
   }
 
   console.log('\n|#|submissionId|createdAt|old|new|diff|');
   console.log('|-:|---|---|--:|--:|--:|');
   for (const r of results) {
-    console.log(`|${r.order}|${r.submissionId}|${r.createdAt}|${r.oldScore}|${r.newScore}|${r.diff}|`);
+    console.log(`|${r.order}|${r.submissionId}|${r.createdAt}|${r.oldScore}|${r.newScore ?? 'SKIP'}|${r.diff ?? '-'}|`);
   }
 
   console.log('\nRESULT_JSON_START');

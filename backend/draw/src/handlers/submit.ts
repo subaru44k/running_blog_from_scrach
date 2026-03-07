@@ -80,7 +80,21 @@ const computeScoreFromRubric = (rubric: PrimaryRubric) => {
     rubric.lineStability * 12 +
     rubric.creativity * 16 +
     rubric.completeness * 14;
-  return clampScore(weighted / 10);
+  const base = weighted / 10;
+  const values = [
+    rubric.promptMatch,
+    rubric.composition,
+    rubric.shapeClarity,
+    rubric.lineStability,
+    rubric.creativity,
+    rubric.completeness,
+  ];
+  const mean = values.reduce((a, b) => a + b, 0) / values.length;
+  const variance = values.reduce((acc, v) => acc + (v - mean) ** 2, 0) / values.length;
+  const spread = Math.sqrt(variance) * 2.2;
+  const synergy = Math.max(0, rubric.promptMatch - 7) * Math.max(0, rubric.creativity - 7) * 0.8;
+  const penalty = Math.max(0, 6 - rubric.completeness) * 1.8;
+  return clampScore(base + spread + synergy - penalty);
 };
 
 const toLegacyBreakdown = (rubric: PrimaryRubric) => ({

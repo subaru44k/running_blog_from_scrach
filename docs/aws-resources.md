@@ -12,6 +12,14 @@ Codex/MCP の実行時にコピペしやすいことを優先しています。
 | 主要リージョン | `ap-northeast-1` |
 | CI/CDリージョン | `us-east-1`（CodeBuild） |
 | CloudFront | グローバル（ACMは `us-east-1`） |
+| AWS CLI標準プロファイル | `codex-prod` |
+| AWS CLI 実行主体 | `arn:aws:iam::470447451992:user/amplify-UfEp0` |
+
+### AWS CLI 運用メモ
+
+- Codex からの `aws` コマンド実行は `AWS_PROFILE=codex-prod` を標準とする
+- リージョンは `ap-northeast-1` を標準とする
+- 秘密情報そのものはこのリポジトリに記録しない
 
 ## 運用リソース（pdf-compress）
 
@@ -166,6 +174,8 @@ REGION=ap-northeast-1
 CI_REGION=us-east-1
 ENV=prod
 SERVICE=pdf-compress
+AWS_PROFILE=codex-prod
+AWS_PRINCIPAL_ARN=arn:aws:iam::470447451992:user/amplify-UfEp0
 
 SITE_BUCKET=20250805-subaru-running-blog-site
 UPLOADS_BUCKET=pdf-compress-uploads-prod
