@@ -1,0 +1,252 @@
+---
+import Layout from '../../layouts/Layout.astro';
+
+const pageTitle = 'スネークゲーム｜ミニゲーム';
+const metaDescription = '矢印キーやタッチ操作で遊べるスネークゲームです。短時間で繰り返し遊べる軽いゲームとして公開しています。';
+---
+
+<Layout
+  pageTitle={pageTitle}
+  metaDescription={metaDescription}
+  noSidebar={true}
+  pageHeading="スネークゲーム"
+  pageLead="矢印キーか画面下のボタンで操作します。短時間で遊べる定番ゲームを、このサイトのトーンに合わせて軽くまとめました。"
+>
+  <section class="grid gap-6 lg:grid-cols-[1fr_18rem]">
+    <article class="card p-5 md:p-6">
+      <div class="game-shell game-shell-snake">
+        <div class="game-top">
+          <div>
+            <p class="game-kicker">MINI GAME</p>
+            <h2 class="game-title">スネークゲーム</h2>
+          </div>
+          <div id="score" class="game-score">スコア: 0</div>
+        </div>
+
+        <div class="game-status" id="status">開始ボタンでスタート</div>
+
+        <div class="game-canvas-wrap">
+          <canvas id="game" width="480" height="480" aria-label="スネークゲーム盤面"></canvas>
+        </div>
+
+        <div class="game-controls mt-4">
+          <button class="game-btn game-btn-primary" id="startBtn" type="button">開始 / 再スタート</button>
+          <button class="game-btn" id="pauseBtn" type="button">一時停止</button>
+        </div>
+
+        <p class="game-hint">操作: 矢印キー または WASD</p>
+
+        <div class="game-pad" aria-label="タッチ操作">
+          <span class="empty"></span>
+          <button data-dir="up" type="button">↑</button>
+          <span class="empty"></span>
+          <button data-dir="left" type="button">←</button>
+          <button data-dir="down" type="button">↓</button>
+          <button data-dir="right" type="button">→</button>
+        </div>
+      </div>
+    </article>
+
+    <aside class="panel-muted p-5">
+      <h2 class="text-lg font-semibold mt-0">ほかのゲーム</h2>
+      <div class="mt-4 flex flex-col gap-3 text-sm">
+        <span class="rounded-2xl border border-slate-900/15 bg-slate-900 px-4 py-3 font-semibold text-white dark:border-white/15 dark:bg-white dark:text-slate-950">スネークゲーム</span>
+        <a href="/games/maze/" class="rounded-2xl border border-slate-200/80 bg-white/85 px-4 py-3 no-underline transition hover:bg-white dark:border-slate-700/80 dark:bg-slate-900/80 dark:hover:bg-slate-900">めいろゲーム</a>
+        <a href="/games/tic-tac-toe/" class="rounded-2xl border border-slate-200/80 bg-white/85 px-4 py-3 no-underline transition hover:bg-white dark:border-slate-700/80 dark:bg-slate-900/80 dark:hover:bg-slate-900">まるばつゲーム</a>
+        <a href="/draw/" class="rounded-2xl border border-slate-200/80 bg-white/85 px-4 py-3 no-underline transition hover:bg-white dark:border-slate-700/80 dark:bg-slate-900/80 dark:hover:bg-slate-900">お絵かきゲーム</a>
+      </div>
+    </aside>
+  </section>
+
+  <style>
+    .game-shell { color: rgb(15 23 42); }
+    .game-top { display:flex; justify-content:space-between; align-items:center; gap:1rem; margin-bottom:1rem; }
+    .game-kicker { margin:0; font-size:.72rem; letter-spacing:.24em; font-weight:700; color: rgb(100 116 139); }
+    .game-title { margin:.35rem 0 0; font-size:1.6rem; }
+    .game-score { font-weight:700; border:1px solid rgba(148,163,184,.35); background:rgba(255,255,255,.82); border-radius:999px; padding:.65rem 1rem; }
+    .game-status { font-weight:700; margin-bottom:.9rem; padding:.9rem 1rem; border-radius:1rem; background:linear-gradient(135deg, rgba(236,253,245,.92), rgba(224,242,254,.88)); border:1px solid rgba(148,163,184,.28); }
+    .game-canvas-wrap { border:1px solid rgba(51,65,85,.18); border-radius:1.2rem; overflow:hidden; background:linear-gradient(180deg,#f8fbff,#eef6ff); box-shadow: inset 0 1px 0 rgba(255,255,255,.75); }
+    canvas { display:block; width:100%; height:auto; aspect-ratio:1/1; }
+    .game-controls { display:flex; flex-wrap:wrap; gap:.75rem; }
+    .game-btn, .game-pad button { border:1px solid rgba(51,65,85,.22); border-radius:999px; background:rgba(255,255,255,.9); color:rgb(15 23 42); font-weight:700; padding:.8rem 1rem; cursor:pointer; transition:transform .15s ease, background-color .15s ease; }
+    .game-btn:hover, .game-pad button:hover { transform:translateY(-1px); background:white; }
+    .game-btn-primary { background:rgb(15 23 42); color:white; border-color:rgb(15 23 42); }
+    .game-btn-primary:hover { background:rgb(30 41 59); }
+    .game-hint { margin-top:1rem; color:rgb(71 85 105); font-size:.95rem; }
+    .game-pad { margin-top:1rem; display:grid; grid-template-columns:repeat(3, minmax(0,1fr)); gap:.5rem; max-width:220px; }
+    .game-pad .empty { visibility:hidden; }
+    .game-pad button { border-radius:.95rem; }
+    @media (max-width: 520px) { .game-controls .game-btn { flex:1 1 48%; text-align:center; } }
+  </style>
+
+  <script is:inline>
+    const canvas = document.getElementById('game');
+    const ctx = canvas.getContext('2d');
+    const scoreEl = document.getElementById('score');
+    const statusEl = document.getElementById('status');
+    const startBtn = document.getElementById('startBtn');
+    const pauseBtn = document.getElementById('pauseBtn');
+    const padButtons = document.querySelectorAll('.game-pad button[data-dir]');
+
+    const gridCount = 20;
+    const tileSize = canvas.width / gridCount;
+    const INITIAL_SPEED = 160;
+    const MIN_SPEED = 70;
+    const SPEED_STEP = 5;
+
+    let snake;
+    let direction;
+    let nextDirection;
+    let food;
+    let score;
+    let tickMs;
+    let timerId = null;
+    let isRunning = false;
+    let isPaused = false;
+
+    function randomCell() {
+      return { x: Math.floor(Math.random() * gridCount), y: Math.floor(Math.random() * gridCount) };
+    }
+
+    function placeFood() {
+      let placed = false;
+      while (!placed) {
+        const candidate = randomCell();
+        const overlap = snake.some((seg) => seg.x === candidate.x && seg.y === candidate.y);
+        if (!overlap) {
+          food = candidate;
+          placed = true;
+        }
+      }
+    }
+
+    function updateText(message) {
+      scoreEl.textContent = `スコア: ${score}`;
+      statusEl.textContent = message;
+      pauseBtn.textContent = isPaused ? '再開' : '一時停止';
+    }
+
+    function drawGrid() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      for (let y = 0; y < gridCount; y += 1) {
+        for (let x = 0; x < gridCount; x += 1) {
+          ctx.fillStyle = (x + y) % 2 === 0 ? '#edf6ff' : '#e5f1ff';
+          ctx.fillRect(x * tileSize, y * tileSize, tileSize, tileSize);
+        }
+      }
+    }
+
+    function drawSnake() {
+      snake.forEach((seg, idx) => {
+        const isHead = idx === 0;
+        ctx.fillStyle = isHead ? '#0f3d2e' : '#1d7f5b';
+        ctx.fillRect(seg.x * tileSize + 1, seg.y * tileSize + 1, tileSize - 2, tileSize - 2);
+      });
+    }
+
+    function drawFood() {
+      ctx.fillStyle = '#e11d48';
+      ctx.beginPath();
+      ctx.arc(food.x * tileSize + tileSize / 2, food.y * tileSize + tileSize / 2, tileSize * 0.33, 0, Math.PI * 2);
+      ctx.fill();
+    }
+
+    function draw() {
+      drawGrid();
+      drawFood();
+      drawSnake();
+    }
+
+    function stopLoop() {
+      if (timerId) {
+        clearTimeout(timerId);
+        timerId = null;
+      }
+    }
+
+    function scheduleNext() {
+      stopLoop();
+      timerId = setTimeout(step, tickMs);
+    }
+
+    function resetGame() {
+      snake = [{ x: 10, y: 10 }, { x: 9, y: 10 }, { x: 8, y: 10 }];
+      direction = { x: 1, y: 0 };
+      nextDirection = { x: 1, y: 0 };
+      score = 0;
+      tickMs = INITIAL_SPEED;
+      isPaused = false;
+      placeFood();
+      updateText('プレイ中');
+      draw();
+    }
+
+    function endGame() {
+      isRunning = false;
+      stopLoop();
+      updateText(`ゲームオーバー。スコア ${score}`);
+    }
+
+    function step() {
+      if (!isRunning || isPaused) return;
+      direction = nextDirection;
+      const head = { x: snake[0].x + direction.x, y: snake[0].y + direction.y };
+      if (head.x < 0 || head.y < 0 || head.x >= gridCount || head.y >= gridCount) {
+        endGame();
+        return;
+      }
+      if (snake.some((seg) => seg.x === head.x && seg.y === head.y)) {
+        endGame();
+        return;
+      }
+      snake.unshift(head);
+      if (head.x === food.x && head.y === food.y) {
+        score += 1;
+        tickMs = Math.max(MIN_SPEED, tickMs - SPEED_STEP);
+        placeFood();
+        updateText('プレイ中');
+      } else {
+        snake.pop();
+      }
+      draw();
+      scheduleNext();
+    }
+
+    function startGame() {
+      isRunning = true;
+      resetGame();
+      scheduleNext();
+    }
+
+    function togglePause() {
+      if (!isRunning) return;
+      isPaused = !isPaused;
+      updateText(isPaused ? '一時停止中' : 'プレイ中');
+      if (!isPaused) scheduleNext();
+      else stopLoop();
+    }
+
+    function setDirection(dir) {
+      const map = { up: { x: 0, y: -1 }, down: { x: 0, y: 1 }, left: { x: -1, y: 0 }, right: { x: 1, y: 0 } };
+      const candidate = map[dir];
+      if (!candidate) return;
+      if (candidate.x === -direction.x && candidate.y === -direction.y) return;
+      nextDirection = candidate;
+    }
+
+    document.addEventListener('keydown', (event) => {
+      const key = event.key.toLowerCase();
+      if (key === 'arrowup' || key === 'w') setDirection('up');
+      else if (key === 'arrowdown' || key === 's') setDirection('down');
+      else if (key === 'arrowleft' || key === 'a') setDirection('left');
+      else if (key === 'arrowright' || key === 'd') setDirection('right');
+      else if (key === ' ') { event.preventDefault(); togglePause(); }
+    });
+
+    startBtn.addEventListener('click', startGame);
+    pauseBtn.addEventListener('click', togglePause);
+    padButtons.forEach((button) => button.addEventListener('click', () => setDirection(button.dataset.dir)));
+    resetGame();
+    stopLoop();
+  </script>
+</Layout>

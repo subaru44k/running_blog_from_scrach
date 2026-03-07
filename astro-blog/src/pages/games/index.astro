@@ -1,0 +1,93 @@
+---
+import Layout from '../../layouts/Layout.astro';
+
+const pageTitle = 'ミニゲーム集｜Subaru is Running';
+const metaDescription = 'お絵かきゲームを含む、短時間で遊べるミニゲームをまとめました。スネーク、めいろ、まるばつをブラウザでそのまま遊べます。';
+
+const featuredGame = {
+  href: '/draw/',
+  title: '30秒お絵かき採点ゲーム',
+  description: '今月のお題を30秒で描いて、AIの採点とランキングを楽しめる看板コンテンツです。',
+  tags: ['看板コンテンツ', 'ランキング', 'AI採点'],
+  cta: 'お絵かきゲームで遊ぶ',
+};
+
+const miniGames = [
+  {
+    href: '/games/snake/',
+    title: 'スネークゲーム',
+    description: '矢印キーやタッチ操作でヘビを伸ばしていく、シンプルで反応の良い定番ゲームです。',
+    tags: ['1人用', 'キーボード対応', '短時間向け'],
+  },
+  {
+    href: '/games/maze/',
+    title: 'めいろゲーム',
+    description: '難易度や追いかけモードを切り替えながら、ゴールまでのルートを探す迷路ゲームです。',
+    tags: ['1人用', '難易度あり', 'タッチ対応'],
+  },
+  {
+    href: '/games/tic-tac-toe/',
+    title: 'まるばつゲーム',
+    description: '2人対戦とCPU対戦を切り替えられる、軽い操作感のまるばつゲームです。',
+    tags: ['2人対戦', 'CPU対戦', '設定あり'],
+  },
+];
+---
+
+<Layout
+  pageTitle={pageTitle}
+  metaDescription={metaDescription}
+  noSidebar={true}
+  pageHeading="ミニゲーム"
+  pageLead="短時間で遊べるゲームをまとめました。お絵かきゲームを主役にしつつ、気分転換向けの小さなゲームもここから遊べます。"
+>
+  <section class="grid gap-6 lg:grid-cols-[1.2fr_1fr]">
+    <article class="card p-6 md:p-7 bg-[radial-gradient(circle_at_top_left,rgba(255,255,255,0.95),rgba(255,255,255,0.72))] dark:bg-[radial-gradient(circle_at_top_left,rgba(15,23,42,0.92),rgba(15,23,42,0.72))]">
+      <div class="inline-flex items-center gap-2 rounded-full border border-amber-200/80 bg-amber-50/90 px-3 py-1 text-xs font-semibold tracking-[0.18em] text-amber-800 dark:border-amber-400/30 dark:bg-amber-500/10 dark:text-amber-200">FEATURED</div>
+      <h2 class="mt-4 text-2xl font-semibold">{featuredGame.title}</h2>
+      <p class="mt-3 text-sm leading-7 text-slate-600 dark:text-slate-300">{featuredGame.description}</p>
+      <div class="mt-4 flex flex-wrap gap-2">
+        {featuredGame.tags.map((tag) => (
+          <span class="rounded-full border border-slate-200/80 bg-white/85 px-3 py-1 text-xs font-medium text-slate-600 dark:border-slate-700/80 dark:bg-slate-900/80 dark:text-slate-300">{tag}</span>
+        ))}
+      </div>
+      <div class="mt-6 flex flex-wrap gap-3">
+        <a href={featuredGame.href} class="rounded-full bg-slate-950 px-5 py-3 text-sm font-semibold text-white no-underline shadow-soft transition hover:-translate-y-0.5 hover:bg-slate-800 dark:bg-white dark:text-slate-950 dark:hover:bg-slate-200">{featuredGame.cta}</a>
+        <a href="/draw/archive/" class="rounded-full border border-slate-300/90 px-5 py-3 text-sm font-semibold text-slate-700 no-underline transition hover:bg-white/90 dark:border-slate-600 dark:text-slate-200 dark:hover:bg-slate-900/80">月別ランキングを見る</a>
+      </div>
+    </article>
+
+    <aside class="panel-muted p-5 md:p-6">
+      <h2 class="text-lg font-semibold mt-0">このページの使い方</h2>
+      <ul class="mt-4 space-y-3 text-sm leading-7 text-slate-600 dark:text-slate-300">
+        <li>まずは看板コンテンツの「30秒お絵かき採点ゲーム」から遊ぶのがおすすめです。</li>
+        <li>待ち時間なしで遊びたいときは、下のミニゲーム3本から選べます。</li>
+        <li>どのゲームも登録不要で、ブラウザ上ですぐに始められます。</li>
+      </ul>
+    </aside>
+  </section>
+
+  <section class="mt-8">
+    <div class="mb-4 flex items-end justify-between gap-4">
+      <div>
+        <h2 class="text-2xl font-semibold mt-0 mb-2">ちょっとしたゲーム</h2>
+        <p class="text-sm text-slate-600 dark:text-slate-300">すぐ始められて、少しだけ遊んで切り上げやすい軽めのゲームを集めています。</p>
+      </div>
+    </div>
+    <div class="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
+      {miniGames.map((game) => (
+        <article class="card p-5 md:p-6">
+          <div class="inline-flex items-center rounded-full border border-slate-200/80 bg-slate-50 px-3 py-1 text-xs font-semibold tracking-[0.18em] text-slate-500 dark:border-slate-700/80 dark:bg-slate-900/80 dark:text-slate-400">MINI GAME</div>
+          <h3 class="mt-4 text-xl font-semibold">{game.title}</h3>
+          <p class="mt-3 text-sm leading-7 text-slate-600 dark:text-slate-300">{game.description}</p>
+          <div class="mt-4 flex flex-wrap gap-2">
+            {game.tags.map((tag) => (
+              <span class="rounded-full border border-slate-200/80 bg-white/85 px-3 py-1 text-xs font-medium text-slate-600 dark:border-slate-700/80 dark:bg-slate-900/80 dark:text-slate-300">{tag}</span>
+            ))}
+          </div>
+          <a href={game.href} class="mt-6 inline-flex rounded-full border border-slate-300/90 px-4 py-2.5 text-sm font-semibold text-slate-800 no-underline transition hover:bg-slate-50 dark:border-slate-600 dark:text-slate-100 dark:hover:bg-slate-900/80">遊ぶ</a>
+        </article>
+      ))}
+    </div>
+  </section>
+</Layout>

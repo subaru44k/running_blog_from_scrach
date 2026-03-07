@@ -1,0 +1,334 @@
+---
+import Layout from '../../layouts/Layout.astro';
+
+const pageTitle = 'めいろゲーム｜ミニゲーム';
+const metaDescription = '難易度や追いかけモードを切り替えながら遊べるブラウザめいろゲームです。';
+---
+
+<Layout
+  pageTitle={pageTitle}
+  metaDescription={metaDescription}
+  noSidebar={true}
+  pageHeading="めいろゲーム"
+  pageLead="矢印キーか画面下のボタンで移動します。難易度と追いかけモードを切り替えられる、軽い迷路ゲームです。"
+>
+  <section class="grid gap-6 lg:grid-cols-[1fr_18rem]">
+    <article class="card p-5 md:p-6">
+      <div class="maze-shell">
+        <div class="maze-top">
+          <div>
+            <p class="maze-kicker">MINI GAME</p>
+            <h2 class="maze-title">めいろゲーム</h2>
+          </div>
+          <div id="steps" class="maze-steps">あるいた数: 0</div>
+        </div>
+        <div class="maze-status" id="status">ゴールまでいこう</div>
+        <div class="maze-settings">
+          <select id="modeSelect" aria-label="モード">
+            <option value="normal">ふつうモード</option>
+            <option value="chase">おいかけモード</option>
+          </select>
+          <select id="difficultySelect" aria-label="難易度">
+            <option value="easy">やさしい</option>
+            <option value="normal">ふつう</option>
+            <option value="hard">むずかしい</option>
+          </select>
+          <button id="newMazeBtn" type="button">あたらしい めいろ</button>
+        </div>
+        <div class="maze-board-wrap">
+          <canvas id="mazeCanvas" width="600" height="600" aria-label="めいろ"></canvas>
+        </div>
+        <p class="maze-hint">操作: 矢印キー / WASD / 下のボタン</p>
+        <div class="maze-pad">
+          <span class="empty"></span>
+          <button type="button" data-dir="up">↑</button>
+          <span class="empty"></span>
+          <button type="button" data-dir="left">←</button>
+          <button type="button" data-dir="down">↓</button>
+          <button type="button" data-dir="right">→</button>
+        </div>
+      </div>
+    </article>
+
+    <aside class="panel-muted p-5">
+      <h2 class="text-lg font-semibold mt-0">ほかのゲーム</h2>
+      <div class="mt-4 flex flex-col gap-3 text-sm">
+        <a href="/games/snake/" class="rounded-2xl border border-slate-200/80 bg-white/85 px-4 py-3 no-underline transition hover:bg-white dark:border-slate-700/80 dark:bg-slate-900/80 dark:hover:bg-slate-900">スネークゲーム</a>
+        <span class="rounded-2xl border border-slate-900/15 bg-slate-900 px-4 py-3 font-semibold text-white dark:border-white/15 dark:bg-white dark:text-slate-950">めいろゲーム</span>
+        <a href="/games/tic-tac-toe/" class="rounded-2xl border border-slate-200/80 bg-white/85 px-4 py-3 no-underline transition hover:bg-white dark:border-slate-700/80 dark:bg-slate-900/80 dark:hover:bg-slate-900">まるばつゲーム</a>
+        <a href="/draw/" class="rounded-2xl border border-slate-200/80 bg-white/85 px-4 py-3 no-underline transition hover:bg-white dark:border-slate-700/80 dark:bg-slate-900/80 dark:hover:bg-slate-900">お絵かきゲーム</a>
+      </div>
+    </aside>
+  </section>
+
+  <style>
+    .maze-top { display:flex; justify-content:space-between; align-items:center; gap:1rem; margin-bottom:1rem; color:rgb(15 23 42); }
+    .maze-kicker { margin:0; font-size:.72rem; letter-spacing:.24em; font-weight:700; color:rgb(100 116 139); }
+    .maze-title { margin:.35rem 0 0; font-size:1.6rem; }
+    .maze-steps { font-weight:700; border:1px solid rgba(148,163,184,.35); background:rgba(255,255,255,.82); border-radius:999px; padding:.65rem 1rem; }
+    .maze-status { margin-bottom:1rem; font-weight:700; padding:.9rem 1rem; border-radius:1rem; background:linear-gradient(135deg, rgba(236,253,245,.92), rgba(224,242,254,.88)); border:1px solid rgba(148,163,184,.28); }
+    .maze-settings { display:grid; grid-template-columns:1fr 1fr auto; gap:.75rem; margin-bottom:1rem; }
+    .maze-settings select, .maze-settings button, .maze-pad button { border:1px solid rgba(51,65,85,.22); border-radius:1rem; background:rgba(255,255,255,.9); color:rgb(15 23 42); font-weight:700; padding:.8rem 1rem; }
+    .maze-settings button, .maze-pad button { cursor:pointer; transition:transform .15s ease, background-color .15s ease; }
+    .maze-settings button:hover, .maze-pad button:hover { transform:translateY(-1px); background:white; }
+    .maze-board-wrap { border:1px solid rgba(51,65,85,.18); border-radius:1.2rem; overflow:hidden; background:linear-gradient(180deg,#f8fbff,#eef6ff); box-shadow: inset 0 1px 0 rgba(255,255,255,.75); }
+    #mazeCanvas { display:block; width:100%; height:auto; aspect-ratio:1/1; background:#f8fcff; }
+    .maze-hint { margin-top:1rem; color:rgb(71 85 105); font-size:.95rem; }
+    .maze-pad { margin-top:1rem; max-width:220px; display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:.5rem; }
+    .maze-pad .empty { visibility:hidden; }
+    @media (max-width: 520px) { .maze-settings { grid-template-columns:1fr; } }
+  </style>
+
+  <script is:inline>
+    const canvas = document.getElementById('mazeCanvas');
+    const ctx = canvas.getContext('2d');
+    const statusEl = document.getElementById('status');
+    const stepsEl = document.getElementById('steps');
+    const modeSelect = document.getElementById('modeSelect');
+    const difficultySelect = document.getElementById('difficultySelect');
+    const newMazeBtn = document.getElementById('newMazeBtn');
+    const padButtons = document.querySelectorAll('.maze-pad button[data-dir]');
+
+    const LEVELS = {
+      easy: { cells: 7, name: 'やさしい' },
+      normal: { cells: 11, name: 'ふつう' },
+      hard: { cells: 15, name: 'むずかしい' },
+    };
+    const DIRS = {
+      up: { x: 0, y: -1 }, down: { x: 0, y: 1 }, left: { x: -1, y: 0 }, right: { x: 1, y: 0 },
+    };
+
+    let maze = [];
+    let gridSize = 0;
+    let tileSize = 0;
+    let player = { x: 1, y: 1 };
+    let goal = { x: 1, y: 1 };
+    let enemy = { x: 1, y: 1 };
+    let steps = 0;
+    let isGoal = false;
+    let isCaught = false;
+    let enemyLastPos = null;
+    let enemyTimer = null;
+
+    function shuffle(list) {
+      for (let i = list.length - 1; i > 0; i -= 1) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [list[i], list[j]] = [list[j], list[i]];
+      }
+    }
+
+    function createMaze(cellsPerSide) {
+      const side = cellsPerSide * 2 + 1;
+      const grid = Array.from({ length: side }, () => Array(side).fill(1));
+      const visited = Array.from({ length: cellsPerSide }, () => Array(cellsPerSide).fill(false));
+      const stack = [{ cx: 0, cy: 0 }];
+      visited[0][0] = true;
+      grid[1][1] = 0;
+      while (stack.length) {
+        const current = stack[stack.length - 1];
+        const candidates = [];
+        const stepDirs = [{ dx: 1, dy: 0 }, { dx: -1, dy: 0 }, { dx: 0, dy: 1 }, { dx: 0, dy: -1 }];
+        for (const { dx, dy } of stepDirs) {
+          const nx = current.cx + dx;
+          const ny = current.cy + dy;
+          if (nx < 0 || ny < 0 || nx >= cellsPerSide || ny >= cellsPerSide) continue;
+          if (!visited[ny][nx]) candidates.push({ nx, ny, dx, dy });
+        }
+        if (!candidates.length) { stack.pop(); continue; }
+        shuffle(candidates);
+        const next = candidates[0];
+        visited[next.ny][next.nx] = true;
+        const fromX = current.cx * 2 + 1;
+        const fromY = current.cy * 2 + 1;
+        const toX = next.nx * 2 + 1;
+        const toY = next.ny * 2 + 1;
+        grid[fromY + next.dy][fromX + next.dx] = 0;
+        grid[toY][toX] = 0;
+        stack.push({ cx: next.nx, cy: next.ny });
+      }
+      return grid;
+    }
+
+    function findGoalCell(grid, startX, startY) {
+      const size = grid.length;
+      const dist = Array.from({ length: size }, () => Array(size).fill(-1));
+      const queue = [{ x: startX, y: startY }];
+      dist[startY][startX] = 0;
+      for (let i = 0; i < queue.length; i += 1) {
+        const cur = queue[i];
+        const neighbors = [{ x: cur.x + 1, y: cur.y }, { x: cur.x - 1, y: cur.y }, { x: cur.x, y: cur.y + 1 }, { x: cur.x, y: cur.y - 1 }];
+        for (const n of neighbors) {
+          if (n.x < 0 || n.y < 0 || n.x >= size || n.y >= size) continue;
+          if (grid[n.y][n.x] === 1 || dist[n.y][n.x] !== -1) continue;
+          dist[n.y][n.x] = dist[cur.y][cur.x] + 1;
+          queue.push(n);
+        }
+      }
+      function openNeighborCount(x, y) {
+        let count = 0;
+        const neighbors = [{ x: x + 1, y }, { x: x - 1, y }, { x, y: y + 1 }, { x, y: y - 1 }];
+        for (const n of neighbors) {
+          if (n.x < 0 || n.y < 0 || n.x >= size || n.y >= size) continue;
+          if (grid[n.y][n.x] === 0) count += 1;
+        }
+        return count;
+      }
+      let bestDeadEnd = { x: startX, y: startY, d: -1 };
+      let bestAny = { x: startX, y: startY, d: -1 };
+      for (let y = 1; y < size - 1; y += 1) {
+        for (let x = 1; x < size - 1; x += 1) {
+          if (grid[y][x] === 1 || dist[y][x] < 0) continue;
+          const d = dist[y][x];
+          if (d > bestAny.d) bestAny = { x, y, d };
+          if (openNeighborCount(x, y) === 1 && d > bestDeadEnd.d) bestDeadEnd = { x, y, d };
+        }
+      }
+      return bestDeadEnd.d >= 0 ? { x: bestDeadEnd.x, y: bestDeadEnd.y } : { x: bestAny.x, y: bestAny.y };
+    }
+
+    function getDistanceMap(grid, startX, startY) {
+      const size = grid.length;
+      const dist = Array.from({ length: size }, () => Array(size).fill(-1));
+      const queue = [{ x: startX, y: startY }];
+      dist[startY][startX] = 0;
+      for (let i = 0; i < queue.length; i += 1) {
+        const cur = queue[i];
+        const neighbors = [{ x: cur.x + 1, y: cur.y }, { x: cur.x - 1, y: cur.y }, { x: cur.x, y: cur.y + 1 }, { x: cur.x, y: cur.y - 1 }];
+        for (const n of neighbors) {
+          if (n.x < 0 || n.y < 0 || n.x >= size || n.y >= size) continue;
+          if (grid[n.y][n.x] === 1 || dist[n.y][n.x] !== -1) continue;
+          dist[n.y][n.x] = dist[cur.y][cur.x] + 1;
+          queue.push(n);
+        }
+      }
+      return dist;
+    }
+
+    function updateStatus(text) {
+      statusEl.textContent = text;
+      stepsEl.textContent = `あるいた数: ${steps}`;
+    }
+
+    function startEnemyLoop() {
+      clearInterval(enemyTimer);
+      if (modeSelect.value !== 'chase') return;
+      enemyTimer = setInterval(() => {
+        if (isGoal || isCaught) return;
+        moveEnemy();
+        drawMaze();
+      }, 350);
+    }
+
+    function stopEnemyLoop() {
+      clearInterval(enemyTimer);
+      enemyTimer = null;
+    }
+
+    function resetGame() {
+      stopEnemyLoop();
+      const level = LEVELS[difficultySelect.value] ?? LEVELS.normal;
+      maze = createMaze(level.cells);
+      gridSize = maze.length;
+      tileSize = canvas.width / gridSize;
+      player = { x: 1, y: 1 };
+      goal = findGoalCell(maze, 1, 1);
+      enemy = { x: 1, y: 1 };
+      steps = 0;
+      isGoal = false;
+      isCaught = false;
+      enemyLastPos = null;
+      if (modeSelect.value === 'chase') {
+        const distMap = getDistanceMap(maze, goal.x, goal.y);
+        let farthest = { x: 1, y: 1, d: -1 };
+        for (let y = 1; y < gridSize - 1; y += 1) {
+          for (let x = 1; x < gridSize - 1; x += 1) {
+            if (maze[y][x] === 1 || distMap[y][x] < 0) continue;
+            if (distMap[y][x] > farthest.d && (x !== player.x || y !== player.y) && (x !== goal.x || y !== goal.y)) {
+              farthest = { x, y, d: distMap[y][x] };
+            }
+          }
+        }
+        enemy = { x: farthest.x, y: farthest.y };
+      }
+      updateStatus(`${level.name} / ${modeSelect.value === 'chase' ? 'おいかけ' : 'ふつう'} モード`);
+      drawMaze();
+      startEnemyLoop();
+    }
+
+    function drawMaze() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      for (let y = 0; y < gridSize; y += 1) {
+        for (let x = 0; x < gridSize; x += 1) {
+          ctx.fillStyle = maze[y][x] === 1 ? '#234a6f' : '#f8fcff';
+          ctx.fillRect(x * tileSize, y * tileSize, tileSize, tileSize);
+        }
+      }
+      ctx.fillStyle = '#ef476f';
+      ctx.fillRect(goal.x * tileSize + tileSize * 0.22, goal.y * tileSize + tileSize * 0.22, tileSize * 0.56, tileSize * 0.56);
+      if (modeSelect.value === 'chase') {
+        ctx.fillStyle = '#f29e4c';
+        ctx.beginPath();
+        ctx.arc(enemy.x * tileSize + tileSize / 2, enemy.y * tileSize + tileSize / 2, tileSize * 0.28, 0, Math.PI * 2);
+        ctx.fill();
+      }
+      ctx.fillStyle = '#06a77d';
+      ctx.beginPath();
+      ctx.arc(player.x * tileSize + tileSize / 2, player.y * tileSize + tileSize / 2, tileSize * 0.3, 0, Math.PI * 2);
+      ctx.fill();
+    }
+
+    function tryMove(dir) {
+      if (isGoal || isCaught) return;
+      const nextX = player.x + dir.x;
+      const nextY = player.y + dir.y;
+      if (nextX < 0 || nextY < 0 || nextX >= gridSize || nextY >= gridSize) return;
+      if (maze[nextY][nextX] === 1) return;
+      player = { x: nextX, y: nextY };
+      steps += 1;
+      if (player.x === goal.x && player.y === goal.y) {
+        isGoal = true;
+        stopEnemyLoop();
+        updateStatus(`ゴール！ ${steps}歩で到着`);
+      } else if (modeSelect.value === 'chase' && player.x === enemy.x && player.y === enemy.y) {
+        isCaught = true;
+        stopEnemyLoop();
+        updateStatus('つかまった！ あたらしい めいろで再挑戦');
+      } else {
+        updateStatus(`あるいた数: ${steps}`);
+      }
+      drawMaze();
+    }
+
+    function moveEnemy() {
+      const distMap = getDistanceMap(maze, player.x, player.y);
+      const options = [DIRS.up, DIRS.down, DIRS.left, DIRS.right]
+        .map((dir) => ({ x: enemy.x + dir.x, y: enemy.y + dir.y }))
+        .filter((next) => next.x >= 0 && next.y >= 0 && next.x < gridSize && next.y < gridSize && maze[next.y][next.x] === 0)
+        .filter((next) => !enemyLastPos || next.x !== enemyLastPos.x || next.y !== enemyLastPos.y);
+      if (!options.length) return;
+      options.sort((a, b) => distMap[a.y][a.x] - distMap[b.y][b.x]);
+      enemyLastPos = { ...enemy };
+      enemy = { x: options[0].x, y: options[0].y };
+      if (enemy.x === player.x && enemy.y === player.y) {
+        isCaught = true;
+        stopEnemyLoop();
+        updateStatus('つかまった！ あたらしい めいろで再挑戦');
+      }
+    }
+
+    document.addEventListener('keydown', (event) => {
+      const key = event.key.toLowerCase();
+      if (key === 'arrowup' || key === 'w') tryMove(DIRS.up);
+      if (key === 'arrowdown' || key === 's') tryMove(DIRS.down);
+      if (key === 'arrowleft' || key === 'a') tryMove(DIRS.left);
+      if (key === 'arrowright' || key === 'd') tryMove(DIRS.right);
+    });
+
+    modeSelect.addEventListener('change', resetGame);
+    difficultySelect.addEventListener('change', resetGame);
+    newMazeBtn.addEventListener('click', resetGame);
+    padButtons.forEach((button) => button.addEventListener('click', () => tryMove(DIRS[button.dataset.dir])));
+
+    resetGame();
+  </script>
+</Layout>

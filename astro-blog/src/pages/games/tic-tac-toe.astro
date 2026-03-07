@@ -1,0 +1,320 @@
+---
+import Layout from '../../layouts/Layout.astro';
+
+const pageTitle = 'まるばつゲーム｜ミニゲーム';
+const metaDescription = '2人対戦とCPU対戦を切り替えられる、ブラウザで遊べるまるばつゲームです。';
+---
+
+<Layout
+  pageTitle={pageTitle}
+  metaDescription={metaDescription}
+  noSidebar={true}
+  pageHeading="まるばつゲーム"
+  pageLead="2人対戦とCPU対戦を切り替えられます。モードや難易度を変えつつ、少しだけ遊びたいときに向いている軽いゲームです。"
+>
+  <section class="grid gap-6 lg:grid-cols-[1fr_18rem] lg:items-start">
+    <article class="card p-5 md:p-6">
+      <div class="ttt-shell">
+        <div class="ttt-header">
+          <div>
+            <p class="ttt-kicker">MINI GAME</p>
+            <h2 class="ttt-title">まるばつゲーム</h2>
+          </div>
+          <button class="ttt-reset" id="resetBtn" type="button">リセット</button>
+        </div>
+        <div class="ttt-status" id="status">手番: ○</div>
+        <div class="ttt-settings">
+          <div class="ttt-field">
+            <label for="modeSelect">モード</label>
+            <select id="modeSelect">
+              <option value="pvp">2人対戦</option>
+              <option value="cpu">チャットさん</option>
+            </select>
+          </div>
+          <div class="ttt-field">
+            <label for="difficultySelect">難易度</label>
+            <select id="difficultySelect">
+              <option value="easy">やさしい</option>
+              <option value="normal">ふつう</option>
+              <option value="hard">つよい</option>
+            </select>
+          </div>
+          <div class="ttt-field">
+            <label for="sizeSelect">マス数</label>
+            <select id="sizeSelect">
+              <option value="3">3x3</option>
+              <option value="4">4x4</option>
+              <option value="5">5x5</option>
+            </select>
+          </div>
+        </div>
+        <div class="ttt-board-wrap">
+          <div class="ttt-board" id="board" aria-label="まるばつ盤面"></div>
+          <div class="ttt-thinking" id="thinkingOverlay" aria-hidden="true">チャットさん かんがえちゅう<span class="dots"></span></div>
+        </div>
+      </div>
+    </article>
+
+    <aside class="panel-muted p-5">
+      <h2 class="text-lg font-semibold mt-0">ほかのゲーム</h2>
+      <div class="mt-4 flex flex-col gap-3 text-sm">
+        <a href="/games/snake/" class="rounded-2xl border border-slate-200/80 bg-white/85 px-4 py-3 no-underline transition hover:bg-white dark:border-slate-700/80 dark:bg-slate-900/80 dark:hover:bg-slate-900">スネークゲーム</a>
+        <a href="/games/maze/" class="rounded-2xl border border-slate-200/80 bg-white/85 px-4 py-3 no-underline transition hover:bg-white dark:border-slate-700/80 dark:bg-slate-900/80 dark:hover:bg-slate-900">めいろゲーム</a>
+        <span class="rounded-2xl border border-slate-900/15 bg-slate-900 px-4 py-3 font-semibold text-white dark:border-white/15 dark:bg-white dark:text-slate-950">まるばつゲーム</span>
+        <a href="/draw/" class="rounded-2xl border border-slate-200/80 bg-white/85 px-4 py-3 no-underline transition hover:bg-white dark:border-slate-700/80 dark:bg-slate-900/80 dark:hover:bg-slate-900">お絵かきゲーム</a>
+      </div>
+    </aside>
+  </section>
+
+  <style is:global>
+    .ttt-shell { color: rgb(15 23 42); }
+    .ttt-header { display:flex; justify-content:space-between; align-items:flex-start; gap:1rem; margin-bottom:1rem; }
+    .ttt-kicker { margin:0; font-size:.72rem; letter-spacing:.24em; font-weight:700; color:rgb(100 116 139); }
+    .ttt-title { margin:.35rem 0 0; font-size:1.6rem; }
+    .ttt-status { margin-bottom:1rem; font-weight:700; padding:.85rem 1rem; border-radius:1rem; background:linear-gradient(135deg, rgba(254,249,195,.7), rgba(220,252,231,.8)); border:1px solid rgba(148,163,184,.28); }
+    .ttt-status.win { background:linear-gradient(135deg, rgba(220,252,231,.92), rgba(191,219,254,.88)); animation: tttPulse .8s ease-in-out 3; }
+    @keyframes tttPulse { 0%{transform:scale(1)} 50%{transform:scale(1.02)} 100%{transform:scale(1)} }
+    .ttt-settings { display:grid; grid-template-columns:repeat(3, minmax(0,1fr)); gap:.75rem; margin-bottom:1rem; }
+    .ttt-field { display:grid; gap:.35rem; }
+    .ttt-field label { font-size:.86rem; font-weight:700; color:rgb(71 85 105); }
+    .ttt-field select, .ttt-reset { border:1px solid rgba(51,65,85,.22); border-radius:1rem; background:rgba(255,255,255,.9); padding:.75rem .9rem; font-weight:700; }
+    .ttt-reset { cursor:pointer; transition:transform .15s ease, background-color .15s ease; }
+    .ttt-reset:hover { transform:translateY(-1px); background:white; }
+    .ttt-board-wrap { position:relative; }
+    .ttt-board {
+      --cell-size: clamp(5rem, 9vw, 8rem);
+      --board-gap: .65rem;
+      display:grid;
+      grid-template-columns:repeat(var(--grid-size,3), var(--cell-size));
+      grid-auto-rows: var(--cell-size);
+      gap:var(--board-gap);
+      width:calc(var(--grid-size,3) * var(--cell-size) + (var(--grid-size,3) - 1) * var(--board-gap));
+      height:calc(var(--grid-size,3) * var(--cell-size) + (var(--grid-size,3) - 1) * var(--board-gap));
+      max-width:100%;
+    }
+    .ttt-board.size-4 { --cell-size: clamp(4rem, 7vw, 5.7rem); --board-gap: .55rem; }
+    .ttt-board.size-5 { --cell-size: clamp(3.2rem, 5.8vw, 4.5rem); --board-gap: .45rem; }
+    .ttt-board.size-4 .ttt-cell { font-size:clamp(1.75rem, 5vw, 2.5rem); }
+    .ttt-board.size-5 .ttt-cell { font-size:clamp(1.35rem, 3.8vw, 1.9rem); }
+    .ttt-cell { width:100%; height:100%; min-height:0; display:grid; place-items:center; border:1px solid rgba(51,65,85,.22); border-radius:1rem; background:rgba(255,255,255,.92); font-size:clamp(2.2rem,6vw,3.2rem); line-height:1; font-weight:800; color:rgb(15 118 110); cursor:pointer; box-shadow: inset 0 1px 0 rgba(255,255,255,.85); }
+    .ttt-cell:disabled { cursor:default; opacity:1; }
+    .ttt-cell.winning { background:#d1fae5; border-color:#10b981; box-shadow: inset 0 0 0 2px rgba(16,185,129,.28); }
+    .ttt-cell.placed { animation: tttPlace .22s ease-out; }
+    @keyframes tttPlace { 0%{transform:scale(.55) rotate(-8deg); opacity:.25} 70%{transform:scale(1.08) rotate(3deg); opacity:1} 100%{transform:scale(1)} }
+    .ttt-thinking { position:absolute; inset:0; border-radius:1rem; background:rgba(15,23,42,.45); color:#fff; display:grid; place-items:center; font-weight:800; letter-spacing:.03em; opacity:0; pointer-events:none; transition:opacity 120ms ease-out; }
+    .ttt-thinking.active { opacity:1; }
+    .ttt-thinking .dots::after { content:'...'; display:inline-block; width:1.2em; overflow:hidden; vertical-align:bottom; animation: tttDots 1s steps(4,end) infinite; }
+    @keyframes tttDots { 0%{width:0} 100%{width:1.2em} }
+    @media (max-width: 520px) {
+      .ttt-settings { grid-template-columns:1fr; }
+      .ttt-board { --cell-size: min(24vw, 6rem); --board-gap: .5rem; }
+      .ttt-board.size-4 { --cell-size: min(19vw, 4.8rem); --board-gap: .45rem; }
+      .ttt-board.size-5 { --cell-size: min(15vw, 3.8rem); --board-gap: .35rem; }
+    }
+  </style>
+
+  <script is:inline>
+    const boardElement = document.getElementById('board');
+    const statusElement = document.getElementById('status');
+    const resetBtn = document.getElementById('resetBtn');
+    const modeSelect = document.getElementById('modeSelect');
+    const difficultySelect = document.getElementById('difficultySelect');
+    const sizeSelect = document.getElementById('sizeSelect');
+    const thinkingOverlay = document.getElementById('thinkingOverlay');
+
+    let boardSize = 3;
+    let winLines = buildWinLines(boardSize);
+    let cells = Array(boardSize * boardSize).fill('');
+    let currentPlayer = '○';
+    let isGameOver = false;
+    let winningLine = null;
+    let gameMode = 'pvp';
+    let difficulty = 'easy';
+    let isCpuThinking = false;
+    let cpuTimer = null;
+    const HUMAN = '○';
+    const CPU = '×';
+
+    function buildWinLines(size) {
+      const lines = [];
+      for (let y = 0; y < size; y += 1) { const row = []; for (let x = 0; x < size; x += 1) row.push(y * size + x); lines.push(row); }
+      for (let x = 0; x < size; x += 1) { const col = []; for (let y = 0; y < size; y += 1) col.push(y * size + x); lines.push(col); }
+      const diagA = []; const diagB = [];
+      for (let i = 0; i < size; i += 1) { diagA.push(i * size + i); diagB.push(i * size + (size - 1 - i)); }
+      lines.push(diagA, diagB);
+      return lines;
+    }
+
+    function getWinner(board) {
+      for (const line of winLines) {
+        const first = board[line[0]];
+        if (!first) continue;
+        if (line.every((idx) => board[idx] === first)) return { winner: first, line };
+      }
+      if (board.every(Boolean)) return { winner: 'draw', line: null };
+      return null;
+    }
+
+    function createBoard() {
+      boardElement.innerHTML = '';
+      boardElement.style.setProperty('--grid-size', String(boardSize));
+      boardElement.className = 'ttt-board';
+      boardElement.classList.add(`size-${boardSize}`);
+      for (let i = 0; i < boardSize * boardSize; i += 1) {
+        const button = document.createElement('button');
+        button.className = 'ttt-cell';
+        button.type = 'button';
+        button.setAttribute('aria-label', `${i + 1}マス目`);
+        button.addEventListener('click', () => handleMove(i));
+        boardElement.appendChild(button);
+      }
+    }
+
+    function updateStatus(text, win = false) {
+      statusElement.textContent = text;
+      statusElement.classList.toggle('win', win);
+    }
+
+    function renderBoard(lastMoveIndex = null) {
+      const buttons = boardElement.querySelectorAll('.ttt-cell');
+      buttons.forEach((button, idx) => {
+        button.textContent = cells[idx];
+        button.disabled = Boolean(cells[idx]) || isGameOver || (gameMode === 'cpu' && currentPlayer === CPU) || isCpuThinking;
+        button.classList.toggle('winning', Boolean(winningLine && winningLine.includes(idx)));
+        button.classList.toggle('placed', idx === lastMoveIndex);
+      });
+    }
+
+    function resetGame() {
+      clearTimeout(cpuTimer);
+      cpuTimer = null;
+      cells = Array(boardSize * boardSize).fill('');
+      currentPlayer = HUMAN;
+      isGameOver = false;
+      winningLine = null;
+      isCpuThinking = false;
+      thinkingOverlay.classList.remove('active');
+      updateStatus('手番: ○');
+      renderBoard();
+    }
+
+    function emptyIndices(board) { return board.map((v, i) => (v ? -1 : i)).filter((i) => i >= 0); }
+
+    function randomChoice(list) { return list[Math.floor(Math.random() * list.length)]; }
+
+    function findWinningMove(board, player) {
+      for (const idx of emptyIndices(board)) {
+        const next = board.slice();
+        next[idx] = player;
+        const result = getWinner(next);
+        if (result && result.winner === player) return idx;
+      }
+      return null;
+    }
+
+    function scoreBoard(board) {
+      const result = getWinner(board);
+      if (result?.winner === CPU) return 10;
+      if (result?.winner === HUMAN) return -10;
+      if (result?.winner === 'draw') return 0;
+      return null;
+    }
+
+    function minimax(board, player, depth, alpha, beta) {
+      const terminal = scoreBoard(board);
+      if (terminal !== null) return terminal - depth;
+      const empties = emptyIndices(board);
+      if (!empties.length) return 0;
+      if (player === CPU) {
+        let best = -Infinity;
+        for (const idx of empties) {
+          board[idx] = CPU;
+          best = Math.max(best, minimax(board, HUMAN, depth + 1, alpha, beta));
+          board[idx] = '';
+          alpha = Math.max(alpha, best);
+          if (beta <= alpha) break;
+        }
+        return best;
+      }
+      let best = Infinity;
+      for (const idx of empties) {
+        board[idx] = HUMAN;
+        best = Math.min(best, minimax(board, CPU, depth + 1, alpha, beta));
+        board[idx] = '';
+        beta = Math.min(beta, best);
+        if (beta <= alpha) break;
+      }
+      return best;
+    }
+
+    function chooseCpuMove() {
+      const empties = emptyIndices(cells);
+      if (!empties.length) return null;
+      if (difficulty === 'easy') {
+        return findWinningMove(cells, CPU) ?? randomChoice(empties);
+      }
+      if (difficulty === 'normal') {
+        return findWinningMove(cells, CPU) ?? findWinningMove(cells, HUMAN) ?? randomChoice(empties);
+      }
+      if (boardSize > 3) {
+        return findWinningMove(cells, CPU) ?? findWinningMove(cells, HUMAN) ?? randomChoice(empties);
+      }
+      let bestScore = -Infinity;
+      let bestMove = empties[0];
+      for (const idx of empties) {
+        cells[idx] = CPU;
+        const score = minimax(cells, HUMAN, 0, -Infinity, Infinity);
+        cells[idx] = '';
+        if (score > bestScore) { bestScore = score; bestMove = idx; }
+      }
+      return bestMove;
+    }
+
+    function finishTurn(lastIndex) {
+      const result = getWinner(cells);
+      if (result) {
+        isGameOver = true;
+        winningLine = result.line;
+        renderBoard(lastIndex);
+        if (result.winner === 'draw') updateStatus('引き分けです');
+        else updateStatus(`${result.winner} の勝ち`, true);
+        return;
+      }
+      currentPlayer = currentPlayer === HUMAN ? CPU : HUMAN;
+      renderBoard(lastIndex);
+      updateStatus(gameMode === 'cpu' ? (currentPlayer === HUMAN ? 'あなたの手番: ○' : 'チャットさんの手番: ×') : `手番: ${currentPlayer}`);
+      if (gameMode === 'cpu' && currentPlayer === CPU) runCpuTurn();
+    }
+
+    function handleMove(index) {
+      if (isGameOver || cells[index] || isCpuThinking) return;
+      if (gameMode === 'cpu' && currentPlayer === CPU) return;
+      cells[index] = currentPlayer;
+      finishTurn(index);
+    }
+
+    function runCpuTurn() {
+      isCpuThinking = true;
+      thinkingOverlay.classList.add('active');
+      const delay = difficulty === 'hard' ? 500 : 360;
+      cpuTimer = setTimeout(() => {
+        const move = chooseCpuMove();
+        isCpuThinking = false;
+        thinkingOverlay.classList.remove('active');
+        if (move === null || isGameOver) return;
+        cells[move] = CPU;
+        finishTurn(move);
+      }, delay);
+    }
+
+    modeSelect.addEventListener('change', () => { gameMode = modeSelect.value; resetGame(); });
+    difficultySelect.addEventListener('change', () => { difficulty = difficultySelect.value; resetGame(); });
+    sizeSelect.addEventListener('change', () => { boardSize = Number(sizeSelect.value); winLines = buildWinLines(boardSize); createBoard(); resetGame(); });
+    resetBtn.addEventListener('click', resetGame);
+
+    gameMode = modeSelect.value;
+    difficulty = difficultySelect.value;
+    createBoard();
+    resetGame();
+  </script>
+</Layout>

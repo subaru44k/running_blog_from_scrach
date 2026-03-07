@@ -44,6 +44,7 @@ flowchart LR
 - `/` はツールへのハブページ。
 - ブログUIは `/blog/` に集約（記事URLは `/<slug>/` のまま）。
 - `/draw/` は「30秒お絵描き採点ゲーム」のフロントページ。`/draw/archive/`（月別Top20）・`/draw/play/`・`/draw/result/` を含む。
+- `/games/` は軽量なミニゲーム集のハブ。`/games/snake/`、`/games/maze/`、`/games/tic-tac-toe/` を含む。
 - 正規ルート（例）: `/`, `/blog/`, `/running-pace/`, `/pdf-compress/`, `/contact/`, `/privacy/`。
 - `/running-pace/` は同一ページ内に `#calculator`（計算）と `#table`（表）のアンカーを持つ。
 - `/blog` や `/pace` は正規ルートではなく 404 が正しい挙動。
@@ -69,6 +70,7 @@ flowchart LR
 - 共有カード画像はブラウザ内の Canvas で生成してPNG保存する。
 - `/draw/archive/` は 2026-02 以降の各月Top20をクライアント側で取得して表示する。
 - `/draw/` 系は sitemap に含める。グローバルナビから「お絵かきゲーム」として導線を提供する。
+- `/games/` 系も sitemap に含める。グローバルナビには「ミニゲーム」を追加し、`/draw/` は独立導線のまま維持する。
 - 一次採点は Bedrock Claude 3 Haiku（JSON出力）を使用、失敗時はスタブにフォールバック。
 - 二次講評は Bedrock Claude Haiku 4.5 を使用し、失敗時は pending → failed で終了。
 - 画像保管は当月は全件保持し、毎月1日の月次ジョブで「前月Top20以外」を削除する。

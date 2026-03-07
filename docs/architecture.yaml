@@ -25,6 +25,10 @@ repo:
           - /draw/archive/
           - /draw/play/
           - /draw/result/
+          - /games/
+          - /games/snake/
+          - /games/maze/
+          - /games/tic-tac-toe/
           - /running-pace/
           - /pdf-compress/
           - /contact/
@@ -73,6 +77,10 @@ site:
       - /draw/archive/
       - /draw/play/
       - /draw/result/
+      - /games/
+      - /games/snake/
+      - /games/maze/
+      - /games/tic-tac-toe/
       - /running-pace/
       - /pdf-compress/
       - /contact/
@@ -144,6 +152,17 @@ features:
       - draw backend resources use cost allocation tags (Service=draw, Env=prod)
       - monthly cleanup keeps only previous month's Top20 images and deletes others from S3
       - draw submissions remain in DynamoDB long enough for monthly final ranking, and monthly cleanup extends Top20 rows to long-term retention for archive pages
+  mini_games:
+    routes:
+      - /games/
+      - /games/snake/
+      - /games/maze/
+      - /games/tic-tac-toe/
+    behavior:
+      - /games/ is the hub page for lightweight browser games
+      - global nav links separately to /draw/ and /games/ to keep draw as a first-class feature
+      - /games/ includes the draw game as the featured card and links to three lighter mini-games
+      - snake, maze, and tic-tac-toe are shipped as static Astro pages with inline client-side logic and no backend dependency
 
 assumptions:
   - TODO: CloudFront Distribution ID and error response settings are managed outside docs
