@@ -32,9 +32,11 @@ const buildPrimaryUser = (promptText, imageBase64) => ([
       `お題: ${promptText || 'お題不明'}\n画像を評価して、次のJSONスキーマで返してください。\n` +
       `{"rubric":{"promptMatch":0-10,"composition":0-10,"shapeClarity":0-10,"lineStability":0-10,"creativity":0-10,"completeness":0-10},` +
       `"oneLiner":"90文字以内の前向き短評","tips":["短い名詞句を2-3個"]}\n` +
-      `注意: 数値は整数。rubricの各項目は0〜10。` +
-      `rubricは1点刻み。5や10の多用を避け、曖昧なら6/7/8/9を優先すること。` +
-      `rubricの6項目のうち、少なくとも2項目は他作品との差が出るように評価すること。` +
+      `採点基準を固定する。0-2は成立していない、3-4はかなり弱い、5-6は平均的、7はやや良い、8は明確に良い、9はかなり良い、10はごく少数の例外的に強い作品のみ。` +
+      `平均的なユーザー作品に対して安易に7や8を付けないこと。` +
+      `rubricは必ず1点刻みの整数で評価すること。` +
+      `6項目のうち少なくとも3項目は同じ値にしないこと。` +
+      `弱い点が見えたら4以下を使うこと。強みが明確なら9以上を使うこと。` +
       `oneLinerとtipsは日本語のみで出力し、英語表現は使わないこと。` +
       `tipsは体言止めの短い語句にすること。`,
   },
@@ -80,14 +82,6 @@ const toLegacyBreakdown = (rubric) => ({
 });
 
 const computeScoreFromRubric = (rubric) => {
-  const weighted =
-    rubric.promptMatch * 24
-    + rubric.composition * 16
-    + rubric.shapeClarity * 18
-    + rubric.lineStability * 12
-    + rubric.creativity * 16
-    + rubric.completeness * 14;
-  const base = weighted / 10;
   const values = [
     rubric.promptMatch,
     rubric.composition,
@@ -96,12 +90,17 @@ const computeScoreFromRubric = (rubric) => {
     rubric.creativity,
     rubric.completeness,
   ];
-  const mean = values.reduce((a, b) => a + b, 0) / values.length;
-  const variance = values.reduce((acc, v) => acc + (v - mean) ** 2, 0) / values.length;
-  const spread = Math.sqrt(variance) * 2.2;
-  const synergy = Math.max(0, rubric.promptMatch - 7) * Math.max(0, rubric.creativity - 7) * 0.8;
-  const penalty = Math.max(0, 6 - rubric.completeness) * 1.8;
-  return clampScore(base + spread + synergy - penalty);
+  const avg = values.reduce((a, b) => a + b, 0) / values.length;
+  const strong = values.filter((v) => v >= 8).length;
+  const weak = values.filter((v) => v <= 4).length;
+  let score = 12 + avg * 8.8;
+  score += strong * 3.2;
+  score += rubric.promptMatch >= 8 && rubric.shapeClarity >= 7 ? 5 : 0;
+  score += rubric.creativity >= 7 ? 2 : 0;
+  score -= weak * 4.5;
+  score -= rubric.promptMatch <= 4 ? 6 : 0;
+  score -= rubric.completeness <= 4 ? 4 : 0;
+  return clampScore(score);
 };
 
 const computeDeterministicJitter = (submissionId) => {

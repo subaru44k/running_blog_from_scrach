@@ -73,14 +73,6 @@ const normalizeRubric = (input: any): PrimaryRubric => {
 };
 
 const computeScoreFromRubric = (rubric: PrimaryRubric) => {
-  const weighted =
-    rubric.promptMatch * 24 +
-    rubric.composition * 16 +
-    rubric.shapeClarity * 18 +
-    rubric.lineStability * 12 +
-    rubric.creativity * 16 +
-    rubric.completeness * 14;
-  const base = weighted / 10;
   const values = [
     rubric.promptMatch,
     rubric.composition,
@@ -89,12 +81,17 @@ const computeScoreFromRubric = (rubric: PrimaryRubric) => {
     rubric.creativity,
     rubric.completeness,
   ];
-  const mean = values.reduce((a, b) => a + b, 0) / values.length;
-  const variance = values.reduce((acc, v) => acc + (v - mean) ** 2, 0) / values.length;
-  const spread = Math.sqrt(variance) * 2.2;
-  const synergy = Math.max(0, rubric.promptMatch - 7) * Math.max(0, rubric.creativity - 7) * 0.8;
-  const penalty = Math.max(0, 6 - rubric.completeness) * 1.8;
-  return clampScore(base + spread + synergy - penalty);
+  const avg = values.reduce((a, b) => a + b, 0) / values.length;
+  const strong = values.filter((v) => v >= 8).length;
+  const weak = values.filter((v) => v <= 4).length;
+  let score = 12 + avg * 8.8;
+  score += strong * 3.2;
+  score += rubric.promptMatch >= 8 && rubric.shapeClarity >= 7 ? 5 : 0;
+  score += rubric.creativity >= 7 ? 2 : 0;
+  score -= weak * 4.5;
+  score -= rubric.promptMatch <= 4 ? 6 : 0;
+  score -= rubric.completeness <= 4 ? 4 : 0;
+  return clampScore(score);
 };
 
 const toLegacyBreakdown = (rubric: PrimaryRubric) => ({

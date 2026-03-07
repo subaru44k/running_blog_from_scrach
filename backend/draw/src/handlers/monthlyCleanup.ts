@@ -1,4 +1,4 @@
-import { QueryCommand } from '@aws-sdk/lib-dynamodb';
+import { QueryCommand, UpdateCommand } from '@aws-sdk/lib-dynamodb';
 import {
   DeleteObjectsCommand,
   ListObjectsV2Command,
@@ -16,6 +16,7 @@ const requireEnv = (key: string) => {
 const DRAW_BUCKET = requireEnv('DRAW_BUCKET');
 const DRAW_TABLE = requireEnv('DRAW_TABLE');
 const KEEP_LIMIT = Number(process.env.LEADERBOARD_KEEP_LIMIT || 20);
+const ARCHIVE_TTL_DAYS = Number(process.env.ARCHIVE_TTL_DAYS || 3650);
 
 const s3 = new S3Client({});
 
@@ -64,8 +65,22 @@ export const handler = async (event: any = {}) => {
   }));
 
   const keepKeys = new Set<string>();
-  for (const item of top.Items || []) {
+  const archiveExpiresAt = Math.floor(Date.now() / 1000) + ARCHIVE_TTL_DAYS * 86400;
+  for (const [idx, item] of (top.Items || []).entries()) {
     if (typeof item.imageKey === 'string') keepKeys.add(item.imageKey);
+    if (typeof item.submissionId === 'string') {
+      await ddb.send(new UpdateCommand({
+        TableName: DRAW_TABLE,
+        Key: { promptId, submissionId: item.submissionId },
+        UpdateExpression: 'SET expiresAt = :expiresAt, isRanked = :isRanked, #rank = :rank',
+        ExpressionAttributeNames: { '#rank': 'rank' },
+        ExpressionAttributeValues: {
+          ':expiresAt': archiveExpiresAt,
+          ':isRanked': true,
+          ':rank': idx + 1,
+        },
+      }));
+    }
   }
 
   const allKeys: string[] = [];
@@ -104,6 +119,7 @@ export const handler = async (event: any = {}) => {
     prefix,
     scanned: allKeys.length,
     keepCount: keepKeys.size,
+    archiveExpiresAt,
     deleteCandidates: toDelete.length,
     deleted,
     kept: allKeys.length - deleted,

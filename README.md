@@ -6,7 +6,6 @@ support direct uploads and deployment.
 AWS リソース名・Region・識別情報は `docs/aws-resources.md` を参照してください。
 AWS CLI の標準プロファイル（`codex-prod`）と実行主体も `docs/aws-resources.md` を参照してください。
 一時ファイルの cleanup（uploads/previews/outputs の削除）も `docs/aws-resources.md` を参照してください。
-worktree の役割分担は `docs/worktrees.md` を参照してください。
 
 ## Repo Layout
 

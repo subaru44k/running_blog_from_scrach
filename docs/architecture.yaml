@@ -133,8 +133,8 @@ features:
       - share card generated in browser
       - submit/upload APIs resolve promptId and promptText server-side from month rules
       - primary scoring uses Bedrock Claude 3 Haiku (fallback to stub)
-      - primary scoring asks AI for a 6-axis rubric (0-10 each) and computes final score server-side (weighted)
-      - primary score uses non-linear terms (spread bonus from rubric variance, promptMatch×creativity synergy, completeness penalty)
+      - primary scoring asks AI for a 6-axis rubric (0-10 each) with anchored meanings (0-2 invalid, 3-4 weak, 5-6 average, 7 somewhat good, 8 clearly good, 9 very good, 10 exceptional)
+      - primary score is computed server-side from rubric average plus non-linear bonuses/penalties (strong-axis bonus, promptMatch×shapeClarity synergy, creativity bonus, weak-axis penalty, prompt/completeness penalties)
       - tie-break smoothing applies deterministic score jitter (-1/0/+1) from submissionId when score>=60
       - legacy breakdown (likeness/composition/originality) is derived from rubric for frontend compatibility
       - secondary review uses Bedrock Claude Haiku 4.5 (fallback behavior keeps pending then failed)
@@ -143,6 +143,7 @@ features:
       - /draw/archive/ provides monthly Top20 history from 2026-02 onward (client fetches month-by-month leaderboard)
       - draw backend resources use cost allocation tags (Service=draw, Env=prod)
       - monthly cleanup keeps only previous month's Top20 images and deletes others from S3
+      - draw submissions remain in DynamoDB long enough for monthly final ranking, and monthly cleanup extends Top20 rows to long-term retention for archive pages
 
 assumptions:
   - TODO: CloudFront Distribution ID and error response settings are managed outside docs

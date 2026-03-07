@@ -37,7 +37,8 @@
 4. **submit**: `POST /api/draw/submit`（`promptText` は任意）
    - 画像取得 → inkRatio gate → 一次採点（Bedrock/Haiku、失敗時はスタブ）
    - 一次採点はAIに6項目rubric（0-10）を生成させ、最終scoreはサーバー側で算出
-   - スコア式は `重み付き合計 + rubric分散ボーナス + (お題一致×工夫)相乗 + 未完成ペナルティ`
+   - rubric の採点アンカーは `0-2 成立していない / 3-4 かなり弱い / 5-6 平均的 / 7 やや良い / 8 明確に良い / 9 かなり良い / 10 例外的`
+   - スコア式は `12 + avg*8.8` を基底に、強い項目数・お題一致×形状把握・工夫で加点し、弱い項目数・お題不一致・未完成を減点する非線形式
    - 同点を減らすため、score>=60 の場合のみ `submissionId` 由来の決定的 jitter（-1/0/+1）を適用
    - 既存フロント互換のため breakdown(likeness/composition/originality) はrubricから集約して返却
    - `imageKey` 内の promptId を優先し、サーバー側でお題テキストを確定
@@ -65,6 +66,7 @@
   - secondaryModelId, secondaryInputTokens, secondaryOutputTokens, secondaryTotalTokens, secondaryLatencyMs
   - tokenRecordedAt, aiFallbackUsed
 - TTL: expiresAt
+- 通常投稿は `SUBMISSION_TTL_DAYS`（既定45日）保持し、月次cleanupで確定Top20のみ `ARCHIVE_TTL_DAYS`（既定3650日）へ延長する
 - GSI1 (Leaderboard):
   - GSI1PK: promptId
   - GSI1SK: scoreSortKey = `${(100-score).padStart(3,'0')}#${createdAt}#${submissionId}`
@@ -98,7 +100,8 @@
 - PRIMARY_MODEL_ID（一次採点: Claude 3 Haiku）
 - SECONDARY_MODEL_ID（二次講評: Claude Haiku 4.5）
 - IMAGE_TTL_SECONDS=900
-- SUBMISSION_TTL_DAYS=7
+- SUBMISSION_TTL_DAYS=45
+- ARCHIVE_TTL_DAYS=3650
 - LEADERBOARD_KEEP_LIMIT=20（cleanupがS3に残す件数）
 
 ## フロント環境変数
@@ -118,12 +121,16 @@
 - 判定:
   - DynamoDB `DrawSubmissions` の GSI1（scoreSortKey）で前月Top20を取得
   - tie-breakは既存どおり `createdAt` 昇順（早い投稿優先）
+- DDB保持:
+  - 当月投稿は最低45日残し、月次cleanup時点で前月ぶんの順位確定ができるようにする
+  - cleanup実行時にTop20行の `expiresAt` を長期保持へ更新し、archiveページ用の順位・メタデータを維持する
 - 削除対象:
   - `draw/prompt-YYYY-MM/` 配下のうち、Top20の `imageKey` 以外
 - 監査ログ:
   - `targetMonth / scanned / keepCount / deleteCandidates / deleted` をCloudWatch Logsへ出力
 - 安全策:
   - prefixガード（`draw/prompt-YYYY-MM/` 以外は削除しない）
+  - 旧形式キー（例: `prompt-YYYY-MM-DD`）は復旧時に月次キーへ移してから管理する
 
 ## curl検証例
 ```bash
