@@ -2,7 +2,7 @@
 import Layout from '../../layouts/Layout.astro';
 
 const pageTitle = 'ミニゲーム集｜Subaru is Running';
-const metaDescription = 'お絵かきゲームを含む、短時間で遊べるミニゲームをまとめました。スネーク、めいろ、まるばつをブラウザでそのまま遊べます。';
+const metaDescription = 'お絵かきゲームを含む、短時間で遊べるミニゲームをまとめました。スネーク、めいろ、まるばつ、リバーシをブラウザでそのまま遊べます。';
 
 const featuredGame = {
   href: '/draw/',
@@ -13,6 +13,12 @@ const featuredGame = {
 };
 
 const miniGames = [
+  {
+    href: '/games/reversi/',
+    title: 'リバーシ',
+    description: 'チャットさんとの対戦や2人対戦を切り替えられる、やさしいUIのリバーシです。合法手のドット表示つきで遊びやすくしています。',
+    tags: ['AI対戦', '2人対戦', '盤サイズ変更'],
+  },
   {
     href: '/games/snake/',
     title: 'スネークゲーム',
@@ -61,7 +67,7 @@ const miniGames = [
       <h2 class="text-lg font-semibold mt-0">このページの使い方</h2>
       <ul class="mt-4 space-y-3 text-sm leading-7 text-slate-600 dark:text-slate-300">
         <li>まずは看板コンテンツの「30秒お絵かき採点ゲーム」から遊ぶのがおすすめです。</li>
-        <li>待ち時間なしで遊びたいときは、下のミニゲーム3本から選べます。</li>
+        <li>待ち時間なしで遊びたいときは、下のミニゲーム4本から選べます。</li>
         <li>どのゲームも登録不要で、ブラウザ上ですぐに始められます。</li>
       </ul>
     </aside>

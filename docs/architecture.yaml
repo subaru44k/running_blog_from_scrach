@@ -29,6 +29,7 @@ repo:
           - /games/snake/
           - /games/maze/
           - /games/tic-tac-toe/
+          - /games/reversi/
           - /running-pace/
           - /pdf-compress/
           - /contact/
@@ -81,6 +82,7 @@ site:
       - /games/snake/
       - /games/maze/
       - /games/tic-tac-toe/
+      - /games/reversi/
       - /running-pace/
       - /pdf-compress/
       - /contact/
@@ -158,11 +160,13 @@ features:
       - /games/snake/
       - /games/maze/
       - /games/tic-tac-toe/
+      - /games/reversi/
     behavior:
       - /games/ is the hub page for lightweight browser games
       - global nav links separately to /draw/ and /games/ to keep draw as a first-class feature
-      - /games/ includes the draw game as the featured card and links to three lighter mini-games
-      - snake, maze, and tic-tac-toe are shipped as static Astro pages with inline client-side logic and no backend dependency
+      - /games/ includes the draw game as the featured card and links to four lighter mini-games
+      - snake, maze, tic-tac-toe, and reversi are shipped as static Astro pages with inline client-side logic and no backend dependency
+      - reversi provides AI play and local two-player mode, with localStorage used only for settings persistence
 
 assumptions:
   - TODO: CloudFront Distribution ID and error response settings are managed outside docs

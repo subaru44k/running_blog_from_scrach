@@ -1,0 +1,826 @@
+---
+import Layout from '../../layouts/Layout.astro';
+
+const pageTitle = 'リバーシ｜ミニゲーム';
+const metaDescription = 'チャットさんとの対戦や2人対戦で遊べる、ブラウザ完結のリバーシです。盤サイズや強さを変えながら軽く遊べます。';
+---
+
+<Layout
+  pageTitle={pageTitle}
+  metaDescription={metaDescription}
+  noSidebar={true}
+  pageHeading="リバーシ"
+  pageLead="チャットさんとの対戦と2人対戦を切り替えられます。合法手のドット表示つきで、子どもでも遊びやすい軽めのリバーシです。"
+>
+  <section class="grid gap-6 lg:grid-cols-[minmax(0,1fr)_18rem] lg:items-start">
+    <article class="card p-5 md:p-6">
+      <div class="rv-shell">
+        <div class="rv-top">
+          <div>
+            <p class="rv-kicker">MINI GAME</p>
+            <h2 class="rv-title">リバーシ</h2>
+          </div>
+          <button class="rv-btn rv-btn-primary" id="newGameBtn" type="button">新しいゲーム</button>
+        </div>
+
+        <div class="rv-status" id="status">黒からスタートです</div>
+
+        <div class="rv-settings">
+          <div class="rv-field">
+            <label for="modeSelect">対戦相手</label>
+            <select id="modeSelect">
+              <option value="ai">チャットさん</option>
+              <option value="local">2人対戦</option>
+            </select>
+          </div>
+          <div class="rv-field">
+            <label for="sizeSelect">盤サイズ</label>
+            <select id="sizeSelect">
+              <option value="4">4×4</option>
+              <option value="6" selected>6×6</option>
+              <option value="8">8×8</option>
+              <option value="10">10×10</option>
+              <option value="12">12×12</option>
+            </select>
+          </div>
+          <div class="rv-field" id="aiField">
+            <label for="difficultySelect">AI強さ</label>
+            <select id="difficultySelect">
+              <option value="easy" selected>かんたん</option>
+              <option value="normal">ふつう</option>
+              <option value="hard">つよい</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="rv-meta">
+          <div class="rv-chip">
+            <span class="rv-chip-label">手番</span>
+            <strong id="turnText">黒</strong>
+          </div>
+          <div class="rv-chip">
+            <span class="rv-chip-label">黒</span>
+            <strong id="blackCount">2</strong>
+          </div>
+          <div class="rv-chip">
+            <span class="rv-chip-label">白</span>
+            <strong id="whiteCount">2</strong>
+          </div>
+          <div class="rv-chip rv-chip-wide">
+            <span class="rv-chip-label">結果</span>
+            <strong id="resultText">対局中</strong>
+          </div>
+        </div>
+
+        <div class="rv-board-wrap">
+          <div class="rv-board" id="board" aria-label="リバーシ盤面"></div>
+          <div class="rv-thinking" id="thinkingOverlay" aria-hidden="true">
+            <span>チャットさんが考え中<span class="dots"></span></span>
+          </div>
+        </div>
+
+        <p class="rv-hint">黒があなた、白がチャットさんです。置ける場所には小さなドットが出ます。</p>
+
+        <div class="rv-actions">
+          <button class="rv-btn" id="playAgainBtn" type="button">もう一度プレイ</button>
+          <a href="/games/" class="rv-link-btn">ミニゲーム一覧へ</a>
+        </div>
+      </div>
+    </article>
+
+    <aside class="panel-muted p-5">
+      <h2 class="text-lg font-semibold mt-0">ほかのゲーム</h2>
+      <div class="mt-4 flex flex-col gap-3 text-sm">
+        <a href="/games/snake/" class="rounded-2xl border border-slate-200/80 bg-white/85 px-4 py-3 no-underline transition hover:bg-white dark:border-slate-700/80 dark:bg-slate-900/80 dark:hover:bg-slate-900">スネークゲーム</a>
+        <a href="/games/maze/" class="rounded-2xl border border-slate-200/80 bg-white/85 px-4 py-3 no-underline transition hover:bg-white dark:border-slate-700/80 dark:bg-slate-900/80 dark:hover:bg-slate-900">めいろゲーム</a>
+        <a href="/games/tic-tac-toe/" class="rounded-2xl border border-slate-200/80 bg-white/85 px-4 py-3 no-underline transition hover:bg-white dark:border-slate-700/80 dark:bg-slate-900/80 dark:hover:bg-slate-900">まるばつゲーム</a>
+        <span class="rounded-2xl border border-slate-900/15 bg-slate-900 px-4 py-3 font-semibold text-white dark:border-white/15 dark:bg-white dark:text-slate-950">リバーシ</span>
+        <a href="/draw/" class="rounded-2xl border border-slate-200/80 bg-white/85 px-4 py-3 no-underline transition hover:bg-white dark:border-slate-700/80 dark:bg-slate-900/80 dark:hover:bg-slate-900">お絵かきゲーム</a>
+      </div>
+    </aside>
+  </section>
+
+  <style is:global>
+    .rv-shell { color: rgb(15 23 42); }
+    .rv-top { display:flex; justify-content:space-between; align-items:flex-start; gap:1rem; margin-bottom:1rem; }
+    .rv-kicker { margin:0; font-size:.72rem; letter-spacing:.24em; font-weight:700; color:rgb(100 116 139); }
+    .rv-title { margin:.35rem 0 0; font-size:1.6rem; }
+    .rv-status { margin-bottom:1rem; font-weight:700; padding:.95rem 1rem; border-radius:1rem; background:linear-gradient(135deg, rgba(224,242,254,.88), rgba(226,232,240,.86)); border:1px solid rgba(148,163,184,.28); }
+    .rv-settings { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:.75rem; margin-bottom:1rem; }
+    .rv-field { display:grid; gap:.35rem; }
+    .rv-field label { font-size:.86rem; font-weight:700; color:rgb(71 85 105); }
+    .rv-field select,
+    .rv-btn {
+      border:1px solid rgba(51,65,85,.22);
+      border-radius:1rem;
+      background:rgba(255,255,255,.92);
+      color:rgb(15 23 42);
+      font-weight:700;
+      padding:.8rem 1rem;
+    }
+    .rv-btn { cursor:pointer; transition:transform .15s ease, background-color .15s ease; }
+    .rv-btn:hover { transform:translateY(-1px); background:white; }
+    .rv-btn-primary { background:rgb(15 23 42); color:white; border-color:rgb(15 23 42); }
+    .rv-btn-primary:hover { background:rgb(30 41 59); }
+    .rv-meta { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:.75rem; margin-bottom:1rem; }
+    .rv-chip {
+      display:grid;
+      gap:.2rem;
+      border:1px solid rgba(148,163,184,.35);
+      border-radius:1rem;
+      background:rgba(255,255,255,.85);
+      padding:.8rem .9rem;
+    }
+    .rv-chip-label { font-size:.76rem; font-weight:700; color:rgb(100 116 139); letter-spacing:.08em; }
+    .rv-chip strong { font-size:1.05rem; }
+    .rv-chip-wide { grid-column:span 1; }
+    .rv-board-wrap {
+      position:relative;
+      border:1px solid rgba(51,65,85,.18);
+      border-radius:1.35rem;
+      padding:1rem;
+      background:linear-gradient(180deg,#eef8f0,#dff2e3);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,.72);
+    }
+    .rv-board {
+      --grid-size: 6;
+      --board-width: min(100%, 38rem);
+      display:grid;
+      grid-template-columns:repeat(var(--grid-size), minmax(0, 1fr));
+      grid-template-rows:repeat(var(--grid-size), minmax(0, 1fr));
+      gap:clamp(0.18rem, 0.45vw, 0.35rem);
+      width:var(--board-width);
+      aspect-ratio:1 / 1;
+      margin:0 auto;
+    }
+    .rv-board[data-size="4"] { --board-width: min(100%, 28rem); }
+    .rv-board[data-size="6"] { --board-width: min(100%, 34rem); }
+    .rv-board[data-size="8"] { --board-width: min(100%, 38rem); }
+    .rv-board[data-size="10"] { --board-width: min(100%, 40rem); }
+    .rv-board[data-size="12"] { --board-width: min(100%, 42rem); }
+    .rv-cell {
+      position:relative;
+      border:none;
+      border-radius:0.95rem;
+      background:linear-gradient(180deg, #4ea96d, #2e7f4b);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,.2);
+      cursor:pointer;
+      padding:0;
+      overflow:hidden;
+      transition:transform .12s ease, filter .12s ease;
+    }
+    .rv-cell:hover:not(:disabled) { transform:translateY(-1px); filter:brightness(1.04); }
+    .rv-cell:disabled { cursor:default; }
+    .rv-cell.legal::after {
+      content:"";
+      position:absolute;
+      inset:50% auto auto 50%;
+      width:18%;
+      aspect-ratio:1 / 1;
+      border-radius:999px;
+      background:rgba(255,255,255,.7);
+      transform:translate(-50%, -50%);
+      box-shadow:0 0 0 1px rgba(15,23,42,.08);
+    }
+    .rv-cell.last-move::before {
+      content:"";
+      position:absolute;
+      inset:8%;
+      border-radius:0.8rem;
+      border:2px solid rgba(255,255,255,.8);
+      box-shadow:0 0 0 1px rgba(15,23,42,.12);
+      pointer-events:none;
+    }
+    .rv-disc {
+      position:absolute;
+      inset:12%;
+      border-radius:999px;
+      transition:transform .16s ease, background-color .16s ease, box-shadow .16s ease;
+      box-shadow:inset 0 2px 6px rgba(255,255,255,.28), inset 0 -4px 10px rgba(0,0,0,.12);
+      backface-visibility:hidden;
+    }
+    .rv-disc.black { background:radial-gradient(circle at 35% 30%, #4b5563, #0f172a 70%); }
+    .rv-disc.white { background:radial-gradient(circle at 35% 30%, #ffffff, #dbe4f0 72%); }
+    .rv-disc.flip { animation: rvFlip .18s ease; }
+    @keyframes rvFlip {
+      0% { transform:rotateY(0deg) scale(1); }
+      50% { transform:rotateY(90deg) scale(.92); }
+      100% { transform:rotateY(180deg) scale(1); }
+    }
+    .rv-thinking {
+      position:absolute;
+      inset:1rem;
+      border-radius:1rem;
+      background:rgba(15,23,42,.42);
+      color:white;
+      display:grid;
+      place-items:center;
+      opacity:0;
+      pointer-events:none;
+      transition:opacity 140ms ease;
+      font-weight:800;
+      text-align:center;
+      padding:1rem;
+    }
+    .rv-thinking.active { opacity:1; }
+    .rv-thinking .dots::after {
+      content:"...";
+      display:inline-block;
+      width:1.2em;
+      overflow:hidden;
+      vertical-align:bottom;
+      animation: rvDots 1s steps(4,end) infinite;
+    }
+    @keyframes rvDots { 0% { width:0; } 100% { width:1.2em; } }
+    .rv-hint { margin-top:1rem; color:rgb(71 85 105); font-size:.95rem; line-height:1.8; }
+    .rv-actions { margin-top:1rem; display:flex; flex-wrap:wrap; gap:.75rem; }
+    .rv-link-btn {
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      border:1px solid rgba(51,65,85,.18);
+      border-radius:999px;
+      background:rgba(255,255,255,.88);
+      color:rgb(15 23 42);
+      font-weight:700;
+      padding:.8rem 1.1rem;
+      text-decoration:none;
+      transition:transform .15s ease, background-color .15s ease;
+    }
+    .rv-link-btn:hover { transform:translateY(-1px); background:white; }
+    @media (max-width: 720px) {
+      .rv-settings,
+      .rv-meta { grid-template-columns:1fr 1fr; }
+      .rv-chip-wide { grid-column:span 2; }
+    }
+    @media (max-width: 520px) {
+      .rv-settings,
+      .rv-meta { grid-template-columns:1fr; }
+      .rv-chip-wide { grid-column:span 1; }
+      .rv-board-wrap { padding:.7rem; }
+      .rv-thinking { inset:.7rem; }
+    }
+  </style>
+
+  <script is:inline>
+    const STORAGE_KEY = 'games.reversi.settings.v1';
+    const BLACK = 1;
+    const WHITE = -1;
+    const EMPTY = 0;
+    const DIRECTIONS = [
+      [-1, -1], [0, -1], [1, -1],
+      [-1, 0],           [1, 0],
+      [-1, 1],  [0, 1],  [1, 1],
+    ];
+
+    const boardElement = document.getElementById('board');
+    const statusElement = document.getElementById('status');
+    const newGameBtn = document.getElementById('newGameBtn');
+    const playAgainBtn = document.getElementById('playAgainBtn');
+    const modeSelect = document.getElementById('modeSelect');
+    const sizeSelect = document.getElementById('sizeSelect');
+    const difficultySelect = document.getElementById('difficultySelect');
+    const aiField = document.getElementById('aiField');
+    const thinkingOverlay = document.getElementById('thinkingOverlay');
+    const turnText = document.getElementById('turnText');
+    const blackCount = document.getElementById('blackCount');
+    const whiteCount = document.getElementById('whiteCount');
+    const resultText = document.getElementById('resultText');
+
+    const state = {
+      mode: 'ai',
+      size: 6,
+      difficulty: 'easy',
+      board: [],
+      currentPlayer: BLACK,
+      legalMoves: [],
+      gameOver: false,
+      winner: EMPTY,
+      lastMove: null,
+      lastFlips: [],
+      aiTimer: null,
+      aiMovePlanned: null,
+      isThinking: false,
+      message: '黒からスタートです',
+    };
+
+    function loadSettings() {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (!raw) return;
+        const parsed = JSON.parse(raw);
+        if (parsed.mode === 'ai' || parsed.mode === 'local') state.mode = parsed.mode;
+        if ([4, 6, 8, 10, 12].includes(parsed.size)) state.size = parsed.size;
+        if (parsed.difficulty === 'easy' || parsed.difficulty === 'normal' || parsed.difficulty === 'hard') state.difficulty = parsed.difficulty;
+      } catch (_) {}
+    }
+
+    function saveSettings() {
+      const payload = {
+        mode: state.mode,
+        size: state.size,
+        difficulty: state.difficulty,
+      };
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
+    }
+
+    function indexFor(row, col, size) {
+      return row * size + col;
+    }
+
+    function coordsFor(index, size) {
+      return { row: Math.floor(index / size), col: index % size };
+    }
+
+    function inBounds(row, col, size) {
+      return row >= 0 && col >= 0 && row < size && col < size;
+    }
+
+    function createInitialBoard(size) {
+      const board = Array(size * size).fill(EMPTY);
+      const a = size / 2 - 1;
+      const b = size / 2;
+      board[indexFor(a, a, size)] = WHITE;
+      board[indexFor(a, b, size)] = BLACK;
+      board[indexFor(b, a, size)] = BLACK;
+      board[indexFor(b, b, size)] = WHITE;
+      return board;
+    }
+
+    function getFlips(board, size, row, col, player) {
+      if (board[indexFor(row, col, size)] !== EMPTY) return [];
+      const flips = [];
+      for (const [dx, dy] of DIRECTIONS) {
+        const line = [];
+        let nextRow = row + dy;
+        let nextCol = col + dx;
+        while (inBounds(nextRow, nextCol, size)) {
+          const value = board[indexFor(nextRow, nextCol, size)];
+          if (value === EMPTY) {
+            line.length = 0;
+            break;
+          }
+          if (value === player) {
+            break;
+          }
+          line.push(indexFor(nextRow, nextCol, size));
+          nextRow += dy;
+          nextCol += dx;
+        }
+        if (!line.length) continue;
+        if (!inBounds(nextRow, nextCol, size)) continue;
+        if (board[indexFor(nextRow, nextCol, size)] !== player) continue;
+        flips.push(...line);
+      }
+      return flips;
+    }
+
+    function getLegalMoves(board, size, player) {
+      const moves = [];
+      for (let row = 0; row < size; row += 1) {
+        for (let col = 0; col < size; col += 1) {
+          const flips = getFlips(board, size, row, col, player);
+          if (flips.length) {
+            moves.push({ index: indexFor(row, col, size), flips });
+          }
+        }
+      }
+      return moves;
+    }
+
+    function applyMove(board, moveIndex, flips, player) {
+      const nextBoard = board.slice();
+      nextBoard[moveIndex] = player;
+      for (const flipIndex of flips) nextBoard[flipIndex] = player;
+      return nextBoard;
+    }
+
+    function countPieces(board) {
+      let black = 0;
+      let white = 0;
+      for (const cell of board) {
+        if (cell === BLACK) black += 1;
+        if (cell === WHITE) white += 1;
+      }
+      return { black, white };
+    }
+
+    function otherPlayer(player) {
+      return player === BLACK ? WHITE : BLACK;
+    }
+
+    function stoneName(player) {
+      return player === BLACK ? '黒' : '白';
+    }
+
+    function actorName(player) {
+      if (state.mode === 'local') return player === BLACK ? '黒' : '白';
+      return player === BLACK ? 'あなた' : 'チャットさん';
+    }
+
+    function getWinnerText() {
+      const counts = countPieces(state.board);
+      if (!state.gameOver) return '対局中';
+      if (counts.black === counts.white) return '引き分け';
+      return counts.black > counts.white ? '黒の勝ち' : '白の勝ち';
+    }
+
+    function buildWeights(size) {
+      const weights = Array(size * size).fill(2);
+      for (let row = 0; row < size; row += 1) {
+        for (let col = 0; col < size; col += 1) {
+          let score = 3;
+          const isCorner = (row === 0 || row === size - 1) && (col === 0 || col === size - 1);
+          const adjacentCorner =
+            ((row === 0 || row === 1 || row === size - 2 || row === size - 1) &&
+             (col === 0 || col === 1 || col === size - 2 || col === size - 1)) && !isCorner;
+          const isEdge = row === 0 || col === 0 || row === size - 1 || col === size - 1;
+          const nearEdge = row === 1 || col === 1 || row === size - 2 || col === size - 2;
+          if (isCorner) score = 48;
+          else if (adjacentCorner) score = -18;
+          else if (isEdge) score = 10;
+          else if (nearEdge) score = 1;
+          else score = 4;
+          weights[indexFor(row, col, size)] = score;
+        }
+      }
+      return weights;
+    }
+
+    function countStableFromCorners(board, size, player) {
+      const corners = [
+        { row: 0, col: 0, dr: 1, dc: 0, er: 0, ec: 1 },
+        { row: 0, col: size - 1, dr: 1, dc: 0, er: 0, ec: -1 },
+        { row: size - 1, col: 0, dr: -1, dc: 0, er: 0, ec: 1 },
+        { row: size - 1, col: size - 1, dr: -1, dc: 0, er: 0, ec: -1 },
+      ];
+      const seen = new Set();
+      for (const corner of corners) {
+        const cornerIndex = indexFor(corner.row, corner.col, size);
+        if (board[cornerIndex] !== player) continue;
+        let row = corner.row;
+        let col = corner.col;
+        while (inBounds(row, col, size) && board[indexFor(row, col, size)] === player) {
+          seen.add(indexFor(row, col, size));
+          row += corner.dr;
+          col += corner.dc;
+        }
+        row = corner.row;
+        col = corner.col;
+        while (inBounds(row, col, size) && board[indexFor(row, col, size)] === player) {
+          seen.add(indexFor(row, col, size));
+          row += corner.er;
+          col += corner.ec;
+        }
+      }
+      return seen.size;
+    }
+
+    function evaluateBoard(board, size) {
+      const counts = countPieces(board);
+      const total = counts.black + counts.white;
+      const maxTotal = size * size;
+      const myMoves = getLegalMoves(board, size, WHITE).length;
+      const oppMoves = getLegalMoves(board, size, BLACK).length;
+      const weights = buildWeights(size);
+
+      let positional = 0;
+      for (let i = 0; i < board.length; i += 1) {
+        if (board[i] === WHITE) positional += weights[i];
+        if (board[i] === BLACK) positional -= weights[i];
+      }
+
+      const corners = [
+        indexFor(0, 0, size),
+        indexFor(0, size - 1, size),
+        indexFor(size - 1, 0, size),
+        indexFor(size - 1, size - 1, size),
+      ];
+      let cornerScore = 0;
+      for (const idx of corners) {
+        if (board[idx] === WHITE) cornerScore += 1;
+        if (board[idx] === BLACK) cornerScore -= 1;
+      }
+
+      const stability = countStableFromCorners(board, size, WHITE) - countStableFromCorners(board, size, BLACK);
+      const discDiff = counts.white - counts.black;
+      const progress = total / maxTotal;
+      const mobilityScore = myMoves - oppMoves;
+      const discWeight = progress > 0.8 ? 4 : progress > 0.55 ? 2.2 : 0.8;
+
+      return (
+        cornerScore * 140 +
+        mobilityScore * 12 +
+        positional * 1.4 +
+        stability * 16 +
+        discDiff * discWeight
+      );
+    }
+
+    function isTerminal(board, size) {
+      return !getLegalMoves(board, size, BLACK).length && !getLegalMoves(board, size, WHITE).length;
+    }
+
+    function chooseDepth(size, difficulty) {
+      if (difficulty === 'easy') return size >= 10 ? 1 : 2;
+      if (difficulty === 'normal') {
+        if (size >= 10) return 2;
+        if (size >= 8) return 3;
+        return 4;
+      }
+      if (size >= 12) return 3;
+      if (size >= 10) return 4;
+      if (size >= 8) return 4;
+      return 5;
+    }
+
+    function minimax(board, size, player, depth, alpha, beta, passCount) {
+      if (depth === 0 || passCount >= 2 || isTerminal(board, size)) {
+        return evaluateBoard(board, size);
+      }
+
+      const moves = getLegalMoves(board, size, player);
+      if (!moves.length) {
+        return minimax(board, size, otherPlayer(player), depth - 1, alpha, beta, passCount + 1);
+      }
+
+      const orderedMoves = moves
+        .map((move) => {
+          const next = applyMove(board, move.index, move.flips, player);
+          return { move, score: evaluateBoard(next, size) };
+        })
+        .sort((a, b) => player === WHITE ? b.score - a.score : a.score - b.score);
+
+      if (player === WHITE) {
+        let best = -Infinity;
+        for (const item of orderedMoves) {
+          const next = applyMove(board, item.move.index, item.move.flips, player);
+          const score = minimax(next, size, BLACK, depth - 1, alpha, beta, 0);
+          best = Math.max(best, score);
+          alpha = Math.max(alpha, best);
+          if (beta <= alpha) break;
+        }
+        return best;
+      }
+
+      let best = Infinity;
+      for (const item of orderedMoves) {
+        const next = applyMove(board, item.move.index, item.move.flips, player);
+        const score = minimax(next, size, WHITE, depth - 1, alpha, beta, 0);
+        best = Math.min(best, score);
+        beta = Math.min(beta, best);
+        if (beta <= alpha) break;
+      }
+      return best;
+    }
+
+    function chooseAiMove() {
+      const moves = getLegalMoves(state.board, state.size, WHITE);
+      if (!moves.length) return null;
+      const depth = chooseDepth(state.size, state.difficulty);
+      const scored = moves.map((move) => {
+        const next = applyMove(state.board, move.index, move.flips, WHITE);
+        const score = minimax(next, state.size, BLACK, depth - 1, -Infinity, Infinity, 0);
+        return { ...move, score };
+      }).sort((a, b) => b.score - a.score);
+
+      if (state.difficulty === 'easy') {
+        const top = scored.slice(0, Math.min(3, scored.length));
+        return top[Math.floor(Math.random() * top.length)];
+      }
+      if (state.difficulty === 'normal') {
+        const top = scored.slice(0, Math.min(2, scored.length));
+        return top[Math.floor(Math.random() * top.length)];
+      }
+      return scored[0];
+    }
+
+    function updateStatus(message) {
+      state.message = message;
+      statusElement.textContent = message;
+    }
+
+    function setThinking(active) {
+      state.isThinking = active;
+      thinkingOverlay.classList.toggle('active', active);
+    }
+
+    function renderBoard() {
+      boardElement.innerHTML = '';
+      boardElement.style.setProperty('--grid-size', String(state.size));
+      boardElement.dataset.size = String(state.size);
+      const legalSet = new Set(state.legalMoves.map((move) => move.index));
+      const flipSet = new Set(state.lastFlips);
+
+      for (let index = 0; index < state.board.length; index += 1) {
+        const cell = document.createElement('button');
+        cell.type = 'button';
+        cell.className = 'rv-cell';
+        if (
+          !state.gameOver &&
+          !state.isThinking &&
+          state.currentPlayer === BLACK &&
+          legalSet.has(index)
+        ) {
+          cell.classList.add('legal');
+        }
+        if (state.lastMove === index) {
+          cell.classList.add('last-move');
+        }
+        cell.disabled = !(legalSet.has(index) && !state.gameOver && !state.isThinking && (state.mode === 'local' || state.currentPlayer === BLACK));
+        cell.setAttribute('aria-label', `${Math.floor(index / state.size) + 1}行${(index % state.size) + 1}列`);
+        cell.addEventListener('click', () => {
+          if (cell.disabled) return;
+          handleMove(index);
+        });
+
+        const value = state.board[index];
+        if (value !== EMPTY) {
+          const disc = document.createElement('span');
+          disc.className = `rv-disc ${value === BLACK ? 'black' : 'white'}`;
+          if (flipSet.has(index)) disc.classList.add('flip');
+          cell.appendChild(disc);
+        }
+        boardElement.appendChild(cell);
+      }
+    }
+
+    function renderMeta() {
+      const counts = countPieces(state.board);
+      blackCount.textContent = String(counts.black);
+      whiteCount.textContent = String(counts.white);
+      resultText.textContent = getWinnerText();
+      if (state.gameOver) {
+        turnText.textContent = '終了';
+      } else if (state.mode === 'ai') {
+        turnText.textContent = state.currentPlayer === BLACK ? 'あなた（黒）' : 'チャットさん（白）';
+      } else {
+        turnText.textContent = `${stoneName(state.currentPlayer)}の番`;
+      }
+    }
+
+    function renderAll() {
+      renderBoard();
+      renderMeta();
+      statusElement.textContent = state.message;
+      aiField.style.display = state.mode === 'ai' ? 'grid' : 'none';
+      modeSelect.value = state.mode;
+      sizeSelect.value = String(state.size);
+      difficultySelect.value = state.difficulty;
+    }
+
+    function clearFlipMarkersSoon() {
+      window.setTimeout(() => {
+        state.lastFlips = [];
+        renderBoard();
+      }, 220);
+    }
+
+    function finishGame() {
+      state.gameOver = true;
+      setThinking(false);
+      const counts = countPieces(state.board);
+      if (counts.black === counts.white) {
+        updateStatus('引き分けです');
+      } else if (counts.black > counts.white) {
+        updateStatus(state.mode === 'ai' ? 'あなたの勝ちです' : '黒の勝ちです');
+      } else {
+        updateStatus(state.mode === 'ai' ? 'チャットさんの勝ちです' : '白の勝ちです');
+      }
+      renderAll();
+    }
+
+    function legalFor(player) {
+      return getLegalMoves(state.board, state.size, player);
+    }
+
+    function maybeHandleTurn(player, message) {
+      const moves = legalFor(player);
+      if (moves.length) {
+        state.currentPlayer = player;
+        state.legalMoves = moves;
+        updateStatus(message);
+        renderAll();
+        if (state.mode === 'ai' && player === WHITE && !state.gameOver) {
+          runAiTurn();
+        }
+        return;
+      }
+
+      const other = otherPlayer(player);
+      const otherMoves = legalFor(other);
+      if (!otherMoves.length) {
+        state.legalMoves = [];
+        finishGame();
+        return;
+      }
+
+      const passText = state.mode === 'ai'
+        ? (player === WHITE ? 'チャットさんはパスしました' : 'あなたはパスです')
+        : `${stoneName(player)}はパスです`;
+      state.currentPlayer = other;
+      state.legalMoves = otherMoves;
+      updateStatus(passText);
+      renderAll();
+      if (state.mode === 'ai' && other === WHITE && !state.gameOver) {
+        runAiTurn();
+      }
+    }
+
+    function applyTurn(index, player) {
+      const move = state.legalMoves.find((entry) => entry.index === index) ?? (() => {
+        const coords = coordsFor(index, state.size);
+        const flips = getFlips(state.board, state.size, coords.row, coords.col, player);
+        return flips.length ? { index, flips } : null;
+      })();
+      if (!move) return;
+
+      state.board = applyMove(state.board, move.index, move.flips, player);
+      state.lastMove = move.index;
+      state.lastFlips = move.flips.slice();
+      renderBoard();
+      renderMeta();
+      clearFlipMarkersSoon();
+      maybeHandleTurn(otherPlayer(player), player === BLACK ? '白の番です' : '黒の番です');
+    }
+
+    function handleMove(index) {
+      if (state.gameOver || state.isThinking) return;
+      if (state.mode === 'ai' && state.currentPlayer !== BLACK) return;
+      applyTurn(index, state.currentPlayer);
+    }
+
+    function runAiTurn() {
+      if (state.gameOver || state.currentPlayer !== WHITE || state.mode !== 'ai') return;
+      const move = chooseAiMove();
+      if (!move) {
+        maybeHandleTurn(BLACK, 'チャットさんはパスしました');
+        return;
+      }
+      state.aiMovePlanned = move;
+      setThinking(true);
+      renderAll();
+      const wait = 1000 + Math.floor(Math.random() * 2000);
+      window.clearTimeout(state.aiTimer);
+      state.aiTimer = window.setTimeout(() => {
+        setThinking(false);
+        if (state.gameOver) return;
+        applyTurn(state.aiMovePlanned.index, WHITE);
+        state.aiMovePlanned = null;
+      }, wait);
+    }
+
+    function resetGame() {
+      window.clearTimeout(state.aiTimer);
+      state.board = createInitialBoard(state.size);
+      state.currentPlayer = BLACK;
+      state.legalMoves = legalFor(BLACK);
+      state.gameOver = false;
+      state.winner = EMPTY;
+      state.lastMove = null;
+      state.lastFlips = [];
+      state.aiMovePlanned = null;
+      setThinking(false);
+      updateStatus('黒からスタートです');
+      saveSettings();
+      renderAll();
+    }
+
+    function syncSettingsFromInputs() {
+      state.mode = modeSelect.value;
+      state.size = Number(sizeSelect.value);
+      state.difficulty = difficultySelect.value;
+    }
+
+    modeSelect.addEventListener('change', () => {
+      syncSettingsFromInputs();
+      resetGame();
+    });
+
+    sizeSelect.addEventListener('change', () => {
+      syncSettingsFromInputs();
+      resetGame();
+    });
+
+    difficultySelect.addEventListener('change', () => {
+      syncSettingsFromInputs();
+      resetGame();
+    });
+
+    newGameBtn.addEventListener('click', () => {
+      syncSettingsFromInputs();
+      resetGame();
+    });
+
+    playAgainBtn.addEventListener('click', () => {
+      syncSettingsFromInputs();
+      resetGame();
+    });
+
+    loadSettings();
+    modeSelect.value = state.mode;
+    sizeSelect.value = String(state.size);
+    difficultySelect.value = state.difficulty;
+    resetGame();
+  </script>
+</Layout>

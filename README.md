@@ -11,7 +11,7 @@ AWS CLI の標準プロファイル（`codex-prod`）と実行主体も `docs/aw
 
 - `astro-blog/`
   - Astro v5 website (tools hub + blog + tools pages)
-  - Pages: Hub (`/`), Blog (`/blog/`), Draw (`/draw/`), Mini Games (`/games/`), Running Pace (`/running-pace/`), PDF Compressor (`/pdf-compress/`), About, Contact, Privacy, 404
+  - Pages: Hub (`/`), Blog (`/blog/`), Draw (`/draw/`), Mini Games (`/games/` incl. snake/maze/tic-tac-toe/reversi), Running Pace (`/running-pace/`), PDF Compressor (`/pdf-compress/`), About, Contact, Privacy, 404
   - Async calendar data at `GET /cal-map/{YYYY}/{MM}.json` reduces page weight
   - Google Analytics (gtag) with IP anonymization and AdSense snippet
   - CodeBuild buildspec (`astro-blog/buildspec.yml`) for S3 + CloudFront deploy
