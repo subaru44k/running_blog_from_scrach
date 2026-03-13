@@ -40,7 +40,7 @@
 ## フォールバック
 - JSONパース失敗 / 例外時は scoreStub にフォールバック
 - サーバ側で rubric を clamp し、重み付き平均ベースで visible score(0..100) を算出する
-  - `score = round(max(20, weighted * 14))`
+  - `score = round(max(20, weighted * 14 - 10))`
   - `weighted = promptMatch*0.30 + shapeClarity*0.22 + completeness*0.16 + composition*0.14 + creativity*0.10 + lineStability*0.08`
   - モデルの rubric を尊重しつつ、可視スコアだけを 20〜100 に広げる
 - legacy互換のため breakdown(likeness/composition/originality) に集約して返却

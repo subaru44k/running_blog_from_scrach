@@ -62,7 +62,7 @@ const computeScoreFromRubric = (rubric) => {
     rubric.composition * 0.14 +
     rubric.creativity * 0.10 +
     rubric.lineStability * 0.08;
-  return clampScore(Math.max(20, weighted * 14));
+  return clampScore(Math.max(20, weighted * 14 - 10));
 };
 
 const normalizePrimary = (input) => {

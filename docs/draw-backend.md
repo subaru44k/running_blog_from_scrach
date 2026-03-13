@@ -39,7 +39,7 @@
    - 一次採点はAIに6項目rubric（0-10）を生成させ、最終scoreはサーバー側で算出
    - rubric の採点アンカーは `0-2 成立していない / 3-4 かなり弱い / 5-6 平均的 / 7 やや良い / 8 明確に良い / 9 かなり良い / 10 例外的`
    - スコア式は weighted average ベース
-     - `score = round(max(20, weighted * 14))`
+     - `score = round(max(20, weighted * 14 - 10))`
      - `weighted = promptMatch*0.30 + shapeClarity*0.22 + completeness*0.16 + composition*0.14 + creativity*0.10 + lineStability*0.08`
    - モデルが出した rubric をそのまま重視し、可視スコアだけを 20〜100 に広げる
    - 既存フロント互換のため breakdown(likeness/composition/originality) はrubricから集約して返却

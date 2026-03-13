@@ -72,7 +72,7 @@ flowchart LR
 - `/draw/` 系は sitemap に含める。グローバルナビから「お絵かきゲーム」として導線を提供する。
 - `/games/` 系も sitemap に含める。グローバルナビには「ミニゲーム」を追加し、`/draw/` は独立導線のまま維持する。
 - 一次採点は Bedrock Claude 3 Haiku（JSON出力）を使用、失敗時はスタブにフォールバック。
-- 一次の最終 score は server-side で rubric の weighted average から算出し、20〜100 に収める。
+- 一次の最終 score は server-side で rubric の weighted average から算出し、20〜100 に収める。現在は `round(max(20, weighted*14 - 10))` を使用する。
 - 二次講評は Bedrock Claude Haiku 4.5 を使用し、失敗時は pending → failed で終了。
 - 画像保管は当月は全件保持し、毎月1日の月次ジョブで「前月Top20以外」を削除する。
 

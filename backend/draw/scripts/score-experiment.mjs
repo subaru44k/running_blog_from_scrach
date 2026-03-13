@@ -242,7 +242,7 @@ const formulas = {
       r.composition * 0.14 +
       r.creativity * 0.10 +
       r.lineStability * 0.08;
-    return clampScore(Math.max(20, weighted * 14));
+    return clampScore(Math.max(20, weighted * 14 - 10));
   },
 };
 
