@@ -71,36 +71,15 @@ const toLegacyBreakdown = (rubric) => ({
   originality: clampScore((rubric.creativity * 0.7 + rubric.lineStability * 0.3) * 10),
 });
 
-const computeLatentScoreFromRubric = (rubric) => {
-  const values = [
-    rubric.promptMatch,
-    rubric.composition,
-    rubric.shapeClarity,
-    rubric.lineStability,
-    rubric.creativity,
-    rubric.completeness,
-  ];
-  const avg = values.reduce((a, b) => a + b, 0) / values.length;
-  const strong = values.filter((v) => v >= 8).length;
-  const weak = values.filter((v) => v <= 4).length;
-  let score = 12 + avg * 8.8;
-  score += strong * 3.2;
-  score += rubric.promptMatch >= 8 && rubric.shapeClarity >= 7 ? 5 : 0;
-  score += rubric.creativity >= 7 ? 2 : 0;
-  score -= weak * 4.5;
-  score -= rubric.promptMatch <= 4 ? 6 : 0;
-  score -= rubric.completeness <= 4 ? 4 : 0;
-  return Math.max(0, Math.min(100, score));
-};
-
-const stretchPrimaryScore = (latentScore) => {
-  const normalized = Math.max(0, Math.min(1, (latentScore - 25) / 48));
-  return clampScore(20 + normalized * 80);
-};
-
 const computeScoreFromRubric = (rubric) => {
-  const latentScore = computeLatentScoreFromRubric(rubric);
-  return stretchPrimaryScore(latentScore);
+  const weighted =
+    rubric.promptMatch * 0.30 +
+    rubric.shapeClarity * 0.22 +
+    rubric.completeness * 0.16 +
+    rubric.composition * 0.14 +
+    rubric.creativity * 0.10 +
+    rubric.lineStability * 0.08;
+  return clampScore(Math.max(20, weighted * 14));
 };
 
 const computeInkRatio = (buffer) => {
@@ -133,10 +112,11 @@ const buildPrimaryUser = (promptText, imageBase64) => ([
       `{"rubric":{"promptMatch":0-10,"composition":0-10,"shapeClarity":0-10,"lineStability":0-10,"creativity":0-10,"completeness":0-10},` +
       `"oneLiner":"90文字以内の前向き短評","tips":["短い名詞句を2-3個"]}\n` +
       `採点基準を固定する。0-2は成立していない、3-4はかなり弱い、5-6は平均的、7はやや良い、8は明確に良い、9はかなり良い、10はごく少数の例外的に強い作品のみ。` +
-      `平均的なユーザー作品に対して安易に7や8を付けないこと。` +
       `rubricは必ず1点刻みの整数で評価すること。` +
-      `6項目のうち少なくとも3項目は同じ値にしないこと。` +
-      `弱い点が見えたら4以下を使うこと。強みが明確なら9以上を使うこと。` +
+      `各項目は自然に評価し、同じ値が複数あってもよい。` +
+      `お題と違うものを描いている場合は promptMatch を低くしてよい。` +
+      `読みにくい絵や未完成の絵には低い点を付けてよい。` +
+      `明確に良い点がある場合だけ高い点を付けること。` +
       `oneLinerとtipsは日本語のみで出力し、英語表現は使わないこと。` +
       `tipsは体言止めの短い語句にすること。`,
   },

@@ -30,24 +30,17 @@
   - 8: 明確に良い
   - 9: かなり良い
   - 10: ごく少数の例外的に強い作品のみ
-- 平均的な作品に安易に 7 や 8 を付けない
-- rubric の6項目のうち、少なくとも3項目は同じ値にしない
-- 弱点が見えたら 4 以下を使い、明確な強みがある場合のみ 9 以上を使う
+- 各項目は自然に評価し、同じ値が複数あってもよい
+- お題と違うものを描いている場合は `promptMatch` を低くしてよい
+- 読みにくい絵や未完成の絵には低い点を付けてよい
+- 明確に良い点がある場合だけ高い点を付ける
 - tips は2〜3個
 - oneLiner / tips は日本語のみ（英語・ローマ字は禁止）
 
 ## フォールバック
 - JSONパース失敗 / 例外時は scoreStub にフォールバック
-- サーバ側で rubric を clamp し、まず latent score を算出した上で、単調変換して visible score(0..100) を返す
-  - latent score:
-    - `12 + avg*8.8`
-    - 強い項目数（8以上）に応じた加点
-    - `promptMatch >= 8 && shapeClarity >= 7` の相乗加点
-    - `creativity >= 7` の加点
-    - 弱い項目数（4以下）に応じた減点
-    - `promptMatch <= 4` / `completeness <= 4` の追加減点
-  - visible score:
-    - `normalized = clamp((latent - 25) / 48, 0..1)`
-    - `score = round(20 + normalized * 80)`
-  - 目的は、順位を大きく崩さずに20〜100へ見た目の点差を広げること
+- サーバ側で rubric を clamp し、重み付き平均ベースで visible score(0..100) を算出する
+  - `score = round(max(20, weighted * 14))`
+  - `weighted = promptMatch*0.30 + shapeClarity*0.22 + completeness*0.16 + composition*0.14 + creativity*0.10 + lineStability*0.08`
+  - モデルの rubric を尊重しつつ、可視スコアだけを 20〜100 に広げる
 - legacy互換のため breakdown(likeness/composition/originality) に集約して返却

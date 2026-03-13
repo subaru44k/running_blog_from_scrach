@@ -72,36 +72,15 @@ const normalizeRubric = (input: any): PrimaryRubric => {
   };
 };
 
-const computeLatentScoreFromRubric = (rubric: PrimaryRubric) => {
-  const values = [
-    rubric.promptMatch,
-    rubric.composition,
-    rubric.shapeClarity,
-    rubric.lineStability,
-    rubric.creativity,
-    rubric.completeness,
-  ];
-  const avg = values.reduce((a, b) => a + b, 0) / values.length;
-  const strong = values.filter((v) => v >= 8).length;
-  const weak = values.filter((v) => v <= 4).length;
-  let score = 12 + avg * 8.8;
-  score += strong * 3.2;
-  score += rubric.promptMatch >= 8 && rubric.shapeClarity >= 7 ? 5 : 0;
-  score += rubric.creativity >= 7 ? 2 : 0;
-  score -= weak * 4.5;
-  score -= rubric.promptMatch <= 4 ? 6 : 0;
-  score -= rubric.completeness <= 4 ? 4 : 0;
-  return Math.max(0, Math.min(100, score));
-};
-
-const stretchPrimaryScore = (latentScore: number) => {
-  const normalized = Math.max(0, Math.min(1, (latentScore - 25) / 48));
-  return clampScore(20 + normalized * 80);
-};
-
 const computeScoreFromRubric = (rubric: PrimaryRubric) => {
-  const latentScore = computeLatentScoreFromRubric(rubric);
-  return stretchPrimaryScore(latentScore);
+  const weighted =
+    rubric.promptMatch * 0.30 +
+    rubric.shapeClarity * 0.22 +
+    rubric.completeness * 0.16 +
+    rubric.composition * 0.14 +
+    rubric.creativity * 0.10 +
+    rubric.lineStability * 0.08;
+  return clampScore(Math.max(20, weighted * 14));
 };
 
 const toLegacyBreakdown = (rubric: PrimaryRubric) => ({

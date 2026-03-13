@@ -57,8 +57,9 @@ const prompts = {
     `{"rubric":{"promptMatch":0-10,"composition":0-10,"shapeClarity":0-10,"lineStability":0-10,"creativity":0-10,"completeness":0-10},` +
     `"oneLiner":"90文字以内の前向き短評","tips":["短い名詞句を2-3個"]}\n` +
     `採点の基準を次のように固定すること。0-2は成立していない、3-4はかなり弱い、5-6は平均的、7はやや良い、8は明確に良い、9はかなり良い、10はごく少数の例外的に強い作品のみ。` +
-    `平均的なユーザー作品に対して安易に7や8を付けないこと。` +
-    `6項目のうち少なくとも3項目は同じ値にしないこと。弱い点が見えたら4以下を使うこと。強みが明確なら9以上を使うこと。`,
+    `各項目は自然に評価し、同じ値が複数あってもよい。` +
+    `お題と違うものを描いている場合は promptMatch を低くしてよい。` +
+    `読みにくい絵や未完成の絵には低い点を付けてよい。明確に良い点がある場合だけ高い点を付けること。`,
 };
 
 const systemPrompt = `あなたは30秒お絵描きゲームの一次採点担当です。
@@ -234,20 +235,14 @@ const formulas = {
     return clampScore(18 + weighted + rangeBonus + creativeLift + eliteLift - floorPenalty);
   },
   prod_candidate: (r) => {
-    const values = [r.promptMatch, r.composition, r.shapeClarity, r.lineStability, r.creativity, r.completeness];
-    const avg = values.reduce((a, b) => a + b, 0) / values.length;
-    const strong = values.filter((v) => v >= 8).length;
-    const weak = values.filter((v) => v <= 4).length;
-    let latent = 12 + avg * 8.8;
-    latent += strong * 3.2;
-    latent += r.promptMatch >= 8 && r.shapeClarity >= 7 ? 5 : 0;
-    latent += r.creativity >= 7 ? 2 : 0;
-    latent -= weak * 4.5;
-    latent -= r.promptMatch <= 4 ? 6 : 0;
-    latent -= r.completeness <= 4 ? 4 : 0;
-    latent = Math.max(0, Math.min(100, latent));
-    const normalized = Math.max(0, Math.min(1, (latent - 25) / 48));
-    return clampScore(20 + normalized * 80);
+    const weighted =
+      r.promptMatch * 0.30 +
+      r.shapeClarity * 0.22 +
+      r.completeness * 0.16 +
+      r.composition * 0.14 +
+      r.creativity * 0.10 +
+      r.lineStability * 0.08;
+    return clampScore(Math.max(20, weighted * 14));
   },
 };
 
