@@ -72,7 +72,7 @@ const normalizeRubric = (input: any): PrimaryRubric => {
   };
 };
 
-const computeScoreFromRubric = (rubric: PrimaryRubric) => {
+const computeLatentScoreFromRubric = (rubric: PrimaryRubric) => {
   const values = [
     rubric.promptMatch,
     rubric.composition,
@@ -91,7 +91,17 @@ const computeScoreFromRubric = (rubric: PrimaryRubric) => {
   score -= weak * 4.5;
   score -= rubric.promptMatch <= 4 ? 6 : 0;
   score -= rubric.completeness <= 4 ? 4 : 0;
-  return clampScore(score);
+  return Math.max(0, Math.min(100, score));
+};
+
+const stretchPrimaryScore = (latentScore: number) => {
+  const normalized = Math.max(0, Math.min(1, (latentScore - 25) / 48));
+  return clampScore(20 + normalized * 80);
+};
+
+const computeScoreFromRubric = (rubric: PrimaryRubric) => {
+  const latentScore = computeLatentScoreFromRubric(rubric);
+  return stretchPrimaryScore(latentScore);
 };
 
 const toLegacyBreakdown = (rubric: PrimaryRubric) => ({
@@ -99,18 +109,6 @@ const toLegacyBreakdown = (rubric: PrimaryRubric) => ({
   composition: clampScore((rubric.composition * 0.7 + rubric.completeness * 0.3) * 10),
   originality: clampScore((rubric.creativity * 0.7 + rubric.lineStability * 0.3) * 10),
 });
-
-const computeDeterministicJitter = (submissionId: string) => {
-  let hash = 2166136261; // FNV-1a 32-bit
-  for (let i = 0; i < submissionId.length; i += 1) {
-    hash ^= submissionId.charCodeAt(i);
-    hash = Math.imul(hash, 16777619);
-  }
-  const mod = (hash >>> 0) % 3;
-  if (mod === 0) return -1;
-  if (mod === 1) return 0;
-  return 1;
-};
 
 const normalizePrimary = (input: any) => {
   const rubric = normalizeRubric(input);
@@ -185,12 +183,9 @@ export const handler = async (event: any) => {
         console.error('primary_bedrock_failed', err);
         aiFallbackUsed = true;
       }
-      const jitteredScore = scored.score >= 60
-        ? clampScore(scored.score + computeDeterministicJitter(submissionId))
-        : scored.score;
       result = {
         submissionId,
-        score: jitteredScore,
+        score: scored.score,
         breakdown: scored.breakdown,
         oneLiner: scored.oneLiner,
         tips: scored.tips,

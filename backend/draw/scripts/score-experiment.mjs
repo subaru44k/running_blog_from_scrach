@@ -238,14 +238,16 @@ const formulas = {
     const avg = values.reduce((a, b) => a + b, 0) / values.length;
     const strong = values.filter((v) => v >= 8).length;
     const weak = values.filter((v) => v <= 4).length;
-    let score = 12 + avg * 8.8;
-    score += strong * 3.2;
-    score += r.promptMatch >= 8 && r.shapeClarity >= 7 ? 5 : 0;
-    score += r.creativity >= 7 ? 2 : 0;
-    score -= weak * 4.5;
-    score -= r.promptMatch <= 4 ? 6 : 0;
-    score -= r.completeness <= 4 ? 4 : 0;
-    return clampScore(score);
+    let latent = 12 + avg * 8.8;
+    latent += strong * 3.2;
+    latent += r.promptMatch >= 8 && r.shapeClarity >= 7 ? 5 : 0;
+    latent += r.creativity >= 7 ? 2 : 0;
+    latent -= weak * 4.5;
+    latent -= r.promptMatch <= 4 ? 6 : 0;
+    latent -= r.completeness <= 4 ? 4 : 0;
+    latent = Math.max(0, Math.min(100, latent));
+    const normalized = Math.max(0, Math.min(1, (latent - 25) / 48));
+    return clampScore(20 + normalized * 80);
   },
 };
 

@@ -11,6 +11,7 @@ astro-blog/src/content/blog/*-summary-*.md
 *.log
 # Environment files
 .env
+.env.local
 .env.*.local
 
 # Astro cache (generated)

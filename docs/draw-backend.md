@@ -38,8 +38,10 @@
    - 画像取得 → inkRatio gate → 一次採点（Bedrock/Haiku、失敗時はスタブ）
    - 一次採点はAIに6項目rubric（0-10）を生成させ、最終scoreはサーバー側で算出
    - rubric の採点アンカーは `0-2 成立していない / 3-4 かなり弱い / 5-6 平均的 / 7 やや良い / 8 明確に良い / 9 かなり良い / 10 例外的`
-   - スコア式は `12 + avg*8.8` を基底に、強い項目数・お題一致×形状把握・工夫で加点し、弱い項目数・お題不一致・未完成を減点する非線形式
-   - 同点を減らすため、score>=60 の場合のみ `submissionId` 由来の決定的 jitter（-1/0/+1）を適用
+  - スコア式は2段階
+    - latent score: `12 + avg*8.8` を基底に、強い項目数・お題一致×形状把握・工夫で加点し、弱い項目数・お題不一致・未完成を減点
+    - visible score: `normalized = clamp((latent - 25) / 48, 0..1)` → `round(20 + normalized * 80)`
+  - 目的は、rubric 由来の順位を大きく崩さずに、見た目の点差を 20〜100 に広げること
    - 既存フロント互換のため breakdown(likeness/composition/originality) はrubricから集約して返却
    - `imageKey` 内の promptId を優先し、サーバー側でお題テキストを確定
    - DynamoDB保存
@@ -154,3 +156,22 @@ curl "https://<api>/api/draw/secondary?promptId=prompt-2026-02&submissionId=<uli
 ## コスト計算用メモ
 - 各投稿で一次/二次の `input/output/total tokens` を `DrawSubmissions` に保存する。
 - 推定コストはモデルごとの単価を掛けて計算する（`inputTokens * inputUnitPrice + outputTokens * outputUnitPrice`）。
+
+## 一次採点モデル比較メモ（2026-03-13）
+- 比較対象:
+  - Claude 3 Haiku（現行）
+  - GPT-4.1 mini
+  - Gemini 2.5 Flash
+- 比較方法:
+  - 2026-02 の既存画像 20 件を同じ rubric / 同じスコア式で再採点
+  - 画像付き比較レポートをローカル生成し、順位・短評・rubric を目視比較
+  - 直前ランとの差分から rubric の再現性と順位変動も確認
+- 判断メモ:
+  - Claude 3 Haiku はお題不一致の画像に対しても rubric が中庸に寄りやすく、例として「花の絵」が `promptMatch=5` 付近になることがあった
+  - GPT-4.1 mini はお題不一致に対して `promptMatch` を 1 付近まで下げるケースがあり、花を花として指摘する短評も出せた
+  - Gemini 2.5 Flash は納得感のある高得点が出ることがあるが、遅延（約7〜22秒）とコストが大きく、ランごとの揺れも目立った
+  - GPT-4.1 mini は score 自体は低めに寄るが、rubric の弁別力と順位安定性は今回の3候補で最も良かった
+- 暫定結論:
+  - 将来の一次採点置き換え候補としては GPT-4.1 mini が最有力
+  - 置き換える場合は、モデル自体より score 式の再調整で点数レンジを整える前提にする
+  - Gemini 2.5 Flash は精度比較の参考としては有用だが、一次採点本番用途としては速度とコストが重い

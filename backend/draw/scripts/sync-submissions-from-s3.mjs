@@ -71,7 +71,7 @@ const toLegacyBreakdown = (rubric) => ({
   originality: clampScore((rubric.creativity * 0.7 + rubric.lineStability * 0.3) * 10),
 });
 
-const computeScoreFromRubric = (rubric) => {
+const computeLatentScoreFromRubric = (rubric) => {
   const values = [
     rubric.promptMatch,
     rubric.composition,
@@ -90,7 +90,17 @@ const computeScoreFromRubric = (rubric) => {
   score -= weak * 4.5;
   score -= rubric.promptMatch <= 4 ? 6 : 0;
   score -= rubric.completeness <= 4 ? 4 : 0;
-  return clampScore(score);
+  return Math.max(0, Math.min(100, score));
+};
+
+const stretchPrimaryScore = (latentScore) => {
+  const normalized = Math.max(0, Math.min(1, (latentScore - 25) / 48));
+  return clampScore(20 + normalized * 80);
+};
+
+const computeScoreFromRubric = (rubric) => {
+  const latentScore = computeLatentScoreFromRubric(rubric);
+  return stretchPrimaryScore(latentScore);
 };
 
 const computeInkRatio = (buffer) => {

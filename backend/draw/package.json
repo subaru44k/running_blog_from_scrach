@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "build": "node ./scripts/build.mjs",
+    "compare-models": "node ./scripts/model-compare.mjs",
     "typecheck": "tsc -p tsconfig.json --noEmit"
   },
   "dependencies": {

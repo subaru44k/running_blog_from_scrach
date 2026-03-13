@@ -38,11 +38,16 @@
 
 ## フォールバック
 - JSONパース失敗 / 例外時は scoreStub にフォールバック
-- サーバ側で rubric を clamp し、平均値ベースの非線形スコア式で score(0..100) を算出する
-  - `12 + avg*8.8`
-  - 強い項目数（8以上）に応じた加点
-  - `promptMatch >= 8 && shapeClarity >= 7` の相乗加点
-  - `creativity >= 7` の加点
-  - 弱い項目数（4以下）に応じた減点
-  - `promptMatch <= 4` / `completeness <= 4` の追加減点
+- サーバ側で rubric を clamp し、まず latent score を算出した上で、単調変換して visible score(0..100) を返す
+  - latent score:
+    - `12 + avg*8.8`
+    - 強い項目数（8以上）に応じた加点
+    - `promptMatch >= 8 && shapeClarity >= 7` の相乗加点
+    - `creativity >= 7` の加点
+    - 弱い項目数（4以下）に応じた減点
+    - `promptMatch <= 4` / `completeness <= 4` の追加減点
+  - visible score:
+    - `normalized = clamp((latent - 25) / 48, 0..1)`
+    - `score = round(20 + normalized * 80)`
+  - 目的は、順位を大きく崩さずに20〜100へ見た目の点差を広げること
 - legacy互換のため breakdown(likeness/composition/originality) に集約して返却

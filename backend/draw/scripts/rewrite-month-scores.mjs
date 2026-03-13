@@ -81,7 +81,7 @@ const toLegacyBreakdown = (rubric) => ({
   originality: clampScore((rubric.creativity * 0.7 + rubric.lineStability * 0.3) * 10),
 });
 
-const computeScoreFromRubric = (rubric) => {
+const computeLatentScoreFromRubric = (rubric) => {
   const values = [
     rubric.promptMatch,
     rubric.composition,
@@ -100,19 +100,17 @@ const computeScoreFromRubric = (rubric) => {
   score -= weak * 4.5;
   score -= rubric.promptMatch <= 4 ? 6 : 0;
   score -= rubric.completeness <= 4 ? 4 : 0;
-  return clampScore(score);
+  return Math.max(0, Math.min(100, score));
 };
 
-const computeDeterministicJitter = (submissionId) => {
-  let hash = 2166136261;
-  for (let i = 0; i < submissionId.length; i += 1) {
-    hash ^= submissionId.charCodeAt(i);
-    hash = Math.imul(hash, 16777619);
-  }
-  const mod = (hash >>> 0) % 3;
-  if (mod === 0) return -1;
-  if (mod === 1) return 0;
-  return 1;
+const stretchPrimaryScore = (latentScore) => {
+  const normalized = Math.max(0, Math.min(1, (latentScore - 25) / 48));
+  return clampScore(20 + normalized * 80);
+};
+
+const computeScoreFromRubric = (rubric) => {
+  const latentScore = computeLatentScoreFromRubric(rubric);
+  return stretchPrimaryScore(latentScore);
 };
 
 const makeScoreSortKey = (score, createdAt, submissionId) => {
@@ -432,8 +430,7 @@ const runMonth = async (month) => {
         primaryUsage = ai.usage;
         primaryLatencyMs = ai.latencyMs;
         const rubric = normalizeRubric(ai.data);
-        const baseScore = computeScoreFromRubric(rubric);
-        score = baseScore >= 60 ? clampScore(baseScore + computeDeterministicJitter(submissionId)) : baseScore;
+        score = computeScoreFromRubric(rubric);
         breakdown = toLegacyBreakdown(rubric);
         oneLiner = String(ai.data?.oneLiner || '前向きで良い雰囲気です。').slice(0, 90);
         const tipsRaw = Array.isArray(ai.data?.tips) ? ai.data.tips : [];

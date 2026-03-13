@@ -53,6 +53,33 @@ const toInt = (v) => {
 
 const clampScore = (v) => Math.max(0, Math.min(100, toInt(v)));
 
+const computeLatentScoreFromRubric = (rubric) => {
+  const values = [
+    rubric.promptMatch,
+    rubric.composition,
+    rubric.shapeClarity,
+    rubric.lineStability,
+    rubric.creativity,
+    rubric.completeness,
+  ];
+  const avg = values.reduce((a, b) => a + b, 0) / values.length;
+  const strong = values.filter((v) => v >= 8).length;
+  const weak = values.filter((v) => v <= 4).length;
+  let score = 12 + avg * 8.8;
+  score += strong * 3.2;
+  score += rubric.promptMatch >= 8 && rubric.shapeClarity >= 7 ? 5 : 0;
+  score += rubric.creativity >= 7 ? 2 : 0;
+  score -= weak * 4.5;
+  score -= rubric.promptMatch <= 4 ? 6 : 0;
+  score -= rubric.completeness <= 4 ? 4 : 0;
+  return Math.max(0, Math.min(100, score));
+};
+
+const stretchPrimaryScore = (latentScore) => {
+  const normalized = Math.max(0, Math.min(1, (latentScore - 25) / 48));
+  return clampScore(20 + normalized * 80);
+};
+
 const normalizePrimary = (input) => {
   const rubric = input?.rubric
     ? {
@@ -76,40 +103,10 @@ const normalizePrimary = (input) => {
     composition: clampScore((rubric.composition * 0.7 + rubric.completeness * 0.3) * 10),
     originality: clampScore((rubric.creativity * 0.7 + rubric.lineStability * 0.3) * 10),
   };
-  const values = [
-    rubric.promptMatch,
-    rubric.composition,
-    rubric.shapeClarity,
-    rubric.lineStability,
-    rubric.creativity,
-    rubric.completeness,
-  ];
-  const avg = values.reduce((a, b) => a + b, 0) / values.length;
-  const strong = values.filter((v) => v >= 8).length;
-  const weak = values.filter((v) => v <= 4).length;
-  let score = 12 + avg * 8.8;
-  score += strong * 3.2;
-  score += rubric.promptMatch >= 8 && rubric.shapeClarity >= 7 ? 5 : 0;
-  score += rubric.creativity >= 7 ? 2 : 0;
-  score -= weak * 4.5;
-  score -= rubric.promptMatch <= 4 ? 6 : 0;
-  score -= rubric.completeness <= 4 ? 4 : 0;
-  score = clampScore(score);
+  const score = stretchPrimaryScore(computeLatentScoreFromRubric(rubric));
   const oneLiner = String(input?.oneLiner || '').trim();
   const tips = Array.isArray(input?.tips) ? input.tips.map((x) => String(x).trim()).filter(Boolean).slice(0, 3) : [];
   return { score, breakdown, oneLiner, tips };
-};
-
-const computeDeterministicJitter = (submissionId) => {
-  let hash = 2166136261;
-  for (let i = 0; i < submissionId.length; i += 1) {
-    hash ^= submissionId.charCodeAt(i);
-    hash = Math.imul(hash, 16777619);
-  }
-  const mod = (hash >>> 0) % 3;
-  if (mod === 0) return -1;
-  if (mod === 1) return 0;
-  return 1;
 };
 
 const readBodyString = async (body) => {
@@ -341,16 +338,13 @@ const run = async () => {
     try {
       const imageBuf = await getObjectBuffer(BUCKET, item.imageKey);
       const rescored = await invokePrimary(item.promptText || 'お題不明', imageBuf.toString('base64'));
-      const finalScore = rescored.score >= 60
-        ? clampScore(rescored.score + computeDeterministicJitter(item.submissionId))
-        : rescored.score;
       results.push({
         order: idx + 1,
         submissionId: item.submissionId,
         createdAt: item.createdAt,
         oldScore: toInt(item.score),
-        newScore: finalScore,
-        diff: finalScore - toInt(item.score),
+        newScore: rescored.score,
+        diff: rescored.score - toInt(item.score),
         newOneLiner: rescored.oneLiner,
         newTips: rescored.tips,
       });
