@@ -259,22 +259,28 @@ export default function DrawResult() {
   const leaderboardItems = state.leaderboard?.items || [];
   const mergedLeaderboard = (() => {
     if (!state.result || !state.result.isRanked) return leaderboardItems;
-    const rank = state.result.rank && state.result.rank <= leaderboardItems.length ? state.result.rank : 1;
     const next = leaderboardItems.map((item, idx) => ({ ...item, rank: idx + 1 }));
-    const insertIndex = Math.max(0, Math.min(rank - 1, next.length - 1));
-    next[insertIndex] = {
+    if (next.some((item) => item.submissionId === state.result?.submissionId)) {
+      return next;
+    }
+    const rank = state.result.rank && state.result.rank <= Math.max(next.length, 1) ? state.result.rank : next.length + 1;
+    const insertIndex = Math.max(0, Math.min(rank - 1, next.length));
+    next.splice(insertIndex, 0, {
       rank,
       score: state.result.score,
       nickname: displayName,
       submissionId: state.result.submissionId,
-      imageDataUrl: imageDataUrl || next[insertIndex]?.imageDataUrl || '',
-    };
-    return next;
+      imageDataUrl: imageDataUrl || '',
+    });
+    return next.slice(0, 20).map((item, idx) => ({ ...item, rank: idx + 1 }));
   })();
   const displayLeaderboard = mergedLeaderboard.map((item) => (
     item.submissionId === submissionId ? { ...item, nickname: displayName } : item
   ));
   const hasMine = submissionId ? displayLeaderboard.some((item) => item.submissionId === submissionId) : false;
+  const mineRank = submissionId
+    ? displayLeaderboard.find((item) => item.submissionId === submissionId)?.rank
+    : undefined;
 
   const shareText = (() => {
     if (!state.result || !prompt) return '';
@@ -430,7 +436,7 @@ export default function DrawResult() {
         <div className="text-lg font-semibold">今日のランキング Top20</div>
         {state.result && hasMine && (
           <div className="flex items-center gap-3 rounded-lg border bg-blue-50 p-3">
-            <div className="text-sm font-semibold">あなたは {state.result.rank} 位です</div>
+            <div className="text-sm font-semibold">あなたは {mineRank ?? state.result.rank} 位です</div>
             <span className="rounded-full bg-blue-600 px-2 py-1 text-xs font-semibold text-white">TOP20</span>
             <button
               type="button"
