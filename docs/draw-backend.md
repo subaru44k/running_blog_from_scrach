@@ -62,6 +62,7 @@
 - PK: `promptId` (string)
 - SK: `submissionId` (ULID)
 - attrs: createdAt, expiresAt, nickname, imageKey, score, breakdown, oneLiner, tips, isRanked, rank, primaryRubric
+- `oneLiner` は OpenAI の `review.summary / goodPoint / improvement / nextStep` をサーバ側で結合した 4 文講評を保存する
 - 互換用に `secondaryStatus=skipped`, `enrichedComment=null`, `secondaryAttempts=0` を保持することがある
 - AI usage attrs:
   - primaryProvider, primaryModelId, primaryInputTokens, primaryOutputTokens, primaryTotalTokens, primaryLatencyMs, primaryEstimatedCostUsd

@@ -64,7 +64,7 @@ flowchart LR
 - フロントは `PUBLIC_DRAW_API_BASE` を用いて `/api/draw/*` を呼び出す。
 - お題は `GET /api/draw/prompt` でサーバーが月次決定（JST、`2026-02` を基準月として36題を順送り）。
 - 画像は S3 にアップロードし、閲覧は CloudFront 署名URL（900秒）で返す。
-- 一次審査の表示は「点数 + 2〜4文の講評 + tips + breakdown」で完結する。
+- 一次審査の表示は「点数 + 4文の講評 + tips + breakdown」で完結する。
 - 共有カード画像はブラウザ内の Canvas で生成してPNG保存する。
 - `/draw/archive/` は 2026-02 以降の各月Top20をクライアント側で取得して表示する。
 - `/draw/archive/` の各ランキングカードはクリックで詳細モーダルを開き、`GET /api/draw/submission?promptId=...&submissionId=...` から画像・点数・breakdown・講評・tips・お題・投稿日を取得して表示する。

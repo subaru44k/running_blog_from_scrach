@@ -91,9 +91,10 @@ const normalizePrimary = (input: any) => {
   const breakdown = toLegacyBreakdown(rubric);
   const score = computeScoreFromRubric(rubric);
   const reviewParts = [
-    String(input?.review?.praise || '').trim(),
-    String(input?.review?.improve || '').trim(),
-    String(input?.review?.closing || '').trim(),
+    String(input?.review?.summary || '').trim(),
+    String(input?.review?.goodPoint || '').trim(),
+    String(input?.review?.improvement || '').trim(),
+    String(input?.review?.nextStep || '').trim(),
   ].filter(Boolean);
   const fallbackOneLiner = String(input?.oneLiner || '前向きで良い雰囲気です。').trim();
   const oneLiner = (reviewParts.length > 0 ? reviewParts.join(' ') : fallbackOneLiner).slice(0, 220);

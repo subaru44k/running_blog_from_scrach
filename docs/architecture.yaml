@@ -134,7 +134,7 @@ features:
       - prompt switches monthly (JST) with fixed sequence; 2026-02 is index 0 (熊)
       - image upload via S3 signed PUT
       - CloudFront signed URL for image viewing (900s)
-      - primary review displays score, a fuller 3-sentence review comment assembled server-side from praise/improve/closing fields, tips, and derived breakdown without secondary follow-up
+      - primary review displays score, a fuller 4-sentence review comment assembled server-side from summary/goodPoint/improvement/nextStep fields, tips, and derived breakdown without secondary follow-up
       - share card generated in browser
       - submit/upload APIs resolve promptId and promptText server-side from month rules
       - primary scoring uses OpenAI GPT-4.1 mini (fallback to stub)
