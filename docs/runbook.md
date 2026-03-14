@@ -5,12 +5,10 @@
 - DrawRateLimit の閾値を調整
 - 一時的にフロント側でリトライ間隔を伸ばす
 
-## Bedrockコスト増加時の対処
+## Draw AIコスト増加時の対処
 - inkRatio gate の閾値を上げる
-- 二次レビュー条件（rank上位のみ）を厳しくする
-- 二次レビューのリトライ回数を減らす
-- DrawSubmissions の `primaryInputTokens` / `secondaryInputTokens` / `...OutputTokens` を集計し、増加区間を特定する
-- `primaryModelId` / `secondaryModelId` を確認し、意図しないモデル切替がないか確認する
+- DrawSubmissions の `primaryInputTokens` / `primaryOutputTokens` / `primaryEstimatedCostUsd` を集計し、増加区間を特定する
+- `primaryProvider=openai` と `primaryModelId=gpt-4.1-mini` が意図通り保存されているか確認する
 
 ## 期限切れ/削除（TTL）
 - DrawSubmissions: expiresAt により自動削除
@@ -25,5 +23,5 @@
 - 実行後は CloudWatch Logs の `draw_monthly_cleanup_summary` で `scanned/deleted/keepCount` を確認する
 
 ## 障害時
-- /secondary が 404 を返す: secondaryStatus が failed/未生成の可能性
+- /submit が 5xx: OpenAI key secret / Lambda env / rate limit を確認
 - /leaderboard が 5xx: CloudFront署名鍵/Secrets Manager を確認

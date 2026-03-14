@@ -1,12 +1,31 @@
 import { DynamoDBClient, ExecuteStatementCommand } from '@aws-sdk/client-dynamodb';
 import { unmarshall } from '@aws-sdk/util-dynamodb';
 import { S3Client, GetObjectCommand } from '@aws-sdk/client-s3';
-import { BedrockRuntimeClient, InvokeModelCommand } from '@aws-sdk/client-bedrock-runtime';
+import { readFileSync, existsSync } from 'node:fs';
+import { resolve } from 'node:path';
 
 const REGION = process.env.AWS_REGION || 'ap-northeast-1';
 const TABLE = process.env.DRAW_TABLE || 'DrawSubmissions';
 const BUCKET = process.env.DRAW_BUCKET || 'draw-uploads-20260124-58904f87';
-const MODEL_ID = process.env.PRIMARY_MODEL_ID || 'anthropic.claude-3-haiku-20240307-v1:0';
+const loadLocalEnv = (path) => {
+  if (!existsSync(path)) return;
+  const lines = readFileSync(path, 'utf8').split(/\r?\n/);
+  for (const line of lines) {
+    const trimmed = line.trim();
+    if (!trimmed || trimmed.startsWith('#')) continue;
+    const eq = trimmed.indexOf('=');
+    if (eq <= 0) continue;
+    const key = trimmed.slice(0, eq).trim();
+    const rawValue = trimmed.slice(eq + 1).trim();
+    if (!key || process.env[key]) continue;
+    process.env[key] = rawValue.replace(/^['"]|['"]$/g, '');
+  }
+};
+
+loadLocalEnv(resolve(process.cwd(), '.env.local'));
+
+const MODEL_ID = process.env.PRIMARY_MODEL_ID || 'gpt-4.1-mini';
+const OPENAI_API_KEY = process.env.OPENAI_API_KEY || '';
 
 const targetMonth = process.argv[2] || '2026-02';
 const promptId = `prompt-${targetMonth}`;
@@ -18,8 +37,6 @@ const s3 = new S3Client({
   requestChecksumCalculation: 'never',
   responseChecksumValidation: 'never',
 });
-const bedrock = new BedrockRuntimeClient({ region: REGION });
-
 const primarySystemPrompt = `あなたは30秒お絵描きゲームの一次採点担当です。
 返答は必ず日本語で作成してください。
 英語・ローマ字・英単語は一切使わないでください。
@@ -31,14 +48,19 @@ const buildPrimaryUser = (promptText, imageBase64) => ([
     text:
       `お題: ${promptText || 'お題不明'}\n画像を評価して、次のJSONスキーマで返してください。\n` +
       `{"rubric":{"promptMatch":0-10,"composition":0-10,"shapeClarity":0-10,"lineStability":0-10,"creativity":0-10,"completeness":0-10},` +
-      `"oneLiner":"90文字以内の前向き短評","tips":["短い名詞句を2-3個"]}\n` +
+      `"oneLiner":"日本語2-4文、220文字以内の講評","tips":["短い名詞句を2-3個"]}\n` +
       `採点基準を固定する。0-2は成立していない、3-4はかなり弱い、5-6は平均的、7はやや良い、8は明確に良い、9はかなり良い、10はごく少数の例外的に強い作品のみ。` +
       `rubricは必ず1点刻みの整数で評価すること。` +
       `各項目は自然に評価し、同じ値が複数あってもよい。` +
       `お題と違うものを描いている場合は promptMatch を低くしてよい。` +
       `読みにくい絵や未完成の絵には低い点を付けてよい。` +
       `明確に良い点がある場合だけ高い点を付けること。` +
-      `oneLinerとtipsは日本語のみで出力し、英語表現は使わないこと。` +
+      `oneLinerは日本語のみで、2〜4文、220文字以内にすること。` +
+      `1文目では良い点を1つ具体的に褒めること。` +
+      `2〜3文目では、次に良くなる具体的な工夫を1〜2個だけやさしく伝えること。` +
+      `最後は前向きなひとことで締めること。` +
+      `人格否定や断定的な否定語は使わないこと。` +
+      `tipsは日本語のみで出力し、英語表現は使わないこと。` +
       `tipsは体言止めの短い語句にすること。`,
   },
   {
@@ -94,25 +116,18 @@ const normalizePrimary = (input) => {
   return { score, breakdown, oneLiner, tips };
 };
 
-const readBodyString = async (body) => {
-  if (!body) return '';
-  if (typeof body.transformToString === 'function') {
-    return body.transformToString();
+const extractOpenAiText = (payload) => {
+  const chunks = [];
+  for (const block of payload?.output || []) {
+    for (const content of block?.content || []) {
+      if (content?.type === 'output_text' && typeof content?.text === 'string') {
+        chunks.push(content.text);
+      }
+    }
   }
-  if (body instanceof Uint8Array) {
-    return Buffer.from(body).toString('utf8');
-  }
+  if (chunks.length > 0) return chunks.join('\n').trim();
+  if (typeof payload?.output_text === 'string') return payload.output_text.trim();
   return '';
-};
-
-const extractText = (payload) => {
-  const content = payload?.content;
-  if (!Array.isArray(content)) return '';
-  return content
-    .filter((c) => c?.type === 'text')
-    .map((c) => c?.text || '')
-    .join('\n')
-    .trim();
 };
 
 const findJsonBlock = (text) => {
@@ -277,24 +292,32 @@ const getObjectBuffer = async (bucket, key) => {
 };
 
 const invokePrimary = async (promptText, imageBase64) => {
-  const payload = {
-    anthropic_version: 'bedrock-2023-05-31',
-    max_tokens: 512,
-    temperature: 0.3,
-    system: primarySystemPrompt,
-    messages: [{ role: 'user', content: buildPrimaryUser(promptText, imageBase64) }],
-  };
-  const out = await bedrock.send(
-    new InvokeModelCommand({
-      modelId: MODEL_ID,
-      contentType: 'application/json',
-      accept: 'application/json',
-      body: JSON.stringify(payload),
+  if (!OPENAI_API_KEY) throw new Error('Missing OPENAI_API_KEY');
+  const out = await fetch('https://api.openai.com/v1/responses', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${OPENAI_API_KEY}`,
+    },
+    body: JSON.stringify({
+      model: MODEL_ID,
+      temperature: 0.2,
+      input: [
+        { role: 'system', content: [{ type: 'input_text', text: primarySystemPrompt }] },
+        {
+          role: 'user',
+          content: buildPrimaryUser(promptText, imageBase64).map((part) =>
+            part.type === 'text'
+              ? { type: 'input_text', text: part.text }
+              : { type: 'input_image', image_url: `data:${part.source.media_type};base64,${part.source.data}` }
+          ),
+        },
+      ],
     }),
-  );
-  const raw = await readBodyString(out.body);
-  const parsed = raw ? JSON.parse(raw) : {};
-  const text = extractText(parsed);
+  });
+  if (!out.ok) throw new Error(`OpenAI ${out.status}: ${await out.text()}`);
+  const parsed = await out.json();
+  const text = extractOpenAiText(parsed);
   const json = parseModelJson(text);
   return normalizePrimary(json);
 };

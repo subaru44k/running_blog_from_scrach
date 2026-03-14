@@ -64,8 +64,6 @@ repo:
         - backend/draw/src/handlers/prompt.ts
         - backend/draw/src/handlers/uploadUrl.ts
         - backend/draw/src/handlers/submit.ts
-        - backend/draw/src/handlers/secondaryStatus.ts
-        - backend/draw/src/handlers/secondaryWorker.ts
         - backend/draw/src/handlers/leaderboard.ts
         - backend/draw/src/handlers/monthlyCleanup.ts
 
@@ -128,27 +126,22 @@ features:
       - /draw/play/
       - /draw/result/
     behavior:
-      - API Gateway + Lambda backend for upload/submit/secondary/leaderboard
+      - API Gateway + Lambda backend for prompt/upload-url/submit/leaderboard
       - GET /api/draw/prompt provides server-authoritative monthly prompt
       - frontend uses PUBLIC_DRAW_API_BASE to call /api/draw/*
       - Lambda handlers are bundled as CommonJS (.cjs) for Node 20 runtime compatibility
       - prompt switches monthly (JST) with fixed sequence; 2026-02 is index 0 (熊)
       - image upload via S3 signed PUT
       - CloudFront signed URL for image viewing (900s)
-      - secondary review is async via SQS
-      - primary review displays only score + short comment + up to 2 badges
-      - secondary review may update the comment to a richer short summary
-      - secondary review is fetched via polling API for ranked entries only
-      - secondary status API requires promptId and submissionId
+      - primary review displays score, a fuller 2-4 sentence review comment, tips, and derived breakdown without secondary follow-up
       - share card generated in browser
       - submit/upload APIs resolve promptId and promptText server-side from month rules
-      - primary scoring uses Bedrock Claude 3 Haiku (fallback to stub)
+      - primary scoring uses OpenAI GPT-4.1 mini (fallback to stub)
       - primary scoring asks AI for a 6-axis rubric (0-10 each) with anchored meanings (0-2 invalid, 3-4 weak, 5-6 average, 7 somewhat good, 8 clearly good, 9 very good, 10 exceptional)
       - primary score is computed server-side from a weighted average of rubric values and mapped into a visible 20-100 range with score = round(max(20, weighted*14 - 10))
       - weighted score uses promptMatch*0.30, shapeClarity*0.22, completeness*0.16, composition*0.14, creativity*0.10, lineStability*0.08
       - legacy breakdown (likeness/composition/originality) is derived from rubric for frontend compatibility
-      - secondary review uses Bedrock Claude Haiku 4.5 (fallback behavior keeps pending then failed)
-      - Bedrock token usage is stored per submission (primary/secondary input, output, total, modelId, latency)
+      - OpenAI token usage and estimated USD cost are stored per submission (input/output/total/model/provider/latency)
       - draw routes are included in sitemap and linked from global nav
       - /draw/archive/ provides monthly Top20 history from 2026-02 onward (client fetches month-by-month leaderboard)
       - draw backend resources use cost allocation tags (Service=draw, Env=prod)

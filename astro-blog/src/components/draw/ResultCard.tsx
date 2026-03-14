@@ -28,10 +28,9 @@ export default function ResultCard({
   imageDataUrl,
 }: Props) {
   const [commentVisible, setCommentVisible] = useState(true);
-  const [expandRich, setExpandRich] = useState(false);
+  const [expandComment, setExpandComment] = useState(false);
   const commentText = showRichComment && richComment ? richComment : shortComment;
-  const hasRich = Boolean(showRichComment && richComment);
-  const showToggle = hasRich && (richComment?.length || 0) > 80;
+  const showToggle = commentText.length > 100;
 
   const titleLabel = score >= 95
     ? 'キマった！'
@@ -50,8 +49,8 @@ export default function ResultCard({
   }, [commentText]);
 
   useEffect(() => {
-    setExpandRich(false);
-  }, [richComment, showRichComment]);
+    setExpandComment(false);
+  }, [commentText]);
 
   return (
     <div className="grid gap-6 md:grid-cols-[260px,1fr]">
@@ -78,7 +77,7 @@ export default function ResultCard({
           <div
             className={`text-sm text-gray-600 transition-opacity duration-200 ${
               commentVisible ? 'opacity-100' : 'opacity-0'
-            } ${hasRich && !expandRich ? 'line-clamp-3' : ''}`}
+            } ${!expandComment ? 'line-clamp-3' : ''}`}
           >
             {commentText}
           </div>
@@ -86,9 +85,9 @@ export default function ResultCard({
             <button
               type="button"
               className="text-xs text-blue-600 hover:underline"
-              onClick={() => setExpandRich((prev) => !prev)}
+              onClick={() => setExpandComment((prev) => !prev)}
             >
-              {expandRich ? '閉じる' : 'もっと見る'}
+              {expandComment ? '閉じる' : 'もっと見る'}
             </button>
           )}
         </div>

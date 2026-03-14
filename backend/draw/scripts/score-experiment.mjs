@@ -28,34 +28,34 @@ const prompts = {
   baseline:
     `画像を評価して、次のJSONスキーマで返してください。\n` +
     `{"rubric":{"promptMatch":0-10,"composition":0-10,"shapeClarity":0-10,"lineStability":0-10,"creativity":0-10,"completeness":0-10},` +
-    `"oneLiner":"90文字以内の前向き短評","tips":["短い名詞句を2-3個"]}\n` +
+    `"oneLiner":"日本語2-4文、220文字以内の講評","tips":["短い名詞句を2-3個"]}\n` +
     `注意: 数値は整数。rubricは1点刻み。5や10の多用を避け、曖昧なら6/7/8/9を優先すること。` +
-    `oneLinerとtipsは日本語のみ。`,
+    `oneLinerは日本語のみで、2〜4文、220文字以内。1文目で良い点、2〜3文目で具体的改善、最後は前向きに締める。tipsは日本語のみ。`,
   spread_v1:
     `画像を評価して、次のJSONスキーマで返してください。\n` +
     `{"rubric":{"promptMatch":0-10,"composition":0-10,"shapeClarity":0-10,"lineStability":0-10,"creativity":0-10,"completeness":0-10},` +
-    `"oneLiner":"90文字以内の前向き短評","tips":["短い名詞句を2-3個"]}\n` +
+    `"oneLiner":"日本語2-4文、220文字以内の講評","tips":["短い名詞句を2-3個"]}\n` +
     `rubricは1点刻みの整数。各項目は他作品と区別できるように評価し、同じ6項目セットを繰り返さないこと。` +
     `0-3はかなり弱い、4-5は不足、6-7は平均的、8は良い、9はかなり良い、10は例外的に優秀な場合のみ。` +
     `特に promptMatch と shapeClarity は甘くしすぎないこと。`,
   spread_v2:
     `画像を評価して、次のJSONスキーマで返してください。\n` +
     `{"rubric":{"promptMatch":0-10,"composition":0-10,"shapeClarity":0-10,"lineStability":0-10,"creativity":0-10,"completeness":0-10},` +
-    `"oneLiner":"90文字以内の前向き短評","tips":["短い名詞句を2-3個"]}\n` +
+    `"oneLiner":"日本語2-4文、220文字以内の講評","tips":["短い名詞句を2-3個"]}\n` +
     `採点は厳しめに行い、平均的な作品を7前後に集めすぎないこと。` +
     `弱点がある場合は該当項目を4-6まで下げる。強みが明確なら8-10を使う。` +
     `6項目のうち最低2項目は、画像固有の特徴を反映して他画像との差が出る値にすること。`,
   spread_v3:
     `画像を評価して、次のJSONスキーマで返してください。\n` +
     `{"rubric":{"promptMatch":0-10,"composition":0-10,"shapeClarity":0-10,"lineStability":0-10,"creativity":0-10,"completeness":0-10},` +
-    `"oneLiner":"90文字以内の前向き短評","tips":["短い名詞句を2-3個"]}\n` +
+    `"oneLiner":"日本語2-4文、220文字以内の講評","tips":["短い名詞句を2-3個"]}\n` +
     `平均的な作品は各項目5-7、良い作品は8-9、非常に良い作品は10を使う。` +
     `ただし「無難だから7」は禁止。弱い項目は4以下まで下げ、突出した項目は9以上を積極的に使うこと。` +
     `特に creativity と composition は差が出やすいように細かく評価すること。`,
   spread_v4:
     `画像を評価して、次のJSONスキーマで返してください。\n` +
     `{"rubric":{"promptMatch":0-10,"composition":0-10,"shapeClarity":0-10,"lineStability":0-10,"creativity":0-10,"completeness":0-10},` +
-    `"oneLiner":"90文字以内の前向き短評","tips":["短い名詞句を2-3個"]}\n` +
+    `"oneLiner":"日本語2-4文、220文字以内の講評","tips":["短い名詞句を2-3個"]}\n` +
     `採点の基準を次のように固定すること。0-2は成立していない、3-4はかなり弱い、5-6は平均的、7はやや良い、8は明確に良い、9はかなり良い、10はごく少数の例外的に強い作品のみ。` +
     `各項目は自然に評価し、同じ値が複数あってもよい。` +
     `お題と違うものを描いている場合は promptMatch を低くしてよい。` +

@@ -22,7 +22,7 @@ Astroで生成する静的サイト本体。ブログ、PDF圧縮、ペース計
 - 出力: 静的HTML/CSS/JS（`astro-blog/dist`）
 - 外部API:
   - `PUBLIC_PDF_API_BASE` の `/sign-upload` と `/compress`
-  - `PUBLIC_DRAW_API_BASE` の `/api/draw/*`（prompt/upload-url/submit/secondary/leaderboard）
+  - `PUBLIC_DRAW_API_BASE` の `/api/draw/*`（prompt/upload-url/submit/leaderboard）
 
 ## 404/SEOポリシー
 - 404ページは `/404.html` を返す（CloudFrontのカスタムエラー応答によりHTTP 404）。

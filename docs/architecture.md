@@ -64,16 +64,14 @@ flowchart LR
 - フロントは `PUBLIC_DRAW_API_BASE` を用いて `/api/draw/*` を呼び出す。
 - お題は `GET /api/draw/prompt` でサーバーが月次決定（JST、`2026-02` を基準月として36題を順送り）。
 - 画像は S3 にアップロードし、閲覧は CloudFront 署名URL（900秒）で返す。
-- 二次レビューは SQS で非同期処理し、フロントはポーリングで取得する。
-- 一次審査の表示は「点数 + 短いコメント + 最大2つのバッジ」のみ（簡潔表示）。
-- 二次審査ではランクイン候補のみコメントが短いリッチ版に更新される。
+- 一次審査の表示は「点数 + 2〜4文の講評 + tips + breakdown」で完結する。
 - 共有カード画像はブラウザ内の Canvas で生成してPNG保存する。
 - `/draw/archive/` は 2026-02 以降の各月Top20をクライアント側で取得して表示する。
 - `/draw/` 系は sitemap に含める。グローバルナビから「お絵かきゲーム」として導線を提供する。
 - `/games/` 系も sitemap に含める。グローバルナビには「ミニゲーム」を追加し、`/draw/` は独立導線のまま維持する。
-- 一次採点は Bedrock Claude 3 Haiku（JSON出力）を使用、失敗時はスタブにフォールバック。
+- 一次採点は OpenAI GPT-4.1 mini（JSON出力）を使用、失敗時はスタブにフォールバック。
 - 一次の最終 score は server-side で rubric の weighted average から算出し、20〜100 に収める。現在は `round(max(20, weighted*14 - 10))` を使用する。
-- 二次講評は Bedrock Claude Haiku 4.5 を使用し、失敗時は pending → failed で終了。
+- token usage と推定コストは DrawSubmissions に保存し、AWS外モデルでも後から集計できるようにする。
 - 画像保管は当月は全件保持し、毎月1日の月次ジョブで「前月Top20以外」を削除する。
 
 ## PDF圧縮のデータフロー

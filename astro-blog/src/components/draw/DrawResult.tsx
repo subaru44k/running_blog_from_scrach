@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
-import { ApiError, getLeaderboard, getPrompt, getSecondaryReview, submitDrawing } from '../../lib/draw/api';
-import type { LeaderboardResponse, PromptInfo, SecondaryReviewResult, SubmitResult } from '../../lib/draw/types';
+import { ApiError, getLeaderboard, getPrompt, submitDrawing } from '../../lib/draw/api';
+import type { LeaderboardResponse, PromptInfo, SubmitResult } from '../../lib/draw/types';
 import ResultCard from './ResultCard';
 import Leaderboard from './Leaderboard';
 import { buildShareCard, downloadDataUrl } from '../../lib/draw/shareCard';
@@ -11,13 +11,7 @@ type ResultState = {
   error?: string;
 };
 
-type JudgeState =
-  | 'idle'
-  | 'judging_primary'
-  | 'primary_done'
-  | 'judging_secondary'
-  | 'secondary_done'
-  | 'error';
+type JudgeState = 'idle' | 'judging_primary' | 'primary_done' | 'error';
 
 type FirstReviewResult = {
   score: number;
@@ -25,6 +19,8 @@ type FirstReviewResult = {
   tips?: string[];
   breakdown?: SubmitResult['breakdown'];
 };
+
+const RESULT_VERSION = 'v4-openai-primary-only';
 
 const getPromptFromStorage = () => {
   try {
@@ -46,10 +42,8 @@ export default function DrawResult() {
   const [nickname, setNickname] = useState<string>('');
   const [submissionId, setSubmissionId] = useState<string>('');
   const [imageKey, setImageKey] = useState<string>('');
-  const RESULT_VERSION = 'v3-judge-flow';
   const [displayScore, setDisplayScore] = useState(0);
   const [firstReview, setFirstReview] = useState<FirstReviewResult | null>(null);
-  const [secondaryComment, setSecondaryComment] = useState<string | null>(null);
   const [flashMine, setFlashMine] = useState(false);
   const [primarySlow, setPrimarySlow] = useState(false);
 
@@ -57,9 +51,13 @@ export default function DrawResult() {
   const leaderboardRef = useRef<HTMLDivElement | null>(null);
   const primaryTimerRef = useRef<number | null>(null);
   const slowTextRef = useRef<number | null>(null);
-  const secondaryTimerRef = useRef<number | null>(null);
   const timeoutRef = useRef<number | null>(null);
-  const secondaryStartedRef = useRef(false);
+
+  const clearPrimaryTimers = () => {
+    if (primaryTimerRef.current) clearTimeout(primaryTimerRef.current);
+    if (slowTextRef.current) clearTimeout(slowTextRef.current);
+    if (timeoutRef.current) clearTimeout(timeoutRef.current);
+  };
 
   const loadSavedResult = (currentImage: string | null) => {
     try {
@@ -77,15 +75,19 @@ export default function DrawResult() {
 
   const buildFirstReview = (result: SubmitResult): FirstReviewResult => {
     const fallbackComment = '勢いがあって気持ちいいです。';
-    const shortComment = (result.oneLiner?.trim() || fallbackComment);
+    const shortComment = result.oneLiner?.trim() || fallbackComment;
     const tips = (result.tips || []).map((tip) => tip.trim()).filter(Boolean);
     const fallbackTips = result.score >= 85
       ? ['勢い', 'まとまり', '表情']
       : result.score >= 70
         ? ['雰囲気', '素直さ', '丁寧さ']
         : ['丁寧さ', 'のびのび', '伸びしろ'];
-    const displayTips = (tips.length > 0 ? tips : fallbackTips).slice(0, 3);
-    return { score: result.score, shortComment, tips: displayTips, breakdown: result.breakdown };
+    return {
+      score: result.score,
+      shortComment,
+      tips: (tips.length > 0 ? tips : fallbackTips).slice(0, 3),
+      breakdown: result.breakdown,
+    };
   };
 
   useEffect(() => {
@@ -100,12 +102,9 @@ export default function DrawResult() {
     const month = params.get('month') || undefined;
     const promptIdFromQuery = params.get('promptId') || sessionStorage.getItem('drawPromptId') || 'prompt-unknown';
     setPromptId(promptIdFromQuery);
-    const savedName = sessionStorage.getItem('drawNickname') || '';
-    setNickname(savedName);
-    const savedSubmissionId = localStorage.getItem('drawSubmissionId') || '';
-    setSubmissionId(savedSubmissionId);
-    const savedImageKey = localStorage.getItem('drawImageKey') || '';
-    setImageKey(savedImageKey);
+    setNickname(sessionStorage.getItem('drawNickname') || '');
+    setSubmissionId(localStorage.getItem('drawSubmissionId') || '');
+    setImageKey(localStorage.getItem('drawImageKey') || '');
     const storedPrompt = getPromptFromStorage();
     if (storedPrompt && (!promptIdFromQuery || storedPrompt.promptId === promptIdFromQuery)) {
       setPrompt(storedPrompt);
@@ -120,16 +119,6 @@ export default function DrawResult() {
       .catch(() => setPrompt(null));
   }, []);
 
-  const clearPrimaryTimers = () => {
-    if (primaryTimerRef.current) clearTimeout(primaryTimerRef.current);
-    if (slowTextRef.current) clearTimeout(slowTextRef.current);
-    if (timeoutRef.current) clearTimeout(timeoutRef.current);
-  };
-
-  const clearSecondaryTimers = () => {
-    if (secondaryTimerRef.current) clearTimeout(secondaryTimerRef.current);
-  };
-
   const runPrimary = async () => {
     if (!promptId || !submissionId || !imageKey) {
       setState({ error: '送信情報が見つかりませんでした。もう一度描いてください。' });
@@ -137,12 +126,10 @@ export default function DrawResult() {
       return;
     }
     clearPrimaryTimers();
-    secondaryStartedRef.current = false;
     setPrimarySlow(false);
     setJudgeState('judging_primary');
     setState({});
     setFirstReview(null);
-    setSecondaryComment(null);
 
     slowTextRef.current = window.setTimeout(() => setPrimarySlow(true), 2500);
     timeoutRef.current = window.setTimeout(() => {
@@ -157,23 +144,23 @@ export default function DrawResult() {
 
     primaryTimerRef.current = window.setTimeout(async () => {
       try {
-      const result = await submitDrawing({
+        const result = await submitDrawing({
           promptId,
           promptText: prompt?.promptText || localStorage.getItem('drawPromptText') || '',
           submissionId,
           imageKey,
           nickname: nickname || undefined,
         });
-        setFirstReview(buildFirstReview(result));
         const leaderboard = await getLeaderboard(promptId, 20);
+        setFirstReview(buildFirstReview(result));
         setState({ result, leaderboard });
         setJudgeState('primary_done');
         localStorage.setItem('drawResult', JSON.stringify(result));
         localStorage.setItem('drawResultVersion', RESULT_VERSION);
         localStorage.setItem('drawSubmissionId', result.submissionId);
-        setSubmissionId(result.submissionId);
         localStorage.setItem('drawPromptText', prompt?.promptText || '');
         localStorage.setItem('drawScore', String(result.score));
+        setSubmissionId(result.submissionId);
       } catch (err: any) {
         const message = err instanceof ApiError && err.status === 429
           ? 'アクセスが集中しています。時間をおいて再試行してください。'
@@ -196,9 +183,6 @@ export default function DrawResult() {
     const saved = loadSavedResult(imageDataUrl);
     if (saved) {
       setFirstReview(buildFirstReview(saved));
-      if (saved.isRanked) {
-        setSecondaryComment(null);
-      }
       setState({ result: saved });
       getLeaderboard(promptId, 20).then((leaderboard) => {
         setState({ result: saved, leaderboard });
@@ -208,10 +192,7 @@ export default function DrawResult() {
       return;
     }
     runPrimary();
-    return () => {
-      clearPrimaryTimers();
-      clearSecondaryTimers();
-    };
+    return () => clearPrimaryTimers();
   }, [imageDataUrl, promptId, prompt?.promptText, submissionId, imageKey, nickname]);
 
   useEffect(() => {
@@ -245,57 +226,11 @@ export default function DrawResult() {
     return () => cancelAnimationFrame(raf);
   }, [firstReview, judgeState]);
 
-  useEffect(() => {
-    if (!state.result || !state.result.isRanked) return;
-    if (judgeState !== 'primary_done') return;
-    if (secondaryStartedRef.current) return;
-    secondaryStartedRef.current = true;
-    setJudgeState('judging_secondary');
-    const delays = [
-      ...Array.from({ length: 10 }, () => 1000),
-      ...Array.from({ length: 7 }, () => 3000),
-    ];
-    let index = 0;
-    const poll = async () => {
-      if (!state.result) return;
-      try {
-        const res = await getSecondaryReview(promptId, state.result.submissionId);
-        if (res.status === 'done') {
-          const review: SecondaryReviewResult = res.result;
-          if (review?.enrichedComment) setSecondaryComment(review.enrichedComment);
-          setJudgeState('secondary_done');
-          setFlashMine(true);
-          const flashTimer = window.setTimeout(() => setFlashMine(false), 1200);
-          secondaryTimerRef.current = flashTimer;
-          return;
-        }
-        if (res.status === 'not_found') {
-          setJudgeState('primary_done');
-          return;
-        }
-      } catch {
-        setJudgeState('primary_done');
-        return;
-      }
-      if (index >= delays.length) {
-        setJudgeState('primary_done');
-        return;
-      }
-      const wait = delays[index++];
-      secondaryTimerRef.current = window.setTimeout(poll, wait);
-    };
-    poll();
-    return () => {
-      clearSecondaryTimers();
-    };
-  }, [state.result, judgeState]);
-
   const updateName = (value: string) => {
     const trimmed = value.trim().slice(0, 20);
-    const next = trimmed.length === 0 ? '' : trimmed;
-    setNickname(next);
-    if (next) {
-      sessionStorage.setItem('drawNickname', next);
+    setNickname(trimmed);
+    if (trimmed) {
+      sessionStorage.setItem('drawNickname', trimmed);
     } else {
       sessionStorage.removeItem('drawNickname');
     }
@@ -325,10 +260,7 @@ export default function DrawResult() {
   const mergedLeaderboard = (() => {
     if (!state.result || !state.result.isRanked) return leaderboardItems;
     const rank = state.result.rank && state.result.rank <= leaderboardItems.length ? state.result.rank : 1;
-    const next = leaderboardItems.map((item, idx) => ({
-      ...item,
-      rank: idx + 1,
-    }));
+    const next = leaderboardItems.map((item, idx) => ({ ...item, rank: idx + 1 }));
     const insertIndex = Math.max(0, Math.min(rank - 1, next.length - 1));
     next[insertIndex] = {
       rank,
@@ -339,14 +271,10 @@ export default function DrawResult() {
     };
     return next;
   })();
-
   const displayLeaderboard = mergedLeaderboard.map((item) => (
     item.submissionId === submissionId ? { ...item, nickname: displayName } : item
   ));
-
-  const hasMine = submissionId
-    ? displayLeaderboard.some((item) => item.submissionId === submissionId)
-    : false;
+  const hasMine = submissionId ? displayLeaderboard.some((item) => item.submissionId === submissionId) : false;
 
   const shareText = (() => {
     if (!state.result || !prompt) return '';
@@ -355,7 +283,6 @@ export default function DrawResult() {
     }
     return `${prompt.promptText} ${state.result.score}点！ #30秒お絵描き https://subaru-is-running.com/draw/`;
   })();
-
   const shareUrl = shareText
     ? `https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText)}`
     : 'https://twitter.com/intent/tweet';
@@ -376,7 +303,6 @@ export default function DrawResult() {
   const retry = () => {
     if (!promptId) return;
     clearPrimaryTimers();
-    clearSecondaryTimers();
     sessionStorage.removeItem('drawImage');
     localStorage.removeItem('drawImage');
     localStorage.removeItem('drawResult');
@@ -402,11 +328,6 @@ export default function DrawResult() {
     window.location.href = `/draw/play?${params.toString()}`;
   };
 
-  const showPrimaryResult = judgeState === 'primary_done' || judgeState === 'judging_secondary' || judgeState === 'secondary_done';
-  const displayComment = judgeState === 'secondary_done'
-    ? secondaryComment || firstReview?.shortComment || ''
-    : firstReview?.shortComment || '';
-
   return (
     <div className="space-y-6">
       <div className="rounded-lg border bg-gray-50 p-4">
@@ -415,17 +336,16 @@ export default function DrawResult() {
       </div>
 
       {judgeState === 'judging_primary' && (
-        <div className="rounded-lg border bg-white p-4 text-sm text-gray-600">
-          <div>採点中…</div>
-          <div className="mt-1">{primarySlow ? '少し丁寧に見ています（自動で表示されます）' : 'あなたの絵を分析しています'}</div>
-        </div>
-      )}
-
-      {judgeState === 'judging_primary' && (
-        <div className="rounded-lg border bg-white p-4">
-          <div className="h-8 w-24 bg-gray-200 rounded animate-pulse" />
-          <div className="mt-3 h-4 w-2/3 bg-gray-200 rounded animate-pulse" />
-        </div>
+        <>
+          <div className="rounded-lg border bg-white p-4 text-sm text-gray-600">
+            <div>採点中…</div>
+            <div className="mt-1">{primarySlow ? '少し丁寧に見ています（自動で表示されます）' : 'あなたの絵を分析しています'}</div>
+          </div>
+          <div className="rounded-lg border bg-white p-4">
+            <div className="h-8 w-24 rounded bg-gray-200 animate-pulse" />
+            <div className="mt-3 h-4 w-2/3 rounded bg-gray-200 animate-pulse" />
+          </div>
+        </>
       )}
 
       {judgeState === 'error' && state.error && (
@@ -433,7 +353,7 @@ export default function DrawResult() {
           <div>{state.error}</div>
           <button
             type="button"
-            className="mt-3 px-3 py-2 rounded-md bg-red-600 text-white"
+            className="mt-3 rounded-md bg-red-600 px-3 py-2 text-white"
             onClick={retry}
           >
             再試行
@@ -441,7 +361,7 @@ export default function DrawResult() {
         </div>
       )}
 
-      {state.result && imageDataUrl && showPrimaryResult && firstReview && (
+      {state.result && imageDataUrl && judgeState === 'primary_done' && firstReview && (
         <div className="space-y-4">
           <div className="rounded-lg border bg-white p-4">
             <label className="block text-sm font-medium text-gray-700">表示名（任意）</label>
@@ -449,7 +369,7 @@ export default function DrawResult() {
               type="text"
               value={nickname}
               maxLength={20}
-              className="mt-2 w-full border rounded px-3 py-2"
+              className="mt-2 w-full rounded border px-3 py-2"
               placeholder="匿名"
               onChange={(e) => updateName(e.target.value.replace(/\n/g, ''))}
             />
@@ -460,18 +380,15 @@ export default function DrawResult() {
             imageDataUrl={imageDataUrl}
             score={displayScore}
             shortComment={firstReview.shortComment}
-            richComment={displayComment}
             tips={firstReview.tips}
             breakdown={firstReview.breakdown}
-            secondaryPending={judgeState === 'judging_secondary'}
-            showRichComment={judgeState === 'secondary_done'}
           />
 
-          {rankMessage && (!state.result.isRanked || judgeState === 'secondary_done') && (
+          {rankMessage && (
             <div className="rounded-lg border bg-gray-50 p-4">
               <div className="text-lg font-semibold">{rankMessage.title}</div>
               {rankMessage.sub && <div className="text-sm text-gray-600">{rankMessage.sub}</div>}
-              {judgeState === 'secondary_done' && hasMine && (
+              {hasMine && (
                 <button
                   type="button"
                   className="mt-3 text-sm text-blue-700 underline"
@@ -490,14 +407,14 @@ export default function DrawResult() {
           <div className="flex flex-wrap items-center gap-3">
             <button
               type="button"
-              className="ml-auto px-4 py-2 rounded-md bg-gray-900 text-white"
+              className="ml-auto rounded-md bg-gray-900 px-4 py-2 text-white"
               onClick={handleShare}
               disabled={sharing || judgeState === 'judging_primary'}
             >
               {sharing ? '共有画像を生成中…' : '共有画像を保存'}
             </button>
             <a
-              className="px-4 py-2 rounded-md ring-1 ring-inset ring-gray-300"
+              className="rounded-md px-4 py-2 ring-1 ring-inset ring-gray-300"
               href={shareUrl}
               target="_blank"
               rel="noreferrer"
@@ -514,7 +431,7 @@ export default function DrawResult() {
         {state.result && hasMine && (
           <div className="flex items-center gap-3 rounded-lg border bg-blue-50 p-3">
             <div className="text-sm font-semibold">あなたは {state.result.rank} 位です</div>
-            <span className="text-xs font-semibold rounded-full bg-blue-600 text-white px-2 py-1">TOP20</span>
+            <span className="rounded-full bg-blue-600 px-2 py-1 text-xs font-semibold text-white">TOP20</span>
             <button
               type="button"
               className="ml-auto text-sm text-blue-700 underline"
@@ -548,7 +465,7 @@ export default function DrawResult() {
       <div className="pt-2">
         <button
           type="button"
-          className="w-full md:w-auto px-5 py-3 rounded-md bg-blue-600 text-white"
+          className="w-full rounded-md bg-blue-600 px-5 py-3 text-white md:w-auto"
           onClick={reloadToPlay}
           disabled={judgeState === 'judging_primary'}
         >

@@ -231,9 +231,7 @@ Cost Explorer での基本フィルタ:
 | --- | --- | --- |
 | `draw-prompt-prod` | `ap-northeast-1` | 月次お題取得（JST） |
 | `draw-upload-url-prod` | `ap-northeast-1` | 署名PUT URL発行 |
-| `draw-submit-prod` | `ap-northeast-1` | 一次採点（ink gate含む） |
-| `draw-secondary-status-prod` | `ap-northeast-1` | 二次結果ポーリング |
-| `draw-secondary-worker-prod` | `ap-northeast-1` | SQS二次レビュー |
+| `draw-submit-prod` | `ap-northeast-1` | 一次採点（OpenAI GPT-4.1 mini / ink gate / token cost保存） |
 | `draw-leaderboard-prod` | `ap-northeast-1` | ランキング取得 |
 | `draw-monthly-cleanup-prod` | `ap-northeast-1` | 前月Top20以外の画像削除 |
 
@@ -249,12 +247,6 @@ Cost Explorer での基本フィルタ:
 | --- | --- | --- |
 | `DrawSubmissions` | `ap-northeast-1` | 投稿データ |
 | `DrawRateLimit` | `ap-northeast-1` | 固定窓レート制限 |
-
-### SQS
-
-| Queue | Region | 用途 |
-| --- | --- | --- |
-| `draw-secondary-queue-prod` | `ap-northeast-1` | 二次レビュー非同期 |
 
 ### EventBridge（draw）
 
@@ -272,17 +264,16 @@ Cost Explorer での基本フィルタ:
 | API ID | `2vzy10yq0e` |
 | Stage | `$default` |
 | Region | `ap-northeast-1` |
-| Routes | `GET /api/draw/prompt`, `POST /api/draw/upload-url`, `POST /api/draw/submit`, `GET /api/draw/secondary`, `GET /api/draw/leaderboard` |
+| Routes | `GET /api/draw/prompt`, `POST /api/draw/upload-url`, `POST /api/draw/submit`, `GET /api/draw/leaderboard` |
 
 | Endpoint | `https://2vzy10yq0e.execute-api.ap-northeast-1.amazonaws.com` |
 
 ### タグ適用済みリソース（draw）
 
-- Lambda: `draw-prompt-prod`, `draw-upload-url-prod`, `draw-submit-prod`, `draw-secondary-status-prod`, `draw-secondary-worker-prod`, `draw-leaderboard-prod`
+- Lambda: `draw-prompt-prod`, `draw-upload-url-prod`, `draw-submit-prod`, `draw-leaderboard-prod`, `draw-monthly-cleanup-prod`
+- Secrets Manager: `draw/cf-private-key`, `draw/openai-api-key`
 - DynamoDB: `DrawSubmissions`, `DrawRateLimit`
 - S3: `draw-uploads-20260124-58904f87`
-- SQS: `draw-secondary-queue-prod`
-- Secrets Manager: `draw/cf-private-key`
 - API Gateway(HTTP API): `draw-api` (`2vzy10yq0e`)
 - CloudFront: `E2CQHMEVDKG7MU`
 - EventBridge Rule: `draw-monthly-cleanup-prod-monthly`

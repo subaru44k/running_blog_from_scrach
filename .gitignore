@@ -49,3 +49,7 @@ lambdas/**/function.zip
 lambdas/**/package-lock.json
 !lambdas/sign-upload-v3/package-lock.json
 backend/draw/dist/
+backend/draw/artifacts/model-compare-*.html
+backend/draw/artifacts/model-compare-*.json
+backend/draw/artifacts/secondary-compare-*.html
+backend/draw/artifacts/secondary-compare-*.json

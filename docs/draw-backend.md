@@ -2,12 +2,11 @@
 
 ## アーキテクチャ概要
 - API Gateway（/api/draw/*）
-- Lambda（prompt / upload-url / submit / secondary worker / leaderboard / secondary status）
+- Lambda（prompt / upload-url / submit / leaderboard / monthly cleanup）
 - DynamoDB（DrawSubmissions / DrawRateLimit）
 - S3（画像保管: draw/{promptId}/{submissionId}.png）
 - CloudFront（S3非公開 + 署名URL 15分）
-- SQS（二次レビューの非同期実行）
-- Secrets Manager（CloudFront署名の秘密鍵）
+- Secrets Manager（CloudFront署名の秘密鍵 / OpenAI API key）
 
 ### 実リソース（prod）
 - S3: `draw-uploads-20260124-58904f87`
@@ -15,13 +14,10 @@
 - Key Group: `f2034b56-9310-4e45-add9-14ec838a2a86` / Public Key ID: `K1LW2OJ3ER8YUH`
 - Secrets Manager: `draw/cf-private-key`
 - DynamoDB: `DrawSubmissions`, `DrawRateLimit`
-- SQS: `draw-secondary-queue-prod`
 - Lambda:
  - `draw-upload-url-prod`
   - `draw-prompt-prod`
   - `draw-submit-prod`
-  - `draw-secondary-status-prod`
-  - `draw-secondary-worker-prod`
   - `draw-leaderboard-prod`
   - `draw-monthly-cleanup-prod`
 - API Gateway: `draw-api`（API ID: `2vzy10yq0e`, Endpoint: `https://2vzy10yq0e.execute-api.ap-northeast-1.amazonaws.com`）
@@ -35,8 +31,9 @@
    - S3 PUT 署名URL発行
 3. **画像PUT**: ブラウザから S3 へ直接PUT
 4. **submit**: `POST /api/draw/submit`（`promptText` は任意）
-   - 画像取得 → inkRatio gate → 一次採点（Bedrock/Haiku、失敗時はスタブ）
+   - 画像取得 → inkRatio gate → 一次採点（OpenAI GPT-4.1 mini、失敗時はスタブ）
    - 一次採点はAIに6項目rubric（0-10）を生成させ、最終scoreはサーバー側で算出
+   - `oneLiner` は旧二次講評に近い役割を持たせ、2〜4文・220文字以内のやや厚めな講評として返す
    - rubric の採点アンカーは `0-2 成立していない / 3-4 かなり弱い / 5-6 平均的 / 7 やや良い / 8 明確に良い / 9 かなり良い / 10 例外的`
    - スコア式は weighted average ベース
      - `score = round(max(20, weighted * 14 - 10))`
@@ -44,14 +41,10 @@
    - モデルが出した rubric をそのまま重視し、可視スコアだけを 20〜100 に広げる
    - 既存フロント互換のため breakdown(likeness/composition/originality) はrubricから集約して返却
    - `imageKey` 内の promptId を優先し、サーバー側でお題テキストを確定
-   - DynamoDB保存
-   - ランクイン候補のみ SQS へ二次投入
-5. **secondary**: SQSワーカーが二次レビュー（Bedrock/Haiku 4.5、失敗時はfailed）実行
-6. **secondary status**: `GET /api/draw/secondary?promptId=...&submissionId=...`
-   - 202 pending / 200 done / 404 not_found
-7. **leaderboard**: `GET /api/draw/leaderboard?promptId=...` または `?month=YYYY-MM`
+   - DynamoDB保存（provider/model/tokens/推定コストも保存）
+5. **leaderboard**: `GET /api/draw/leaderboard?promptId=...` または `?month=YYYY-MM`
    - CloudFront署名URLを付与して返却
-8. **monthly cleanup**: EventBridge（月1回）→ `draw-monthly-cleanup-prod`
+6. **monthly cleanup**: EventBridge（月1回）→ `draw-monthly-cleanup-prod`
    - 対象は「前月の prompt」
    - S3 `draw/prompt-YYYY-MM/` 配下から Top20 以外を削除
 
@@ -62,10 +55,10 @@
 ### DrawSubmissions
 - PK: `promptId` (string)
 - SK: `submissionId` (ULID)
-- attrs: createdAt, expiresAt, nickname, imageKey, score, breakdown, oneLiner, tips, isRanked, rank, secondaryStatus, enrichedComment, secondaryAttempts, primaryRubric
+- attrs: createdAt, expiresAt, nickname, imageKey, score, breakdown, oneLiner, tips, isRanked, rank, primaryRubric
+- 互換用に `secondaryStatus=skipped`, `enrichedComment=null`, `secondaryAttempts=0` を保持することがある
 - AI usage attrs:
-  - primaryModelId, primaryInputTokens, primaryOutputTokens, primaryTotalTokens, primaryLatencyMs
-  - secondaryModelId, secondaryInputTokens, secondaryOutputTokens, secondaryTotalTokens, secondaryLatencyMs
+  - primaryProvider, primaryModelId, primaryInputTokens, primaryOutputTokens, primaryTotalTokens, primaryLatencyMs, primaryEstimatedCostUsd
   - tokenRecordedAt, aiFallbackUsed
 - TTL: expiresAt
 - 通常投稿は `SUBMISSION_TTL_DAYS`（既定45日）保持し、月次cleanupで確定Top20のみ `ARCHIVE_TTL_DAYS`（既定3650日）へ延長する
@@ -95,12 +88,12 @@
 - DRAW_BUCKET
 - DRAW_TABLE
 - RATE_LIMIT_TABLE
-- SECONDARY_QUEUE_URL
 - CLOUDFRONT_DOMAIN
 - CF_KEY_PAIR_ID
 - CF_PRIVATE_KEY_SECRET_ID
-- PRIMARY_MODEL_ID（一次採点: Claude 3 Haiku）
-- SECONDARY_MODEL_ID（二次講評: Claude Haiku 4.5）
+- PRIMARY_PROVIDER=openai
+- PRIMARY_MODEL_ID（一次採点: GPT-4.1 mini）
+- OPENAI_API_KEY_SECRET_ID（OpenAI key を入れた Secrets Manager secret）
 - IMAGE_TTL_SECONDS=900
 - SUBMISSION_TTL_DAYS=45
 - ARCHIVE_TTL_DAYS=3650
@@ -112,8 +105,7 @@
 ## デプロイ手順（概要）
 - Lambdaコードを **CJS (.cjs)** でビルドしてzip化してアップロード
 - API Gateway に Lambda を統合
-- SQS トリガーを secondary worker に設定
-- Secrets Manager に CloudFront 秘密鍵を保存
+- Secrets Manager に CloudFront 秘密鍵と OpenAI API key を保存
 - EventBridge `cron` で `draw-monthly-cleanup-prod` を毎月実行（前月を自動整理）
 
 > 注意: S3 CORS は手動設定済み（GET/PUT/HEAD）。必要に応じて更新すること。
@@ -140,22 +132,22 @@ curl "https://<api>/api/draw/prompt?month=2026-02"
 curl -X POST https://<api>/api/draw/upload-url -H 'Content-Type: application/json' -d '{"month":"2026-02"}'
 curl -X POST https://<api>/api/draw/submit -H 'Content-Type: application/json' -d '{"submissionId":"...","imageKey":"draw/prompt-2026-02/...png","promptText":"30秒で熊を描いて"}'
 curl "https://<api>/api/draw/leaderboard?month=2026-02&limit=20"
-curl "https://<api>/api/draw/secondary?promptId=prompt-2026-02&submissionId=<ulid>"
 ```
 
 ## フロントの手動確認（/draw）
 1) `/draw/` でお題を取得し、`/draw/play/` に遷移する  
 2) 30秒描画 → 自動送信で `upload-url → PUT → submit` が行われる  
 3) `/draw/result/` でスコアが表示される（一次結果）  
-4) ランクイン時は `/api/draw/secondary` をポーリングしてコメント更新  
+4) ランキングと共有導線がそのまま表示される  
 
-## Bedrock差し替えポイント（TODO）
+## OpenAI差し替えポイント
 - `backend/draw/src/handlers/submit.ts` の一次採点部分
-- `backend/draw/src/handlers/secondaryWorker.ts` の二次レビュー生成
+- OpenAI key は Secrets Manager から取得する
+- 既存データの再計算は `backend/draw/scripts/rewrite-month-scores.mjs` を使う
 
 ## コスト計算用メモ
-- 各投稿で一次/二次の `input/output/total tokens` を `DrawSubmissions` に保存する。
-- 推定コストはモデルごとの単価を掛けて計算する（`inputTokens * inputUnitPrice + outputTokens * outputUnitPrice`）。
+- 各投稿で一次の `input/output/total tokens` と `primaryEstimatedCostUsd` を `DrawSubmissions` に保存する。
+- OpenAI の利用分は AWS Cost Explorer では直接見えないため、DynamoDB 側の usage 集計を一次ソースにする。
 
 ## 一次採点モデル比較メモ（2026-03-13）
 - 比較対象:

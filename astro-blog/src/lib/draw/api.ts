@@ -1,4 +1,4 @@
-import type { LeaderboardResponse, PromptInfo, SecondaryReviewResult, SubmitResult } from './types';
+import type { LeaderboardResponse, PromptInfo, SubmitResult } from './types';
 
 const apiBase = (import.meta as any).env?.PUBLIC_DRAW_API_BASE || '';
 
@@ -9,11 +9,6 @@ type UploadUrlResponse = {
   promptId?: string;
   promptText?: string;
 };
-
-type SecondaryStatus =
-  | { status: 'pending' }
-  | { status: 'done'; result: SecondaryReviewResult }
-  | { status: 'not_found' };
 
 class ApiError extends Error {
   status?: number;
@@ -99,21 +94,6 @@ export async function getLeaderboard(promptId: string, limit = 20): Promise<Lead
     qs.set('promptId', promptId);
   }
   return requestJson<LeaderboardResponse>(buildUrl(`/api/draw/leaderboard?${qs.toString()}`));
-}
-
-export async function getSecondaryReview(promptId: string, submissionId: string): Promise<SecondaryStatus> {
-  if (!apiBase) throw new ApiError('APIの設定が見つかりません。PUBLIC_DRAW_API_BASE を設定してください。');
-  const qs = new URLSearchParams({ promptId, submissionId });
-  const res = await fetch(buildUrl(`/api/draw/secondary?${qs.toString()}`));
-  if (res.status === 202) return { status: 'pending' };
-  if (res.status === 404) return { status: 'not_found' };
-  if (!res.ok) {
-    const body = await parseJson(res);
-    const msg = body?.error || body?.message || res.statusText || 'request failed';
-    throw new ApiError(msg, res.status);
-  }
-  const json = (await parseJson(res)) as SecondaryReviewResult;
-  return { status: 'done', result: json };
 }
 
 export { ApiError };

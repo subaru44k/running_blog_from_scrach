@@ -1,20 +1,17 @@
 import { PutCommand, QueryCommand } from '@aws-sdk/lib-dynamodb';
-import { SendMessageCommand } from '@aws-sdk/client-sqs';
 import { json, options, parseJson } from '../lib/http';
 import { rateLimit } from '../lib/rateLimit';
 import { getObjectBuffer } from '../lib/s3';
 import { computeInkRatio, isInkGateFail } from '../lib/inkGate';
 import { scoreStub } from '../lib/scoreStub';
 import { ddb } from '../lib/ddb';
-import { DRAW_BUCKET, DRAW_TABLE, PRIMARY_MODEL_ID, RATE_LIMIT_SUBMIT, SECONDARY_QUEUE_URL, SUBMISSION_TTL_DAYS } from '../lib/env';
+import { DRAW_BUCKET, DRAW_TABLE, OPENAI_API_KEY_SECRET_ID, PRIMARY_MODEL_ID, PRIMARY_PROVIDER, RATE_LIMIT_SUBMIT, SUBMISSION_TTL_DAYS } from '../lib/env';
 import { getClientIp } from '../lib/ip';
 import type { SubmitResult } from '../types';
-import { SQSClient } from '@aws-sdk/client-sqs';
-import { invokeClaudeJson } from '../lib/bedrock';
 import { buildPrimaryUser, primarySystemPrompt } from '../lib/aiPrompts';
 import { resolveDrawPrompt } from '../lib/prompt';
-
-const sqs = new SQSClient({});
+import { invokeOpenAIJson } from '../lib/openai';
+import { estimateOpenAiUsd } from '../lib/pricing';
 
 const gateResult = (submissionId: string): SubmitResult => ({
   submissionId,
@@ -93,7 +90,7 @@ const normalizePrimary = (input: any) => {
   const rubric = normalizeRubric(input);
   const breakdown = toLegacyBreakdown(rubric);
   const score = computeScoreFromRubric(rubric);
-  const oneLiner = String(input?.oneLiner || '前向きで良い雰囲気です。').slice(0, 90);
+  const oneLiner = String(input?.oneLiner || '前向きで良い雰囲気です。').trim().slice(0, 220);
   const tipsRaw = Array.isArray(input?.tips) ? input.tips : [];
   const tips = tipsRaw.map((t: unknown) => String(t).trim()).filter(Boolean).slice(0, 3);
   return { score, breakdown, oneLiner, tips, rubric };
@@ -128,11 +125,13 @@ export const handler = async (event: any) => {
     let scoreSortKey = '';
     let secondaryStatus: 'pending' | 'skipped' | 'failed' | 'done' = 'skipped';
     const tokenRecordedAt = new Date().toISOString();
+    let primaryProvider: string | null = null;
     let primaryModelId: string | null = null;
     let primaryInputTokens: number | null = null;
     let primaryOutputTokens: number | null = null;
     let primaryTotalTokens: number | null = null;
     let primaryLatencyMs: number | null = null;
+    let primaryEstimatedCostUsd: number | null = null;
     let primaryRubric: PrimaryRubric | null = null;
     let aiFallbackUsed = false;
 
@@ -143,23 +142,35 @@ export const handler = async (event: any) => {
     } else {
       let scored = scoreStub();
       try {
+        if (PRIMARY_PROVIDER !== 'openai') {
+          throw new Error(`Unsupported PRIMARY_PROVIDER: ${PRIMARY_PROVIDER}`);
+        }
+        if (!OPENAI_API_KEY_SECRET_ID) {
+          throw new Error('Missing OPENAI_API_KEY_SECRET_ID');
+        }
         const imageBase64 = imageBuffer.toString('base64');
         const startedAt = Date.now();
-        const ai = await invokeClaudeJson<any>(
+        const ai = await invokeOpenAIJson<any>(
           PRIMARY_MODEL_ID,
           primarySystemPrompt,
-          buildPrimaryUser(String(resolvedPromptText || promptText || 'お題不明'), imageBase64),
+          buildPrimaryUser(String(resolvedPromptText || promptText || 'お題不明'), imageBase64).map((part) =>
+            part.type === 'text'
+              ? { type: 'input_text', text: part.text }
+              : { type: 'input_image', image_url: `data:${part.source.media_type};base64,${part.source.data}` }
+          ),
         );
         primaryLatencyMs = Date.now() - startedAt;
+        primaryProvider = PRIMARY_PROVIDER;
         primaryModelId = ai.modelId;
         primaryInputTokens = ai.usage.inputTokens;
         primaryOutputTokens = ai.usage.outputTokens;
         primaryTotalTokens = ai.usage.totalTokens;
+        primaryEstimatedCostUsd = estimateOpenAiUsd(primaryInputTokens, primaryOutputTokens);
         const normalized = normalizePrimary(ai.data);
         scored = { ...scored, ...normalized };
         primaryRubric = normalized.rubric;
       } catch (err) {
-        console.error('primary_bedrock_failed', err);
+        console.error('primary_openai_failed', err);
         aiFallbackUsed = true;
       }
       result = {
@@ -186,7 +197,7 @@ export const handler = async (event: any) => {
       isRanked = rank <= 20;
       result.isRanked = isRanked;
       if (isRanked) result.rank = rank;
-      secondaryStatus = isRanked ? 'pending' : 'skipped';
+      secondaryStatus = 'skipped';
     }
 
     await ddb.send(new PutCommand({
@@ -208,11 +219,13 @@ export const handler = async (event: any) => {
         secondaryStatus,
         enrichedComment: null,
         secondaryAttempts: 0,
+        primaryProvider,
         primaryModelId,
         primaryInputTokens,
         primaryOutputTokens,
         primaryTotalTokens,
         primaryLatencyMs,
+        primaryEstimatedCostUsd,
         primaryRubric,
         aiFallbackUsed,
         tokenRecordedAt,
@@ -225,13 +238,6 @@ export const handler = async (event: any) => {
         scoreSortKey,
       },
     }));
-
-    if (result.isRanked) {
-      await sqs.send(new SendMessageCommand({
-        QueueUrl: SECONDARY_QUEUE_URL,
-        MessageBody: JSON.stringify({ promptId, submissionId, score: result.score }),
-      }));
-    }
 
     return json(200, result, origin);
   } catch (err: any) {
