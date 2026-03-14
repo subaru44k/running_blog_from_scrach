@@ -27,6 +27,19 @@ export type LeaderboardResponse = {
   items: LeaderboardItem[];
 };
 
+export type SubmissionDetailResponse = {
+  submissionId: string;
+  promptId: string;
+  promptText: string;
+  createdAt: string;
+  rank?: number;
+  score: number;
+  breakdown: ScoreBreakdown;
+  oneLiner: string;
+  tips: string[];
+  imageDataUrl: string;
+};
+
 export type SecondaryReviewResult = {
   submissionId: string;
   enrichedComment: string;

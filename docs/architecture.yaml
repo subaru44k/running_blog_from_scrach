@@ -126,7 +126,7 @@ features:
       - /draw/play/
       - /draw/result/
     behavior:
-      - API Gateway + Lambda backend for prompt/upload-url/submit/leaderboard
+      - API Gateway + Lambda backend for prompt/upload-url/submit/leaderboard/submission
       - GET /api/draw/prompt provides server-authoritative monthly prompt
       - frontend uses PUBLIC_DRAW_API_BASE to call /api/draw/*
       - Lambda handlers are bundled as CommonJS (.cjs) for Node 20 runtime compatibility
@@ -145,6 +145,7 @@ features:
       - OpenAI token usage and estimated USD cost are stored per submission (input/output/total/model/provider/latency)
       - draw routes are included in sitemap and linked from global nav
       - /draw/archive/ provides monthly Top20 history from 2026-02 onward (client fetches month-by-month leaderboard)
+      - /draw/archive/ ranking cards open a client-side detail modal that fetches submission detail on demand from GET /api/draw/submission
       - draw backend resources use cost allocation tags (Service=draw, Env=prod)
       - monthly cleanup keeps only previous month's Top20 images and deletes others from S3
       - draw submissions remain in DynamoDB long enough for monthly final ranking, and monthly cleanup extends Top20 rows to long-term retention for archive pages

@@ -67,6 +67,7 @@ flowchart LR
 - 一次審査の表示は「点数 + 2〜4文の講評 + tips + breakdown」で完結する。
 - 共有カード画像はブラウザ内の Canvas で生成してPNG保存する。
 - `/draw/archive/` は 2026-02 以降の各月Top20をクライアント側で取得して表示する。
+- `/draw/archive/` の各ランキングカードはクリックで詳細モーダルを開き、`GET /api/draw/submission?promptId=...&submissionId=...` から画像・点数・breakdown・講評・tips・お題・投稿日を取得して表示する。
 - `/draw/` 系は sitemap に含める。グローバルナビから「お絵かきゲーム」として導線を提供する。
 - `/games/` 系も sitemap に含める。グローバルナビには「ミニゲーム」を追加し、`/draw/` は独立導線のまま維持する。
 - 一次採点は OpenAI GPT-4.1 mini（JSON出力）を使用、失敗時はスタブにフォールバック。

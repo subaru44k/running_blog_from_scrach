@@ -14,6 +14,7 @@ const entries = [
   'src/handlers/uploadUrl.ts',
   'src/handlers/submit.ts',
   'src/handlers/leaderboard.ts',
+  'src/handlers/submission.ts',
   'src/handlers/monthlyCleanup.ts',
 ];
 
@@ -22,6 +23,7 @@ const zipNames = {
   uploadUrl: 'draw-upload-url.zip',
   submit: 'draw-submit.zip',
   leaderboard: 'draw-leaderboard.zip',
+  submission: 'draw-submission.zip',
   monthlyCleanup: 'draw-monthly-cleanup.zip',
 };
 

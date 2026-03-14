@@ -1,4 +1,4 @@
-import type { LeaderboardResponse, PromptInfo, SubmitResult } from './types';
+import type { LeaderboardResponse, PromptInfo, SubmissionDetail, SubmitResult } from './types';
 
 const apiBase = (import.meta as any).env?.PUBLIC_DRAW_API_BASE || '';
 
@@ -94,6 +94,12 @@ export async function getLeaderboard(promptId: string, limit = 20): Promise<Lead
     qs.set('promptId', promptId);
   }
   return requestJson<LeaderboardResponse>(buildUrl(`/api/draw/leaderboard?${qs.toString()}`));
+}
+
+export async function getSubmissionDetail(promptId: string, submissionId: string): Promise<SubmissionDetail> {
+  if (!apiBase) throw new ApiError('APIの設定が見つかりません。PUBLIC_DRAW_API_BASE を設定してください。');
+  const qs = new URLSearchParams({ promptId, submissionId });
+  return requestJson<SubmissionDetail>(buildUrl(`/api/draw/submission?${qs.toString()}`));
 }
 
 export { ApiError };

@@ -10,7 +10,7 @@ Astroで生成する静的サイト本体。ブログ、PDF圧縮、ペース計
   - `running-pace.astro`: ペース計算ツール（#calculator / #table のアンカーで計算と表を同一ページ内に配置）
   - `pdf-compress.astro`: PDF圧縮UI（署名→圧縮API）
   - `draw/index.astro`, `draw/play.astro`, `draw/result.astro`: 30秒お絵描き採点ゲーム（`/api/draw/*` と連携）
-  - `draw/archive.astro`: 2026-02以降の月別ランキングTop20一覧（`/api/draw/prompt` + `/api/draw/leaderboard`）
+  - `draw/archive.astro`: 2026-02以降の月別ランキングTop20一覧（`/api/draw/prompt` + `/api/draw/leaderboard` + 詳細モーダル用 `/api/draw/submission`）
   - `contact.astro`, `privacy.astro`, `about.astro`, `404.astro`
   - `sitemap.xml.ts`: サイトマップ生成
 - `astro-blog/src/layouts/Layout.astro`: 共通レイアウト/SEO
@@ -22,7 +22,7 @@ Astroで生成する静的サイト本体。ブログ、PDF圧縮、ペース計
 - 出力: 静的HTML/CSS/JS（`astro-blog/dist`）
 - 外部API:
   - `PUBLIC_PDF_API_BASE` の `/sign-upload` と `/compress`
-  - `PUBLIC_DRAW_API_BASE` の `/api/draw/*`（prompt/upload-url/submit/leaderboard）
+  - `PUBLIC_DRAW_API_BASE` の `/api/draw/*`（prompt/upload-url/submit/leaderboard/submission）
 
 ## 404/SEOポリシー
 - 404ページは `/404.html` を返す（CloudFrontのカスタムエラー応答によりHTTP 404）。

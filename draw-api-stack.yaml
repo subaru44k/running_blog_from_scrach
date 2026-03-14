@@ -11,6 +11,9 @@ Parameters:
   LeaderboardLambdaArn:
     Type: String
     Default: arn:aws:lambda:ap-northeast-1:470447451992:function:draw-leaderboard-prod
+  SubmissionLambdaArn:
+    Type: String
+    Default: arn:aws:lambda:ap-northeast-1:470447451992:function:draw-submission-prod
   PromptLambdaArn:
     Type: String
     Default: arn:aws:lambda:ap-northeast-1:470447451992:function:draw-prompt-prod
@@ -56,6 +59,14 @@ Resources:
       IntegrationUri: !Ref LeaderboardLambdaArn
       PayloadFormatVersion: "2.0"
 
+  SubmissionIntegration:
+    Type: AWS::ApiGatewayV2::Integration
+    Properties:
+      ApiId: !Ref DrawHttpApi
+      IntegrationType: AWS_PROXY
+      IntegrationUri: !Ref SubmissionLambdaArn
+      PayloadFormatVersion: "2.0"
+
   PromptIntegration:
     Type: AWS::ApiGatewayV2::Integration
     Properties:
@@ -84,6 +95,13 @@ Resources:
       ApiId: !Ref DrawHttpApi
       RouteKey: "GET /api/draw/leaderboard"
       Target: !Sub "integrations/${LeaderboardIntegration}"
+
+  RouteSubmission:
+    Type: AWS::ApiGatewayV2::Route
+    Properties:
+      ApiId: !Ref DrawHttpApi
+      RouteKey: "GET /api/draw/submission"
+      Target: !Sub "integrations/${SubmissionIntegration}"
 
   RoutePrompt:
     Type: AWS::ApiGatewayV2::Route
@@ -122,6 +140,14 @@ Resources:
       FunctionName: !Ref LeaderboardLambdaArn
       Principal: apigateway.amazonaws.com
       SourceArn: !Sub "arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${DrawHttpApi}/*/*/api/draw/leaderboard"
+
+  PermissionSubmission:
+    Type: AWS::Lambda::Permission
+    Properties:
+      Action: lambda:InvokeFunction
+      FunctionName: !Ref SubmissionLambdaArn
+      Principal: apigateway.amazonaws.com
+      SourceArn: !Sub "arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${DrawHttpApi}/*/*/api/draw/submission"
 
   PermissionPrompt:
     Type: AWS::Lambda::Permission

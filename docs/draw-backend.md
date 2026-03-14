@@ -45,12 +45,17 @@
    - DynamoDB保存（provider/model/tokens/推定コストも保存）
 5. **leaderboard**: `GET /api/draw/leaderboard?promptId=...` または `?month=YYYY-MM`
    - CloudFront署名URLを付与して返却
-6. **monthly cleanup**: EventBridge（月1回）→ `draw-monthly-cleanup-prod`
+6. **submission detail**: `GET /api/draw/submission?promptId=...&submissionId=...`
+   - archive 詳細モーダル用
+   - 画像, 点数, breakdown, 一次講評, tips, お題, 投稿日時を返却
+   - nickname や usage 情報のような内部項目は返さない
+7. **monthly cleanup**: EventBridge（月1回）→ `draw-monthly-cleanup-prod`
    - 対象は「前月の prompt」
    - S3 `draw/prompt-YYYY-MM/` 配下から Top20 以外を削除
 
 ### フロント表示（履歴ページ）
 - `/draw/archive/` は 2026-02 以降の各月について `prompt` と `leaderboard` を順次取得し、月別Top20を表示する。
+- 各順位カードはクリックで詳細モーダルを開き、必要になった時だけ `submission detail` API を取得する。
 
 ## DynamoDB スキーマ
 ### DrawSubmissions
