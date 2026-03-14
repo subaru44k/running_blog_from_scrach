@@ -118,6 +118,27 @@ const computeScoreFromRubric = (rubric) => {
   return clampScore(Math.max(20, weighted * 14 - 10));
 };
 
+const normalizePrimary = (input) => {
+  const rubric = normalizeRubric(input);
+  const breakdown = toLegacyBreakdown(rubric);
+  const reviewParts = [
+    String(input?.review?.praise || '').trim(),
+    String(input?.review?.improve || '').trim(),
+    String(input?.review?.closing || '').trim(),
+  ].filter(Boolean);
+  const fallbackOneLiner = String(input?.oneLiner || '前向きで良い雰囲気です。').trim();
+  const oneLiner = (reviewParts.length > 0 ? reviewParts.join(' ') : fallbackOneLiner).slice(0, 220);
+  const tipsRaw = Array.isArray(input?.tips) ? input.tips : [];
+  const tips = tipsRaw.map((x) => String(x).trim()).filter(Boolean).slice(0, 3);
+  return {
+    score: computeScoreFromRubric(rubric),
+    breakdown,
+    oneLiner,
+    tips,
+    rubric,
+  };
+};
+
 const makeScoreSortKey = (score, createdAt, submissionId) => {
   const inv = String(100 - Math.min(100, Math.max(0, score))).padStart(3, '0');
   return `${inv}#${createdAt}#${submissionId}`;
@@ -462,13 +483,12 @@ const runMonth = async (month) => {
         const ai = await invokePrimary(String(item.promptText || 'お題不明'), imageBuffer.toString('base64'));
         primaryUsage = ai.usage;
         primaryLatencyMs = ai.latencyMs;
-        const rubric = normalizeRubric(ai.data);
-        score = computeScoreFromRubric(rubric);
-        breakdown = toLegacyBreakdown(rubric);
-        oneLiner = String(ai.data?.oneLiner || '前向きで良い雰囲気です。').trim().slice(0, 220);
-        const tipsRaw = Array.isArray(ai.data?.tips) ? ai.data.tips : [];
-        tips = tipsRaw.map((x) => String(x).trim()).filter(Boolean).slice(0, 3);
-        primaryRubric = rubric;
+        const normalized = normalizePrimary(ai.data);
+        score = normalized.score;
+        breakdown = normalized.breakdown;
+        oneLiner = normalized.oneLiner;
+        tips = normalized.tips;
+        primaryRubric = normalized.rubric;
       }
     } catch (err) {
       aiFallbackUsed = true;
