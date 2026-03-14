@@ -215,12 +215,12 @@ export default function DrawArchive() {
 
       {selected && (
         <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/55 p-4"
+          className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/55 p-4 transition-opacity duration-200 animate-in fade-in"
           onClick={() => setSelected(null)}
           aria-hidden="true"
         >
           <div
-            className="card max-h-[85vh] w-full max-w-3xl overflow-y-auto p-5 md:p-6"
+            className="card max-h-[85vh] w-full max-w-3xl overflow-y-auto p-5 md:p-6 transition duration-200 animate-in fade-in zoom-in-95 slide-in-from-bottom-3"
             onClick={(event) => event.stopPropagation()}
             role="dialog"
             aria-modal="true"
@@ -250,11 +250,48 @@ export default function DrawArchive() {
             </div>
 
             {detailLoading ? (
-              <p className="text-sm text-slate-500">詳細を読み込み中…</p>
+              <div className="grid min-h-[420px] gap-6 md:grid-cols-[minmax(0,280px),1fr]">
+                <div className="space-y-3">
+                  <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white p-3 dark:border-slate-700 dark:bg-slate-900">
+                    <div className="aspect-square w-full animate-pulse rounded-xl bg-slate-200/80 dark:bg-slate-800" />
+                  </div>
+                  <div className="rounded-2xl border border-slate-200/80 bg-slate-50/90 p-3 dark:border-slate-700/80 dark:bg-slate-900/80">
+                    <div className="h-7 w-16 animate-pulse rounded bg-slate-200/80 dark:bg-slate-800" />
+                    <div className="mt-3 h-4 w-32 animate-pulse rounded bg-slate-200/70 dark:bg-slate-800" />
+                  </div>
+                </div>
+                <div className="space-y-5">
+                  <div className="space-y-2">
+                    <div className="h-4 w-full animate-pulse rounded bg-slate-200/80 dark:bg-slate-800" />
+                    <div className="h-4 w-[92%] animate-pulse rounded bg-slate-200/80 dark:bg-slate-800" />
+                    <div className="h-4 w-[76%] animate-pulse rounded bg-slate-200/80 dark:bg-slate-800" />
+                  </div>
+                  <div className="space-y-3">
+                    {[1, 2, 3].map((key) => (
+                      <div key={key} className="space-y-1">
+                        <div className="flex justify-between">
+                          <div className="h-3 w-24 animate-pulse rounded bg-slate-200/70 dark:bg-slate-800" />
+                          <div className="h-3 w-8 animate-pulse rounded bg-slate-200/70 dark:bg-slate-800" />
+                        </div>
+                        <div className="h-2 rounded-full bg-slate-200 dark:bg-slate-800" />
+                      </div>
+                    ))}
+                  </div>
+                  <div className="flex flex-wrap gap-2">
+                    {[1, 2, 3].map((key) => (
+                      <div key={key} className="h-7 w-24 animate-pulse rounded-full bg-slate-200/80 dark:bg-slate-800" />
+                    ))}
+                  </div>
+                  <div className="flex items-center gap-2 text-sm text-slate-500 dark:text-slate-400">
+                    <span className="inline-block h-4 w-4 animate-spin rounded-full border-2 border-slate-300 border-t-blue-500 dark:border-slate-700 dark:border-t-blue-400" />
+                    詳細を読み込み中…
+                  </div>
+                </div>
+              </div>
             ) : detailError ? (
               <p className="text-sm text-red-600">{detailError}</p>
             ) : detail ? (
-              <div className="grid gap-6 md:grid-cols-[minmax(0,280px),1fr]">
+              <div className="grid min-h-[420px] gap-6 md:grid-cols-[minmax(0,280px),1fr]">
                 <div className="space-y-3">
                   <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white p-3 dark:border-slate-700 dark:bg-slate-900">
                     <img
