@@ -33,7 +33,8 @@
 4. **submit**: `POST /api/draw/submit`（`promptText` は任意）
    - 画像取得 → inkRatio gate → 一次採点（OpenAI GPT-4.1 mini、失敗時はスタブ）
    - 一次採点はAIに6項目rubric（0-10）を生成させ、最終scoreはサーバー側で算出
-   - `oneLiner` は旧二次講評に近い役割を持たせ、2〜4文・220文字以内のやや厚めな講評として返す
+   - AI には `review.praise / review.improve / review.closing` の3フィールドを返させ、サーバー側で `oneLiner` に結合する
+   - `oneLiner` は旧二次講評に近い役割を持つ3文の講評として返す
    - rubric の採点アンカーは `0-2 成立していない / 3-4 かなり弱い / 5-6 平均的 / 7 やや良い / 8 明確に良い / 9 かなり良い / 10 例外的`
    - スコア式は weighted average ベース
      - `score = round(max(20, weighted * 14 - 10))`
@@ -103,7 +104,7 @@
 - `PUBLIC_DRAW_API_BASE`: `/api/draw/*` のベースURL（HTTP APIのエンドポイント）
 
 ## デプロイ手順（概要）
-- Lambdaコードを **CJS (.cjs)** でビルドしてzip化してアップロード
+- `npm run build --prefix backend/draw` で Lambdaコードを **CJS (.cjs)** にビルドし、`backend/draw/artifacts/*.zip` まで再生成する
 - API Gateway に Lambda を統合
 - Secrets Manager に CloudFront 秘密鍵と OpenAI API key を保存
 - EventBridge `cron` で `draw-monthly-cleanup-prod` を毎月実行（前月を自動整理）

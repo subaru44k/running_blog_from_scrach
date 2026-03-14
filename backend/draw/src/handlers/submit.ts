@@ -90,7 +90,13 @@ const normalizePrimary = (input: any) => {
   const rubric = normalizeRubric(input);
   const breakdown = toLegacyBreakdown(rubric);
   const score = computeScoreFromRubric(rubric);
-  const oneLiner = String(input?.oneLiner || '前向きで良い雰囲気です。').trim().slice(0, 220);
+  const reviewParts = [
+    String(input?.review?.praise || '').trim(),
+    String(input?.review?.improve || '').trim(),
+    String(input?.review?.closing || '').trim(),
+  ].filter(Boolean);
+  const fallbackOneLiner = String(input?.oneLiner || '前向きで良い雰囲気です。').trim();
+  const oneLiner = (reviewParts.length > 0 ? reviewParts.join(' ') : fallbackOneLiner).slice(0, 220);
   const tipsRaw = Array.isArray(input?.tips) ? input.tips : [];
   const tips = tipsRaw.map((t: unknown) => String(t).trim()).filter(Boolean).slice(0, 3);
   return { score, breakdown, oneLiner, tips, rubric };

@@ -48,17 +48,19 @@ const buildPrimaryUser = (promptText, imageBase64) => ([
     text:
       `お題: ${promptText || 'お題不明'}\n画像を評価して、次のJSONスキーマで返してください。\n` +
       `{"rubric":{"promptMatch":0-10,"composition":0-10,"shapeClarity":0-10,"lineStability":0-10,"creativity":0-10,"completeness":0-10},` +
-      `"oneLiner":"日本語2-4文、220文字以内の講評","tips":["短い名詞句を2-3個"]}\n` +
+      `"review":{"praise":"良い点を1文","improve":"改善点を1文","closing":"前向きな締めを1文"},"tips":["短い名詞句を2-3個"]}\n` +
       `採点基準を固定する。0-2は成立していない、3-4はかなり弱い、5-6は平均的、7はやや良い、8は明確に良い、9はかなり良い、10はごく少数の例外的に強い作品のみ。` +
       `rubricは必ず1点刻みの整数で評価すること。` +
       `各項目は自然に評価し、同じ値が複数あってもよい。` +
       `お題と違うものを描いている場合は promptMatch を低くしてよい。` +
       `読みにくい絵や未完成の絵には低い点を付けてよい。` +
       `明確に良い点がある場合だけ高い点を付けること。` +
-      `oneLinerは日本語のみで、2〜4文、220文字以内にすること。` +
-      `1文目では良い点を1つ具体的に褒めること。` +
-      `2〜3文目では、次に良くなる具体的な工夫を1〜2個だけやさしく伝えること。` +
-      `最後は前向きなひとことで締めること。` +
+      `review の3項目はすべて必須で、日本語1文ずつにすること。` +
+      `praise では良い点を1つ具体的に褒めること。` +
+      `improve では次に良くなる具体的な工夫を1つだけやさしく伝えること。` +
+      `closing ではもう1つの改善点または次の一手を短く伝え、前向きに締めること。` +
+      `3項目とも対象の絵に触れた具体的内容にし、汎用的な褒め言葉だけで済ませないこと。` +
+      `review のどれかを省略したり、空文字にしたりしてはいけない。` +
       `人格否定や断定的な否定語は使わないこと。` +
       `tipsは日本語のみで出力し、英語表現は使わないこと。` +
       `tipsは体言止めの短い語句にすること。`,
@@ -111,7 +113,12 @@ const normalizePrimary = (input) => {
     originality: clampScore((rubric.creativity * 0.7 + rubric.lineStability * 0.3) * 10),
   };
   const score = computeScoreFromRubric(rubric);
-  const oneLiner = String(input?.oneLiner || '').trim();
+  const reviewParts = [
+    String(input?.review?.praise || '').trim(),
+    String(input?.review?.improve || '').trim(),
+    String(input?.review?.closing || '').trim(),
+  ].filter(Boolean);
+  const oneLiner = (reviewParts.length > 0 ? reviewParts.join(' ') : String(input?.oneLiner || '').trim());
   const tips = Array.isArray(input?.tips) ? input.tips.map((x) => String(x).trim()).filter(Boolean).slice(0, 3) : [];
   return { score, breakdown, oneLiner, tips };
 };
