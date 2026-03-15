@@ -57,6 +57,9 @@ flowchart LR
 - 404ページは noindex,follow。
 - sitemap は Astro 側で生成（`sitemap.xml.ts`）。
 - UI文言は日本語に統一し、信頼性/透明性の説明（about/contact/privacy）を明示。
+- ランニング記事のうち `練習(弱)` `練習(中)` `練習(デフォルト)` は、個別記事ページを `noindex,follow` にする。
+- 上記3カテゴリの記事は sitemap から除外する。
+- ただし `/blog/` や `/archive/` などの一覧ページには残し、人向けの導線は維持する。
 
 ## 30秒お絵描き採点ゲーム（フロント + API）
 - `/draw/` → `/draw/play/` → `/draw/result/` の3ページ構成。

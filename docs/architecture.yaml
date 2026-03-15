@@ -96,6 +96,15 @@ site:
       seo:
         canonical: disabled
         robots: noindex,follow
+  seo:
+    article_noindex_categories:
+      - 練習(弱)
+      - 練習(中)
+      - 練習(デフォルト)
+    sitemap_excludes_article_categories:
+      - 練習(弱)
+      - 練習(中)
+      - 練習(デフォルト)
 
 features:
   pdf_compress:
@@ -162,6 +171,13 @@ features:
       - /games/ includes the draw game as the featured card and links to four lighter mini-games
       - snake, maze, tic-tac-toe, and reversi are shipped as static Astro pages with inline client-side logic and no backend dependency
       - reversi provides AI play and local two-player mode, with localStorage used only for settings persistence
+  blog:
+    indexing_policy:
+      - category 練習(弱) article pages are noindex,follow
+      - category 練習(中) article pages are noindex,follow
+      - category 練習(デフォルト) article pages are noindex,follow
+      - those categories are excluded from sitemap.xml
+      - blog and archive listing pages continue to link to those articles for human navigation
 
 assumptions:
   - TODO: CloudFront Distribution ID and error response settings are managed outside docs
