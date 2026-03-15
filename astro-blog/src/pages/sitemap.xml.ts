@@ -6,9 +6,8 @@ export const prerender = true;
 export async function GET() {
   const site = import.meta.env.SITE?.replace(/\/?$/, '/') || 'https://subaru-is-running.com/';
   const excludedCategories = new Set(['練習(弱)', '練習(中)', '練習(デフォルト)']);
-  const posts = filterPostsForBuild(
-    await getCollection('blog', ({ data }) => data.status === 'publish' && !excludedCategories.has(data.category))
-  );
+  const posts = filterPostsForBuild(await getCollection('blog', ({ data }) => data.status === 'publish'))
+    .filter((post) => !excludedCategories.has(post.data.category) && !post.slug.includes('-summary-'));
   posts.sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
 
   const latestPostDate = posts[0]?.data.date ?? new Date();

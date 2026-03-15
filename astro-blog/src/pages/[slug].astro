@@ -23,7 +23,7 @@ if (!post) {
 }
 const { Content } = await post.render();
 const noIndexCategories = new Set(['練習(弱)', '練習(中)', '練習(デフォルト)']);
-const shouldNoIndex = noIndexCategories.has(post.data.category);
+const shouldNoIndex = noIndexCategories.has(post.data.category) || slug.includes('-summary-');
 
 function imageForCategory(cat: string): string {
   switch (cat) {

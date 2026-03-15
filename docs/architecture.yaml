@@ -101,10 +101,14 @@ site:
       - 練習(弱)
       - 練習(中)
       - 練習(デフォルト)
+    article_noindex_slug_contains:
+      - -summary-
     sitemap_excludes_article_categories:
       - 練習(弱)
       - 練習(中)
       - 練習(デフォルト)
+    sitemap_excludes_article_slug_contains:
+      - -summary-
 
 features:
   pdf_compress:
@@ -176,7 +180,9 @@ features:
       - category 練習(弱) article pages are noindex,follow
       - category 練習(中) article pages are noindex,follow
       - category 練習(デフォルト) article pages are noindex,follow
+      - monthly summary article pages (`*-summary-*`) are noindex,follow
       - those categories are excluded from sitemap.xml
+      - summary article pages are excluded from sitemap.xml
       - blog and archive listing pages continue to link to those articles for human navigation
 
 assumptions:
