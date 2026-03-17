@@ -174,3 +174,52 @@ curl "https://<api>/api/draw/leaderboard?month=2026-02&limit=20"
   - 将来の一次採点置き換え候補としては GPT-4.1 mini が最有力
   - 置き換える場合は、モデル自体より score 式の再調整で点数レンジを整える前提にする
   - Gemini 2.5 Flash は精度比較の参考としては有用だが、一次採点本番用途としては速度とコストが重い
+
+## OpenAI 5系モデル比較メモ（2026-03-17）
+- 比較対象:
+  - GPT-4.1 mini
+  - GPT-5 mini
+  - GPT-5 nano
+  - GPT-5 mini (`reasoning.effort = minimal / low`)
+  - GPT-5 nano (`reasoning.effort = minimal / low`)
+- 比較方法:
+  - 2026-02 の画像 20 件を同じ prompt / rubric / score 式で再採点
+  - `backend/draw/scripts/model-compare.mjs` で HTML / JSON / raw JSON を生成
+  - avg/min/max latency、usage token、推定価格を比較
+- 実測サマリー:
+  - `gpt-4.1-mini`
+    - `3879 / 2741 / 5410 ms`
+    - 入力 `44,601`, 出力 `3,775`
+    - 推定 `$0.023880`（約 `3.58円`）
+  - `gpt-5-mini`
+    - `14037 / 8498 / 21095 ms`
+    - 入力 `37,019`, 出力 `23,783`, reasoning `18,944`
+    - 推定 `$0.056821`（約 `8.52円`）
+  - `gpt-5-mini (minimal)`
+    - `4512 / 3581 / 6039 ms`
+    - 入力 `37,019`, 出力 `4,311`
+    - 推定 `$0.017877`（約 `2.68円`）
+  - `gpt-5-mini (low)`
+    - `7002 / 5170 / 9522 ms`
+    - 入力 `37,019`, 出力 `8,175`, reasoning `3,648`
+    - 推定 `$0.025605`（約 `3.84円`）
+  - `gpt-5-nano`
+    - `15738 / 9831 / 23853 ms`
+    - 入力 `42,398`, 出力 `41,365`, reasoning `36,160`
+    - 推定 `$0.018666`（約 `2.80円`）
+  - `gpt-5-nano (minimal)`
+    - `3093 / 2046 / 4741 ms`
+    - 入力 `42,398`, 出力 `4,872`
+    - 推定 `$0.004069`（約 `0.61円`）
+  - `gpt-5-nano (low)`
+    - `4466 / 2825 / 6900 ms`
+    - 入力 `42,398`, 出力 `10,207`, reasoning `4,928`
+    - 推定 `$0.006203`（約 `0.93円`）
+- 判断メモ:
+  - GPT-5 系はデフォルト reasoning のままだと遅かった
+  - `reasoning.effort = minimal` にすると速度・コストが大きく改善した
+  - 特に `gpt-5-nano (minimal)` は `gpt-4.1-mini` より速く、かなり安い
+  - 一方で、実際の rubric 品質や講評の納得感は別途レポートを見て判断する必要がある
+- 運用メモ:
+  - 比較用 raw response は `artifacts/model-compare-*.raw.json` に保存する
+  - 講評欠落や parser 取りこぼしの疑いがある場合は raw JSON から `output_text` と `usage.reasoning_tokens` を確認する
