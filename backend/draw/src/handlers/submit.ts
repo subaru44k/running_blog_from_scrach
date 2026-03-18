@@ -77,7 +77,14 @@ const computeScoreFromRubric = (rubric: PrimaryRubric) => {
     rubric.composition * 0.14 +
     rubric.creativity * 0.10 +
     rubric.lineStability * 0.08;
-  return clampScore(Math.max(20, weighted * 14 - 10));
+  let score = weighted * 10;
+  if (rubric.promptMatch >= 8) score += 5;
+  if (rubric.shapeClarity >= 6) score += 2;
+  if (rubric.completeness >= 6) score += 2;
+  if (rubric.lineStability >= 6) score += 3;
+  if (rubric.promptMatch >= 8 && rubric.shapeClarity >= 6 && rubric.completeness >= 6 && rubric.lineStability >= 6) score += 5;
+  if (rubric.promptMatch <= 4) score -= 6;
+  return clampScore(Math.max(20, score));
 };
 
 const toLegacyBreakdown = (rubric: PrimaryRubric) => ({
@@ -172,7 +179,7 @@ export const handler = async (event: any) => {
         primaryInputTokens = ai.usage.inputTokens;
         primaryOutputTokens = ai.usage.outputTokens;
         primaryTotalTokens = ai.usage.totalTokens;
-        primaryEstimatedCostUsd = estimateOpenAiUsd(primaryInputTokens, primaryOutputTokens);
+        primaryEstimatedCostUsd = estimateOpenAiUsd(primaryInputTokens, primaryOutputTokens, ai.modelId);
         const normalized = normalizePrimary(ai.data);
         scored = { ...scored, ...normalized };
         primaryRubric = normalized.rubric;

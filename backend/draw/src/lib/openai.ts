@@ -1,4 +1,4 @@
-import { OPENAI_API_KEY_SECRET_ID } from './env';
+import { OPENAI_API_KEY_SECRET_ID, OPENAI_REASONING_EFFORT } from './env';
 import { getSecretString } from './secrets';
 
 export type OpenAiUsage = {
@@ -60,7 +60,7 @@ export const invokeOpenAIJson = async <T>(
     },
     body: JSON.stringify({
       model: modelId,
-      temperature: 0.2,
+      ...(OPENAI_REASONING_EFFORT ? { reasoning: { effort: OPENAI_REASONING_EFFORT } } : {}),
       input: [
         {
           role: 'system',

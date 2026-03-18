@@ -1,4 +1,4 @@
-# 一次採点プロンプト（OpenAI GPT-4.1 mini）
+# 一次採点プロンプト（OpenAI GPT-5 mini / reasoning.effort=minimal）
 
 目的: 画像とお題から一次採点（rubric/短評/チップ）をJSONで返し、最終スコアはサーバ側で算出する。
 
@@ -30,13 +30,26 @@
 - 採点基準を固定する
   - 0-2: 成立していない
   - 3-4: かなり弱い
-  - 5-6: 平均的
-  - 7: やや良い
-  - 8: 明確に良い
-  - 9: かなり良い
-  - 10: ごく少数の例外的に強い作品のみ
+  - 5-6: 普通に伝わる
+  - 7: 普通より明らかに良い
+  - 8: かなり珍しい
+  - 9: ごく少数の強い作品
+  - 10: 例外的な作品のみ
 - 各項目は自然に評価し、同じ値が複数あってもよい
-- お題と違うものを描いている場合は `promptMatch` を低くしてよい
+- 30秒お絵かきでは、普通に伝わる絵でも多くの項目は 5-6 に収まることが多い
+- 認識できるだけで 7-8 を付けない
+- `promptMatch` は最も厳しく評価する
+- 最初の一目でお題だと分からない場合は高くしない
+- `promptMatch` の目安
+  - 9-10: 初見で迷わずお題だと分かる
+  - 7-8: お題だと分かるが曖昧さが残る
+  - 5-6: 関連は感じるが別のものにも見える
+  - 3-4: 別のものに見える
+  - 0-2: お題外れ
+- `shapeClarity`, `composition`, `completeness` も甘くしない
+- 形が粗い、輪郭が不安定、画面内でまとまりが弱い、未完成に見える場合は 4-6 を基本とする
+- `creativity` は珍しさだけで高くしない
+- 見やすさや魅力につながる工夫がある場合だけ高くする
 - 読みにくい絵や未完成の絵には低い点を付けてよい
 - 明確に良い点がある場合だけ高い点を付ける
 - `review` は 4フィールドすべて必須
@@ -54,8 +67,14 @@
 
 ## フォールバック
 - JSONパース失敗 / 例外時は scoreStub にフォールバック
-- サーバ側で rubric を clamp し、重み付き平均ベースで visible score(0..100) を算出する
-  - `score = round(max(20, weighted * 14 - 10))`
+- サーバ側で rubric を clamp し、重み付き平均ベースの score に軽い bonus / penalty を加えて visible score(0..100) を算出する
   - `weighted = promptMatch*0.30 + shapeClarity*0.22 + completeness*0.16 + composition*0.14 + creativity*0.10 + lineStability*0.08`
-  - モデルの rubric を尊重しつつ、可視スコアだけを 20〜100 に広げる
+  - `score = weighted*10`
+  - `promptMatch>=8` で `+5`
+  - `shapeClarity>=6` で `+2`
+  - `completeness>=6` で `+2`
+  - `lineStability>=6` で `+3`
+  - `promptMatch>=8 && shapeClarity>=6 && completeness>=6 && lineStability>=6` で `+5`
+  - `promptMatch<=4` で `-6`
+  - 最後に `20..100` へ clamp
 - legacy互換のため breakdown(likeness/composition/originality) に集約して返却

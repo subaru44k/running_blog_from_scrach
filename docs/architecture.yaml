@@ -150,10 +150,11 @@ features:
       - primary review displays score, a fuller 4-sentence review comment assembled server-side from summary/goodPoint/improvement/nextStep fields, tips, and derived breakdown without secondary follow-up
       - share card generated in browser
       - submit/upload APIs resolve promptId and promptText server-side from month rules
-      - primary scoring uses OpenAI GPT-4.1 mini (fallback to stub)
-      - primary scoring asks AI for a 6-axis rubric (0-10 each) with anchored meanings (0-2 invalid, 3-4 weak, 5-6 average, 7 somewhat good, 8 clearly good, 9 very good, 10 exceptional)
-      - primary score is computed server-side from a weighted average of rubric values and mapped into a visible 20-100 range with score = round(max(20, weighted*14 - 10))
+      - primary scoring uses OpenAI GPT-5 mini with reasoning.effort=minimal (fallback to stub)
+      - primary scoring asks AI for a 6-axis rubric (0-10 each) with stricter anchored meanings (0-2 invalid, 3-4 weak, 5-6 normally understandable, 7 clearly above normal, 8 rare, 9 very strong, 10 exceptional)
+      - primary score is computed server-side from a weighted average of rubric values plus a light structural bonus, clamped into 20-100
       - weighted score uses promptMatch*0.30, shapeClarity*0.22, completeness*0.16, composition*0.14, creativity*0.10, lineStability*0.08
+      - light score bonus adds only small lifts when promptMatch, shapeClarity, completeness, and lineStability are all reasonably strong, and a small penalty when promptMatch is very low
       - legacy breakdown (likeness/composition/originality) is derived from rubric for frontend compatibility
       - OpenAI token usage and estimated USD cost are stored per submission (input/output/total/model/provider/latency)
       - draw routes are included in sitemap and linked from global nav

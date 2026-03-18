@@ -31,15 +31,22 @@
    - S3 PUT 署名URL発行
 3. **画像PUT**: ブラウザから S3 へ直接PUT
 4. **submit**: `POST /api/draw/submit`（`promptText` は任意）
-   - 画像取得 → inkRatio gate → 一次採点（OpenAI GPT-4.1 mini、失敗時はスタブ）
+   - 画像取得 → inkRatio gate → 一次採点（OpenAI GPT-5 mini, `reasoning.effort=minimal`、失敗時はスタブ）
    - 一次採点はAIに6項目rubric（0-10）を生成させ、最終scoreはサーバー側で算出
-   - AI には `review.praise / review.improve / review.closing` の3フィールドを返させ、サーバー側で `oneLiner` に結合する
-   - `oneLiner` は旧二次講評に近い役割を持つ3文の講評として返す
-   - rubric の採点アンカーは `0-2 成立していない / 3-4 かなり弱い / 5-6 平均的 / 7 やや良い / 8 明確に良い / 9 かなり良い / 10 例外的`
-   - スコア式は weighted average ベース
-     - `score = round(max(20, weighted * 14 - 10))`
+   - AI には `review.summary / goodPoint / improvement / nextStep` の4フィールドを返させ、サーバー側で `oneLiner` に結合する
+   - `oneLiner` は旧二次講評に近い役割を持つ4文の講評として返す
+   - rubric の採点アンカーは `0-2 成立していない / 3-4 かなり弱い / 5-6 普通に伝わる / 7 普通より明らかに良い / 8 かなり珍しい / 9 ごく少数の強い作品 / 10 例外的`
+   - `promptMatch` は最も厳しく評価し、初見でお題だと分からない場合は高くしない
+   - スコア式は weighted average を主軸にしつつ、`promptMatch / shapeClarity / completeness / lineStability` が揃ったときだけ少し押し上げる light bonus 方式
      - `weighted = promptMatch*0.30 + shapeClarity*0.22 + completeness*0.16 + composition*0.14 + creativity*0.10 + lineStability*0.08`
-   - モデルが出した rubric をそのまま重視し、可視スコアだけを 20〜100 に広げる
+     - `score = weighted*10`
+     - `promptMatch>=8` で `+5`
+     - `shapeClarity>=6` で `+2`
+     - `completeness>=6` で `+2`
+     - `lineStability>=6` で `+3`
+     - 4項目が揃ったときだけ追加で `+5`
+     - `promptMatch<=4` のときだけ `-6`
+     - 最後に `20..100` へ clamp
    - 既存フロント互換のため breakdown(likeness/composition/originality) はrubricから集約して返却
    - `imageKey` 内の promptId を優先し、サーバー側でお題テキストを確定
    - DynamoDB保存（provider/model/tokens/推定コストも保存）
@@ -99,7 +106,8 @@
 - CF_KEY_PAIR_ID
 - CF_PRIVATE_KEY_SECRET_ID
 - PRIMARY_PROVIDER=openai
-- PRIMARY_MODEL_ID（一次採点: GPT-4.1 mini）
+- PRIMARY_MODEL_ID（一次採点: GPT-5 mini）
+- OPENAI_REASONING_EFFORT（既定: `minimal`）
 - OPENAI_API_KEY_SECRET_ID（OpenAI key を入れた Secrets Manager secret）
 - IMAGE_TTL_SECONDS=900
 - SUBMISSION_TTL_DAYS=45
@@ -220,6 +228,12 @@ curl "https://<api>/api/draw/leaderboard?month=2026-02&limit=20"
   - `reasoning.effort = minimal` にすると速度・コストが大きく改善した
   - 特に `gpt-5-nano (minimal)` は `gpt-4.1-mini` より速く、かなり安い
   - 一方で、実際の rubric 品質や講評の納得感は別途レポートを見て判断する必要がある
+- 2026-03-18 の追加考察:
+  - `gpt-5.4-nano` は速度とコストの面ではかなり優秀だった
+  - ただし、花・ボール・正体不明のモンスターのような「熊ではない」画像にも `promptMatch` を高く付ける傾向があり、お題一致の厳しさは不足気味だった
+  - そのため、現時点では `gpt-5.4-nano` を一次採点の本命にするには不安が残る
+  - 一方で `gpt-5-mini + reasoning.effort=minimal` は、速度とコストを現実的な範囲に抑えつつ、`gpt-4.1-mini` より高い弁別力を期待できる候補として最有力
+  - 今後の候補優先順位は、現時点では `gpt-5-mini (minimal)` → `gpt-4.1-mini` → `gpt-5.4-nano` の順で考える
 - 運用メモ:
   - 比較用 raw response は `artifacts/model-compare-*.raw.json` に保存する
   - 講評欠落や parser 取りこぼしの疑いがある場合は raw JSON から `output_text` と `usage.reasoning_tokens` を確認する

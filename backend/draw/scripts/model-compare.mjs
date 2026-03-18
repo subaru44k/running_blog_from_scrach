@@ -32,12 +32,18 @@ const runTimestamp = new Date().toISOString().replace(/[:.]/g, '-');
 const defaultBase = `artifacts/model-compare-${MONTH}-${runTimestamp}`;
 const OUTPUT_PATH = resolve(process.cwd(), process.env.MODEL_COMPARE_OUT || `${defaultBase}.html`);
 const JSON_OUTPUT_PATH = OUTPUT_PATH.replace(/\.html?$/i, '.json');
+const RAW_OUTPUT_PATH = JSON_OUTPUT_PATH.replace(/\.json$/i, '.raw.json');
 const PROMPT_TEXT = process.env.MODEL_COMPARE_PROMPT
   || (MONTH === '2026-02' ? '30秒で熊を描いて' : MONTH === '2026-03' ? '30秒で猫を描いて' : '30秒でお題の絵を描いて');
 
 const OPENAI_API_KEY = process.env.OPENAI_API_KEY || '';
+const OPENAI_REASONING_EFFORT = process.env.OPENAI_REASONING_EFFORT || '';
+const OPENAI_TIMEOUT_MS = Number(process.env.OPENAI_TIMEOUT_MS || 90000);
 const GEMINI_API_KEY = process.env.GOOGLE_API_KEY || process.env.GEMINI_API_KEY || process.env.GOOGLE_GENERATIVE_AI_API_KEY || '';
-const OPENAI_MODEL = process.env.OPENAI_MODEL || 'gpt-4.1-mini';
+const OPENAI_MODELS = String(process.env.OPENAI_MODELS || 'gpt-4.1-mini,gpt-5-mini,gpt-5-nano')
+  .split(',')
+  .map((value) => value.trim())
+  .filter(Boolean);
 const GEMINI_MODEL = process.env.GEMINI_MODEL || 'gemini-2.5-flash';
 const HAIKU_MODEL = process.env.PRIMARY_MODEL_ID || 'anthropic.claude-3-haiku-20240307-v1:0';
 const PROVIDER_FILTER = new Set(
@@ -64,19 +70,33 @@ const RUBRIC_INSTRUCTION =
   `お題: ${PROMPT_TEXT || 'お題不明'}\n` +
   `画像を評価して、次のJSONスキーマで返してください。\n` +
   `{"rubric":{"promptMatch":0-10,"composition":0-10,"shapeClarity":0-10,"lineStability":0-10,"creativity":0-10,"completeness":0-10},` +
-  `"review":{"praise":"良い点を1文","improve":"改善点を1文","closing":"前向きな締めを1文"},"tips":["短い名詞句を2-3個"]}\n` +
-  `採点基準を固定する。0-2は成立していない、3-4はかなり弱い、5-6は平均的、7はやや良い、8は明確に良い、9はかなり良い、10はごく少数の例外的に強い作品のみ。` +
+  `"review":{"summary":"全体の印象を1文","goodPoint":"良い点を1文","improvement":"改善点を1文","nextStep":"次の一手を1文"},"tips":["短い名詞句を2-3個"]}\n` +
+  `採点基準を固定する。0-1はほぼ成立していない、2-3はかなり弱い、4-5は粗いが一部伝わる、6は普通に伝わる、7はかなり良い、8はかなり珍しい、9はごく少数の強い作品、10は例外的な作品のみ。` +
   `rubricは必ず1点刻みの整数で評価すること。` +
   `各項目は自然に評価し、同じ値が複数あってもよい。` +
-  `お題と違うものを描いている場合は promptMatch を低くしてよい。` +
+  `30秒お絵かきでは、普通に伝わる絵でも多くの項目は 5-6 に収まることが多い。 認識できるだけで 7-8 を付けないこと。` +
+  `7 は「普通より明らかに良い」、8 は「かなり珍しい」、9-10 はほぼ上位級と考えること。` +
+  `promptMatch は最も厳しく評価すること。最初の一目でお題だと分からない場合は 7 以下にすること。` +
+  `お題と違うものに見える場合、線が丁寧でも promptMatch を高くしてはいけない。` +
+  `promptMatch の目安: 9-10 は初見で迷わずお題だと分かる、7-8 はお題だと分かるが曖昧さあり、5-6 は関連は感じるが別物にも見える、3-4 は別物に見える、0-2 はお題外れ。` +
+  `8 以上は「多くの30秒投稿より明らかに良い」場合だけ使い、9 以上はかなり珍しいと考えること。` +
+  `shapeClarity, composition, completeness も甘くしないこと。 形が粗い、手足や体が省略されている、輪郭が不安定、画面内でまとまりが弱い場合は 4-6 を基本とすること。` +
+  `creativity は「珍しい絵柄」だけで高くしないこと。 伝わりやすさや魅力に結びつく工夫がある場合だけ高くすること。` +
   `読みにくい絵や未完成の絵には低い点を付けてよい。` +
   `明確に良い点がある場合だけ高い点を付けること。` +
-  `review の3項目はすべて必須で、日本語1文ずつにすること。` +
-  `praise では良い点を1つ具体的に褒めること。` +
-  `improve では次に良くなる具体的な工夫を1つだけやさしく伝えること。` +
-  `closing ではもう1つの改善点または次の一手を短く伝え、前向きに締めること。` +
-  `3項目とも対象の絵に触れた具体的内容にし、汎用的な褒め言葉だけで済ませないこと。` +
+  `review の4項目はすべて必須で、日本語1文ずつにすること。` +
+  `summary では絵全体の印象を1文で述べること。` +
+  `goodPoint では良い点を1つ具体的に褒めること。` +
+  `improvement では次に良くなる具体的な工夫を1つだけやさしく伝えること。` +
+  `nextStep ではもう1つの改善点または次の一手を短く伝え、前向きに締めること。` +
+  `4項目とも対象の絵に触れた具体的内容にし、汎用的な褒め言葉だけで済ませないこと。` +
   `review のどれかを省略したり、空文字にしたりしてはいけない。` +
+  `review 全体では必ず4文になるようにすること。` +
+  `summary と goodPoint は別内容にすること。 improvement と nextStep も別内容にすること。` +
+  `先生の講評のように固すぎる言い方は避け、ゲームらしい親しみやすさを出すこと。` +
+  `良い点は先にしっかり伝え、改善点も「次はこうするともっと楽しい」「こうするともっと伝わる」のように前向きに書くこと。` +
+  `冷たく感じる表現、突き放す表現、事務的すぎる表現は避けること。` +
+  `「かわいらしい」「たのしい」「いい感じ」など、やわらかい日本語を自然に使ってよい。` +
   `人格否定や断定的な否定語は使わないこと。` +
   `tipsは日本語のみで出力し、英語表現は使わないこと。` +
   `tipsは体言止めの短い語句にすること。`;
@@ -106,7 +126,7 @@ const computeScore = (r) => {
     r.composition * 0.14 +
     r.creativity * 0.10 +
     r.lineStability * 0.08;
-  return clampScore(Math.max(20, weighted * 14 - 10));
+  return clampScore(weighted * 10);
 };
 
 const stripCodeFence = (text) => String(text || '').replace(/^```(?:json)?\s*/i, '').replace(/\s*```$/, '');
@@ -183,12 +203,17 @@ const parseJsonLoose = (text) => {
     const lineStability = Number((text.match(/"lineStability"\s*:\s*(-?\d+)/) || [])[1]);
     const creativity = Number((text.match(/"creativity"\s*:\s*(-?\d+)/) || [])[1]);
     const completeness = Number((text.match(/"completeness"\s*:\s*(-?\d+)/) || [])[1]);
-    const oneLiner = ((text.match(/"oneLiner"\s*:\s*"([\s\S]*?)"/) || [])[1] || '').replace(/\\"/g, '"').replace(/\\n/g, ' ');
+    const review = {
+      summary: ((text.match(/"summary"\s*:\s*"([\s\S]*?)"/) || [])[1] || '').replace(/\\"/g, '"').replace(/\\n/g, ' '),
+      goodPoint: ((text.match(/"goodPoint"\s*:\s*"([\s\S]*?)"/) || [])[1] || '').replace(/\\"/g, '"').replace(/\\n/g, ' '),
+      improvement: ((text.match(/"improvement"\s*:\s*"([\s\S]*?)"/) || [])[1] || '').replace(/\\"/g, '"').replace(/\\n/g, ' '),
+      nextStep: ((text.match(/"nextStep"\s*:\s*"([\s\S]*?)"/) || [])[1] || '').replace(/\\"/g, '"').replace(/\\n/g, ' '),
+    };
     const tipsBlock = (text.match(/"tips"\s*:\s*\[([\s\S]*?)\]/) || [])[1] || '';
     const tips = Array.from(tipsBlock.matchAll(/"((?:\\.|[^"\\])*)"/g)).map((m) => m[1].replace(/\\"/g, '"'));
     return {
       rubric: { promptMatch, composition, shapeClarity, lineStability, creativity, completeness },
-      oneLiner,
+      review,
       tips,
     };
   }
@@ -254,27 +279,31 @@ const invokeHaiku = async (imageBase64) => {
   };
 };
 
-const invokeOpenAI = async (imageBase64) => {
+const invokeOpenAI = async (modelId, imageBase64, reasoningEffort = '') => {
+  const requestBody = {
+    model: modelId,
+    input: [{
+      role: 'system',
+      content: [{ type: 'input_text', text: PRIMARY_SYSTEM_PROMPT }],
+    }, {
+      role: 'user',
+      content: [
+        { type: 'input_text', text: RUBRIC_INSTRUCTION },
+        { type: 'input_image', image_url: `data:image/png;base64,${imageBase64}` },
+      ],
+    }],
+  };
+  if (reasoningEffort) {
+    requestBody.reasoning = { effort: reasoningEffort };
+  }
   const response = await fetch('https://api.openai.com/v1/responses', {
     method: 'POST',
+    signal: AbortSignal.timeout(OPENAI_TIMEOUT_MS),
     headers: {
       'Content-Type': 'application/json',
       Authorization: `Bearer ${OPENAI_API_KEY}`,
     },
-    body: JSON.stringify({
-      model: OPENAI_MODEL,
-      temperature: 0.3,
-      input: [{
-        role: 'system',
-        content: [{ type: 'input_text', text: PRIMARY_SYSTEM_PROMPT }],
-      }, {
-        role: 'user',
-        content: [
-          { type: 'input_text', text: RUBRIC_INSTRUCTION },
-          { type: 'input_image', image_url: `data:image/png;base64,${imageBase64}` },
-        ],
-      }],
-    }),
+    body: JSON.stringify(requestBody),
   });
   if (!response.ok) throw new Error(`OpenAI ${response.status}: ${await response.text()}`);
   const payload = await response.json();
@@ -282,9 +311,10 @@ const invokeOpenAI = async (imageBase64) => {
     ? payload.output.flatMap((block) => block?.content || []).filter((c) => c?.type === 'output_text').map((c) => c?.text || '').join('\n').trim()
     : '';
   return {
-    provider: 'gpt-4.1-mini',
+    provider: modelId,
     usage: payload?.usage || {},
     data: parseJsonLoose(text),
+    raw: payload,
   };
 };
 
@@ -320,9 +350,16 @@ const invokeGemini = async (imageBase64) => {
   };
 };
 
+const openAiProviders = OPENAI_MODELS.map((modelId) => ({
+  key: modelId.replace(/\./g, '').replace(/-/g, ''),
+  label: OPENAI_REASONING_EFFORT ? `${modelId} (${OPENAI_REASONING_EFFORT})` : modelId,
+  enabled: Boolean(OPENAI_API_KEY),
+  invoke: (imageBase64) => invokeOpenAI(modelId, imageBase64, OPENAI_REASONING_EFFORT),
+}));
+
 const providers = [
   { key: 'haiku3', label: 'Claude 3 Haiku', enabled: true, invoke: invokeHaiku },
-  { key: 'gpt41mini', label: 'GPT-4.1 mini', enabled: Boolean(OPENAI_API_KEY), invoke: invokeOpenAI },
+  ...openAiProviders,
   { key: 'gemini25flash', label: 'Gemini 2.5 Flash', enabled: Boolean(GEMINI_API_KEY), invoke: invokeGemini },
 ].map((provider) => ({
   ...provider,
@@ -485,26 +522,40 @@ const main = async () => {
   const recordsByProvider = {};
   const durations = {};
   const providerErrors = {};
+  const rawByProvider = {};
   for (const provider of providers) {
     if (!provider.enabled) continue;
     const providerRows = [];
     const providerDurations = [];
     try {
+      console.log(`[${provider.label}] start ${images.length} images`);
+      let index = 0;
       for (const image of images) {
+        index += 1;
+        console.log(`[${provider.label}] ${index}/${images.length} ${image.submissionId}`);
         const startedAt = Date.now();
         const ai = await provider.invoke(image.imageBase64);
         const elapsedMs = Date.now() - startedAt;
         providerDurations.push(elapsedMs);
+        rawByProvider[provider.key] ??= {};
+        rawByProvider[provider.key][image.submissionId] = ai.raw ?? null;
         const rubric = normalizeRubric(ai.data);
+        const reviewParts = [
+          String(ai.data?.review?.summary || '').trim(),
+          String(ai.data?.review?.goodPoint || '').trim(),
+          String(ai.data?.review?.improvement || '').trim(),
+          String(ai.data?.review?.nextStep || '').trim(),
+        ].filter(Boolean);
         providerRows.push({
           submissionId: image.submissionId,
           createdAt: image.createdAt,
           oldScore: image.oldScore,
           newScore: computeScore(rubric),
           imageDataUrl: image.imageDataUrl,
-          oneLiner: String(ai.data?.oneLiner || '').trim(),
+          oneLiner: reviewParts.join(' '),
           tips: Array.isArray(ai.data?.tips) ? ai.data.tips.slice(0, 3) : [],
           rubric,
+          review: ai.data?.review || null,
           usage: ai.usage || {},
           elapsedMs,
         });
@@ -545,9 +596,18 @@ const main = async () => {
     previousReport: previousReportName,
   };
   writeFileSync(JSON_OUTPUT_PATH, JSON.stringify(payload, null, 2));
+  writeFileSync(RAW_OUTPUT_PATH, JSON.stringify({
+    month: MONTH,
+    runTimestamp,
+    promptText: PROMPT_TEXT,
+    providerErrors,
+    previousReport: previousReportName,
+    rawByProvider,
+  }, null, 2));
   writeFileSync(OUTPUT_PATH, buildHtml(recordsByProvider, payload));
   console.log(`Saved report: ${OUTPUT_PATH}`);
   console.log(`Saved json: ${JSON_OUTPUT_PATH}`);
+  console.log(`Saved raw: ${RAW_OUTPUT_PATH}`);
   for (const provider of providers) {
     if (!provider.enabled || providerErrors[provider.key]) {
       if (!provider.enabled) {

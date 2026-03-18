@@ -75,8 +75,8 @@ flowchart LR
 - `/draw/archive/` の各ランキングカードはクリックで詳細モーダルを開き、`GET /api/draw/submission?promptId=...&submissionId=...` から画像・点数・breakdown・講評・tips・お題・投稿日を取得して表示する。
 - `/draw/` 系は sitemap に含める。グローバルナビから「お絵かきゲーム」として導線を提供する。
 - `/games/` 系も sitemap に含める。グローバルナビには「ミニゲーム」を追加し、`/draw/` は独立導線のまま維持する。
-- 一次採点は OpenAI GPT-4.1 mini（JSON出力）を使用、失敗時はスタブにフォールバック。
-- 一次の最終 score は server-side で rubric の weighted average から算出し、20〜100 に収める。現在は `round(max(20, weighted*14 - 10))` を使用する。
+- 一次採点は OpenAI GPT-5 mini（`reasoning.effort=minimal`、JSON出力）を使用、失敗時はスタブにフォールバック。
+- 一次の最終 score は server-side で rubric の weighted average を主軸に、軽い structural bonus / penalty を加えて 20〜100 に収める。
 - token usage と推定コストは DrawSubmissions に保存し、AWS外モデルでも後から集計できるようにする。
 - 画像保管は当月は全件保持し、毎月1日の月次ジョブで「前月Top20以外」を削除する。
 

@@ -24,8 +24,9 @@ const loadLocalEnv = (path) => {
 
 loadLocalEnv(resolve(process.cwd(), '.env.local'));
 
-const MODEL_ID = process.env.PRIMARY_MODEL_ID || 'gpt-4.1-mini';
+const MODEL_ID = process.env.PRIMARY_MODEL_ID || 'gpt-5-mini';
 const OPENAI_API_KEY = process.env.OPENAI_API_KEY || '';
+const OPENAI_REASONING_EFFORT = process.env.OPENAI_REASONING_EFFORT || 'minimal';
 
 const targetMonth = process.argv[2] || '2026-02';
 const promptId = `prompt-${targetMonth}`;
@@ -51,10 +52,14 @@ const buildPrimaryUser = (promptText, imageBase64) => ([
       `お題: ${promptText || 'お題不明'}\n画像を評価して、次のJSONスキーマで返してください。\n` +
       `{"rubric":{"promptMatch":0-10,"composition":0-10,"shapeClarity":0-10,"lineStability":0-10,"creativity":0-10,"completeness":0-10},` +
       `"review":{"summary":"全体の印象を1文","goodPoint":"良い点を1文","improvement":"改善点を1文","nextStep":"次の一手を1文"},"tips":["短い名詞句を2-3個"]}\n` +
-      `採点基準を固定する。0-2は成立していない、3-4はかなり弱い、5-6は平均的、7はやや良い、8は明確に良い、9はかなり良い、10はごく少数の例外的に強い作品のみ。` +
+      `採点基準を固定する。0-2は成立していない、3-4はかなり弱い、5-6は普通に伝わる、7は普通より明らかに良い、8はかなり珍しい、9はごく少数の強い作品、10は例外的な作品のみ。` +
       `rubricは必ず1点刻みの整数で評価すること。` +
       `各項目は自然に評価し、同じ値が複数あってもよい。` +
-      `お題と違うものを描いている場合は promptMatch を低くしてよい。` +
+      `30秒お絵かきでは、普通に伝わる絵でも多くの項目は5-6に収まることが多い。認識できるだけで7-8を付けないこと。` +
+      `promptMatch は最も厳しく評価すること。最初の一目でお題だと分からない場合は高くしないこと。` +
+      `promptMatch の目安: 9-10は初見で迷わずお題だと分かる、7-8はお題だと分かるが曖昧さが残る、5-6は関連は感じるが別のものにも見える、3-4は別のものに見える、0-2はお題外れ。` +
+      `shapeClarity, composition, completeness も甘くしないこと。形が粗い、輪郭が不安定、画面内でまとまりが弱い、未完成に見える場合は4-6を基本とすること。` +
+      `creativity は珍しさだけで高くしないこと。見やすさや魅力につながる工夫がある場合だけ高くすること。` +
       `読みにくい絵や未完成の絵には低い点を付けてよい。` +
       `明確に良い点がある場合だけ高い点を付けること。` +
       `review の4項目はすべて必須で、日本語1文ずつにすること。` +
@@ -95,7 +100,14 @@ const computeScoreFromRubric = (rubric) => {
     rubric.composition * 0.14 +
     rubric.creativity * 0.10 +
     rubric.lineStability * 0.08;
-  return clampScore(Math.max(20, weighted * 14 - 10));
+  let score = weighted * 10;
+  if (rubric.promptMatch >= 8) score += 5;
+  if (rubric.shapeClarity >= 6) score += 2;
+  if (rubric.completeness >= 6) score += 2;
+  if (rubric.lineStability >= 6) score += 3;
+  if (rubric.promptMatch >= 8 && rubric.shapeClarity >= 6 && rubric.completeness >= 6 && rubric.lineStability >= 6) score += 5;
+  if (rubric.promptMatch <= 4) score -= 6;
+  return clampScore(Math.max(20, score));
 };
 
 const normalizePrimary = (input) => {
@@ -318,7 +330,7 @@ const invokePrimary = async (promptText, imageBase64) => {
     },
     body: JSON.stringify({
       model: MODEL_ID,
-      temperature: 0.2,
+      ...(OPENAI_REASONING_EFFORT ? { reasoning: { effort: OPENAI_REASONING_EFFORT } } : {}),
       input: [
         { role: 'system', content: [{ type: 'input_text', text: primarySystemPrompt }] },
         {
