@@ -45,6 +45,7 @@ flowchart LR
 - ブログUIは `/blog/` に集約（記事URLは `/<slug>/` のまま）。
 - `/draw/` は「30秒お絵描き採点ゲーム」のフロントページ。`/draw/archive/`（月別Top20）・`/draw/play/`・`/draw/result/` を含む。
 - `/games/` は軽量なミニゲーム集のハブ。`/games/snake/`、`/games/maze/`、`/games/tic-tac-toe/`、`/games/reversi/` を含む。
+- `/games/` 系は専用の Service Worker により静かにオフライン対応する。訪問後に `/games/` と各ゲームページ、および必要な静的アセットをキャッシュし、他のルートや API には作用させない。
 - 正規ルート（例）: `/`, `/blog/`, `/running-pace/`, `/pdf-compress/`, `/contact/`, `/privacy/`。
 - `/running-pace/` は同一ページ内に `#calculator`（計算）と `#table`（表）のアンカーを持つ。
 - `/blog` や `/pace` は正規ルートではなく 404 が正しい挙動。
@@ -75,6 +76,7 @@ flowchart LR
 - `/draw/archive/` の各ランキングカードはクリックで詳細モーダルを開き、`GET /api/draw/submission?promptId=...&submissionId=...` から画像・点数・breakdown・講評・tips・お題・投稿日を取得して表示する。
 - `/draw/` 系は sitemap に含める。グローバルナビから「お絵かきゲーム」として導線を提供する。
 - `/games/` 系も sitemap に含める。グローバルナビには「ミニゲーム」を追加し、`/draw/` は独立導線のまま維持する。
+- オフライン対応は install 訴求や専用案内を出さず、通常の閲覧体験のまま有効化する。
 - 一次採点は OpenAI GPT-5 mini（`reasoning.effort=minimal`、JSON出力）を使用、失敗時はスタブにフォールバック。
 - 一次の最終 score は server-side で rubric の weighted average を主軸に、軽い structural bonus / penalty を加えて 20〜100 に収める。
 - token usage と推定コストは DrawSubmissions に保存し、AWS外モデルでも後から集計できるようにする。

@@ -38,6 +38,7 @@ const navItems = [
   { href: '/contact/', label: 'お問い合わせ' },
 ];
 const isCurrentPath = (href: string) => url.pathname === href || (href !== '/' && url.pathname.startsWith(href));
+const enableGamesOffline = url.pathname === '/games/' || url.pathname.startsWith('/games/');
 
 // Fetch published posts for sidebar and calendar
 const posts = filterPostsForBuild(await getCollection('blog', ({ data }) => data.status === 'publish'));
@@ -586,5 +587,14 @@ const initialMonthRows = buildInitialMonth(initialYear, initialMonth);
                 </nav>
             </div>
         </footer>
+        {enableGamesOffline && (
+          <script is:inline>
+            {`if ('serviceWorker' in navigator) {
+              window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/games-sw.js', { scope: '/games/' }).catch(() => {});
+              });
+            }`}
+          </script>
+        )}
 	</body>
 	</html>

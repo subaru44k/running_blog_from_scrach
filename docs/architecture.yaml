@@ -176,6 +176,8 @@ features:
       - /games/ includes the draw game as the featured card and links to four lighter mini-games
       - snake, maze, tic-tac-toe, and reversi are shipped as static Astro pages with inline client-side logic and no backend dependency
       - reversi provides AI play and local two-player mode, with localStorage used only for settings persistence
+      - a dedicated Service Worker quietly enables offline use for /games/ and /games/* after those routes are visited once online
+      - offline caching is limited to the mini-game hub, individual mini-game pages, and their same-origin static assets
   blog:
     indexing_policy:
       - category 練習(弱) article pages are noindex,follow
