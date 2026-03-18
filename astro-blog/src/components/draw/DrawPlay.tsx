@@ -71,7 +71,7 @@ export default function DrawPlay() {
         nickname: nickname || undefined,
       });
       localStorage.setItem('drawResult', JSON.stringify(result));
-      localStorage.setItem('drawResultVersion', 'v3-judge-flow');
+      localStorage.setItem('drawResultVersion', 'v4-openai-primary-only');
       localStorage.setItem('drawSubmissionId', result.submissionId);
       localStorage.setItem('drawScore', String(result.score));
       localStorage.setItem('drawPromptText', prompt.promptText);
