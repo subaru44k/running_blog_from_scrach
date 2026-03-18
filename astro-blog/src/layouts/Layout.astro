@@ -589,11 +589,11 @@ const initialMonthRows = buildInitialMonth(initialYear, initialMonth);
         </footer>
         {enableGamesOffline && (
           <script is:inline>
-            {`if ('serviceWorker' in navigator) {
+            if ('serviceWorker' in navigator) {
               window.addEventListener('load', () => {
                 navigator.serviceWorker.register('/games-sw.js', { scope: '/games/' }).catch(() => {});
               });
-            }`}
+            }
           </script>
         )}
 	</body>
