@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
-import { ApiError, getLeaderboard, getPrompt, submitDrawing } from '../../lib/draw/api';
-import type { LeaderboardResponse, PromptInfo, SubmitResult } from '../../lib/draw/types';
+import { ApiError, getLeaderboard, getPrompt, getSubmissionDetail } from '../../lib/draw/api';
+import type { LeaderboardResponse, PromptInfo, SubmissionDetail, SubmitResult } from '../../lib/draw/types';
 import ResultCard from './ResultCard';
 import Leaderboard from './Leaderboard';
 import { buildShareCard, downloadDataUrl } from '../../lib/draw/shareCard';
@@ -120,7 +120,17 @@ export default function DrawResult() {
       .catch(() => setPrompt(null));
   }, []);
 
-  const runPrimary = async () => {
+  const buildSubmitResultFromDetail = (detail: SubmissionDetail): SubmitResult => ({
+    submissionId: detail.submissionId,
+    score: detail.score,
+    breakdown: detail.breakdown,
+    oneLiner: detail.oneLiner,
+    tips: detail.tips,
+    isRanked: typeof detail.rank === 'number' && detail.rank > 0 && detail.rank <= 20,
+    rank: detail.rank,
+  });
+
+  const loadResult = async () => {
     if (!promptId || !submissionId || !imageKey) {
       setState({ error: '送信情報が見つかりませんでした。もう一度描いてください。' });
       setJudgeState('error');
@@ -145,13 +155,8 @@ export default function DrawResult() {
 
     primaryTimerRef.current = window.setTimeout(async () => {
       try {
-        const result = await submitDrawing({
-          promptId,
-          promptText: prompt?.promptText || localStorage.getItem('drawPromptText') || '',
-          submissionId,
-          imageKey,
-          nickname: nickname || undefined,
-        });
+        const detail = await getSubmissionDetail(promptId, submissionId);
+        const result = buildSubmitResultFromDetail(detail);
         const leaderboard = await getLeaderboard(promptId, 20);
         setFirstReview(buildFirstReview(result));
         setState({ result, leaderboard });
@@ -192,7 +197,7 @@ export default function DrawResult() {
       });
       return;
     }
-    runPrimary();
+    loadResult();
     return () => clearPrimaryTimers();
   }, [imageDataUrl, promptId, prompt?.promptText, submissionId, imageKey, nickname]);
 
@@ -318,7 +323,7 @@ export default function DrawResult() {
     localStorage.removeItem('drawScore');
     localStorage.removeItem('drawImageKey');
     sessionStorage.removeItem('drawNickname');
-    runPrimary();
+    loadResult();
   };
 
   const reloadToPlay = () => {
