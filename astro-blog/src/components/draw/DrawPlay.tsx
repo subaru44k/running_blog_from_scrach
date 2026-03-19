@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import CanvasDraw from './CanvasDraw';
 import Timer from './Timer';
 import { ApiError, getUploadUrl, putToS3, submitDrawing } from '../../lib/draw/api';
@@ -20,6 +20,7 @@ export default function DrawPlay() {
   const [status, setStatus] = useState<'idle' | 'uploading' | 'submitting' | 'redirecting' | 'error'>('idle');
   const [error, setError] = useState<string | null>(null);
   const [isSlow, setIsSlow] = useState(false);
+  const finishingRef = useRef(false);
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
@@ -49,9 +50,10 @@ export default function DrawPlay() {
   }, [status]);
 
   const finish = async (dataUrl?: string) => {
-    if (finished) return;
+    if (finished || finishingRef.current) return;
     const url = dataUrl || imageDataUrl;
     if (!url || !prompt?.promptId) return;
+    finishingRef.current = true;
     setFinished(true);
     setStatus('uploading');
     setError(null);
@@ -91,6 +93,7 @@ export default function DrawPlay() {
       }
       setError(message);
       setFinished(false);
+      finishingRef.current = false;
       setStatus('error');
     }
   };
