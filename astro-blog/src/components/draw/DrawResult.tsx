@@ -59,15 +59,16 @@ export default function DrawResult() {
     if (timeoutRef.current) clearTimeout(timeoutRef.current);
   };
 
-  const loadSavedResult = (currentImage: string | null) => {
+  const loadSavedResult = () => {
     try {
       const version = localStorage.getItem('drawResultVersion');
       if (version !== RESULT_VERSION) return null;
-      const savedImage = localStorage.getItem('drawImage');
-      if (!savedImage || !currentImage || savedImage !== currentImage) return null;
       const raw = localStorage.getItem('drawResult');
       if (!raw) return null;
-      return JSON.parse(raw) as SubmitResult;
+      const parsed = JSON.parse(raw) as SubmitResult;
+      const savedSubmissionId = localStorage.getItem('drawSubmissionId');
+      if (!parsed?.submissionId || !savedSubmissionId || parsed.submissionId !== savedSubmissionId) return null;
+      return parsed;
     } catch {
       return null;
     }
@@ -180,7 +181,7 @@ export default function DrawResult() {
       return;
     }
     if (!promptId) return;
-    const saved = loadSavedResult(imageDataUrl);
+    const saved = loadSavedResult();
     if (saved) {
       setFirstReview(buildFirstReview(saved));
       setState({ result: saved });
