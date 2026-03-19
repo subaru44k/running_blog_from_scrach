@@ -589,9 +589,50 @@ const initialMonthRows = buildInitialMonth(initialYear, initialMonth);
         </footer>
         {enableGamesOffline && (
           <script is:inline>
+            const GAMES_CACHE_NAME = 'games-offline-v1';
+
+            async function warmGamesOfflineCache() {
+              if (!('caches' in window)) return;
+              const cache = await caches.open(GAMES_CACHE_NAME);
+              const assetUrls = new Set([
+                window.location.href,
+                ...Array.from(document.querySelectorAll('link[rel="stylesheet"]'))
+                  .map((node) => node.href)
+                  .filter(Boolean),
+                ...Array.from(document.images)
+                  .map((node) => node.currentSrc || node.src)
+                  .filter(Boolean),
+              ]);
+
+              await Promise.all(
+                Array.from(assetUrls)
+                  .filter((url) => {
+                    try {
+                      return new URL(url, window.location.href).origin === window.location.origin;
+                    } catch {
+                      return false;
+                    }
+                  })
+                  .map(async (url) => {
+                    try {
+                      const request = new Request(url, { credentials: 'same-origin' });
+                      const response = await fetch(request);
+                      if (response.ok) {
+                        await cache.put(request, response.clone());
+                      }
+                    } catch {
+                      // Ignore best-effort cache warm failures.
+                    }
+                  })
+              );
+            }
+
             if ('serviceWorker' in navigator) {
               window.addEventListener('load', () => {
-                navigator.serviceWorker.register('/games-sw.js', { scope: '/games/' }).catch(() => {});
+                navigator.serviceWorker
+                  .register('/games-sw.js', { scope: '/games/' })
+                  .catch(() => {});
+                warmGamesOfflineCache().catch(() => {});
               });
             }
           </script>
