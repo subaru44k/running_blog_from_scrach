@@ -131,7 +131,7 @@ export default function DrawResult() {
   });
 
   const loadResult = async () => {
-    if (!promptId || !submissionId || !imageKey) {
+    if (!promptId || !submissionId) {
       setState({ error: '送信情報が見つかりませんでした。もう一度描いてください。' });
       setJudgeState('error');
       return;
@@ -199,7 +199,7 @@ export default function DrawResult() {
     }
     loadResult();
     return () => clearPrimaryTimers();
-  }, [imageDataUrl, promptId, prompt?.promptText, submissionId, imageKey, nickname]);
+  }, [imageDataUrl, promptId, prompt?.promptText, submissionId, nickname]);
 
   useEffect(() => {
     if (state.result) {
