@@ -45,6 +45,7 @@ flowchart LR
 - ブログUIは `/blog/` に集約（記事URLは `/<slug>/` のまま）。
 - `/draw/` は「30秒お絵描き採点ゲーム」のフロントページ。`/draw/archive/`（月別Top20）・`/draw/play/`・`/draw/result/` を含む。
 - `/games/` は軽量なミニゲーム集のハブ。`/games/snake/`、`/games/maze/`、`/games/tic-tac-toe/`、`/games/reversi/` を含む。
+- `/games/snake/` は `おそい / ふつう / はやい` の3速度モードを持ち、選んだ速度は次に「開始 / 再スタート」を押したときに反映される。
 - `/games/` 系は専用の Service Worker により静かにオフライン対応する。訪問後に `/games/` と各ゲームページ、および必要な静的アセットをキャッシュし、他のルートや API には作用させない。
 - 正規ルート（例）: `/`, `/blog/`, `/running-pace/`, `/pdf-compress/`, `/contact/`, `/privacy/`。
 - `/running-pace/` は同一ページ内に `#calculator`（計算）と `#table`（表）のアンカーを持つ。
