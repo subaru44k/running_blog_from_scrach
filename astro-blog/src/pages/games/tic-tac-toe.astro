@@ -308,7 +308,7 @@ const metaDescription = '2人対戦とCPU対戦を切り替えられる、ブラ
     function runCpuTurn() {
       isCpuThinking = true;
       thinkingOverlay.classList.add('active');
-      const delay = difficulty === 'hard' ? 500 : 360;
+      const delay = 1000;
       cpuTimer = setTimeout(() => {
         const move = chooseCpuMove();
         isCpuThinking = false;
