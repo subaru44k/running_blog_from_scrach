@@ -1,0 +1,452 @@
+---
+import Layout from '../../layouts/Layout.astro';
+
+const pageTitle = 'じゃんけんゲーム｜ミニゲーム';
+const metaDescription = 'チャットさんとの対戦と1対1モードで遊べる、かわいい演出つきのじゃんけんゲームです。';
+---
+
+<Layout
+  pageTitle={pageTitle}
+  metaDescription={metaDescription}
+  noSidebar={true}
+  pageHeading="じゃんけんゲーム"
+  pageLead="チャットさんと1回勝負で遊んだり、2人で順番に手を選んで同時公開したりできる、やさしいじゃんけんゲームです。"
+>
+  <section class="grid gap-6 lg:grid-cols-[minmax(0,1fr)_18rem] lg:items-start">
+    <article class="card p-5 md:p-6">
+      <div class="jk-shell">
+        <div class="jk-top">
+          <div>
+            <p class="jk-kicker">MINI GAME</p>
+            <h2 class="jk-title">じゃんけんゲーム</h2>
+          </div>
+          <button class="jk-btn jk-btn-primary" id="newGameBtn" type="button">もういちど</button>
+        </div>
+
+        <div class="jk-status" id="status">モードをえらんで、ぐー・ちょき・ぱーをえらぼう</div>
+
+        <div class="jk-settings">
+          <div class="jk-field">
+            <label for="modeSelect">モード</label>
+            <select id="modeSelect">
+              <option value="cpu">チャットさん</option>
+              <option value="pvp">1対1</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="jk-meta">
+          <div class="jk-chip">
+            <span class="jk-chip-label">いま</span>
+            <strong id="phaseText">1回勝負</strong>
+          </div>
+          <div class="jk-chip">
+            <span class="jk-chip-label">左</span>
+            <strong id="leftNameText">あなた</strong>
+          </div>
+          <div class="jk-chip">
+            <span class="jk-chip-label">右</span>
+            <strong id="rightNameText">チャットさん</strong>
+          </div>
+        </div>
+
+        <div class="jk-stage-wrap">
+          <div class="jk-stage">
+            <div class="jk-player">
+              <p class="jk-player-name" id="leftPlayerName">あなた</p>
+              <div class="jk-hand-card" id="leftHandCard" data-hand="hidden">
+                <div class="jk-hand-icon" id="leftHandIcon">?</div>
+                <div class="jk-hand-label" id="leftHandLabel">えらぶまえ</div>
+              </div>
+            </div>
+
+            <div class="jk-center">
+              <div class="jk-burst" id="burstText">じゃんけん！</div>
+              <div class="jk-result" id="resultText">どっちが かつかな？</div>
+            </div>
+
+            <div class="jk-player">
+              <p class="jk-player-name" id="rightPlayerName">チャットさん</p>
+              <div class="jk-hand-card" id="rightHandCard" data-hand="hidden">
+                <div class="jk-hand-icon" id="rightHandIcon">?</div>
+                <div class="jk-hand-label" id="rightHandLabel">まだ ないしょ</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="jk-thinking" id="thinkingOverlay" aria-hidden="true">
+            <span>チャットさんが考え中<span class="dots"></span></span>
+          </div>
+
+          <div class="jk-handoff" id="handoffOverlay" aria-hidden="true">
+            <div class="jk-handoff-card">
+              <p class="jk-handoff-title">つぎの人にかわってね</p>
+              <p class="jk-handoff-text">プレイヤー1の手はまだ ないしょです。つづける を押したら プレイヤー2のばんになります。</p>
+              <button class="jk-btn jk-btn-primary" id="continueBtn" type="button">つづける</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="jk-choices">
+          <button class="jk-choice" type="button" data-hand="rock">
+            <span class="jk-choice-icon">ぐ</span>
+            <span class="jk-choice-text">ぐー</span>
+          </button>
+          <button class="jk-choice" type="button" data-hand="scissors">
+            <span class="jk-choice-icon">ち</span>
+            <span class="jk-choice-text">ちょき</span>
+          </button>
+          <button class="jk-choice" type="button" data-hand="paper">
+            <span class="jk-choice-icon">ぱ</span>
+            <span class="jk-choice-text">ぱー</span>
+          </button>
+        </div>
+
+        <div class="jk-actions">
+          <button class="jk-btn" id="playAgainBtn" type="button">もういちど あそぶ</button>
+          <a href="/games/" class="jk-link-btn">ミニゲーム一覧へ</a>
+        </div>
+
+        <div class="mt-5 grid gap-4 md:grid-cols-2">
+          <div class="rounded-2xl border border-slate-200/80 bg-white/70 p-4 dark:border-slate-700/80 dark:bg-slate-900/60">
+            <h3 class="mt-0 text-base font-semibold">遊び方</h3>
+            <p class="mt-2 text-sm leading-7 text-slate-600 dark:text-slate-300">ぐー・ちょき・ぱーのどれかをえらぶと、アニメーションつきで手が出ます。チャットさんと遊ぶときは少し考えてから手を出すので、対戦している感じを楽しめます。</p>
+          </div>
+          <div class="rounded-2xl border border-slate-200/80 bg-white/70 p-4 dark:border-slate-700/80 dark:bg-slate-900/60">
+            <h3 class="mt-0 text-base font-semibold">向いている場面</h3>
+            <p class="mt-2 text-sm leading-7 text-slate-600 dark:text-slate-300">ルールがすぐ分かるので、小さい子どもと一緒にちょっと遊びたいときに向いています。1回勝負で終わるので、何度も続けて遊びやすいです。</p>
+          </div>
+        </div>
+      </div>
+    </article>
+
+    <aside class="panel-muted p-5">
+      <h2 class="text-lg font-semibold mt-0">ほかのゲーム</h2>
+      <div class="mt-4 flex flex-col gap-3 text-sm">
+        <a href="/games/snake/" class="rounded-2xl border border-slate-200/80 bg-white/85 px-4 py-3 no-underline transition hover:bg-white dark:border-slate-700/80 dark:bg-slate-900/80 dark:hover:bg-slate-900">スネークゲーム</a>
+        <a href="/games/maze/" class="rounded-2xl border border-slate-200/80 bg-white/85 px-4 py-3 no-underline transition hover:bg-white dark:border-slate-700/80 dark:bg-slate-900/80 dark:hover:bg-slate-900">めいろゲーム</a>
+        <a href="/games/tic-tac-toe/" class="rounded-2xl border border-slate-200/80 bg-white/85 px-4 py-3 no-underline transition hover:bg-white dark:border-slate-700/80 dark:bg-slate-900/80 dark:hover:bg-slate-900">まるばつゲーム</a>
+        <a href="/games/reversi/" class="rounded-2xl border border-slate-200/80 bg-white/85 px-4 py-3 no-underline transition hover:bg-white dark:border-slate-700/80 dark:bg-slate-900/80 dark:hover:bg-slate-900">リバーシ</a>
+        <span class="rounded-2xl border border-slate-900/15 bg-slate-900 px-4 py-3 font-semibold text-white dark:border-white/15 dark:bg-white dark:text-slate-950">じゃんけんゲーム</span>
+        <a href="/draw/" class="rounded-2xl border border-slate-200/80 bg-white/85 px-4 py-3 no-underline transition hover:bg-white dark:border-slate-700/80 dark:bg-slate-900/80 dark:hover:bg-slate-900">お絵かきゲーム</a>
+      </div>
+    </aside>
+  </section>
+
+  <style is:global>
+    .jk-shell { color: rgb(15 23 42); }
+    .jk-top { display:flex; justify-content:space-between; align-items:flex-start; gap:1rem; margin-bottom:1rem; }
+    .jk-kicker { margin:0; font-size:.72rem; letter-spacing:.24em; font-weight:700; color:rgb(100 116 139); }
+    .jk-title { margin:.35rem 0 0; font-size:1.6rem; }
+    .jk-status { margin-bottom:1rem; font-weight:700; padding:.95rem 1rem; border-radius:1rem; background:linear-gradient(135deg, rgba(254,240,138,.84), rgba(253,230,138,.72)); border:1px solid rgba(148,163,184,.28); }
+    .jk-settings { display:grid; grid-template-columns:minmax(0, 14rem); gap:.75rem; margin-bottom:1rem; }
+    .jk-field { display:grid; gap:.35rem; }
+    .jk-field label { font-size:.86rem; font-weight:700; color:rgb(71 85 105); }
+    .jk-field select, .jk-btn {
+      border:1px solid rgba(51,65,85,.22);
+      border-radius:1rem;
+      background:rgba(255,255,255,.92);
+      color:rgb(15 23 42);
+      font-weight:700;
+      padding:.8rem 1rem;
+    }
+    .jk-btn { cursor:pointer; transition:transform .15s ease, background-color .15s ease; }
+    .jk-btn:hover { transform:translateY(-1px); background:white; }
+    .jk-btn-primary { background:rgb(15 23 42); color:white; border-color:rgb(15 23 42); }
+    .jk-btn-primary:hover { background:rgb(30 41 59); }
+    .jk-meta { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:.75rem; margin-bottom:1rem; }
+    .jk-chip { display:grid; gap:.2rem; border:1px solid rgba(148,163,184,.35); border-radius:1rem; background:rgba(255,255,255,.85); padding:.8rem .9rem; }
+    .jk-chip-label { font-size:.76rem; font-weight:700; color:rgb(100 116 139); letter-spacing:.08em; }
+    .jk-chip strong { font-size:1.05rem; }
+    .jk-stage-wrap { position:relative; border:1px solid rgba(51,65,85,.18); border-radius:1.35rem; padding:1rem; background:linear-gradient(180deg,#fff8e8,#ffe9c8); box-shadow: inset 0 1px 0 rgba(255,255,255,.72); overflow:hidden; }
+    .jk-stage { display:grid; grid-template-columns:minmax(0,1fr) auto minmax(0,1fr); gap:1rem; align-items:center; }
+    .jk-player { display:grid; gap:.65rem; justify-items:center; }
+    .jk-player-name { margin:0; font-weight:800; color:rgb(71 85 105); }
+    .jk-hand-card { width:min(100%, 12rem); aspect-ratio:1 / 1; display:grid; place-items:center; gap:.35rem; border-radius:1.4rem; border:1px solid rgba(148,163,184,.35); background:rgba(255,255,255,.88); box-shadow: inset 0 1px 0 rgba(255,255,255,.8); transition:transform .18s ease, box-shadow .18s ease; }
+    .jk-hand-card.reveal { animation: jkReveal .22s ease-out; }
+    .jk-hand-card.win { box-shadow:0 0 0 3px rgba(251,191,36,.38), inset 0 1px 0 rgba(255,255,255,.8); transform:translateY(-2px); }
+    .jk-hand-card.lose { opacity:.82; }
+    .jk-hand-card.draw { box-shadow:0 0 0 2px rgba(125,211,252,.38), inset 0 1px 0 rgba(255,255,255,.8); }
+    .jk-hand-icon { width:5.8rem; height:5.8rem; display:grid; place-items:center; border-radius:999px; font-size:2.4rem; font-weight:900; color:rgb(15 23 42); background:linear-gradient(180deg, rgba(254,240,138,.95), rgba(251,191,36,.86)); box-shadow: inset 0 2px 0 rgba(255,255,255,.5); }
+    .jk-hand-card[data-hand="scissors"] .jk-hand-icon { background:linear-gradient(180deg, rgba(191,219,254,.95), rgba(96,165,250,.86)); }
+    .jk-hand-card[data-hand="paper"] .jk-hand-icon { background:linear-gradient(180deg, rgba(216,180,254,.95), rgba(192,132,252,.86)); }
+    .jk-hand-card[data-hand="hidden"] .jk-hand-icon { background:linear-gradient(180deg, rgba(226,232,240,.95), rgba(148,163,184,.8)); }
+    .jk-hand-label { font-size:.95rem; font-weight:700; color:rgb(71 85 105); }
+    .jk-center { display:grid; gap:.5rem; justify-items:center; text-align:center; }
+    .jk-burst { min-width:6rem; padding:.55rem .9rem; border-radius:999px; background:rgba(255,255,255,.86); border:1px solid rgba(148,163,184,.3); font-weight:900; color:rgb(217 119 6); letter-spacing:.04em; }
+    .jk-result { font-size:1.05rem; font-weight:800; color:rgb(51 65 85); }
+    .jk-result.win { color:rgb(217 119 6); }
+    .jk-result.lose { color:rgb(220 38 38); }
+    .jk-result.draw { color:rgb(37 99 235); }
+    .jk-thinking, .jk-handoff { position:absolute; inset:0; display:grid; place-items:center; background:rgba(15,23,42,.45); color:#fff; opacity:0; pointer-events:none; transition:opacity 140ms ease-out; }
+    .jk-thinking.active, .jk-handoff.active { opacity:1; pointer-events:auto; }
+    .jk-thinking { font-weight:800; letter-spacing:.03em; }
+    .jk-thinking .dots::after { content:'...'; display:inline-block; width:1.2em; overflow:hidden; vertical-align:bottom; animation: jkDots 1s steps(4,end) infinite; }
+    .jk-handoff-card { max-width:min(90%, 26rem); border-radius:1.25rem; background:rgba(15,23,42,.94); padding:1.4rem; text-align:center; box-shadow:0 18px 45px rgba(15,23,42,.35); }
+    .jk-handoff-title { margin:0; font-size:1.2rem; font-weight:900; }
+    .jk-handoff-text { margin:.75rem 0 1rem; line-height:1.8; color:rgba(255,255,255,.86); }
+    .jk-choices { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:.75rem; margin-top:1rem; }
+    .jk-choice { border:1px solid rgba(51,65,85,.22); border-radius:1.25rem; background:rgba(255,255,255,.92); padding:1rem .75rem; display:grid; gap:.4rem; justify-items:center; cursor:pointer; transition:transform .15s ease, background-color .15s ease, box-shadow .15s ease; color:rgb(15 23 42); font-weight:800; }
+    .jk-choice:hover:not(:disabled) { transform:translateY(-2px); background:white; box-shadow:0 10px 20px rgba(148,163,184,.18); }
+    .jk-choice:disabled { opacity:.55; cursor:default; }
+    .jk-choice-icon { width:3.2rem; height:3.2rem; display:grid; place-items:center; border-radius:999px; font-size:1.5rem; background:rgba(254,240,138,.7); }
+    .jk-choice[data-hand="scissors"] .jk-choice-icon { background:rgba(191,219,254,.9); }
+    .jk-choice[data-hand="paper"] .jk-choice-icon { background:rgba(216,180,254,.88); }
+    .jk-choice-text { font-size:1rem; }
+    .jk-actions { margin-top:1rem; display:flex; flex-wrap:wrap; gap:.75rem; }
+    .jk-link-btn { display:inline-flex; align-items:center; justify-content:center; border:1px solid rgba(51,65,85,.22); border-radius:1rem; background:rgba(255,255,255,.92); color:rgb(15 23 42); font-weight:700; padding:.8rem 1rem; text-decoration:none; }
+    @keyframes jkDots { 0%{width:0} 100%{width:1.2em} }
+    @keyframes jkReveal { 0% { transform:translateY(10px) scale(.92); opacity:.35; } 60% { transform:translateY(-4px) scale(1.03); opacity:1; } 100% { transform:translateY(0) scale(1); opacity:1; } }
+    @media (max-width: 768px) {
+      .jk-meta, .jk-stage, .jk-choices { grid-template-columns:1fr; }
+      .jk-center { order:-1; }
+      .jk-settings { grid-template-columns:1fr; }
+      .jk-hand-card { width:min(100%, 10rem); }
+      .jk-actions { flex-direction:column; }
+      .jk-link-btn, .jk-actions .jk-btn { width:100%; }
+    }
+  </style>
+
+  <script is:inline>
+    const modeSelect = document.getElementById('modeSelect');
+    const statusElement = document.getElementById('status');
+    const phaseText = document.getElementById('phaseText');
+    const leftNameText = document.getElementById('leftNameText');
+    const rightNameText = document.getElementById('rightNameText');
+    const leftPlayerName = document.getElementById('leftPlayerName');
+    const rightPlayerName = document.getElementById('rightPlayerName');
+    const leftHandCard = document.getElementById('leftHandCard');
+    const rightHandCard = document.getElementById('rightHandCard');
+    const leftHandIcon = document.getElementById('leftHandIcon');
+    const rightHandIcon = document.getElementById('rightHandIcon');
+    const leftHandLabel = document.getElementById('leftHandLabel');
+    const rightHandLabel = document.getElementById('rightHandLabel');
+    const resultText = document.getElementById('resultText');
+    const burstText = document.getElementById('burstText');
+    const thinkingOverlay = document.getElementById('thinkingOverlay');
+    const handoffOverlay = document.getElementById('handoffOverlay');
+    const continueBtn = document.getElementById('continueBtn');
+    const choices = Array.from(document.querySelectorAll('.jk-choice'));
+    const newGameBtn = document.getElementById('newGameBtn');
+    const playAgainBtn = document.getElementById('playAgainBtn');
+
+    const HANDS = {
+      rock: { label: 'ぐー', icon: 'ぐ' },
+      scissors: { label: 'ちょき', icon: 'ち' },
+      paper: { label: 'ぱー', icon: 'ぱ' },
+    };
+    const CPU_WAIT_MS = 1000;
+
+    let mode = 'cpu';
+    let phase = 'choose';
+    let playerOneHand = null;
+    let playerTwoHand = null;
+    let pendingCpuTimer = null;
+
+    function clearPending() {
+      clearTimeout(pendingCpuTimer);
+      pendingCpuTimer = null;
+    }
+
+    function setStatus(text) {
+      statusElement.textContent = text;
+    }
+
+    function setResult(text, tone = '') {
+      resultText.textContent = text;
+      resultText.className = 'jk-result';
+      if (tone) resultText.classList.add(tone);
+    }
+
+    function setHand(card, iconEl, labelEl, hand, hiddenText) {
+      if (!hand) {
+        card.dataset.hand = 'hidden';
+        iconEl.textContent = '?';
+        labelEl.textContent = hiddenText;
+        return;
+      }
+      card.dataset.hand = hand;
+      iconEl.textContent = HANDS[hand].icon;
+      labelEl.textContent = HANDS[hand].label;
+    }
+
+    function flashReveal() {
+      [leftHandCard, rightHandCard].forEach((card) => {
+        card.classList.remove('reveal');
+        void card.offsetWidth;
+        card.classList.add('reveal');
+      });
+    }
+
+    function resetOutcomeClasses() {
+      [leftHandCard, rightHandCard].forEach((card) => {
+        card.classList.remove('win', 'lose', 'draw', 'reveal');
+      });
+      resultText.className = 'jk-result';
+    }
+
+    function setChoiceDisabled(disabled) {
+      choices.forEach((button) => {
+        button.disabled = disabled;
+      });
+    }
+
+    function getRandomHand() {
+      const keys = Object.keys(HANDS);
+      return keys[Math.floor(Math.random() * keys.length)];
+    }
+
+    function judge(left, right) {
+      if (left === right) return 'draw';
+      if (
+        (left === 'rock' && right === 'scissors') ||
+        (left === 'scissors' && right === 'paper') ||
+        (left === 'paper' && right === 'rock')
+      ) return 'left';
+      return 'right';
+    }
+
+    function applyOutcome(outcome) {
+      if (outcome === 'draw') {
+        leftHandCard.classList.add('draw');
+        rightHandCard.classList.add('draw');
+        setResult('あいこ！ もういちど！', 'draw');
+        burstText.textContent = 'あいこ';
+        setStatus('なかよく あいこでした');
+        return;
+      }
+      if (outcome === 'left') {
+        leftHandCard.classList.add('win');
+        rightHandCard.classList.add('lose');
+        if (mode === 'cpu') {
+          setResult('あなたの かち！', 'win');
+          setStatus('やったね！ チャットさんに かったよ');
+        } else {
+          setResult('プレイヤー1の かち！', 'win');
+          setStatus('プレイヤー1の しょうり！');
+        }
+        burstText.textContent = 'かった！';
+        return;
+      }
+      rightHandCard.classList.add('win');
+      leftHandCard.classList.add('lose');
+      if (mode === 'cpu') {
+        setResult('チャットさんの かち！', 'lose');
+        setStatus('つぎは かてるかも！');
+      } else {
+        setResult('プレイヤー2の かち！', 'lose');
+        setStatus('プレイヤー2の しょうり！');
+      }
+      burstText.textContent = 'まけた！';
+    }
+
+    function revealHands() {
+      setHand(leftHandCard, leftHandIcon, leftHandLabel, playerOneHand, 'えらぶまえ');
+      setHand(rightHandCard, rightHandIcon, rightHandLabel, playerTwoHand, mode === 'cpu' ? 'まだ ないしょ' : 'えらぶまえ');
+      flashReveal();
+      applyOutcome(judge(playerOneHand, playerTwoHand));
+      phase = 'done';
+      phaseText.textContent = 'しょうぶ完了';
+      setChoiceDisabled(true);
+    }
+
+    function updateLabels() {
+      if (mode === 'cpu') {
+        leftNameText.textContent = 'あなた';
+        rightNameText.textContent = 'チャットさん';
+        leftPlayerName.textContent = 'あなた';
+        rightPlayerName.textContent = 'チャットさん';
+        return;
+      }
+      leftNameText.textContent = 'プレイヤー1';
+      rightNameText.textContent = 'プレイヤー2';
+      leftPlayerName.textContent = 'プレイヤー1';
+      rightPlayerName.textContent = 'プレイヤー2';
+    }
+
+    function resetView() {
+      clearPending();
+      resetOutcomeClasses();
+      thinkingOverlay.classList.remove('active');
+      handoffOverlay.classList.remove('active');
+      playerOneHand = null;
+      playerTwoHand = null;
+      phase = 'choose';
+      phaseText.textContent = '1回勝負';
+      burstText.textContent = 'じゃんけん！';
+      setResult('どっちが かつかな？');
+      updateLabels();
+      setHand(leftHandCard, leftHandIcon, leftHandLabel, null, mode === 'cpu' ? 'あなたが えらぶよ' : 'プレイヤー1の番');
+      setHand(rightHandCard, rightHandIcon, rightHandLabel, null, mode === 'cpu' ? 'まだ ないしょ' : 'プレイヤー2の番');
+      setChoiceDisabled(false);
+      setStatus(mode === 'cpu' ? 'あなたの手をえらんでね' : 'プレイヤー1の手をえらんでね');
+    }
+
+    function startCpuRound(hand) {
+      playerOneHand = hand;
+      phase = 'cpu-thinking';
+      phaseText.textContent = 'チャットさん待ち';
+      setHand(leftHandCard, leftHandIcon, leftHandLabel, playerOneHand, 'あなたが えらぶよ');
+      setHand(rightHandCard, rightHandIcon, rightHandLabel, null, 'まだ ないしょ');
+      setChoiceDisabled(true);
+      setStatus('チャットさんが かんがえているよ');
+      thinkingOverlay.classList.add('active');
+      pendingCpuTimer = setTimeout(() => {
+        playerTwoHand = getRandomHand();
+        thinkingOverlay.classList.remove('active');
+        revealHands();
+      }, CPU_WAIT_MS);
+    }
+
+    function startPvpReveal() {
+      handoffOverlay.classList.remove('active');
+      phase = 'reveal';
+      phaseText.textContent = '同時に公開';
+      revealHands();
+    }
+
+    function handleChoice(hand) {
+      if (phase === 'done' || phase === 'cpu-thinking' || phase === 'handoff') return;
+      if (mode === 'cpu') {
+        startCpuRound(hand);
+        return;
+      }
+      if (!playerOneHand) {
+        playerOneHand = hand;
+        phase = 'handoff';
+        phaseText.textContent = '交代タイム';
+        setChoiceDisabled(true);
+        setHand(leftHandCard, leftHandIcon, leftHandLabel, null, 'まだ ないしょ');
+        setStatus('つぎの人に かわってね');
+        handoffOverlay.classList.add('active');
+        return;
+      }
+      playerTwoHand = hand;
+      startPvpReveal();
+    }
+
+    function continuePvp() {
+      if (mode !== 'pvp' || phase !== 'handoff') return;
+      handoffOverlay.classList.remove('active');
+      phase = 'choose-second';
+      phaseText.textContent = 'プレイヤー2の番';
+      setChoiceDisabled(false);
+      setStatus('プレイヤー2の手をえらんでね');
+      setHand(leftHandCard, leftHandIcon, leftHandLabel, null, 'プレイヤー1は えらんだよ');
+      setHand(rightHandCard, rightHandIcon, rightHandLabel, null, 'プレイヤー2の番');
+    }
+
+    modeSelect.addEventListener('change', () => {
+      mode = modeSelect.value;
+      resetView();
+    });
+    choices.forEach((button) => {
+      button.addEventListener('click', () => handleChoice(button.dataset.hand));
+    });
+    continueBtn.addEventListener('click', continuePvp);
+    newGameBtn.addEventListener('click', resetView);
+    playAgainBtn.addEventListener('click', resetView);
+
+    resetView();
+  </script>
+</Layout>

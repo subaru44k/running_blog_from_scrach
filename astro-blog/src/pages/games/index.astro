@@ -2,7 +2,7 @@
 import Layout from '../../layouts/Layout.astro';
 
 const pageTitle = 'ミニゲーム集｜Subaru is Running';
-const metaDescription = 'お絵かきゲームを含む、短時間で遊べるミニゲームをまとめました。スネーク、めいろ、まるばつ、リバーシをブラウザでそのまま遊べます。';
+const metaDescription = 'お絵かきゲームを含む、短時間で遊べるミニゲームをまとめました。じゃんけん、スネーク、めいろ、まるばつ、リバーシをブラウザでそのまま遊べます。';
 
 const featuredGame = {
   href: '/draw/',
@@ -13,6 +13,12 @@ const featuredGame = {
 };
 
 const miniGames = [
+  {
+    href: '/games/janken/',
+    title: 'じゃんけんゲーム',
+    description: 'チャットさんとの対戦と1対1モードで遊べる、かわいい演出つきのじゃんけんゲームです。',
+    tags: ['チャットさん', '2人で遊べる', '1回勝負'],
+  },
   {
     href: '/games/reversi/',
     title: 'リバーシ',
@@ -67,7 +73,7 @@ const miniGames = [
       <h2 class="text-lg font-semibold mt-0">このページの使い方</h2>
       <ul class="mt-4 space-y-3 text-sm leading-7 text-slate-600 dark:text-slate-300">
         <li>まずは看板コンテンツの「30秒お絵かき採点ゲーム」から遊ぶのがおすすめです。</li>
-        <li>待ち時間なしで遊びたいときは、下のミニゲーム4本から選べます。</li>
+        <li>待ち時間なしで遊びたいときは、下のミニゲーム5本から選べます。</li>
         <li>どのゲームも登録不要で、ブラウザ上ですぐに始められます。</li>
       </ul>
     </aside>
@@ -100,7 +106,7 @@ const miniGames = [
   <section class="mt-8 grid gap-5 lg:grid-cols-3">
     <article class="panel-muted p-5">
       <h2 class="text-lg font-semibold mt-0">このページにあるもの</h2>
-      <p class="mt-3 text-sm leading-7 text-slate-600 dark:text-slate-300">お絵かきゲームは少しじっくり遊ぶ看板コンテンツです。ミニゲーム側には、待ち時間なく始められる定番ゲームを置いています。</p>
+      <p class="mt-3 text-sm leading-7 text-slate-600 dark:text-slate-300">お絵かきゲームは少しじっくり遊ぶ看板コンテンツです。ミニゲーム側には、待ち時間なく始められる定番ゲームと、子どもと一緒に遊びやすいゲームを置いています。</p>
     </article>
     <article class="panel-muted p-5">
       <h2 class="text-lg font-semibold mt-0">向いている場面</h2>
@@ -108,7 +114,7 @@ const miniGames = [
     </article>
     <article class="panel-muted p-5">
       <h2 class="text-lg font-semibold mt-0">遊び方の目安</h2>
-      <p class="mt-3 text-sm leading-7 text-slate-600 dark:text-slate-300">すぐ反応がほしいならスネーク、じっくり考えるならリバーシ、短い勝負ならまるばつ、道を探したいならめいろ、といった選び方がおすすめです。</p>
+      <p class="mt-3 text-sm leading-7 text-slate-600 dark:text-slate-300">すぐルールが分かるのはじゃんけん、反応がほしいならスネーク、じっくり考えるならリバーシ、短い勝負ならまるばつ、道を探したいならめいろ、といった選び方がおすすめです。</p>
     </article>
   </section>
 </Layout>

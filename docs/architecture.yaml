@@ -26,6 +26,7 @@ repo:
           - /draw/play/
           - /draw/result/
           - /games/
+          - /games/janken/
           - /games/snake/
           - /games/maze/
           - /games/tic-tac-toe/
@@ -77,6 +78,7 @@ site:
       - /draw/play/
       - /draw/result/
       - /games/
+      - /games/janken/
       - /games/snake/
       - /games/maze/
       - /games/tic-tac-toe/
@@ -166,6 +168,7 @@ features:
   mini_games:
     routes:
       - /games/
+      - /games/janken/
       - /games/snake/
       - /games/maze/
       - /games/tic-tac-toe/
@@ -173,8 +176,9 @@ features:
     behavior:
       - /games/ is the hub page for lightweight browser games
       - global nav links separately to /draw/ and /games/ to keep draw as a first-class feature
-      - /games/ includes the draw game as the featured card and links to four lighter mini-games
-      - snake, maze, tic-tac-toe, and reversi are shipped as static Astro pages with inline client-side logic and no backend dependency
+      - /games/ includes the draw game as the featured card and links to five lighter mini-games
+      - snake, maze, tic-tac-toe, reversi, and janken are shipped as static Astro pages with inline client-side logic and no backend dependency
+      - /games/janken/ provides Chat-san mode and local 1v1 mode, uses one-round matches, waits briefly before Chat-san reveals a hand, and uses sequential hidden input for local two-player play
       - /games/snake/ offers three speed modes (おそい / ふつう / はやい), defaults to ふつう on each visit, and applies the selected speed when the player presses start/restart
       - reversi provides AI play and local two-player mode, with localStorage used only for settings persistence
       - a dedicated Service Worker quietly enables offline use for /games/ and /games/* after those routes are visited once online
