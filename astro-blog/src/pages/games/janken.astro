@@ -236,14 +236,50 @@ const metaDescription = 'チャットさんとの対戦と1対1モードで遊�
     @keyframes jkDots { 0%{width:0} 100%{width:1.2em} }
     @keyframes jkReveal { 0% { transform:translateY(10px) scale(.92); opacity:.35; } 60% { transform:translateY(-4px) scale(1.03); opacity:1; } 100% { transform:translateY(0) scale(1); opacity:1; } }
     @media (max-width: 768px) {
-      .jk-meta, .jk-stage, .jk-choices { grid-template-columns:1fr; }
-      .jk-center { order:-1; }
-      .jk-settings { grid-template-columns:1fr; }
-      .jk-hand-card { width:min(100%, 10rem); }
-      .jk-hand-icon { width:5.4rem; height:5.4rem; }
-      .jk-choice-icon { width:4rem; height:4rem; }
-      .jk-actions { flex-direction:column; }
-      .jk-link-btn, .jk-actions .jk-btn { width:100%; }
+      .jk-shell { display:grid; gap:.75rem; }
+      .jk-top { gap:.75rem; margin-bottom:.25rem; }
+      .jk-kicker { font-size:.64rem; }
+      .jk-title { margin-top:.25rem; font-size:1.28rem; line-height:1.2; }
+      .jk-btn { padding:.72rem .9rem; }
+      .jk-status { margin-bottom:.65rem; padding:.72rem .85rem; font-size:.94rem; line-height:1.45; }
+      .jk-settings { grid-template-columns:1fr; gap:.55rem; margin-bottom:.7rem; }
+      .jk-field select { padding:.72rem .9rem; }
+      .jk-meta { grid-template-columns:repeat(3,minmax(0,1fr)); gap:.45rem; margin-bottom:.7rem; }
+      .jk-chip { padding:.55rem .6rem; border-radius:.85rem; }
+      .jk-chip-label { font-size:.67rem; }
+      .jk-chip strong { font-size:.9rem; }
+      .jk-stage-wrap { padding:.7rem; border-radius:1.1rem; }
+      .jk-stage { grid-template-columns:minmax(0,1fr) auto minmax(0,1fr); gap:.45rem; }
+      .jk-player { gap:.35rem; }
+      .jk-player-name { font-size:.84rem; }
+      .jk-hand-card { width:min(100%, 7rem); gap:.25rem; border-radius:1rem; }
+      .jk-hand-icon { width:4.35rem; height:4.35rem; border-radius:1rem; }
+      .jk-hand-card[data-hand="hidden"] .jk-hand-icon { font-size:1.8rem; }
+      .jk-hand-label { font-size:.8rem; line-height:1.3; }
+      .jk-center { gap:.35rem; }
+      .jk-burst { min-width:auto; padding:.42rem .68rem; font-size:.8rem; }
+      .jk-result { font-size:.86rem; line-height:1.3; max-width:7rem; }
+      .jk-handoff-card { max-width:min(92%, 20rem); padding:1.05rem; border-radius:1rem; }
+      .jk-handoff-title { font-size:1.05rem; }
+      .jk-handoff-text { margin:.6rem 0 .85rem; font-size:.92rem; line-height:1.65; }
+      .jk-choices { grid-template-columns:repeat(3,minmax(0,1fr)); gap:.45rem; margin-top:.75rem; }
+      .jk-choice { padding:.68rem .35rem; gap:.2rem; border-radius:1rem; }
+      .jk-choice-icon { width:3.2rem; height:3.2rem; border-radius:.85rem; }
+      .jk-choice-text { font-size:.84rem; line-height:1.2; }
+      .jk-actions { margin-top:.75rem; flex-direction:column; gap:.5rem; }
+      .jk-link-btn, .jk-actions .jk-btn { width:100%; padding:.72rem .9rem; }
+      .mt-5.grid { margin-top:1rem; }
+    }
+    @media (max-width: 420px) {
+      .jk-top { align-items:center; }
+      .jk-title { font-size:1.18rem; }
+      .jk-status { font-size:.9rem; }
+      .jk-hand-card { width:min(100%, 6.4rem); }
+      .jk-hand-icon { width:4rem; height:4rem; }
+      .jk-result { max-width:6.2rem; font-size:.8rem; }
+      .jk-choice { padding:.58rem .3rem; }
+      .jk-choice-icon { width:2.85rem; height:2.85rem; }
+      .jk-choice-text { font-size:.78rem; }
     }
   </style>
 
