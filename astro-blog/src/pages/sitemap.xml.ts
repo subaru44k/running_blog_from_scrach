@@ -23,6 +23,7 @@ export async function GET() {
     { loc: `${site}draw/result/`, lastmod: latestPostDate.toISOString() },
     { loc: `${site}games/`, lastmod: latestPostDate.toISOString() },
     { loc: `${site}games/janken/`, lastmod: latestPostDate.toISOString() },
+    { loc: `${site}games/clock/`, lastmod: latestPostDate.toISOString() },
     { loc: `${site}games/snake/`, lastmod: latestPostDate.toISOString() },
     { loc: `${site}games/maze/`, lastmod: latestPostDate.toISOString() },
     { loc: `${site}games/tic-tac-toe/`, lastmod: latestPostDate.toISOString() },

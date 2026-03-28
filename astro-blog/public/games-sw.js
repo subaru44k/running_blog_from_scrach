@@ -1,7 +1,8 @@
-const CACHE_VERSION = 'games-offline-v2';
+const CACHE_VERSION = 'games-offline-v3';
 const OFFLINE_ROUTES = [
   '/games/',
   '/games/janken/',
+  '/games/clock/',
   '/games/reversi/',
   '/games/snake/',
   '/games/maze/',

@@ -1,0 +1,468 @@
+---
+import Layout from '../../layouts/Layout.astro';
+
+const pageTitle = 'とけいゲーム｜ミニゲーム';
+const metaDescription = 'お題の時こくに合わせて長針と短針を動かす、子ども向けのやさしいとけいゲームです。';
+---
+
+<Layout
+  pageTitle={pageTitle}
+  metaDescription={metaDescription}
+  noSidebar={true}
+  pageHeading="とけいゲーム"
+  pageLead="お題の時こくに合わせて、アナログ時計の長針と短針を動かすゲームです。やさしい・ふつう・むずかしいで少しずつ時計に慣れていけます。"
+>
+  <section class="grid gap-6 lg:grid-cols-[minmax(0,1fr)_18rem] lg:items-start">
+    <article class="card p-5 md:p-6">
+      <div class="clock-shell">
+        <div class="clock-top">
+          <div>
+            <p class="clock-kicker">MINI GAME</p>
+            <h2 class="clock-title">とけいゲーム</h2>
+          </div>
+        </div>
+
+        <div class="clock-status" id="status">おだいに あう じかんに なるように とけいを うごかしてね</div>
+
+        <div class="clock-settings">
+          <div class="clock-field">
+            <label for="difficultySelect">むずかしさ</label>
+            <select id="difficultySelect">
+              <option value="easy">やさしい</option>
+              <option value="normal">ふつう</option>
+              <option value="hard">むずかしい</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="clock-actions">
+          <button class="clock-btn clock-btn-primary" id="answerBtn" type="button">こたえる</button>
+          <button class="clock-btn" id="nextQuestionBtn" type="button">つぎの もんだい</button>
+        </div>
+
+        <div class="clock-meta">
+          <div class="clock-chip">
+            <span class="clock-chip-label">いまの おだい</span>
+            <strong id="targetText">12じ</strong>
+          </div>
+          <div class="clock-chip">
+            <span class="clock-chip-label">むずかしさ</span>
+            <strong id="difficultyText">やさしい</strong>
+          </div>
+          <div class="clock-chip">
+            <span class="clock-chip-label">つぎ</span>
+            <strong id="hintText">こたえる を おしてね</strong>
+          </div>
+        </div>
+
+        <div class="clock-stage">
+          <div class="clock-stage-inner">
+            <svg class="clock-board" id="clockBoard" viewBox="-120 -120 240 240" role="img" aria-labelledby="clockTargetLabel">
+              <title id="clockTargetLabel">おだいの時間に合わせる時計</title>
+              <circle cx="0" cy="0" r="100" class="clock-face"></circle>
+              <g id="clockTicks"></g>
+              <g id="clockNumbers"></g>
+              <line id="minuteHand" x1="0" y1="0" x2="0" y2="-78" class="clock-hand clock-hand-minute" data-hand-target="minute"></line>
+              <line id="hourHand" x1="0" y1="0" x2="0" y2="-52" class="clock-hand clock-hand-hour" data-hand-target="hour"></line>
+              <circle id="minuteHandle" cx="0" cy="-78" r="14" class="clock-handle" data-hand-target="minute"></circle>
+              <circle id="hourHandle" cx="0" cy="-52" r="16" class="clock-handle clock-handle-hour" data-hand-target="hour"></circle>
+              <circle cx="0" cy="0" r="8" class="clock-center"></circle>
+            </svg>
+            <div class="clock-helper" id="clockHelper">
+              <strong id="currentTimeText">いまは 12じ です</strong>
+              <span id="dragHint">針を さわって うごかしてね</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="mt-5 grid gap-4 md:grid-cols-2">
+          <div class="rounded-2xl border border-slate-200/80 bg-white/70 p-4 dark:border-slate-700/80 dark:bg-slate-900/60">
+            <h3 class="mt-0 text-base font-semibold">遊び方</h3>
+            <p class="mt-2 text-sm leading-7 text-slate-600 dark:text-slate-300">お題に出た時間になるように、短針と長針を指で動かします。やさしいはちょうどの時間、ふつうは30分まで、むずかしいは5分ごとの時間が出ます。</p>
+          </div>
+          <div class="rounded-2xl border border-slate-200/80 bg-white/70 p-4 dark:border-slate-700/80 dark:bg-slate-900/60">
+            <h3 class="mt-0 text-base font-semibold">向いている場面</h3>
+            <p class="mt-2 text-sm leading-7 text-slate-600 dark:text-slate-300">時計の読み方を遊びながら覚えたいときに向いています。時間を合わせてから自分で答える流れなので、考えてから答える練習にもなります。</p>
+          </div>
+        </div>
+      </div>
+    </article>
+
+    <aside class="panel-muted p-5">
+      <h2 class="text-lg font-semibold mt-0">ほかのゲーム</h2>
+      <div class="mt-4 flex flex-col gap-3 text-sm">
+        <a href="/games/janken/" class="rounded-2xl border border-slate-200/80 bg-white/85 px-4 py-3 no-underline transition hover:bg-white dark:border-slate-700/80 dark:bg-slate-900/80 dark:hover:bg-slate-900">じゃんけんゲーム</a>
+        <a href="/games/snake/" class="rounded-2xl border border-slate-200/80 bg-white/85 px-4 py-3 no-underline transition hover:bg-white dark:border-slate-700/80 dark:bg-slate-900/80 dark:hover:bg-slate-900">スネークゲーム</a>
+        <a href="/games/maze/" class="rounded-2xl border border-slate-200/80 bg-white/85 px-4 py-3 no-underline transition hover:bg-white dark:border-slate-700/80 dark:bg-slate-900/80 dark:hover:bg-slate-900">めいろゲーム</a>
+        <a href="/games/tic-tac-toe/" class="rounded-2xl border border-slate-200/80 bg-white/85 px-4 py-3 no-underline transition hover:bg-white dark:border-slate-700/80 dark:bg-slate-900/80 dark:hover:bg-slate-900">まるばつゲーム</a>
+        <a href="/games/reversi/" class="rounded-2xl border border-slate-200/80 bg-white/85 px-4 py-3 no-underline transition hover:bg-white dark:border-slate-700/80 dark:bg-slate-900/80 dark:hover:bg-slate-900">リバーシ</a>
+        <span class="rounded-2xl border border-slate-900/15 bg-slate-900 px-4 py-3 font-semibold text-white dark:border-white/15 dark:bg-white dark:text-slate-950">とけいゲーム</span>
+        <a href="/draw/" class="rounded-2xl border border-slate-200/80 bg-white/85 px-4 py-3 no-underline transition hover:bg-white dark:border-slate-700/80 dark:bg-slate-900/80 dark:hover:bg-slate-900">お絵かきゲーム</a>
+      </div>
+    </aside>
+  </section>
+
+  <style is:global>
+    .clock-shell { color: rgb(15 23 42); }
+    .clock-top { display:flex; justify-content:space-between; align-items:flex-start; gap:1rem; margin-bottom:1rem; }
+    .clock-kicker { margin:0; font-size:.72rem; letter-spacing:.24em; font-weight:700; color:rgb(100 116 139); }
+    .clock-title { margin:.35rem 0 0; font-size:1.6rem; }
+    .clock-status { margin-bottom:1rem; font-weight:700; padding:.95rem 1rem; border-radius:1rem; background:linear-gradient(135deg, rgba(191,219,254,.9), rgba(224,231,255,.8)); border:1px solid rgba(148,163,184,.28); transition:background-color .18s ease, border-color .18s ease, color .18s ease; }
+    .clock-status.success { background:linear-gradient(135deg, rgba(253,230,138,.95), rgba(254,249,195,.9)); border-color:rgba(217,119,6,.34); color:rgb(146 64 14); }
+    .clock-status.wrong { background:linear-gradient(135deg, rgba(254,205,211,.95), rgba(254,226,226,.9)); border-color:rgba(225,29,72,.26); color:rgb(159 18 57); }
+    .clock-settings { display:grid; grid-template-columns:minmax(0, 14rem); gap:.75rem; margin-bottom:1rem; }
+    .clock-field { display:grid; gap:.35rem; }
+    .clock-field label { font-size:.86rem; font-weight:700; color:rgb(71 85 105); }
+    .clock-field select, .clock-btn {
+      border:1px solid rgba(51,65,85,.22);
+      border-radius:1rem;
+      background:rgba(255,255,255,.92);
+      color:rgb(15 23 42);
+      font-weight:700;
+      padding:.8rem 1rem;
+    }
+    .clock-btn { cursor:pointer; transition:transform .15s ease, background-color .15s ease; }
+    .clock-btn:hover { transform:translateY(-1px); background:white; }
+    .clock-btn-primary { background:rgb(15 23 42); color:white; border-color:rgb(15 23 42); }
+    .clock-btn-primary:hover { background:rgb(30 41 59); }
+    .clock-btn:disabled { opacity:.56; cursor:default; transform:none; }
+    .clock-btn:disabled:hover { background:rgba(255,255,255,.92); }
+    .clock-actions { display:flex; flex-wrap:wrap; gap:.75rem; margin-bottom:1rem; }
+    .clock-meta { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:.75rem; margin-bottom:1rem; }
+    .clock-chip { display:grid; gap:.2rem; border:1px solid rgba(148,163,184,.35); border-radius:1rem; background:rgba(255,255,255,.85); padding:.8rem .9rem; }
+    .clock-chip-label { font-size:.76rem; font-weight:700; color:rgb(100 116 139); letter-spacing:.08em; }
+    .clock-chip strong { font-size:1rem; }
+    .clock-stage { border:1px solid rgba(51,65,85,.18); border-radius:1.35rem; padding:1rem; background:linear-gradient(180deg,#fff9ec,#fff3d6); box-shadow: inset 0 1px 0 rgba(255,255,255,.72); transition:background-color .18s ease, border-color .18s ease, box-shadow .18s ease; }
+    .clock-stage.success { background:linear-gradient(180deg, rgba(254,243,199,.96), rgba(254,249,195,.92)); border-color:rgba(217,119,6,.3); box-shadow:0 0 0 3px rgba(251,191,36,.18), inset 0 1px 0 rgba(255,255,255,.76); }
+    .clock-stage.wrong { background:linear-gradient(180deg, rgba(255,241,242,.96), rgba(254,226,226,.9)); border-color:rgba(225,29,72,.22); box-shadow:0 0 0 3px rgba(251,113,133,.12), inset 0 1px 0 rgba(255,255,255,.76); }
+    .clock-stage-inner { display:grid; gap:1rem; justify-items:center; }
+    .clock-board { width:min(100%, 24rem); touch-action:none; user-select:none; }
+    .clock-face { fill:rgba(255,255,255,.92); stroke:rgba(148,163,184,.4); stroke-width:3; }
+    .clock-tick-major { stroke:rgb(51 65 85); stroke-width:4; stroke-linecap:round; }
+    .clock-tick-minor { stroke:rgba(100,116,139,.55); stroke-width:2.6; stroke-linecap:round; }
+    .clock-number { font-size:16px; font-weight:800; fill:rgb(51 65 85); text-anchor:middle; dominant-baseline:middle; }
+    .clock-hand { stroke-linecap:round; cursor:grab; transition:filter .12s ease; }
+    .clock-hand.active, .clock-handle.active { filter:drop-shadow(0 0 10px rgba(251,191,36,.55)); }
+    .clock-hand-minute { stroke:rgb(37 99 235); stroke-width:7; }
+    .clock-hand-hour { stroke:rgb(217 119 6); stroke-width:10; }
+    .clock-handle { fill:rgba(37,99,235,.18); stroke:rgba(37,99,235,.28); stroke-width:2; cursor:grab; }
+    .clock-handle-hour { fill:rgba(217,119,6,.18); stroke:rgba(217,119,6,.28); }
+    .clock-center { fill:rgb(15 23 42); }
+    .clock-helper { display:grid; gap:.25rem; justify-items:center; text-align:center; }
+    .clock-helper strong { font-size:1rem; }
+    .clock-helper span { color:rgb(71 85 105); font-size:.92rem; }
+    .clock-helper.success strong { color:rgb(217 119 6); }
+    .clock-stage.success .clock-board { animation: clockCelebrate .38s ease-out; }
+    @keyframes clockCelebrate { 0% { transform:scale(.96); } 55% { transform:scale(1.03); } 100% { transform:scale(1); } }
+    @media (max-width: 768px) {
+      .clock-top { gap:.75rem; margin-bottom:.55rem; }
+      .clock-kicker { font-size:.64rem; }
+      .clock-title { margin-top:.25rem; font-size:1.28rem; line-height:1.2; }
+      .clock-status { margin-bottom:.65rem; padding:.72rem .85rem; font-size:.94rem; line-height:1.45; }
+      .clock-settings { grid-template-columns:1fr; gap:.55rem; margin-bottom:.7rem; }
+      .clock-field select, .clock-btn { padding:.72rem .9rem; }
+      .clock-actions { gap:.55rem; margin-bottom:.7rem; }
+      .clock-meta { grid-template-columns:repeat(3,minmax(0,1fr)); gap:.45rem; margin-bottom:.7rem; }
+      .clock-chip { padding:.55rem .6rem; border-radius:.85rem; }
+      .clock-chip-label { font-size:.67rem; }
+      .clock-chip strong { font-size:.87rem; line-height:1.3; }
+      .clock-stage { padding:.72rem; }
+      .clock-stage-inner { gap:.7rem; }
+      .clock-board { width:min(100%, 17rem); }
+      .clock-number { font-size:13px; }
+      .clock-helper strong { font-size:.94rem; }
+      .clock-helper span { font-size:.83rem; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .clock-btn,
+      .clock-board,
+      .clock-hand,
+      .clock-handle { transition:none; animation:none !important; }
+    }
+    .dark .clock-shell { color:rgb(226 232 240); }
+    .dark .clock-kicker { color:rgb(148 163 184); }
+    .dark .clock-status { background:linear-gradient(135deg, rgba(30,41,59,.94), rgba(51,65,85,.84)); border-color:rgba(148,163,184,.22); }
+    .dark .clock-status.success { background:linear-gradient(135deg, rgba(120,53,15,.82), rgba(113,63,18,.92)); border-color:rgba(251,191,36,.28); color:rgb(254 240 138); }
+    .dark .clock-status.wrong { background:linear-gradient(135deg, rgba(127,29,29,.82), rgba(136,19,55,.92)); border-color:rgba(251,113,133,.24); color:rgb(254 205 211); }
+    .dark .clock-field label,
+    .dark .clock-helper span { color:rgb(203 213 225); }
+    .dark .clock-field select,
+    .dark .clock-btn,
+    .dark .clock-chip { background:rgba(15,23,42,.92); border-color:rgba(148,163,184,.22); color:rgb(226 232 240); }
+    .dark .clock-stage { background:linear-gradient(180deg, rgba(30,41,59,.96), rgba(15,23,42,.96)); border-color:rgba(148,163,184,.2); }
+    .dark .clock-stage.success { background:linear-gradient(180deg, rgba(120,53,15,.35), rgba(113,63,18,.46)); border-color:rgba(251,191,36,.26); box-shadow:0 0 0 3px rgba(251,191,36,.12), inset 0 1px 0 rgba(255,255,255,.06); }
+    .dark .clock-stage.wrong { background:linear-gradient(180deg, rgba(127,29,29,.34), rgba(136,19,55,.42)); border-color:rgba(251,113,133,.22); box-shadow:0 0 0 3px rgba(251,113,133,.1), inset 0 1px 0 rgba(255,255,255,.06); }
+    .dark .clock-face { fill:rgba(15,23,42,.82); stroke:rgba(148,163,184,.28); }
+    .dark .clock-tick-major { stroke:rgb(226 232 240); }
+    .dark .clock-tick-minor { stroke:rgba(203,213,225,.52); }
+    .dark .clock-number { fill:rgb(226 232 240); }
+    .dark .clock-center { fill:rgb(248 250 252); }
+  </style>
+
+  <script>
+    const difficultySelect = document.querySelector('#difficultySelect');
+    const statusEl = document.querySelector('#status');
+    const targetTextEl = document.querySelector('#targetText');
+    const difficultyTextEl = document.querySelector('#difficultyText');
+    const hintTextEl = document.querySelector('#hintText');
+    const answerBtn = document.querySelector('#answerBtn');
+    const nextQuestionBtn = document.querySelector('#nextQuestionBtn');
+    const currentTimeTextEl = document.querySelector('#currentTimeText');
+    const dragHintEl = document.querySelector('#dragHint');
+    const stageEl = document.querySelector('.clock-stage');
+    const helperEl = document.querySelector('#clockHelper');
+    const svg = document.querySelector('#clockBoard');
+    const ticksGroup = document.querySelector('#clockTicks');
+    const numbersGroup = document.querySelector('#clockNumbers');
+    const minuteHand = document.querySelector('#minuteHand');
+    const hourHand = document.querySelector('#hourHand');
+    const minuteHandle = document.querySelector('#minuteHandle');
+    const hourHandle = document.querySelector('#hourHandle');
+
+    const DIFFICULTIES = {
+      easy: { label: 'やさしい', minutes: [0] },
+      normal: { label: 'ふつう', minutes: [0, 30] },
+      hard: { label: 'むずかしい', minutes: [0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55] },
+    };
+
+    let difficulty = difficultySelect?.value || 'easy';
+    let target = { hour: 12, minute: 0 };
+    let current = { hour: 12, minute: 0 };
+    let lastTargetKey = '';
+    let dragHand = null;
+    let phase = 'playing';
+
+    function buildFace() {
+      const tickMarkup = [];
+      for (let index = 0; index < 60; index += 1) {
+        const angle = (index * Math.PI) / 30;
+        const outer = 92;
+        const inner = index % 5 === 0 ? 78 : 84;
+        const x1 = Math.sin(angle) * inner;
+        const y1 = -Math.cos(angle) * inner;
+        const x2 = Math.sin(angle) * outer;
+        const y2 = -Math.cos(angle) * outer;
+        tickMarkup.push(`<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" class="${index % 5 === 0 ? 'clock-tick-major' : 'clock-tick-minor'}"></line>`);
+      }
+      ticksGroup.innerHTML = tickMarkup.join('');
+
+      const numberMarkup = [];
+      for (let hour = 1; hour <= 12; hour += 1) {
+        const angle = (hour * Math.PI) / 6;
+        const radius = 64;
+        const x = Math.sin(angle) * radius;
+        const y = -Math.cos(angle) * radius;
+        numberMarkup.push(`<text x="${x}" y="${y}" class="clock-number">${hour}</text>`);
+      }
+      numbersGroup.innerHTML = numberMarkup.join('');
+    }
+
+    function normalizeHour(hour) {
+      return ((hour - 1 + 12) % 12) + 1;
+    }
+
+    function padMinute(minute) {
+      return String(minute).padStart(2, '0');
+    }
+
+    function formatTarget(time) {
+      if (time.minute === 0) return `${time.hour}じ`;
+      return `${time.hour}じ${time.minute}ふん`;
+    }
+
+    function formatCurrent(time) {
+      if (time.minute === 0) return `いまは ${time.hour}じ です`;
+      return `いまは ${time.hour}じ${padMinute(time.minute)}ふん です`;
+    }
+
+    function getHourAngle() {
+      return ((current.hour % 12) + current.minute / 60) * 30;
+    }
+
+    function getMinuteAngle() {
+      return current.minute * 6;
+    }
+
+    function setHandTransform(el, angle) {
+      el.setAttribute('transform', `rotate(${angle})`);
+    }
+
+    function updateHandles() {
+      const minuteRad = (getMinuteAngle() - 90) * (Math.PI / 180);
+      minuteHandle.setAttribute('cx', String(Math.cos(minuteRad) * 78));
+      minuteHandle.setAttribute('cy', String(Math.sin(minuteRad) * 78));
+
+      const hourRad = (getHourAngle() - 90) * (Math.PI / 180);
+      hourHandle.setAttribute('cx', String(Math.cos(hourRad) * 52));
+      hourHandle.setAttribute('cy', String(Math.sin(hourRad) * 52));
+    }
+
+    function renderClock() {
+      setHandTransform(minuteHand, getMinuteAngle());
+      setHandTransform(hourHand, getHourAngle());
+      updateHandles();
+      currentTimeTextEl.textContent = formatCurrent(current);
+    }
+
+    function setIdleView() {
+      helperEl.classList.remove('success');
+      stageEl.classList.remove('success', 'wrong');
+      statusEl.classList.remove('success', 'wrong');
+      minuteHand.classList.remove('active');
+      hourHand.classList.remove('active');
+      minuteHandle.classList.remove('active');
+      hourHandle.classList.remove('active');
+      dragHintEl.textContent = '針を さわって うごかしてね';
+      answerBtn.disabled = false;
+    }
+
+    function setAnsweredView(isCorrect) {
+      answerBtn.disabled = isCorrect;
+      if (isCorrect) {
+        helperEl.classList.add('success');
+        stageEl.classList.add('success');
+        stageEl.classList.remove('wrong');
+        statusEl.classList.add('success');
+        statusEl.classList.remove('wrong');
+        dragHintEl.textContent = 'ぴったり そろったね';
+        hintTextEl.textContent = 'つぎの もんだい へ';
+        statusEl.textContent = `できた！ ${formatTarget(target)} に なってるよ`;
+      } else {
+        helperEl.classList.remove('success');
+        stageEl.classList.remove('success');
+        stageEl.classList.add('wrong');
+        statusEl.classList.remove('success');
+        statusEl.classList.add('wrong');
+        dragHintEl.textContent = 'もうすこし うごかしてみよう';
+        hintTextEl.textContent = 'なおして もういちど';
+        statusEl.textContent = 'おしい！ もうすこし うごかしてみよう';
+      }
+    }
+
+    function updateDifficultyText() {
+      difficultyTextEl.textContent = DIFFICULTIES[difficulty].label;
+    }
+
+    function chooseTarget() {
+      let next = null;
+      let key = '';
+      do {
+        const minutes = DIFFICULTIES[difficulty].minutes;
+        next = {
+          hour: Math.floor(Math.random() * 12) + 1,
+          minute: minutes[Math.floor(Math.random() * minutes.length)],
+        };
+        key = `${next.hour}:${next.minute}`;
+      } while (key === lastTargetKey);
+      lastTargetKey = key;
+      return next;
+    }
+
+    function startRound() {
+      difficulty = difficultySelect.value;
+      target = chooseTarget();
+      current = { hour: 12, minute: 0 };
+      phase = 'playing';
+      updateDifficultyText();
+      targetTextEl.textContent = formatTarget(target);
+      hintTextEl.textContent = 'こたえる を おしてね';
+      statusEl.textContent = `おだいは ${formatTarget(target)} だよ`;
+      setIdleView();
+      renderClock();
+    }
+
+    function checkAnswer() {
+      const isCorrect = current.hour === target.hour && current.minute === target.minute;
+      phase = isCorrect ? 'answered-correct' : 'answered-wrong';
+      setAnsweredView(isCorrect);
+    }
+
+    function getAngleFromPoint(clientX, clientY) {
+      const rect = svg.getBoundingClientRect();
+      const x = clientX - rect.left - rect.width / 2;
+      const y = clientY - rect.top - rect.height / 2;
+      const angle = (Math.atan2(y, x) * 180) / Math.PI;
+      return (angle + 90 + 360) % 360;
+    }
+
+    function activateHand(hand) {
+      const minuteActive = hand === 'minute';
+      minuteHand.classList.toggle('active', minuteActive);
+      minuteHandle.classList.toggle('active', minuteActive);
+      hourHand.classList.toggle('active', !minuteActive);
+      hourHandle.classList.toggle('active', !minuteActive);
+    }
+
+    function clearActiveHand() {
+      minuteHand.classList.remove('active');
+      minuteHandle.classList.remove('active');
+      hourHand.classList.remove('active');
+      hourHandle.classList.remove('active');
+    }
+
+    function updateFromAngle(angle) {
+      if (phase === 'answered-correct') return;
+      if (dragHand === 'minute') {
+        const previousMinute = current.minute;
+        const snappedMinute = Math.round(angle / 6 / 5) * 5;
+        const nextMinute = ((snappedMinute % 60) + 60) % 60;
+        if (previousMinute >= 45 && nextMinute <= 15 && previousMinute !== nextMinute) {
+          current.hour = normalizeHour(current.hour + 1);
+        } else if (previousMinute <= 15 && nextMinute >= 45 && previousMinute !== nextMinute) {
+          current.hour = normalizeHour(current.hour - 1);
+        }
+        current.minute = nextMinute;
+      } else if (dragHand === 'hour') {
+        const snappedHour = Math.round(angle / 30) || 12;
+        current.hour = normalizeHour(snappedHour);
+      }
+      renderClock();
+      if (phase === 'answered-wrong') {
+        phase = 'playing';
+        setIdleView();
+        hintTextEl.textContent = 'こたえる を おしてね';
+        statusEl.textContent = `おだいは ${formatTarget(target)} だよ`;
+      }
+    }
+
+    function handlePointerDown(event) {
+      const hand = event.target?.getAttribute?.('data-hand-target');
+      if (!hand) return;
+      event.preventDefault();
+      if (phase === 'answered-correct') return;
+      dragHand = hand;
+      activateHand(hand);
+      dragHintEl.textContent = hand === 'minute' ? '長針を うごかしてるよ' : '短針を うごかしてるよ';
+      svg.setPointerCapture(event.pointerId);
+      updateFromAngle(getAngleFromPoint(event.clientX, event.clientY));
+    }
+
+    function handlePointerMove(event) {
+      if (!dragHand) return;
+      event.preventDefault();
+      updateFromAngle(getAngleFromPoint(event.clientX, event.clientY));
+    }
+
+    function handlePointerEnd(event) {
+      if (!dragHand) return;
+      if (svg.hasPointerCapture(event.pointerId)) {
+        svg.releasePointerCapture(event.pointerId);
+      }
+      dragHand = null;
+      clearActiveHand();
+      dragHintEl.textContent = '針を さわって うごかしてね';
+    }
+
+    difficultySelect.addEventListener('change', startRound);
+    answerBtn.addEventListener('click', checkAnswer);
+    nextQuestionBtn.addEventListener('click', startRound);
+    svg.addEventListener('pointerdown', handlePointerDown);
+    svg.addEventListener('pointermove', handlePointerMove);
+    svg.addEventListener('pointerup', handlePointerEnd);
+    svg.addEventListener('pointercancel', handlePointerEnd);
+    svg.addEventListener('pointerleave', handlePointerEnd);
+
+    buildFace();
+    startRound();
+  </script>
+</Layout>
