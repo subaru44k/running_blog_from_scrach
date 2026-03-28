@@ -181,6 +181,7 @@ features:
       - /games/janken/ provides Chat-san mode and local 1v1 mode, uses one-round matches, waits briefly before Chat-san reveals a hand, and uses sequential hidden input for local two-player play
       - /games/snake/ offers three speed modes (おそい / ふつう / はやい), defaults to ふつう on each visit, and applies the selected speed when the player presses start/restart
       - /games/maze/ and /games/snake/ accept Gamepad API input in addition to keyboard and touch controls, with Android Chrome as the primary target environment
+      - /games/maze/ and /games/snake/ treat directional input as game-priority while the page is open, preventing page scroll and browser focus navigation from arrow-key-like controller input
       - gamepad support maps D-pad and left stick to movement, uses a primary button for restart/start, and a secondary button for pause in snake
       - reversi provides AI play and local two-player mode, with localStorage used only for settings persistence
       - a dedicated Service Worker quietly enables offline use for /games/ and /games/* after those routes are visited once online
