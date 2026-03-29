@@ -26,6 +26,7 @@ repo:
           - /draw/play/
           - /draw/result/
           - /games/
+          - /games/dressup/
           - /games/janken/
           - /games/snake/
           - /games/maze/
@@ -78,6 +79,7 @@ site:
       - /draw/play/
       - /draw/result/
       - /games/
+      - /games/dressup/
       - /games/janken/
       - /games/snake/
       - /games/maze/
@@ -177,8 +179,9 @@ features:
     behavior:
       - /games/ is the hub page for lightweight browser games
       - global nav links separately to /draw/ and /games/ to keep draw as a first-class feature
-      - /games/ includes the draw game as the featured card and links to six lighter mini-games
-      - snake, maze, tic-tac-toe, reversi, janken, and clock are shipped as static Astro pages with inline client-side logic and no backend dependency
+      - /games/ includes the draw game as the featured card and links to seven lighter mini-games
+      - snake, maze, tic-tac-toe, reversi, janken, clock, and dressup are shipped as static Astro pages with inline client-side logic and no backend dependency
+      - /games/dressup/ is a theme-based outfit duel where the player dresses a mannequin by tapping body regions, each slot also offers a `なし` option, Chat-san chooses outfit parts in fixed order with about two seconds of visible thinking per part, and the round ends by asking which coordinate is preferred rather than auto-scoring
       - /games/janken/ provides Chat-san mode and local 1v1 mode, uses one-round matches, waits briefly before Chat-san reveals a hand, and uses sequential hidden input for local two-player play
       - /games/clock/ asks the player to match a target time by dragging the analog clock hands directly, carries the hour forward or backward when the minute hand crosses 12, offers やさしい/ふつう/むずかしい difficulty levels (whole hours / half hours / 5-minute steps), and checks correctness only when the player presses the answer button
       - /games/snake/ offers three speed modes (おそい / ふつう / はやい), defaults to ふつう on each visit, and applies the selected speed when the player presses start/restart

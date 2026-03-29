@@ -1,0 +1,905 @@
+---
+import Layout from '../../layouts/Layout.astro';
+
+const pageTitle = 'おしゃれゲーム｜ミニゲーム';
+const metaDescription = 'テーマに合わせてコーデを作る、子ども向けのおしゃれゲームです。チャットさんのコーデづくりを見る演出つきで遊べます。';
+---
+
+<Layout
+  pageTitle={pageTitle}
+  metaDescription={metaDescription}
+  noSidebar={true}
+  pageHeading="おしゃれゲーム"
+  pageLead="テーマに合わせて女の子のコーデを作るゲームです。あなたが着せ替えたあと、チャットさんも1つずつ選んでおしゃれ対決をします。"
+>
+  <section class="grid gap-6 lg:grid-cols-[minmax(0,1fr)_18rem] lg:items-start">
+    <article class="card p-5 md:p-6">
+      <div class="du-shell">
+        <div class="du-top">
+          <div>
+            <p class="du-kicker">MINI GAME</p>
+            <h2 class="du-title">おしゃれゲーム</h2>
+          </div>
+        </div>
+
+        <div class="du-status" id="status">テーマにあうコーデをつくってね</div>
+
+        <div class="du-meta">
+          <div class="du-chip">
+            <span class="du-chip-label">テーマ</span>
+            <strong id="themeText">おでかけ</strong>
+          </div>
+          <div class="du-chip">
+            <span class="du-chip-label">いま</span>
+            <strong id="phaseText">コーデをつくろう</strong>
+          </div>
+          <div class="du-chip">
+            <span class="du-chip-label">えらぶぶぶん</span>
+            <strong id="slotText">かみかざり</strong>
+          </div>
+        </div>
+
+        <div class="du-actions">
+          <button class="du-btn du-btn-primary" id="completeBtn" type="button">かんせい</button>
+          <button class="du-btn" id="restartBtn" type="button">もういちど</button>
+        </div>
+
+        <div class="du-stage">
+          <div class="du-stage-head">
+            <strong id="stageText">あなたのコーデをつくってね</strong>
+            <span id="guideText">マネキンのぶぶんをタップすると えらべます</span>
+          </div>
+
+          <div class="du-duel">
+            <section class="du-card du-card-player" id="playerCard">
+              <p class="du-card-label">あなた</p>
+              <div class="du-avatar-wrap">
+                <div class="du-avatar" id="playerAvatar"></div>
+                <div class="du-hotspots" id="playerHotspots">
+                  <button class="du-hotspot du-hotspot-hair" data-slot="hairAccessory" type="button" aria-label="かみかざり を えらぶ"></button>
+                  <button class="du-hotspot du-hotspot-necklace" data-slot="necklace" type="button" aria-label="ネックレス を えらぶ"></button>
+                  <button class="du-hotspot du-hotspot-top" data-slot="top" type="button" aria-label="トップス を えらぶ"></button>
+                  <button class="du-hotspot du-hotspot-bottom" data-slot="bottom" type="button" aria-label="ボトムス を えらぶ"></button>
+                  <button class="du-hotspot du-hotspot-shoes" data-slot="shoes" type="button" aria-label="くつ を えらぶ"></button>
+                </div>
+              </div>
+            </section>
+
+            <div class="du-vs" id="vsText">VS</div>
+
+            <section class="du-card du-card-chat" id="chatCard">
+              <p class="du-card-label">チャットさん</p>
+              <div class="du-avatar-wrap">
+                <div class="du-avatar" id="chatAvatar"></div>
+              </div>
+            </section>
+          </div>
+
+          <div class="du-vote" id="voteArea" hidden>
+            <p class="du-vote-title">どっちがすき？</p>
+            <div class="du-vote-buttons">
+              <button class="du-vote-btn" data-pick="player" type="button">あなたのコーデ</button>
+              <button class="du-vote-btn" data-pick="chat" type="button">チャットさんのコーデ</button>
+            </div>
+            <p class="du-vote-message" id="voteMessage"></p>
+          </div>
+        </div>
+
+        <div class="du-slotbar" id="slotBar"></div>
+
+        <div class="du-picker" id="picker">
+          <div class="du-picker-head">
+            <div>
+              <p class="du-picker-kicker">えらぶ</p>
+              <h3 class="du-picker-title" id="pickerTitle">かみかざり</h3>
+            </div>
+            <span class="du-picker-tip" id="pickerTip">えらぶと すぐに きせかわるよ</span>
+          </div>
+          <div class="du-options" id="options"></div>
+        </div>
+
+        <div class="mt-5 grid gap-4 md:grid-cols-2">
+          <div class="rounded-2xl border border-slate-200/80 bg-white/70 p-4 dark:border-slate-700/80 dark:bg-slate-900/60">
+            <h3 class="mt-0 text-base font-semibold">遊び方</h3>
+            <p class="mt-2 text-sm leading-7 text-slate-600 dark:text-slate-300">マネキンのぶぶんをタップして、アイテムをえらびます。かんせいしたらチャットさんも1つずつえらぶので、さいごにどっちのコーデがすきかをえらびます。</p>
+          </div>
+          <div class="rounded-2xl border border-slate-200/80 bg-white/70 p-4 dark:border-slate-700/80 dark:bg-slate-900/60">
+            <h3 class="mt-0 text-base font-semibold">向いている場面</h3>
+            <p class="mt-2 text-sm leading-7 text-slate-600 dark:text-slate-300">おしゃれや色の組み合わせを楽しみたいときに向いています。遊びながら「どれがすき？」と話しやすい、やさしい対戦ゲームです。</p>
+          </div>
+        </div>
+      </div>
+    </article>
+
+    <aside class="panel-muted p-5">
+      <h2 class="text-lg font-semibold mt-0">ほかのゲーム</h2>
+      <div class="mt-4 flex flex-col gap-3 text-sm">
+        <a href="/games/janken/" class="rounded-2xl border border-slate-200/80 bg-white/85 px-4 py-3 no-underline transition hover:bg-white dark:border-slate-700/80 dark:bg-slate-900/80 dark:hover:bg-slate-900">じゃんけんゲーム</a>
+        <a href="/games/clock/" class="rounded-2xl border border-slate-200/80 bg-white/85 px-4 py-3 no-underline transition hover:bg-white dark:border-slate-700/80 dark:bg-slate-900/80 dark:hover:bg-slate-900">とけいゲーム</a>
+        <a href="/games/snake/" class="rounded-2xl border border-slate-200/80 bg-white/85 px-4 py-3 no-underline transition hover:bg-white dark:border-slate-700/80 dark:bg-slate-900/80 dark:hover:bg-slate-900">スネークゲーム</a>
+        <a href="/games/maze/" class="rounded-2xl border border-slate-200/80 bg-white/85 px-4 py-3 no-underline transition hover:bg-white dark:border-slate-700/80 dark:bg-slate-900/80 dark:hover:bg-slate-900">めいろゲーム</a>
+        <a href="/games/tic-tac-toe/" class="rounded-2xl border border-slate-200/80 bg-white/85 px-4 py-3 no-underline transition hover:bg-white dark:border-slate-700/80 dark:bg-slate-900/80 dark:hover:bg-slate-900">まるばつゲーム</a>
+        <a href="/games/reversi/" class="rounded-2xl border border-slate-200/80 bg-white/85 px-4 py-3 no-underline transition hover:bg-white dark:border-slate-700/80 dark:bg-slate-900/80 dark:hover:bg-slate-900">リバーシ</a>
+        <span class="rounded-2xl border border-slate-900/15 bg-slate-900 px-4 py-3 font-semibold text-white dark:border-white/15 dark:bg-white dark:text-slate-950">おしゃれゲーム</span>
+        <a href="/draw/" class="rounded-2xl border border-slate-200/80 bg-white/85 px-4 py-3 no-underline transition hover:bg-white dark:border-slate-700/80 dark:bg-slate-900/80 dark:hover:bg-slate-900">お絵かきゲーム</a>
+      </div>
+    </aside>
+  </section>
+
+  <style is:global>
+    .du-shell { color: rgb(15 23 42); }
+    .du-top { display:flex; justify-content:space-between; align-items:flex-start; gap:1rem; margin-bottom:1rem; }
+    .du-kicker { margin:0; font-size:.72rem; letter-spacing:.24em; font-weight:700; color:rgb(100 116 139); }
+    .du-title { margin:.35rem 0 0; font-size:1.6rem; }
+    .du-status {
+      margin-bottom:1rem;
+      font-weight:700;
+      padding:.95rem 1rem;
+      border-radius:1rem;
+      background:linear-gradient(135deg, rgba(254,226,226,.88), rgba(253,230,138,.78));
+      border:1px solid rgba(244,114,182,.18);
+      transition:background-color .2s ease,border-color .2s ease,color .2s ease;
+    }
+    .du-status.du-status-thinking {
+      background:linear-gradient(135deg, rgba(191,219,254,.92), rgba(224,231,255,.84));
+      border-color:rgba(59,130,246,.22);
+      color:rgb(30 64 175);
+    }
+    .du-status.du-status-picked {
+      background:linear-gradient(135deg, rgba(220,252,231,.92), rgba(254,249,195,.84));
+      border-color:rgba(34,197,94,.2);
+      color:rgb(22 101 52);
+    }
+    .du-meta { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:.75rem; margin-bottom:1rem; }
+    .du-chip { display:grid; gap:.2rem; border:1px solid rgba(148,163,184,.35); border-radius:1rem; background:rgba(255,255,255,.85); padding:.8rem .9rem; }
+    .du-chip-label { font-size:.76rem; font-weight:700; color:rgb(100 116 139); letter-spacing:.08em; }
+    .du-chip strong { font-size:1rem; }
+    .du-actions { display:flex; flex-wrap:wrap; gap:.75rem; margin-bottom:1rem; }
+    .du-btn {
+      border:1px solid rgba(51,65,85,.22);
+      border-radius:1rem;
+      background:rgba(255,255,255,.92);
+      color:rgb(15 23 42);
+      font-weight:700;
+      padding:.8rem 1rem;
+      cursor:pointer;
+      transition:transform .15s ease, background-color .15s ease, opacity .15s ease;
+    }
+    .du-btn:hover { transform:translateY(-1px); background:white; }
+    .du-btn:disabled { opacity:.55; cursor:default; transform:none; }
+    .du-btn-primary { background:rgb(15 23 42); color:white; border-color:rgb(15 23 42); }
+    .du-btn-primary:hover { background:rgb(30 41 59); }
+    .du-stage {
+      border:1px solid rgba(244,114,182,.18);
+      border-radius:1.35rem;
+      padding:1rem;
+      background:linear-gradient(180deg, rgba(255,251,235,.98), rgba(255,241,242,.96));
+      box-shadow: inset 0 1px 0 rgba(255,255,255,.78);
+    }
+    .du-stage-head { display:grid; gap:.2rem; justify-items:center; text-align:center; margin-bottom:1rem; }
+    .du-stage-head strong { font-size:1.05rem; }
+    .du-stage-head span { color:rgb(71 85 105); font-size:.92rem; }
+    .du-duel { display:grid; grid-template-columns:minmax(0,1fr) auto minmax(0,1fr); gap:1rem; align-items:start; }
+    .du-vs {
+      align-self:center;
+      justify-self:center;
+      border-radius:999px;
+      padding:.5rem .9rem;
+      font-weight:800;
+      letter-spacing:.14em;
+      color:rgb(244 114 182);
+      background:rgba(255,255,255,.88);
+      border:1px solid rgba(244,114,182,.22);
+    }
+    .du-card {
+      border:1px solid rgba(148,163,184,.26);
+      border-radius:1.2rem;
+      background:rgba(255,255,255,.9);
+      padding:.9rem;
+      transition:transform .18s ease, box-shadow .18s ease, border-color .18s ease, background-color .18s ease;
+    }
+    .du-card-label { margin:0 0 .55rem; text-align:center; font-weight:800; }
+    .du-card.is-pickable { cursor:pointer; }
+    .du-card.is-picked {
+      border-color:rgba(244,114,182,.48);
+      box-shadow:0 0 0 3px rgba(244,114,182,.18);
+      background:linear-gradient(180deg, rgba(255,241,242,.98), rgba(255,255,255,.96));
+    }
+    .du-card.is-revealing .du-avatar-frame { animation:duPop .34s ease-out; }
+    .du-avatar-wrap { position:relative; width:min(100%, 17rem); margin:0 auto; }
+    .du-avatar { width:100%; aspect-ratio: 0.72; }
+    .du-avatar-frame { width:100%; height:100%; display:block; }
+    .du-hotspots {
+      position:absolute;
+      inset:0;
+      pointer-events:none;
+    }
+    .du-hotspot {
+      position:absolute;
+      pointer-events:auto;
+      border:none;
+      background:transparent;
+      border-radius:999px;
+      cursor:pointer;
+      outline-offset:2px;
+    }
+    .du-hotspot:hover,
+    .du-hotspot:focus-visible { box-shadow:0 0 0 3px rgba(244,114,182,.28); }
+    .du-hotspot-hair { left:28%; top:6%; width:44%; height:20%; }
+    .du-hotspot-necklace { left:34%; top:28%; width:32%; height:13%; }
+    .du-hotspot-top { left:22%; top:35%; width:56%; height:24%; }
+    .du-hotspot-bottom { left:23%; top:57%; width:54%; height:20%; }
+    .du-hotspot-shoes { left:24%; top:79%; width:52%; height:14%; }
+    .du-slotbar { display:grid; grid-template-columns:repeat(5,minmax(0,1fr)); gap:.6rem; margin-top:1rem; }
+    .du-slot-btn {
+      border:1px solid rgba(148,163,184,.28);
+      border-radius:1rem;
+      background:rgba(255,255,255,.86);
+      padding:.75rem .65rem;
+      text-align:left;
+      cursor:pointer;
+      transition:transform .15s ease, border-color .15s ease, background-color .15s ease;
+    }
+    .du-slot-btn:hover { transform:translateY(-1px); background:white; }
+    .du-slot-btn.is-active {
+      border-color:rgba(244,114,182,.42);
+      background:rgba(255,241,242,.96);
+      box-shadow:0 0 0 3px rgba(244,114,182,.12);
+    }
+    .du-slot-name { display:block; font-size:.78rem; font-weight:800; color:rgb(71 85 105); }
+    .du-slot-value { display:block; margin-top:.2rem; font-size:.92rem; font-weight:700; color:rgb(15 23 42); }
+    .du-picker {
+      margin-top:1rem;
+      border:1px solid rgba(148,163,184,.26);
+      border-radius:1.2rem;
+      background:rgba(255,255,255,.9);
+      padding:1rem;
+    }
+    .du-picker-head { display:flex; justify-content:space-between; gap:1rem; align-items:flex-end; margin-bottom:.85rem; }
+    .du-picker-kicker { margin:0; font-size:.68rem; letter-spacing:.18em; font-weight:800; color:rgb(100 116 139); }
+    .du-picker-title { margin:.18rem 0 0; font-size:1.1rem; }
+    .du-picker-tip { font-size:.82rem; color:rgb(100 116 139); }
+    .du-options { display:grid; grid-template-columns:repeat(auto-fit,minmax(8.6rem,1fr)); gap:.7rem; }
+    .du-option {
+      border:1px solid rgba(148,163,184,.28);
+      border-radius:1rem;
+      background:rgba(255,255,255,.95);
+      padding:.75rem;
+      text-align:left;
+      cursor:pointer;
+      transition:transform .15s ease, border-color .15s ease, background-color .15s ease;
+    }
+    .du-option:hover { transform:translateY(-1px); background:white; }
+    .du-option.is-selected {
+      border-color:rgba(244,114,182,.42);
+      background:rgba(255,241,242,.96);
+      box-shadow:0 0 0 3px rgba(244,114,182,.12);
+    }
+    .du-option-preview {
+      width:100%;
+      aspect-ratio:1.2;
+      border-radius:.85rem;
+      background:linear-gradient(180deg, rgba(255,255,255,.95), rgba(255,247,237,.94));
+      border:1px solid rgba(244,114,182,.14);
+      display:grid;
+      place-items:center;
+      margin-bottom:.55rem;
+    }
+    .du-option-preview svg { width:92%; height:92%; display:block; }
+    .du-option-label { display:block; font-weight:800; }
+    .du-option-note { display:block; margin-top:.18rem; font-size:.8rem; color:rgb(100 116 139); }
+    .du-vote { margin-top:1rem; text-align:center; }
+    .du-vote-title { margin:0 0 .7rem; font-weight:800; font-size:1.05rem; }
+    .du-vote-buttons { display:flex; flex-wrap:wrap; justify-content:center; gap:.7rem; }
+    .du-vote-btn {
+      border:1px solid rgba(244,114,182,.26);
+      border-radius:999px;
+      background:white;
+      color:rgb(157 23 77);
+      font-weight:800;
+      padding:.78rem 1rem;
+      cursor:pointer;
+      transition:transform .15s ease, background-color .15s ease;
+    }
+    .du-vote-btn:hover { transform:translateY(-1px); background:rgb(255 241 242); }
+    .du-vote-message { min-height:1.6rem; margin:.85rem 0 0; font-weight:800; color:rgb(157 23 77); }
+    @keyframes duPop { 0% { transform:scale(.95); opacity:.7; } 65% { transform:scale(1.03); opacity:1; } 100% { transform:scale(1); opacity:1; } }
+    @media (max-width: 900px) {
+      .du-slotbar { grid-template-columns:repeat(3,minmax(0,1fr)); }
+    }
+    @media (max-width: 768px) {
+      .du-top { gap:.75rem; margin-bottom:.7rem; }
+      .du-kicker { font-size:.64rem; }
+      .du-title { margin-top:.25rem; font-size:1.3rem; line-height:1.2; }
+      .du-status { margin-bottom:.75rem; padding:.78rem .9rem; font-size:.95rem; line-height:1.45; }
+      .du-meta { gap:.45rem; margin-bottom:.75rem; }
+      .du-chip { padding:.58rem .65rem; border-radius:.9rem; }
+      .du-chip-label { font-size:.66rem; }
+      .du-chip strong { font-size:.86rem; line-height:1.35; }
+      .du-actions { gap:.55rem; margin-bottom:.75rem; }
+      .du-btn { padding:.72rem .92rem; }
+      .du-stage { padding:.75rem; }
+      .du-stage-head { margin-bottom:.7rem; }
+      .du-stage-head strong { font-size:.98rem; }
+      .du-stage-head span { font-size:.83rem; line-height:1.35; }
+      .du-duel { gap:.55rem; grid-template-columns:minmax(0,1fr) 2.5rem minmax(0,1fr); }
+      .du-vs { padding:.38rem .45rem; font-size:.74rem; letter-spacing:.08em; }
+      .du-card { padding:.65rem; border-radius:1rem; }
+      .du-card-label { font-size:.86rem; margin-bottom:.35rem; }
+      .du-slotbar { grid-template-columns:repeat(2,minmax(0,1fr)); gap:.5rem; }
+      .du-slot-btn { padding:.65rem .58rem; }
+      .du-slot-name { font-size:.72rem; }
+      .du-slot-value { font-size:.86rem; }
+      .du-picker { margin-top:.75rem; padding:.78rem; }
+      .du-picker-head { flex-direction:column; align-items:flex-start; gap:.25rem; margin-bottom:.7rem; }
+      .du-picker-title { font-size:1rem; }
+      .du-picker-tip { font-size:.78rem; }
+      .du-options { grid-template-columns:repeat(2,minmax(0,1fr)); gap:.55rem; }
+      .du-option { padding:.65rem; }
+      .du-option-label { font-size:.9rem; }
+      .du-option-note { font-size:.74rem; }
+      .du-vote-buttons { gap:.55rem; }
+      .du-vote-btn { padding:.68rem .85rem; font-size:.88rem; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .du-card,
+      .du-btn,
+      .du-slot-btn,
+      .du-option,
+      .du-vote-btn { transition:none; animation:none !important; }
+    }
+    .dark .du-shell { color:rgb(226 232 240); }
+    .dark .du-kicker,
+    .dark .du-chip-label,
+    .dark .du-picker-kicker,
+    .dark .du-picker-tip,
+    .dark .du-option-note,
+    .dark .du-stage-head span,
+    .dark .du-slot-name { color:rgb(148 163 184); }
+    .dark .du-status { background:linear-gradient(135deg, rgba(76,29,149,.55), rgba(131,24,67,.58)); border-color:rgba(236,72,153,.22); }
+    .dark .du-status.du-status-thinking { background:linear-gradient(135deg, rgba(30,41,59,.96), rgba(37,99,235,.34)); border-color:rgba(96,165,250,.22); color:rgb(191 219 254); }
+    .dark .du-status.du-status-picked { background:linear-gradient(135deg, rgba(20,83,45,.8), rgba(113,63,18,.65)); border-color:rgba(74,222,128,.18); color:rgb(220 252 231); }
+    .dark .du-chip,
+    .dark .du-card,
+    .dark .du-picker,
+    .dark .du-slot-btn,
+    .dark .du-option,
+    .dark .du-vote-btn { background:rgba(15,23,42,.92); border-color:rgba(148,163,184,.2); color:rgb(226 232 240); }
+    .dark .du-stage {
+      background:linear-gradient(180deg, rgba(30,41,59,.98), rgba(17,24,39,.98));
+      border-color:rgba(236,72,153,.18);
+    }
+    .dark .du-vs {
+      background:rgba(15,23,42,.94);
+      border-color:rgba(236,72,153,.22);
+      color:rgb(251 113 133);
+    }
+    .dark .du-btn-primary { background:white; color:rgb(15 23 42); border-color:white; }
+    .dark .du-btn-primary:hover { background:rgb(226 232 240); }
+    .dark .du-slot-btn.is-active,
+    .dark .du-option.is-selected,
+    .dark .du-card.is-picked {
+      background:rgba(131,24,67,.24);
+      border-color:rgba(244,114,182,.34);
+      box-shadow:0 0 0 3px rgba(244,114,182,.1);
+    }
+    .dark .du-option-preview { background:linear-gradient(180deg, rgba(30,41,59,.92), rgba(51,65,85,.88)); border-color:rgba(244,114,182,.16); }
+    .dark .du-vote-message { color:rgb(253 164 175); }
+  </style>
+
+  <script>
+    const SLOT_ORDER = ['hairAccessory', 'necklace', 'top', 'bottom', 'shoes'];
+    const SLOT_LABELS = {
+      hairAccessory: 'かみかざり',
+      necklace: 'ネックレス',
+      top: 'トップス',
+      bottom: 'ボトムス',
+      shoes: 'くつ',
+    };
+
+    const THEMES = [
+      { id: 'outing', label: 'おでかけ' },
+      { id: 'park', label: 'こうえん' },
+      { id: 'party', label: 'パーティー' },
+      { id: 'rain', label: 'あめのひ' },
+    ];
+
+    const CATALOG = {
+      hairAccessory: [
+        { id: 'none', label: 'なし', note: 'そのまま', preview: { kind: 'empty' }, weights: { outing: 1, park: 1, party: 1, rain: 1 } },
+        { id: 'pink-ribbon', label: 'ピンクのリボン', note: 'かわいい りぼん', preview: { kind: 'ribbon', color: '#f472b6' }, weights: { outing: 3, park: 2, party: 2, rain: 1 } },
+        { id: 'sun-flower', label: 'おはなのかざり', note: 'きいろい おはな', preview: { kind: 'flower', color: '#fbbf24' }, weights: { outing: 2, park: 3, party: 1, rain: 1 } },
+        { id: 'star-pin', label: 'ほしのピン', note: 'きらっと ひかる', preview: { kind: 'star', color: '#60a5fa' }, weights: { outing: 2, park: 1, party: 3, rain: 1 } },
+        { id: 'gold-tiara', label: 'ティアラ', note: 'きらきら おしゃれ', preview: { kind: 'tiara', color: '#f59e0b' }, weights: { outing: 1, park: 1, party: 4, rain: 1 } },
+      ],
+      necklace: [
+        { id: 'none', label: 'なし', note: 'そのまま', preview: { kind: 'empty' }, weights: { outing: 1, park: 2, party: 1, rain: 2 } },
+        { id: 'heart-necklace', label: 'ハートのネックレス', note: 'ピンクのハート', preview: { kind: 'necklaceHeart', color: '#fb7185' }, weights: { outing: 3, park: 1, party: 2, rain: 1 } },
+        { id: 'pearl-necklace', label: 'パールのネックレス', note: 'しろくて きれい', preview: { kind: 'necklacePearl', color: '#f8fafc' }, weights: { outing: 1, park: 1, party: 4, rain: 1 } },
+        { id: 'star-necklace', label: 'ほしのネックレス', note: 'そらいろの ほし', preview: { kind: 'necklaceStar', color: '#60a5fa' }, weights: { outing: 2, park: 1, party: 3, rain: 1 } },
+        { id: 'ribbon-choker', label: 'りぼんチョーカー', note: 'むらさきの りぼん', preview: { kind: 'choker', color: '#a855f7' }, weights: { outing: 2, park: 1, party: 3, rain: 1 } },
+      ],
+      top: [
+        { id: 'none', label: 'なし', note: 'ベーシック', preview: { kind: 'top', color: '#fef3c7' }, weights: { outing: 1, park: 1, party: 1, rain: 1 } },
+        { id: 'pink-blouse', label: 'ピンクのブラウス', note: 'ふんわり トップス', preview: { kind: 'top', color: '#f9a8d4' }, weights: { outing: 3, park: 1, party: 2, rain: 1 } },
+        { id: 'mint-cardigan', label: 'ミントカーディガン', note: 'やさしい みどり', preview: { kind: 'top', color: '#6ee7b7' }, weights: { outing: 2, park: 2, party: 1, rain: 3 } },
+        { id: 'party-dress-top', label: 'きらきらトップス', note: 'パーティーむき', preview: { kind: 'top', color: '#c084fc' }, weights: { outing: 1, park: 1, party: 4, rain: 1 } },
+        { id: 'yellow-tee', label: 'きいろのシャツ', note: 'げんきな いろ', preview: { kind: 'top', color: '#fde047' }, weights: { outing: 2, park: 3, party: 1, rain: 1 } },
+      ],
+      bottom: [
+        { id: 'none', label: 'なし', note: 'ベーシック', preview: { kind: 'bottom', color: '#fbcfe8' }, weights: { outing: 1, park: 1, party: 1, rain: 1 } },
+        { id: 'coral-skirt', label: 'コーラルスカート', note: 'ひらひら スカート', preview: { kind: 'bottom', color: '#fb7185' }, weights: { outing: 3, park: 1, party: 2, rain: 1 } },
+        { id: 'denim-shorts', label: 'デニムショート', note: 'こうえんで うごきやすい', preview: { kind: 'bottom', color: '#60a5fa' }, weights: { outing: 1, park: 4, party: 1, rain: 1 } },
+        { id: 'lavender-longskirt', label: 'ラベンダースカート', note: 'ふんわり ながめ', preview: { kind: 'bottom', color: '#c4b5fd' }, weights: { outing: 2, park: 1, party: 3, rain: 1 } },
+        { id: 'rain-pants', label: 'レインパンツ', note: 'あめのひ ぴったり', preview: { kind: 'bottom', color: '#38bdf8' }, weights: { outing: 1, park: 1, party: 1, rain: 4 } },
+      ],
+      shoes: [
+        { id: 'none', label: 'なし', note: 'そのまま', preview: { kind: 'shoes', color: '#e5e7eb' }, weights: { outing: 1, park: 1, party: 1, rain: 1 } },
+        { id: 'pink-ballet', label: 'ピンクのくつ', note: 'かわいく あるける', preview: { kind: 'shoes', color: '#f9a8d4' }, weights: { outing: 3, park: 1, party: 2, rain: 1 } },
+        { id: 'yellow-rainboots', label: 'レインブーツ', note: 'あめでも あんしん', preview: { kind: 'shoes', color: '#facc15' }, weights: { outing: 1, park: 1, party: 1, rain: 5 } },
+        { id: 'blue-sneakers', label: 'スニーカー', note: 'たくさん あるける', preview: { kind: 'shoes', color: '#60a5fa' }, weights: { outing: 2, park: 4, party: 1, rain: 1 } },
+        { id: 'party-heels', label: 'きらきらシューズ', note: 'パーティー むき', preview: { kind: 'shoes', color: '#f59e0b' }, weights: { outing: 1, park: 1, party: 4, rain: 1 } },
+      ],
+    };
+
+    const statusEl = document.querySelector('#status');
+    const themeTextEl = document.querySelector('#themeText');
+    const phaseTextEl = document.querySelector('#phaseText');
+    const slotTextEl = document.querySelector('#slotText');
+    const stageTextEl = document.querySelector('#stageText');
+    const guideTextEl = document.querySelector('#guideText');
+    const completeBtn = document.querySelector('#completeBtn');
+    const restartBtn = document.querySelector('#restartBtn');
+    const playerAvatarEl = document.querySelector('#playerAvatar');
+    const chatAvatarEl = document.querySelector('#chatAvatar');
+    const playerHotspotsEl = document.querySelector('#playerHotspots');
+    const slotBarEl = document.querySelector('#slotBar');
+    const pickerTitleEl = document.querySelector('#pickerTitle');
+    const pickerTipEl = document.querySelector('#pickerTip');
+    const optionsEl = document.querySelector('#options');
+    const voteAreaEl = document.querySelector('#voteArea');
+    const voteMessageEl = document.querySelector('#voteMessage');
+    const playerCardEl = document.querySelector('#playerCard');
+    const chatCardEl = document.querySelector('#chatCard');
+
+    let theme = THEMES[0];
+    let activeSlot = SLOT_ORDER[0];
+    let playerOutfit = createEmptyOutfit();
+    let chatOutfit = createEmptyOutfit();
+    let phase = 'editing';
+    let favorite = '';
+    let previousThemeId = '';
+    let thinkingRunId = 0;
+    let chatStatusSlot = '';
+    let revealPulse = false;
+
+    function createEmptyOutfit() {
+      return {
+        hairAccessory: 'none',
+        necklace: 'none',
+        top: 'none',
+        bottom: 'none',
+        shoes: 'none',
+      };
+    }
+
+    function randomTheme() {
+      const candidates = THEMES.filter((item) => item.id !== previousThemeId);
+      return candidates[Math.floor(Math.random() * candidates.length)] || THEMES[0];
+    }
+
+    function getOption(slot, id) {
+      return CATALOG[slot].find((item) => item.id === id) || CATALOG[slot][0];
+    }
+
+    function pickWeighted(slot, themeId) {
+      const options = CATALOG[slot];
+      const weighted = options.map((item) => ({
+        item,
+        weight: item.weights?.[themeId] ?? 1,
+      }));
+      const total = weighted.reduce((sum, entry) => sum + entry.weight, 0);
+      let threshold = Math.random() * total;
+      for (const entry of weighted) {
+        threshold -= entry.weight;
+        if (threshold <= 0) return entry.item.id;
+      }
+      return weighted[weighted.length - 1].item.id;
+    }
+
+    function escapeHtml(value) {
+      return String(value)
+        .replaceAll('&', '&amp;')
+        .replaceAll('<', '&lt;')
+        .replaceAll('>', '&gt;')
+        .replaceAll('"', '&quot;')
+        .replaceAll("'", '&#39;');
+    }
+
+    function renderPreview(preview) {
+      if (preview.kind === 'empty') {
+        return `
+          <svg viewBox="0 0 120 90" aria-hidden="true">
+            <rect x="16" y="16" width="88" height="58" rx="16" fill="rgba(226,232,240,.8)" stroke="rgba(148,163,184,.35)" stroke-dasharray="6 6"></rect>
+            <text x="60" y="48" text-anchor="middle" dominant-baseline="middle" font-size="16" font-weight="800" fill="#64748b">なし</text>
+          </svg>
+        `;
+      }
+
+      if (preview.kind === 'ribbon') {
+        return `<svg viewBox="0 0 120 90" aria-hidden="true"><circle cx="60" cy="46" r="24" fill="#f8fafc"/><path d="M60 18c-11 0-20 8-22 18 6-3 12-6 17-10 2 7 4 11 5 13 1-2 3-6 5-13 5 4 11 7 17 10-2-10-11-18-22-18Z" fill="${preview.color}"/></svg>`;
+      }
+      if (preview.kind === 'flower') {
+        return `<svg viewBox="0 0 120 90" aria-hidden="true"><g transform="translate(60 45)">${[-36,-12,12,36].map((deg)=>`<circle cx="${Math.cos(deg*Math.PI/180)*12}" cy="${Math.sin(deg*Math.PI/180)*12}" r="11" fill="${preview.color}"/>`).join('')}<circle cx="0" cy="0" r="9" fill="#f97316"/></g></svg>`;
+      }
+      if (preview.kind === 'star') {
+        return `<svg viewBox="0 0 120 90" aria-hidden="true"><path d="M60 16l8 17 19 3-14 13 3 19-16-8-16 8 3-19-14-13 19-3 8-17Z" fill="${preview.color}"/></svg>`;
+      }
+      if (preview.kind === 'tiara') {
+        return `<svg viewBox="0 0 120 90" aria-hidden="true"><path d="M24 58h72l-8-24-16 12-12-20-12 20-16-12-8 24Z" fill="${preview.color}" stroke="#fef3c7" stroke-width="3"/></svg>`;
+      }
+      if (preview.kind === 'necklaceHeart') {
+        return `<svg viewBox="0 0 120 90" aria-hidden="true"><path d="M34 24c0 10 7 18 26 32 19-14 26-22 26-32 0-8-6-14-14-14-5 0-9 2-12 6-3-4-7-6-12-6-8 0-14 6-14 14Z" fill="${preview.color}"/></svg>`;
+      }
+      if (preview.kind === 'necklacePearl') {
+        return `<svg viewBox="0 0 120 90" aria-hidden="true">${[24,34,46,60,74,86,96].map((x)=>`<circle cx="${x}" cy="34" r="6" fill="${preview.color}" stroke="#cbd5e1"/>`).join('')}<circle cx="60" cy="50" r="7" fill="#f59e0b"/></svg>`;
+      }
+      if (preview.kind === 'necklaceStar') {
+        return `<svg viewBox="0 0 120 90" aria-hidden="true"><path d="M20 28c16 7 32 10 40 10s24-3 40-10" fill="none" stroke="#64748b" stroke-width="5" stroke-linecap="round"/><path d="M60 40l6 12 13 2-10 9 2 13-11-6-11 6 2-13-10-9 13-2 6-12Z" fill="${preview.color}"/></svg>`;
+      }
+      if (preview.kind === 'choker') {
+        return `<svg viewBox="0 0 120 90" aria-hidden="true"><rect x="24" y="27" width="72" height="12" rx="6" fill="${preview.color}"/><path d="M60 39l12 14H48l12-14Z" fill="#f8fafc"/></svg>`;
+      }
+      if (preview.kind === 'top') {
+        return `<svg viewBox="0 0 120 90" aria-hidden="true"><path d="M32 24l18-10 10 6 10-6 18 10-7 44H39l-7-44Z" fill="${preview.color}" stroke="rgba(148,163,184,.35)" stroke-width="2"/></svg>`;
+      }
+      if (preview.kind === 'bottom') {
+        return `<svg viewBox="0 0 120 90" aria-hidden="true"><path d="M38 18h44l14 42H24l14-42Z" fill="${preview.color}" stroke="rgba(148,163,184,.35)" stroke-width="2"/></svg>`;
+      }
+      if (preview.kind === 'shoes') {
+        return `<svg viewBox="0 0 120 90" aria-hidden="true"><path d="M30 48h24l10 14H28c-6 0-10-4-10-8 0-3 4-6 12-6Z" fill="${preview.color}"/><path d="M90 48H66L56 62h36c6 0 10-4 10-8 0-3-4-6-12-6Z" fill="${preview.color}"/></svg>`;
+      }
+      return '';
+    }
+
+    function renderAvatar(outfit) {
+      const hair = getOption('hairAccessory', outfit.hairAccessory);
+      const necklace = getOption('necklace', outfit.necklace);
+      const top = getOption('top', outfit.top);
+      const bottom = getOption('bottom', outfit.bottom);
+      const shoes = getOption('shoes', outfit.shoes);
+
+      const hairMarkup = renderHairAccessory(hair.id);
+      const necklaceMarkup = renderNecklace(necklace.id);
+      const topMarkup = renderTop(top.id);
+      const bottomMarkup = renderBottom(bottom.id);
+      const shoesMarkup = renderShoes(shoes.id);
+
+      return `
+        <svg class="du-avatar-frame" viewBox="0 0 180 250" aria-hidden="true">
+          <defs>
+            <linearGradient id="dressupSkin" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="#fde7cf"></stop>
+              <stop offset="100%" stop-color="#f7cda6"></stop>
+            </linearGradient>
+            <linearGradient id="dressupBody" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="#fff7ed"></stop>
+              <stop offset="100%" stop-color="#fee2e2"></stop>
+            </linearGradient>
+          </defs>
+          <rect x="45" y="8" width="90" height="232" rx="42" fill="rgba(255,255,255,.62)" />
+          <path d="M58 232c10 5 24 8 32 8s22-3 32-8" fill="none" stroke="rgba(148,163,184,.28)" stroke-width="8" stroke-linecap="round"></path>
+          <circle cx="90" cy="44" r="26" fill="url(#dressupSkin)"></circle>
+          <path d="M64 41c0-17 12-30 26-30s26 13 26 30c-8-7-18-11-26-11s-18 4-26 11Z" fill="#7c3f2b"></path>
+          <rect x="84" y="68" width="12" height="12" rx="6" fill="url(#dressupSkin)"></rect>
+          <path d="M64 84c10-7 18-10 26-10s16 3 26 10l14 48H50l14-48Z" fill="url(#dressupBody)"></path>
+          <path d="M60 94L40 146" stroke="url(#dressupSkin)" stroke-width="10" stroke-linecap="round"></path>
+          <path d="M120 94l20 52" stroke="url(#dressupSkin)" stroke-width="10" stroke-linecap="round"></path>
+          <path d="M74 132v62" stroke="url(#dressupSkin)" stroke-width="12" stroke-linecap="round"></path>
+          <path d="M106 132v62" stroke="url(#dressupSkin)" stroke-width="12" stroke-linecap="round"></path>
+          ${topMarkup}
+          ${bottomMarkup}
+          ${shoesMarkup}
+          ${necklaceMarkup}
+          ${hairMarkup}
+          <circle cx="80" cy="44" r="2.8" fill="#475569"></circle>
+          <circle cx="100" cy="44" r="2.8" fill="#475569"></circle>
+          <path d="M81 56c4 3 14 3 18 0" fill="none" stroke="#f97316" stroke-width="3.5" stroke-linecap="round"></path>
+        </svg>
+      `;
+    }
+
+    function renderHairAccessory(id) {
+      switch (id) {
+        case 'pink-ribbon':
+          return `<path d="M90 10l-16 14c4 1 8 3 10 8l6-4 6 4c2-5 6-7 10-8L90 10Z" fill="#f472b6"></path>`;
+        case 'sun-flower':
+          return `<g transform="translate(120 28)">${[0,72,144,216,288].map((deg) => `<circle cx="${Math.cos((deg * Math.PI) / 180) * 8}" cy="${Math.sin((deg * Math.PI) / 180) * 8}" r="6" fill="#fbbf24"></circle>`).join('')}<circle cx="0" cy="0" r="6" fill="#fb923c"></circle></g>`;
+        case 'star-pin':
+          return `<path d="M116 20l4 7 8 1-6 5 2 8-8-4-7 4 1-8-6-5 8-1 4-7Z" fill="#60a5fa"></path>`;
+        case 'gold-tiara':
+          return `<path d="M58 30h64l-6-16-12 8-14-14-14 14-12-8-6 16Z" fill="#f59e0b" stroke="#fef3c7" stroke-width="3"></path>`;
+        default:
+          return '';
+      }
+    }
+
+    function renderNecklace(id) {
+      switch (id) {
+        case 'heart-necklace':
+          return `<path d="M68 80c8 7 14 10 22 10s14-3 22-10" fill="none" stroke="#f472b6" stroke-width="6" stroke-linecap="round"></path><path d="M90 94c0-4 3-7 7-7 3 0 5 1 7 4 2-3 4-4 7-4 4 0 7 3 7 7 0 5-4 8-14 16-10-8-14-11-14-16Z" fill="#fb7185"></path>`;
+        case 'pearl-necklace':
+          return `${[62,72,82,92,102,112,122].map((x) => `<circle cx="${x}" cy="86" r="4.2" fill="#f8fafc" stroke="#cbd5e1"></circle>`).join('')}`;
+        case 'star-necklace':
+          return `<path d="M66 82c9 8 16 11 24 11s15-3 24-11" fill="none" stroke="#64748b" stroke-width="5" stroke-linecap="round"></path><path d="M90 96l4 8 8 1-6 6 2 8-8-4-8 4 2-8-6-6 8-1 4-8Z" fill="#60a5fa"></path>`;
+        case 'ribbon-choker':
+          return `<rect x="67" y="77" width="46" height="8" rx="4" fill="#a855f7"></rect><path d="M90 84l10 12H80l10-12Z" fill="#f8fafc"></path>`;
+        default:
+          return '';
+      }
+    }
+
+    function renderTop(id) {
+      const fill = {
+        'none': '#fef3c7',
+        'pink-blouse': '#f9a8d4',
+        'mint-cardigan': '#6ee7b7',
+        'party-dress-top': '#c084fc',
+        'yellow-tee': '#fde047',
+      }[id] || '#fef3c7';
+      return `<path d="M60 86l18-8h24l18 8 10 40H50l10-40Z" fill="${fill}" stroke="rgba(148,163,184,.28)" stroke-width="2"></path>`;
+    }
+
+    function renderBottom(id) {
+      if (id === 'denim-shorts') {
+        return `<path d="M66 126h48l-6 30H96v18H84v-18H72l-6-30Z" fill="#60a5fa"></path>`;
+      }
+      if (id === 'rain-pants') {
+        return `<path d="M66 126h20v52H72l-6-52Z" fill="#38bdf8"></path><path d="M94 126h20l-6 52H94v-52Z" fill="#38bdf8"></path>`;
+      }
+      const fill = {
+        'none': '#fbcfe8',
+        'coral-skirt': '#fb7185',
+        'lavender-longskirt': '#c4b5fd',
+      }[id] || '#fbcfe8';
+      const length = id === 'lavender-longskirt' ? 66 : 40;
+      return `<path d="M68 126h44l12 ${length}H56l12 -${length}Z" fill="${fill}" transform="translate(0 ${id === 'lavender-longskirt' ? 0 : 26})"></path>`;
+    }
+
+    function renderShoes(id) {
+      const fill = {
+        'none': '#e5e7eb',
+        'pink-ballet': '#f9a8d4',
+        'yellow-rainboots': '#facc15',
+        'blue-sneakers': '#60a5fa',
+        'party-heels': '#f59e0b',
+      }[id] || '#e5e7eb';
+      const extraHeight = id === 'yellow-rainboots' ? 10 : 0;
+      return `
+        <rect x="68" y="${196 - extraHeight}" width="12" height="${16 + extraHeight}" rx="6" fill="${fill}"></rect>
+        <rect x="100" y="${196 - extraHeight}" width="12" height="${16 + extraHeight}" rx="6" fill="${fill}"></rect>
+        <path d="M62 210h22l8 10H60c-6 0-10-4-10-7 0-2 3-3 12-3Z" fill="${fill}"></path>
+        <path d="M118 210H96l-8 10h32c6 0 10-4 10-7 0-2-3-3-12-3Z" fill="${fill}"></path>
+      `;
+    }
+
+    function renderSlotBar() {
+      slotBarEl.innerHTML = SLOT_ORDER.map((slot) => {
+        const option = getOption(slot, playerOutfit[slot]);
+        return `
+          <button class="du-slot-btn ${slot === activeSlot ? 'is-active' : ''}" data-slot-select="${slot}" type="button">
+            <span class="du-slot-name">${escapeHtml(SLOT_LABELS[slot])}</span>
+            <span class="du-slot-value">${escapeHtml(option.label)}</span>
+          </button>
+        `;
+      }).join('');
+    }
+
+    function renderOptions() {
+      pickerTitleEl.textContent = SLOT_LABELS[activeSlot];
+      pickerTipEl.textContent = phase === 'editing' ? 'えらぶと すぐに きせかわるよ' : 'コーデちゅうは まっててね';
+      const disabled = phase !== 'editing';
+      optionsEl.innerHTML = CATALOG[activeSlot].map((option) => `
+        <button class="du-option ${playerOutfit[activeSlot] === option.id ? 'is-selected' : ''}" data-option-id="${option.id}" type="button" ${disabled ? 'disabled' : ''}>
+          <span class="du-option-preview">${renderPreview(option.preview)}</span>
+          <span class="du-option-label">${escapeHtml(option.label)}</span>
+          <span class="du-option-note">${escapeHtml(option.note)}</span>
+        </button>
+      `).join('');
+    }
+
+    function updateStatus(text, kind = '') {
+      statusEl.textContent = text;
+      statusEl.classList.toggle('du-status-thinking', kind === 'thinking');
+      statusEl.classList.toggle('du-status-picked', kind === 'picked');
+    }
+
+    function updatePhaseText() {
+      if (phase === 'editing') phaseTextEl.textContent = 'コーデをつくろう';
+      else if (phase === 'chat-thinking') phaseTextEl.textContent = 'チャットさん えらびちゅう';
+      else if (phase === 'voting') phaseTextEl.textContent = 'どっちがすき？';
+      else phaseTextEl.textContent = 'えらべたよ';
+    }
+
+    function updateGuides() {
+      if (phase === 'editing') {
+        stageTextEl.textContent = 'あなたのコーデをつくってね';
+        guideTextEl.textContent = 'マネキンのぶぶんをタップすると えらべます';
+      } else if (phase === 'chat-thinking') {
+        stageTextEl.textContent = 'チャットさんが コーデをかんがえてるよ';
+        guideTextEl.textContent = '1つずつ えらぶから まっててね';
+      } else if (phase === 'voting') {
+        stageTextEl.textContent = 'どっちのコーデがすき？';
+        guideTextEl.textContent = 'すきな ほうを えらんでね';
+      } else {
+        stageTextEl.textContent = 'すきな コーデを えらべたね';
+        guideTextEl.textContent = 'もういちど で あたらしい テーマにいけるよ';
+      }
+    }
+
+    function renderVoteArea() {
+      voteAreaEl.hidden = phase !== 'voting' && phase !== 'picked';
+      voteMessageEl.textContent = phase === 'picked'
+        ? favorite === 'player'
+          ? 'あなたの コーデ すてきだね！'
+          : 'チャットさんの コーデ すてきだね！'
+        : '';
+    }
+
+    function renderCards() {
+      playerAvatarEl.innerHTML = renderAvatar(playerOutfit);
+      chatAvatarEl.innerHTML = renderAvatar(chatOutfit);
+      playerHotspotsEl.hidden = phase !== 'editing';
+      slotTextEl.textContent = phase === 'chat-thinking'
+        ? SLOT_LABELS[chatStatusSlot]
+        : phase === 'editing'
+          ? SLOT_LABELS[activeSlot]
+          : 'えらびおわり';
+
+      playerCardEl.classList.toggle('is-pickable', phase === 'voting');
+      chatCardEl.classList.toggle('is-pickable', phase === 'voting');
+      playerCardEl.classList.toggle('is-picked', favorite === 'player');
+      chatCardEl.classList.toggle('is-picked', favorite === 'chat');
+      chatCardEl.classList.toggle('is-revealing', revealPulse);
+    }
+
+    function renderButtons() {
+      completeBtn.disabled = phase !== 'editing';
+      restartBtn.disabled = phase === 'chat-thinking';
+    }
+
+    function render() {
+      themeTextEl.textContent = theme.label;
+      updatePhaseText();
+      updateGuides();
+      renderCards();
+      renderSlotBar();
+      renderOptions();
+      renderButtons();
+      renderVoteArea();
+    }
+
+    function chooseSlot(slot) {
+      if (phase !== 'editing') return;
+      activeSlot = slot;
+      render();
+    }
+
+    function selectOption(id) {
+      if (phase !== 'editing') return;
+      playerOutfit = { ...playerOutfit, [activeSlot]: id };
+      updateStatus(`${SLOT_LABELS[activeSlot]} を ${getOption(activeSlot, id).label} にしたよ`);
+      render();
+    }
+
+    function pulseChatCard() {
+      revealPulse = false;
+      requestAnimationFrame(() => {
+        revealPulse = true;
+        renderCards();
+        window.setTimeout(() => {
+          revealPulse = false;
+          renderCards();
+        }, 360);
+      });
+    }
+
+    function sleep(ms) {
+      return new Promise((resolve) => window.setTimeout(resolve, ms));
+    }
+
+    async function runChatStyling() {
+      const runId = ++thinkingRunId;
+      phase = 'chat-thinking';
+      favorite = '';
+      voteMessageEl.textContent = '';
+      render();
+
+      for (const slot of SLOT_ORDER) {
+        if (runId !== thinkingRunId) return;
+        chatStatusSlot = slot;
+        updateStatus(`チャットさんが ${SLOT_LABELS[slot]} を えらんでるよ`, 'thinking');
+        render();
+        await sleep(2000);
+        if (runId !== thinkingRunId) return;
+        chatOutfit = { ...chatOutfit, [slot]: pickWeighted(slot, theme.id) };
+        pulseChatCard();
+      }
+
+      if (runId !== thinkingRunId) return;
+      phase = 'voting';
+      chatStatusSlot = '';
+      updateStatus('どっちの コーデが すきかな？');
+      render();
+    }
+
+    function pickFavorite(which) {
+      if (phase !== 'voting') return;
+      favorite = which;
+      phase = 'picked';
+      updateStatus(which === 'player' ? 'あなたの コーデを えらんだね' : 'チャットさんの コーデを えらんだね', 'picked');
+      render();
+    }
+
+    function startRound() {
+      thinkingRunId += 1;
+      previousThemeId = theme.id;
+      theme = randomTheme();
+      activeSlot = SLOT_ORDER[0];
+      playerOutfit = createEmptyOutfit();
+      chatOutfit = createEmptyOutfit();
+      phase = 'editing';
+      favorite = '';
+      chatStatusSlot = '';
+      revealPulse = false;
+      updateStatus('テーマにあうコーデをつくってね');
+      render();
+    }
+
+    function buildEventHandlers() {
+      slotBarEl.addEventListener('click', (event) => {
+        const button = event.target.closest('[data-slot-select]');
+        if (!button) return;
+        chooseSlot(button.dataset.slotSelect);
+      });
+
+      playerHotspotsEl.addEventListener('click', (event) => {
+        const button = event.target.closest('[data-slot]');
+        if (!button) return;
+        chooseSlot(button.dataset.slot);
+      });
+
+      optionsEl.addEventListener('click', (event) => {
+        const button = event.target.closest('[data-option-id]');
+        if (!button) return;
+        selectOption(button.dataset.optionId);
+      });
+
+      completeBtn.addEventListener('click', () => {
+        if (phase !== 'editing') return;
+        runChatStyling();
+      });
+
+      restartBtn.addEventListener('click', () => {
+        startRound();
+      });
+
+      voteAreaEl.addEventListener('click', (event) => {
+        const button = event.target.closest('[data-pick]');
+        if (!button) return;
+        pickFavorite(button.dataset.pick);
+      });
+
+      playerCardEl.addEventListener('click', () => {
+        if (phase === 'voting') pickFavorite('player');
+      });
+
+      chatCardEl.addEventListener('click', () => {
+        if (phase === 'voting') pickFavorite('chat');
+      });
+    }
+
+    buildEventHandlers();
+    startRound();
+  </script>
+</Layout>
