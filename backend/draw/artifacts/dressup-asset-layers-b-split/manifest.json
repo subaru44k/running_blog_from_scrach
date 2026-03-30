@@ -1,0 +1,35 @@
+{
+  "source": "dressup-asset-layers-b-normalized/item-shoes-ribbon.png",
+  "threshold": 16,
+  "generatedAt": "2026-03-30T08:35:17.114Z",
+  "components": [
+    {
+      "side": "left",
+      "range": {
+        "start": 414,
+        "end": 501
+      },
+      "bbox": {
+        "x": 414,
+        "y": 850,
+        "width": 88,
+        "height": 126
+      },
+      "file": "item-shoes-ribbon-left.png"
+    },
+    {
+      "side": "right",
+      "range": {
+        "start": 520,
+        "end": 605
+      },
+      "bbox": {
+        "x": 520,
+        "y": 850,
+        "width": 86,
+        "height": 126
+      },
+      "file": "item-shoes-ribbon-right.png"
+    }
+  ]
+}

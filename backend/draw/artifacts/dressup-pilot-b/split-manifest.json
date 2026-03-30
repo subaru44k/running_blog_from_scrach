@@ -1,0 +1,121 @@
+{
+  "threshold": 16,
+  "generatedAt": "2026-03-30T13:37:01.702Z",
+  "items": [
+    {
+      "id": "ribbon-shoes",
+      "label": "リボンシューズ",
+      "source": "normalized/item-shoes-ribbon-shoes.png",
+      "leftFile": "item-shoes-ribbon-shoes-left.png",
+      "rightFile": "item-shoes-ribbon-shoes-right.png",
+      "components": [
+        {
+          "side": "left",
+          "range": {
+            "start": 401,
+            "end": 495
+          }
+        },
+        {
+          "side": "right",
+          "range": {
+            "start": 526,
+            "end": 619
+          }
+        }
+      ]
+    },
+    {
+      "id": "pink-ballet",
+      "label": "ピンクのくつ",
+      "source": "normalized/item-shoes-pink-ballet.png",
+      "leftFile": "item-shoes-pink-ballet-left.png",
+      "rightFile": "item-shoes-pink-ballet-right.png",
+      "components": [
+        {
+          "side": "left",
+          "range": {
+            "start": 413,
+            "end": 492
+          }
+        },
+        {
+          "side": "right",
+          "range": {
+            "start": 528,
+            "end": 606
+          }
+        }
+      ]
+    },
+    {
+      "id": "white-pumps",
+      "label": "しろいパンプス",
+      "source": "normalized/item-shoes-white-pumps.png",
+      "leftFile": "item-shoes-white-pumps-left.png",
+      "rightFile": "item-shoes-white-pumps-right.png",
+      "components": [
+        {
+          "side": "left",
+          "range": {
+            "start": 417,
+            "end": 495
+          }
+        },
+        {
+          "side": "right",
+          "range": {
+            "start": 524,
+            "end": 603
+          }
+        }
+      ]
+    },
+    {
+      "id": "yellow-rainboots",
+      "label": "レインブーツ",
+      "source": "normalized/item-shoes-yellow-rainboots.png",
+      "leftFile": "item-shoes-yellow-rainboots-left.png",
+      "rightFile": "item-shoes-yellow-rainboots-right.png",
+      "components": [
+        {
+          "side": "left",
+          "range": {
+            "start": 415,
+            "end": 501
+          }
+        },
+        {
+          "side": "right",
+          "range": {
+            "start": 517,
+            "end": 604
+          }
+        }
+      ]
+    },
+    {
+      "id": "blue-sneakers",
+      "label": "スニーカー",
+      "source": "normalized/item-shoes-blue-sneakers.png",
+      "leftFile": "item-shoes-blue-sneakers-left.png",
+      "rightFile": "item-shoes-blue-sneakers-right.png",
+      "components": [
+        {
+          "side": "left",
+          "range": {
+            "start": 400,
+            "end": 504
+          }
+        },
+        {
+          "side": "right",
+          "range": {
+            "start": 515,
+            "end": 619
+          }
+        }
+      ]
+    }
+  ]
+}

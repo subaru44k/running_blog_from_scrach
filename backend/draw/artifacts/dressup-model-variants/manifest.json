@@ -1,0 +1,43 @@
+{
+  "model": "gpt-image-1.5",
+  "quality": "medium",
+  "size": "1024x1024",
+  "background": "transparent",
+  "outputFormat": "png",
+  "generatedAt": "2026-03-29T22:27:06.134Z",
+  "variants": [
+    {
+      "id": "model-princess-base-a",
+      "label": "A: きせかえ人形の王道",
+      "filename": "model-princess-base-a.png",
+      "prompt": "cute princess encyclopedia style, dress-up game base model, dress-up doll style young girl, front view, full body, standing straight, arms gently down, slightly taller proportions than a toddler illustration, clean torso and waist silhouette for outfit overlays, neat legs and feet placement, large sparkling eyes, soft smile, round cheeks, fluffy brown bob hair, pale cream pink simple base dress, minimal base clothing, paper doll friendly, clean outlines, soft pastel palette, high readability, transparent background, centered composition, no background, no text, no watermark",
+      "negativePrompt": "photorealistic, realistic skin texture, mature adult proportions, sexy pose, dark fantasy, horror, side view, 3/4 view, perspective pose, busy background, furniture, room, landscape, text, logo, watermark, extra fingers, extra limbs, cropped head, cropped feet, blurry transparent edges, messy linework, oversized dress, dramatic pose, fashion model runway pose",
+      "revisedPrompt": null,
+      "status": "ok",
+      "error": null,
+      "createdAt": "2026-03-29T22:26:29.298Z"
+    },
+    {
+      "id": "model-princess-base-b",
+      "label": "B: 少しおひめさま寄り",
+      "filename": "model-princess-base-b.png",
+      "prompt": "cute princess encyclopedia style, dress-up game base model, princess dress-up doll style young girl, front view, full body, standing straight, arms gently down, slim and tidy child-friendly proportions for clothing overlays, pretty face, large sparkling eyes, soft blush, fluffy brown hair with gentle volume, slightly more elegant princess feeling, pale pink cream simple inner dress, minimal base clothing, paper doll friendly, transparent background, centered composition, clean outlines, polished 2D illustration, no background, no text, no watermark",
+      "negativePrompt": "photorealistic, realistic skin texture, mature adult proportions, sexy pose, dark fantasy, horror, side view, 3/4 view, perspective pose, busy background, furniture, room, landscape, text, logo, watermark, extra fingers, extra limbs, cropped head, cropped feet, blurry transparent edges, messy linework, oversized dress, dramatic pose, fashion model runway pose",
+      "revisedPrompt": null,
+      "status": "ok",
+      "error": null,
+      "createdAt": "2026-03-29T22:26:48.487Z"
+    },
+    {
+      "id": "model-princess-base-c",
+      "label": "C: 少し図鑑イラスト寄り",
+      "filename": "model-princess-base-c.png",
+      "prompt": "cute princess encyclopedia style, dress-up game base model, children's illustrated dress-up doll, front view, full body, standing straight, arms gently down, organized silhouette, clear neck torso waist skirt legs and shoes separation, simple and readable linework, slightly flatter storybook encyclopedia feel, large eyes, gentle smile, brown soft bob hair, very light cream pink base dress, minimal base clothing, paper doll friendly, transparent background, centered composition, clean outlines, soft pastel palette, high readability, no background, no text, no watermark",
+      "negativePrompt": "photorealistic, realistic skin texture, mature adult proportions, sexy pose, dark fantasy, horror, side view, 3/4 view, perspective pose, busy background, furniture, room, landscape, text, logo, watermark, extra fingers, extra limbs, cropped head, cropped feet, blurry transparent edges, messy linework, oversized dress, dramatic pose, fashion model runway pose",
+      "revisedPrompt": null,
+      "status": "ok",
+      "error": null,
+      "createdAt": "2026-03-29T22:27:06.134Z"
+    }
+  ]
+}

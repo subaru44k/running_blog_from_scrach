@@ -1,0 +1,76 @@
+{
+  "model": "gpt-image-1.5",
+  "quality": "medium",
+  "size": "1024x1024",
+  "background": "transparent",
+  "outputFormat": "png",
+  "generatedAt": "2026-03-29T22:18:54.249Z",
+  "assets": [
+    {
+      "id": "model-princess-base",
+      "filename": "model-princess-base.png",
+      "kind": "model",
+      "prompt": "cute princess encyclopedia style, dress-up game base model, young girl mannequin for outfit coordination game, standing straight, front view, full body, arms gently down, soft smile, large sparkling eyes, round cheeks, fluffy brown hair, simple pastel inner dress in pale cream pink, minimal base clothing, elegant and child-friendly proportions, clear separation around neck, torso, skirt area, legs and shoes area for layer overlays, transparent background, centered composition, polished 2D illustration, paper doll friendly, clean outlines, soft pastel palette, high readability, no background, no text, no watermark",
+      "negativePrompt": "photorealistic, realistic skin texture, mature adult proportions, sexy pose, dark fantasy, horror, side view, 3/4 view, perspective pose, busy background, furniture, room, landscape, text, logo, watermark, item attached to body, extra fingers, extra limbs, cropped head, cropped feet, blurry transparent edges, messy linework",
+      "revisedPrompt": null,
+      "status": "ok",
+      "error": null,
+      "createdAt": "2026-03-29T22:07:39.712Z"
+    },
+    {
+      "id": "item-hair-tiara",
+      "filename": "item-hair-tiara.png",
+      "kind": "item",
+      "prompt": "cute princess encyclopedia style, dress-up game asset, for a Japanese children's mini game, front view, soft pastel palette, clean outlines, bright and lovely, gentle facial expression, elegant but simple shapes, easy to layer in a dress-up game, transparent background, centered composition, high readability, polished 2D illustration, no background, no text, no watermark, isolated tiara accessory, front-facing, elegant gold tiara with pink and blue jewel accents, soft pastel gold, easy to place on top of a girl's head",
+      "negativePrompt": "photorealistic, realistic skin texture, mature adult proportions, sexy pose, dark fantasy, horror, side view, 3/4 view, perspective pose, busy background, furniture, room, landscape, text, logo, watermark, item attached to body, extra fingers, extra limbs, cropped head, cropped feet, blurry transparent edges, messy linework",
+      "revisedPrompt": null,
+      "status": "ok",
+      "error": null,
+      "createdAt": "2026-03-29T22:17:40.648Z"
+    },
+    {
+      "id": "item-necklace-heart",
+      "filename": "item-necklace-heart.png",
+      "kind": "item",
+      "prompt": "cute princess encyclopedia style, dress-up game asset, for a Japanese children's mini game, front view, soft pastel palette, clean outlines, bright and lovely, gentle facial expression, elegant but simple shapes, easy to layer in a dress-up game, transparent background, centered composition, high readability, polished 2D illustration, no background, no text, no watermark, isolated heart necklace, front-facing, pink heart pendant with pearl chain, soft pastel colors, clear silhouette for layering on a character neck area",
+      "negativePrompt": "photorealistic, realistic skin texture, mature adult proportions, sexy pose, dark fantasy, horror, side view, 3/4 view, perspective pose, busy background, furniture, room, landscape, text, logo, watermark, item attached to body, extra fingers, extra limbs, cropped head, cropped feet, blurry transparent edges, messy linework",
+      "revisedPrompt": null,
+      "status": "ok",
+      "error": null,
+      "createdAt": "2026-03-29T22:17:59.160Z"
+    },
+    {
+      "id": "item-top-frill-blouse",
+      "filename": "item-top-frill-blouse.png",
+      "kind": "item",
+      "prompt": "cute princess encyclopedia style, dress-up game asset, for a Japanese children's mini game, front view, soft pastel palette, clean outlines, bright and lovely, gentle facial expression, elegant but simple shapes, easy to layer in a dress-up game, transparent background, centered composition, high readability, polished 2D illustration, no background, no text, no watermark, isolated frill blouse, front view, pastel pink frilly blouse with puff sleeves and ribbon detail, child-friendly princess fashion, shape designed for layering onto a dress-up character torso",
+      "negativePrompt": "photorealistic, realistic skin texture, mature adult proportions, sexy pose, dark fantasy, horror, side view, 3/4 view, perspective pose, busy background, furniture, room, landscape, text, logo, watermark, item attached to body, extra fingers, extra limbs, cropped head, cropped feet, blurry transparent edges, messy linework",
+      "revisedPrompt": null,
+      "status": "ok",
+      "error": null,
+      "createdAt": "2026-03-29T22:18:17.373Z"
+    },
+    {
+      "id": "item-bottom-fluffy-skirt",
+      "filename": "item-bottom-fluffy-skirt.png",
+      "kind": "item",
+      "prompt": "cute princess encyclopedia style, dress-up game asset, for a Japanese children's mini game, front view, soft pastel palette, clean outlines, bright and lovely, gentle facial expression, elegant but simple shapes, easy to layer in a dress-up game, transparent background, centered composition, high readability, polished 2D illustration, no background, no text, no watermark, isolated fluffy skirt, front view, pastel lavender pink layered skirt with soft frills and gentle volume, readable silhouette, designed for layering onto a dress-up character waist and leg area",
+      "negativePrompt": "photorealistic, realistic skin texture, mature adult proportions, sexy pose, dark fantasy, horror, side view, 3/4 view, perspective pose, busy background, furniture, room, landscape, text, logo, watermark, item attached to body, extra fingers, extra limbs, cropped head, cropped feet, blurry transparent edges, messy linework",
+      "revisedPrompt": null,
+      "status": "ok",
+      "error": null,
+      "createdAt": "2026-03-29T22:18:37.368Z"
+    },
+    {
+      "id": "item-shoes-ribbon",
+      "filename": "item-shoes-ribbon.png",
+      "kind": "item",
+      "prompt": "cute princess encyclopedia style, dress-up game asset, for a Japanese children's mini game, front view, soft pastel palette, clean outlines, bright and lovely, gentle facial expression, elegant but simple shapes, easy to layer in a dress-up game, transparent background, centered composition, high readability, polished 2D illustration, no background, no text, no watermark, isolated ribbon shoes, front-facing pair of pastel pink princess shoes with ribbon decoration and small jewel accents, child-friendly and cute, designed for layering onto a dress-up character feet area",
+      "negativePrompt": "photorealistic, realistic skin texture, mature adult proportions, sexy pose, dark fantasy, horror, side view, 3/4 view, perspective pose, busy background, furniture, room, landscape, text, logo, watermark, item attached to body, extra fingers, extra limbs, cropped head, cropped feet, blurry transparent edges, messy linework",
+      "revisedPrompt": null,
+      "status": "ok",
+      "error": null,
+      "createdAt": "2026-03-29T22:18:54.249Z"
+    }
+  ]
+}

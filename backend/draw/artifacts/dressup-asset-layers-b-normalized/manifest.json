@@ -1,0 +1,132 @@
+{
+  "threshold": 16,
+  "canvasSize": 1024,
+  "generatedAt": "2026-03-29T22:48:32.272Z",
+  "items": [
+    {
+      "id": "item-hair-tiara",
+      "file": "item-hair-tiara.png",
+      "slot": "hair",
+      "rawBBox": {
+        "x": 327,
+        "y": 141,
+        "width": 368,
+        "height": 141
+      },
+      "anchorRect": {
+        "x": 344,
+        "y": 28,
+        "w": 340,
+        "h": 128
+      },
+      "alignY": "bottom",
+      "scale": 0.9078014184397163,
+      "outputPlacement": {
+        "x": 347,
+        "y": 28,
+        "width": 334,
+        "height": 128
+      }
+    },
+    {
+      "id": "item-necklace-heart",
+      "file": "item-necklace-heart.png",
+      "slot": "necklace",
+      "rawBBox": {
+        "x": 324,
+        "y": 415,
+        "width": 372,
+        "height": 195
+      },
+      "anchorRect": {
+        "x": 392,
+        "y": 178,
+        "w": 248,
+        "h": 120
+      },
+      "alignY": "center",
+      "scale": 0.6153846153846154,
+      "outputPlacement": {
+        "x": 402,
+        "y": 178,
+        "width": 229,
+        "height": 120
+      }
+    },
+    {
+      "id": "item-top-frill-blouse",
+      "file": "item-top-frill-blouse.png",
+      "slot": "top",
+      "rawBBox": {
+        "x": 195,
+        "y": 334,
+        "width": 629,
+        "height": 360
+      },
+      "anchorRect": {
+        "x": 244,
+        "y": 152,
+        "w": 536,
+        "h": 378
+      },
+      "alignY": "center",
+      "scale": 0.8521462639109698,
+      "outputPlacement": {
+        "x": 244,
+        "y": 188,
+        "width": 536,
+        "height": 307
+      }
+    },
+    {
+      "id": "item-bottom-fluffy-skirt",
+      "file": "item-bottom-fluffy-skirt.png",
+      "slot": "bottom",
+      "rawBBox": {
+        "x": 170,
+        "y": 437,
+        "width": 685,
+        "height": 316
+      },
+      "anchorRect": {
+        "x": 230,
+        "y": 430,
+        "w": 560,
+        "h": 328
+      },
+      "alignY": "top",
+      "scale": 0.8175182481751825,
+      "outputPlacement": {
+        "x": 230,
+        "y": 430,
+        "width": 560,
+        "height": 258
+      }
+    },
+    {
+      "id": "item-shoes-ribbon",
+      "file": "item-shoes-ribbon.png",
+      "slot": "shoes",
+      "rawBBox": {
+        "x": 337,
+        "y": 754,
+        "width": 344,
+        "height": 226
+      },
+      "anchorRect": {
+        "x": 388,
+        "y": 850,
+        "w": 244,
+        "h": 126
+      },
+      "alignY": "bottom",
+      "scale": 0.5575221238938053,
+      "outputPlacement": {
+        "x": 414,
+        "y": 850,
+        "width": 192,
+        "height": 126
+      }
+    }
+  ]
+}

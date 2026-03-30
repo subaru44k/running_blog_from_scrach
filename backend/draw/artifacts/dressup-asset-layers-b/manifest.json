@@ -1,0 +1,72 @@
+{
+  "model": "gpt-image-1.5",
+  "quality": "medium",
+  "size": "1024x1024",
+  "background": "transparent",
+  "outputFormat": "png",
+  "generatedAt": "2026-03-29T22:42:43.062Z",
+  "styleReference": "model-princess-base-b",
+  "assetType": "layer",
+  "assets": [
+    {
+      "id": "item-hair-tiara-layer",
+      "filename": "item-hair-tiara.png",
+      "kind": "hair",
+      "prompt": "elegant gold tiara with pink and blue jewel accents, slim tidy shape, sized for a child-friendly princess doll head, leave the rest of the canvas empty",
+      "anchorGuide": "place the tiara at the top center of the 1024 canvas, aligned to sit naturally on the base doll head and hairline",
+      "negativePrompt": "isolated product shot, centered object, floating object, fashion catalog background, mannequin display, photorealistic, realistic fabric photo, realistic jewelry photo, mature adult fashion illustration, sexy style, dark fantasy, horror, side view, 3/4 view, perspective angle, busy background, furniture, room, landscape, text, logo, watermark, attached to a whole character, messy linework, blurry transparent edges, oversized ornament, runway fashion editorial look",
+      "revisedPrompt": null,
+      "status": "ok",
+      "error": null,
+      "createdAt": "2026-03-29T22:41:34.288Z"
+    },
+    {
+      "id": "item-necklace-heart-layer",
+      "filename": "item-necklace-heart.png",
+      "kind": "necklace",
+      "prompt": "pink heart pendant with pearl chain, delicate but readable shape, sized for the neck area of a princess dress-up doll, leave the rest of the canvas empty",
+      "anchorGuide": "place the necklace around the upper chest and neck center of the 1024 canvas, aligned to the base doll neckline",
+      "negativePrompt": "isolated product shot, centered object, floating object, fashion catalog background, mannequin display, photorealistic, realistic fabric photo, realistic jewelry photo, mature adult fashion illustration, sexy style, dark fantasy, horror, side view, 3/4 view, perspective angle, busy background, furniture, room, landscape, text, logo, watermark, attached to a whole character, messy linework, blurry transparent edges, oversized ornament, runway fashion editorial look",
+      "revisedPrompt": null,
+      "status": "ok",
+      "error": null,
+      "createdAt": "2026-03-29T22:41:50.749Z"
+    },
+    {
+      "id": "item-top-frill-blouse-layer",
+      "filename": "item-top-frill-blouse.png",
+      "kind": "top",
+      "prompt": "pastel pink frilly blouse with puff sleeves and ribbon detail, slim tidy torso fit, princess dress-up doll clothing, leave the rest of the canvas empty",
+      "anchorGuide": "place the blouse in the torso and shoulder area of the 1024 canvas, aligned to the base doll shoulders, chest, waist and upper arms",
+      "negativePrompt": "isolated product shot, centered object, floating object, fashion catalog background, mannequin display, photorealistic, realistic fabric photo, realistic jewelry photo, mature adult fashion illustration, sexy style, dark fantasy, horror, side view, 3/4 view, perspective angle, busy background, furniture, room, landscape, text, logo, watermark, attached to a whole character, messy linework, blurry transparent edges, oversized ornament, runway fashion editorial look",
+      "revisedPrompt": null,
+      "status": "ok",
+      "error": null,
+      "createdAt": "2026-03-29T22:42:08.123Z"
+    },
+    {
+      "id": "item-bottom-fluffy-skirt-layer",
+      "filename": "item-bottom-fluffy-skirt.png",
+      "kind": "bottom",
+      "prompt": "pastel lavender pink layered fluffy skirt with soft frills and gentle volume, slightly elegant princess style, leave the rest of the canvas empty",
+      "anchorGuide": "place the skirt in the waist and upper leg area of the 1024 canvas, aligned directly below the doll waist so it overlaps naturally with the top",
+      "negativePrompt": "isolated product shot, centered object, floating object, fashion catalog background, mannequin display, photorealistic, realistic fabric photo, realistic jewelry photo, mature adult fashion illustration, sexy style, dark fantasy, horror, side view, 3/4 view, perspective angle, busy background, furniture, room, landscape, text, logo, watermark, attached to a whole character, messy linework, blurry transparent edges, oversized ornament, runway fashion editorial look",
+      "revisedPrompt": null,
+      "status": "ok",
+      "error": null,
+      "createdAt": "2026-03-29T22:42:25.852Z"
+    },
+    {
+      "id": "item-shoes-ribbon-layer",
+      "filename": "item-shoes-ribbon.png",
+      "kind": "shoes",
+      "prompt": "pair of pastel pink princess ribbon shoes with small jewel accents, slim tidy child-friendly shape, leave the rest of the canvas empty",
+      "anchorGuide": "place the pair of shoes at the bottom center of the 1024 canvas, aligned naturally to the doll feet and ankles",
+      "negativePrompt": "isolated product shot, centered object, floating object, fashion catalog background, mannequin display, photorealistic, realistic fabric photo, realistic jewelry photo, mature adult fashion illustration, sexy style, dark fantasy, horror, side view, 3/4 view, perspective angle, busy background, furniture, room, landscape, text, logo, watermark, attached to a whole character, messy linework, blurry transparent edges, oversized ornament, runway fashion editorial look",
+      "revisedPrompt": null,
+      "status": "ok",
+      "error": null,
+      "createdAt": "2026-03-29T22:42:43.062Z"
+    }
+  ]
+}

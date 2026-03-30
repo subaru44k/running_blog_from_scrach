@@ -1,0 +1,50 @@
+{
+  "hair": {
+    "label": "ティアラ",
+    "visible": true,
+    "x": 0,
+    "y": -125,
+    "scale": 0.69,
+    "z": 5
+  },
+  "necklace": {
+    "label": "ネックレス",
+    "visible": true,
+    "x": -4,
+    "y": 20,
+    "scale": 0.82,
+    "z": 4
+  },
+  "top": {
+    "label": "トップス",
+    "visible": true,
+    "x": 0,
+    "y": -43,
+    "scale": 0.56,
+    "z": 3
+  },
+  "bottom": {
+    "label": "ボトムス",
+    "visible": true,
+    "x": 2,
+    "y": 14,
+    "scale": 0.82,
+    "z": 2
+  },
+  "leftShoe": {
+    "label": "左くつ",
+    "visible": true,
+    "x": 9,
+    "y": 85,
+    "scale": 0.8,
+    "z": 1
+  },
+  "rightShoe": {
+    "label": "右くつ",
+    "visible": true,
+    "x": -7,
+    "y": 85,
+    "scale": 0.8,
+    "z": 1
+  }
+}

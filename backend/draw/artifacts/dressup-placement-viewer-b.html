@@ -1,0 +1,441 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Dressup Placement Viewer B</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --text: #1e293b;
+        --muted: #64748b;
+        --line: rgba(244,114,182,.16);
+        --panel: rgba(255,255,255,.92);
+      }
+      * { box-sizing: border-box; }
+      body {
+        margin: 0;
+        font-family: "Hiragino Sans", "Yu Gothic", system-ui, sans-serif;
+        color: var(--text);
+        background: linear-gradient(180deg, #fff8fb 0%, #fff1f7 100%);
+      }
+      main {
+        width: min(1260px, calc(100% - 32px));
+        margin: 0 auto;
+        padding: 24px 0 40px;
+      }
+      h1 { margin: 8px 0 10px; font-size: clamp(28px, 4vw, 40px); }
+      .lead { margin: 0 0 20px; color: var(--muted); line-height: 1.8; }
+      .layout {
+        display: grid;
+        grid-template-columns: minmax(320px, 720px) minmax(300px, 1fr);
+        gap: 20px;
+        align-items: start;
+      }
+      .panel {
+        border: 1px solid var(--line);
+        border-radius: 24px;
+        background: var(--panel);
+        box-shadow: 0 24px 60px rgba(236,72,153,.12);
+      }
+      .stage-panel { padding: 18px; }
+      .stage {
+        position: relative;
+        width: min(100%, 720px);
+        aspect-ratio: 1 / 1;
+        margin: 0 auto;
+        overflow: hidden;
+        border-radius: 20px;
+        background:
+          radial-gradient(circle at top, rgba(255,255,255,.92), transparent 40%),
+          linear-gradient(180deg, #fffdf5 0%, #fff4f8 100%);
+        border: 1px solid rgba(244,114,182,.14);
+      }
+      .layer {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+        display: block;
+        pointer-events: none;
+        transform-origin: center center;
+      }
+      .layer.selected { filter: drop-shadow(0 0 10px rgba(244,114,182,.46)); }
+      .crosshair {
+        position: absolute;
+        inset: 0;
+        pointer-events: none;
+        background-image:
+          linear-gradient(to right, transparent calc(50% - 0.5px), rgba(244,114,182,.16) calc(50% - 0.5px), rgba(244,114,182,.16) calc(50% + 0.5px), transparent calc(50% + 0.5px)),
+          linear-gradient(to bottom, transparent calc(50% - 0.5px), rgba(244,114,182,.16) calc(50% - 0.5px), rgba(244,114,182,.16) calc(50% + 0.5px), transparent calc(50% + 0.5px));
+      }
+      .controls { padding: 18px; display: grid; gap: 14px; }
+      .control-group {
+        border: 1px solid rgba(148,163,184,.18);
+        border-radius: 18px;
+        padding: 12px;
+        background: rgba(255,255,255,.88);
+        display: grid;
+        gap: 10px;
+      }
+      .row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+      .slot-btn, .mini-btn, .arrow-btn {
+        border: 1px solid rgba(51,65,85,.18);
+        border-radius: 12px;
+        background: white;
+        color: var(--text);
+        padding: 9px 12px;
+        font-weight: 700;
+        cursor: pointer;
+      }
+      .slot-btn.is-active { background: #0f172a; color: white; border-color: #0f172a; }
+      .arrow-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 48px);
+        grid-template-rows: repeat(2, 44px);
+        gap: 8px;
+        justify-content: center;
+      }
+      .arrow-btn { padding: 0; }
+      .arrow-up { grid-column: 2; grid-row: 1; }
+      .arrow-left { grid-column: 1; grid-row: 2; }
+      .arrow-down { grid-column: 2; grid-row: 2; }
+      .arrow-right { grid-column: 3; grid-row: 2; }
+      input[type="range"] { width: 100%; }
+      textarea {
+        width: 100%;
+        min-height: 220px;
+        resize: vertical;
+        border-radius: 16px;
+        border: 1px solid rgba(148,163,184,.24);
+        padding: 12px;
+        font: 12px/1.5 ui-monospace, SFMono-Regular, Menlo, monospace;
+        color: #334155;
+      }
+      .hint { margin: 0; font-size: 13px; color: var(--muted); line-height: 1.7; }
+      @media (max-width: 980px) {
+        .layout { grid-template-columns: 1fr; }
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <p style="margin:0;font-size:12px;letter-spacing:.22em;font-weight:700;color:#db2777;">DRESSUP PLACEMENT</p>
+      <h1>おしゃれゲーム 位置合わせビューアー</h1>
+      <p class="lead">B人物モデルに 6 パーツを重ねて、位置とサイズを調整するための確認用ビューアーです。ドラッグ、微調整ボタン、scale スライダーで合わせて、右下の JSON をコピーします。</p>
+
+      <section class="layout">
+        <article class="panel stage-panel">
+          <div class="stage" id="stage">
+            <div class="crosshair"></div>
+            <img class="layer" src="dressup-model-variants/model-princess-base-b.png" alt="人物モデルB" />
+            <img class="layer" data-slot="hair" src="dressup-asset-layers-b-normalized/item-hair-tiara.png" alt="ティアラ" />
+            <img class="layer" data-slot="necklace" src="dressup-asset-layers-b-normalized/item-necklace-heart.png" alt="ネックレス" />
+            <img class="layer" data-slot="top" src="dressup-asset-layers-b-normalized/item-top-frill-blouse.png" alt="トップス" />
+            <img class="layer" data-slot="bottom" src="dressup-asset-layers-b-normalized/item-bottom-fluffy-skirt.png" alt="ボトムス" />
+            <img class="layer" data-slot="leftShoe" src="dressup-asset-layers-b-split/item-shoes-ribbon-left.png" alt="左くつ" />
+            <img class="layer" data-slot="rightShoe" src="dressup-asset-layers-b-split/item-shoes-ribbon-right.png" alt="右くつ" />
+          </div>
+        </article>
+
+        <aside class="panel controls">
+          <div class="control-group">
+            <div class="row" id="slotButtons"></div>
+            <label class="row"><input id="visibleToggle" type="checkbox" checked /> 表示する</label>
+          </div>
+
+          <div class="control-group">
+            <strong>ドラッグ / 微調整</strong>
+            <p class="hint">ステージ上でドラッグするか、下の矢印で1pxずつ動かせます。Shift + 矢印キーでも動かせます。</p>
+            <div class="arrow-grid">
+              <button class="arrow-btn arrow-up" data-dx="0" data-dy="-1" type="button">↑</button>
+              <button class="arrow-btn arrow-left" data-dx="-1" data-dy="0" type="button">←</button>
+              <button class="arrow-btn arrow-down" data-dx="0" data-dy="1" type="button">↓</button>
+              <button class="arrow-btn arrow-right" data-dx="1" data-dy="0" type="button">→</button>
+            </div>
+          </div>
+
+          <div class="control-group">
+            <strong>サイズ</strong>
+            <input id="scaleRange" type="range" min="0.4" max="1.8" step="0.01" value="1" />
+            <div class="row">
+              <button class="mini-btn" id="scaleDown" type="button">- 0.01</button>
+              <button class="mini-btn" id="scaleUp" type="button">+ 0.01</button>
+              <span id="scaleText">1.00</span>
+            </div>
+          </div>
+
+          <div class="control-group">
+            <strong>重なり順</strong>
+            <p class="hint">選択中のパーツを一段前、一段後ろへ動かします。ネックレスをトップスより前に出したいときなどに使います。</p>
+            <div class="row">
+              <button class="mini-btn" id="bringForward" type="button">前へ</button>
+              <button class="mini-btn" id="sendBackward" type="button">後ろへ</button>
+              <span id="zText">z: 0</span>
+            </div>
+          </div>
+
+          <div class="control-group">
+            <strong>JSON</strong>
+            <p class="hint">コピーして次の工程に使うための配置 JSON です。JSON を更新 を押すと最新値が反映されます。</p>
+            <div class="row">
+              <button class="mini-btn" id="refreshJson" type="button">JSON を更新</button>
+              <button class="mini-btn" id="copyJson" type="button">コピー</button>
+            </div>
+            <textarea id="jsonOutput"></textarea>
+          </div>
+        </aside>
+      </section>
+    </main>
+
+    <script>
+      const state = {
+  "hair": {
+    "label": "ティアラ",
+    "visible": true,
+    "x": 0,
+    "y": -125,
+    "scale": 0.69,
+    "z": 5
+  },
+  "necklace": {
+    "label": "ネックレス",
+    "visible": true,
+    "x": -4,
+    "y": 20,
+    "scale": 0.82,
+    "z": 4
+  },
+  "top": {
+    "label": "トップス",
+    "visible": true,
+    "x": 0,
+    "y": -43,
+    "scale": 0.56,
+    "z": 3
+  },
+  "bottom": {
+    "label": "ボトムス",
+    "visible": true,
+    "x": 2,
+    "y": 14,
+    "scale": 0.82,
+    "z": 2
+  },
+  "leftShoe": {
+    "label": "左くつ",
+    "visible": true,
+    "x": 9,
+    "y": 85,
+    "scale": 0.8,
+    "z": 1
+  },
+  "rightShoe": {
+    "label": "右くつ",
+    "visible": true,
+    "x": -7,
+    "y": 85,
+    "scale": 0.8,
+    "z": 1
+  }
+};
+      const labels = Object.fromEntries(Object.entries(state).map(([key, value]) => [key, value.label]));
+      const stage = document.getElementById('stage');
+      const layerEls = Object.fromEntries(
+        [...stage.querySelectorAll('[data-slot]')].map((el) => [el.dataset.slot, el]),
+      );
+      const slotButtons = document.getElementById('slotButtons');
+      const visibleToggle = document.getElementById('visibleToggle');
+      const scaleRange = document.getElementById('scaleRange');
+      const scaleText = document.getElementById('scaleText');
+      const zText = document.getElementById('zText');
+      const jsonOutput = document.getElementById('jsonOutput');
+      const refreshJsonBtn = document.getElementById('refreshJson');
+      const copyJsonBtn = document.getElementById('copyJson');
+      const bringForwardBtn = document.getElementById('bringForward');
+      const sendBackwardBtn = document.getElementById('sendBackward');
+      let activeSlot = 'hair';
+      let dragState = null;
+      const layerBitmaps = {};
+      const DRAG_THRESHOLD = 5;
+
+      function renderSlotButtons() {
+        slotButtons.innerHTML = Object.entries(labels).map(([key, label]) =>
+          '<button class="slot-btn' + (key === activeSlot ? ' is-active' : '') + '" data-slot-btn="' + key + '" type="button">' + label + '</button>'
+        ).join('');
+        slotButtons.querySelectorAll('[data-slot-btn]').forEach((button) => {
+          button.addEventListener('click', () => {
+            activeSlot = button.dataset.slotBtn;
+            syncControls();
+            render();
+          });
+        });
+      }
+
+      function applyTransform(slot) {
+        const cfg = state[slot];
+        const el = layerEls[slot];
+        el.style.display = cfg.visible ? 'block' : 'none';
+        el.style.zIndex = String(cfg.z);
+        el.style.transform = 'translate(' + cfg.x + 'px,' + cfg.y + 'px) scale(' + cfg.scale + ')';
+        el.classList.toggle('selected', slot === activeSlot);
+      }
+
+      function render() {
+        Object.keys(layerEls).forEach(applyTransform);
+        renderSlotButtons();
+        jsonOutput.value = JSON.stringify(state, null, 2);
+      }
+
+      function syncControls() {
+        const cfg = state[activeSlot];
+        visibleToggle.checked = cfg.visible;
+        scaleRange.value = cfg.scale;
+        scaleText.textContent = cfg.scale.toFixed(2);
+        zText.textContent = 'z: ' + cfg.z;
+      }
+
+      function moveActive(dx, dy) {
+        state[activeSlot].x += dx;
+        state[activeSlot].y += dy;
+        render();
+      }
+
+      function setScale(value) {
+        state[activeSlot].scale = Math.max(0.4, Math.min(1.8, Number(value)));
+        syncControls();
+        render();
+      }
+
+      function getOrderedVisibleSlots() {
+        return Object.entries(state)
+          .filter(([, cfg]) => cfg.visible)
+          .sort((a, b) => b[1].z - a[1].z)
+          .map(([slot]) => slot);
+      }
+
+      function resolveSlotAtPoint(clientX, clientY) {
+        const rect = stage.getBoundingClientRect();
+        const canvasX = ((clientX - rect.left) / rect.width) * CANVAS_SIZE;
+        const canvasY = ((clientY - rect.top) / rect.height) * CANVAS_SIZE;
+        for (const slot of getOrderedVisibleSlots()) {
+          const bmp = layerBitmaps[slot];
+          if (!bmp) continue;
+          const cfg = state[slot];
+          const localX = (canvasX - cfg.x - CANVAS_SIZE / 2) / cfg.scale + CANVAS_SIZE / 2;
+          const localY = (canvasY - cfg.y - CANVAS_SIZE / 2) / cfg.scale + CANVAS_SIZE / 2;
+          if (localX < 0 || localY < 0 || localX >= CANVAS_SIZE || localY >= CANVAS_SIZE) continue;
+          const px = Math.floor(localX);
+          const py = Math.floor(localY);
+          const idx = (py * CANVAS_SIZE + px) * 4 + 3;
+          if (bmp.data[idx] >= 16) return slot;
+        }
+        return null;
+      }
+
+      async function buildBitmap(slot) {
+        const img = layerEls[slot];
+        await img.decode().catch(() => {});
+        const canvas = document.createElement('canvas');
+        canvas.width = CANVAS_SIZE;
+        canvas.height = CANVAS_SIZE;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(img, 0, 0, CANVAS_SIZE, CANVAS_SIZE);
+        layerBitmaps[slot] = ctx.getImageData(0, 0, CANVAS_SIZE, CANVAS_SIZE);
+      }
+
+      function reorderSelected(direction) {
+        const entries = Object.entries(state)
+          .map(([slot, cfg]) => ({ slot, z: cfg.z }))
+          .sort((a, b) => a.z - b.z);
+        const index = entries.findIndex((entry) => entry.slot === activeSlot);
+        if (index === -1) return;
+        const swapIndex = direction === 'forward' ? index + 1 : index - 1;
+        if (swapIndex < 0 || swapIndex >= entries.length) return;
+        const a = entries[index];
+        const b = entries[swapIndex];
+        const tmp = state[a.slot].z;
+        state[a.slot].z = state[b.slot].z;
+        state[b.slot].z = tmp;
+        syncControls();
+        render();
+      }
+
+      visibleToggle.addEventListener('change', () => {
+        state[activeSlot].visible = visibleToggle.checked;
+        render();
+      });
+      scaleRange.addEventListener('input', () => setScale(scaleRange.value));
+      document.getElementById('scaleDown').addEventListener('click', () => setScale((state[activeSlot].scale - 0.01).toFixed(2)));
+      document.getElementById('scaleUp').addEventListener('click', () => setScale((state[activeSlot].scale + 0.01).toFixed(2)));
+      bringForwardBtn.addEventListener('click', () => reorderSelected('forward'));
+      sendBackwardBtn.addEventListener('click', () => reorderSelected('backward'));
+      [...document.querySelectorAll('.arrow-btn')].forEach((button) => {
+        button.addEventListener('click', () => moveActive(Number(button.dataset.dx), Number(button.dataset.dy)));
+      });
+      refreshJsonBtn.addEventListener('click', () => { jsonOutput.value = JSON.stringify(state, null, 2); });
+      copyJsonBtn.addEventListener('click', async () => {
+        await navigator.clipboard.writeText(jsonOutput.value);
+        copyJsonBtn.textContent = 'コピーした';
+        setTimeout(() => { copyJsonBtn.textContent = 'コピー'; }, 1000);
+      });
+
+      stage.addEventListener('pointerdown', (event) => {
+        const hitSlot = resolveSlotAtPoint(event.clientX, event.clientY);
+        if (!hitSlot) return;
+        activeSlot = hitSlot;
+        syncControls();
+        render();
+        const rect = stage.getBoundingClientRect();
+        dragState = {
+          pointerId: event.pointerId,
+          slot: hitSlot,
+          startX: event.clientX,
+          startY: event.clientY,
+          baseX: state[hitSlot].x,
+          baseY: state[hitSlot].y,
+          scaleX: CANVAS_SIZE / rect.width,
+          scaleY: CANVAS_SIZE / rect.height,
+          dragging: false,
+        };
+        stage.setPointerCapture(event.pointerId);
+      });
+      stage.addEventListener('pointermove', (event) => {
+        if (!dragState) return;
+        const dx = event.clientX - dragState.startX;
+        const dy = event.clientY - dragState.startY;
+        if (!dragState.dragging) {
+          if (Math.hypot(dx, dy) < DRAG_THRESHOLD) return;
+          dragState.dragging = true;
+        }
+        state[dragState.slot].x = Math.round(dragState.baseX + dx * dragState.scaleX);
+        state[dragState.slot].y = Math.round(dragState.baseY + dy * dragState.scaleY);
+        render();
+      });
+      const endDrag = () => { dragState = null; };
+      stage.addEventListener('pointerup', endDrag);
+      stage.addEventListener('pointercancel', endDrag);
+
+      window.addEventListener('keydown', (event) => {
+        if (!event.shiftKey) return;
+        const keyMap = {
+          ArrowUp: [0, -1],
+          ArrowDown: [0, 1],
+          ArrowLeft: [-1, 0],
+          ArrowRight: [1, 0],
+        };
+        const delta = keyMap[event.key];
+        if (!delta) return;
+        event.preventDefault();
+        moveActive(delta[0], delta[1]);
+      });
+
+      const CANVAS_SIZE = 1024;
+      Promise.all(Object.keys(layerEls).map((slot) => buildBitmap(slot))).then(() => {
+        syncControls();
+        render();
+      });
+    </script>
+  </body>
+</html>

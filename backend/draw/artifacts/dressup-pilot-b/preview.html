@@ -1,0 +1,173 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Dressup Pilot Preview B</title>
+    <style>
+      :root { color-scheme: light; --line: rgba(244,114,182,.16); --text:#1e293b; --muted:#64748b; }
+      * { box-sizing:border-box; }
+      body { margin:0; font-family:"Hiragino Sans","Yu Gothic",system-ui,sans-serif; color:var(--text); background:linear-gradient(180deg,#fff8fb 0%,#fff1f7 100%); }
+      main { width:min(1200px,calc(100% - 32px)); margin:0 auto; padding:32px 0 48px; }
+      .layout { display:grid; grid-template-columns:minmax(320px,520px) minmax(0,1fr); gap:24px; align-items:start; }
+      .panel { border:1px solid var(--line); border-radius:28px; background:rgba(255,255,255,.9); box-shadow:0 24px 60px rgba(236,72,153,.14); }
+      .preview-panel,.sidebar { padding:24px; }
+      .preview-stage { position:relative; width:100%; aspect-ratio:1/1; overflow:hidden; border-radius:24px; background:radial-gradient(circle at top, rgba(255,255,255,.92), transparent 40%), linear-gradient(180deg,#fffdf5 0%,#fff4f8 100%); border:1px solid rgba(244,114,182,.14); }
+      .dressup-layer { position:absolute; inset:0; width:100%; height:100%; object-fit:contain; display:block; pointer-events:none; }
+      .asset-grid { display:grid; gap:12px; max-height:900px; overflow:auto; }
+      .asset-card { display:grid; grid-template-columns:96px minmax(0,1fr); gap:12px; align-items:center; border-radius:18px; border:1px solid rgba(148,163,184,.2); background:rgba(255,255,255,.92); padding:12px; }
+      .asset-thumb { aspect-ratio:1/1; border-radius:14px; background:linear-gradient(180deg,#fffdf5,#fff6fa); border:1px solid rgba(244,114,182,.12); display:grid; place-items:center; overflow:hidden; }
+      .asset-thumb img { width:100%; height:100%; object-fit:contain; }
+      .asset-meta { display:grid; gap:6px; }
+      .asset-meta span { color:#db2777; font-size:13px; font-weight:700; }
+      code { font-family:ui-monospace,SFMono-Regular,Menlo,monospace; font-size:12px; color:#475569; word-break:break-all; }
+      @media (max-width:900px){ .layout{grid-template-columns:1fr;} .preview-panel,.sidebar{padding:18px;} }
+    </style>
+  </head>
+  <body>
+    <main>
+      <p style="margin:0;font-size:12px;letter-spacing:.22em;font-weight:700;color:#db2777;">DRESSUP PILOT PREVIEW</p>
+      <h1>Bモデル向け 25点パイロットプレビュー</h1>
+      <p style="margin:0 0 20px;color:#64748b;line-height:1.8;">各部位5点ずつに広げた PNG パイロットです。左は基準コーデ、右は生成済み normalized レイヤー一覧です。</p>
+      <section class="layout">
+        <article class="panel preview-panel">
+          <div class="preview-stage"><img class="dressup-layer" src="../dressup-model-variants/model-princess-base-b.png" alt="人物モデルB" />
+<img class="dressup-layer" src="normalized/item-hair-gold-tiara.png" alt="ティアラ" />
+<img class="dressup-layer" src="normalized/item-necklace-heart-necklace.png" alt="ネックレス" />
+<img class="dressup-layer" src="normalized/item-top-frill-blouse.png" alt="トップス" />
+<img class="dressup-layer" src="normalized/item-bottom-frill-skirt.png" alt="ボトムス" />
+<img class="dressup-layer" src="normalized/item-shoes-ribbon-shoes.png" alt="くつ" /></div>
+        </article>
+        <aside class="panel sidebar">
+          <h2>生成したレイヤー</h2>
+          <div class="asset-grid">
+    <article class="asset-card">
+      <div class="asset-thumb"><img src="normalized/item-hair-gold-tiara.png" alt="ティアラ" /></div>
+      <div class="asset-meta"><strong>ティアラ</strong><span>かみかざり</span><code>normalized/item-hair-gold-tiara.png</code></div>
+    </article>
+  
+    <article class="asset-card">
+      <div class="asset-thumb"><img src="normalized/item-hair-pink-ribbon.png" alt="ピンクのリボン" /></div>
+      <div class="asset-meta"><strong>ピンクのリボン</strong><span>かみかざり</span><code>normalized/item-hair-pink-ribbon.png</code></div>
+    </article>
+  
+    <article class="asset-card">
+      <div class="asset-thumb"><img src="normalized/item-hair-sun-flower.png" alt="おはなのかざり" /></div>
+      <div class="asset-meta"><strong>おはなのかざり</strong><span>かみかざり</span><code>normalized/item-hair-sun-flower.png</code></div>
+    </article>
+  
+    <article class="asset-card">
+      <div class="asset-thumb"><img src="normalized/item-hair-star-pin.png" alt="ほしのピン" /></div>
+      <div class="asset-meta"><strong>ほしのピン</strong><span>かみかざり</span><code>normalized/item-hair-star-pin.png</code></div>
+    </article>
+  
+    <article class="asset-card">
+      <div class="asset-thumb"><img src="normalized/item-hair-pearl-band.png" alt="パールカチューシャ" /></div>
+      <div class="asset-meta"><strong>パールカチューシャ</strong><span>かみかざり</span><code>normalized/item-hair-pearl-band.png</code></div>
+    </article>
+  
+    <article class="asset-card">
+      <div class="asset-thumb"><img src="normalized/item-necklace-heart-necklace.png" alt="ハートのネックレス" /></div>
+      <div class="asset-meta"><strong>ハートのネックレス</strong><span>ネックレス</span><code>normalized/item-necklace-heart-necklace.png</code></div>
+    </article>
+  
+    <article class="asset-card">
+      <div class="asset-thumb"><img src="normalized/item-necklace-pearl-necklace.png" alt="パールのネックレス" /></div>
+      <div class="asset-meta"><strong>パールのネックレス</strong><span>ネックレス</span><code>normalized/item-necklace-pearl-necklace.png</code></div>
+    </article>
+  
+    <article class="asset-card">
+      <div class="asset-thumb"><img src="normalized/item-necklace-star-necklace.png" alt="ほしのネックレス" /></div>
+      <div class="asset-meta"><strong>ほしのネックレス</strong><span>ネックレス</span><code>normalized/item-necklace-star-necklace.png</code></div>
+    </article>
+  
+    <article class="asset-card">
+      <div class="asset-thumb"><img src="normalized/item-necklace-ribbon-choker.png" alt="りぼんチョーカー" /></div>
+      <div class="asset-meta"><strong>りぼんチョーカー</strong><span>ネックレス</span><code>normalized/item-necklace-ribbon-choker.png</code></div>
+    </article>
+  
+    <article class="asset-card">
+      <div class="asset-thumb"><img src="normalized/item-necklace-gem-necklace.png" alt="ほうせきネックレス" /></div>
+      <div class="asset-meta"><strong>ほうせきネックレス</strong><span>ネックレス</span><code>normalized/item-necklace-gem-necklace.png</code></div>
+    </article>
+  
+    <article class="asset-card">
+      <div class="asset-thumb"><img src="normalized/item-top-frill-blouse.png" alt="ふりふりブラウス" /></div>
+      <div class="asset-meta"><strong>ふりふりブラウス</strong><span>トップス</span><code>normalized/item-top-frill-blouse.png</code></div>
+    </article>
+  
+    <article class="asset-card">
+      <div class="asset-thumb"><img src="normalized/item-top-pink-blouse.png" alt="ピンクのブラウス" /></div>
+      <div class="asset-meta"><strong>ピンクのブラウス</strong><span>トップス</span><code>normalized/item-top-pink-blouse.png</code></div>
+    </article>
+  
+    <article class="asset-card">
+      <div class="asset-thumb"><img src="normalized/item-top-puff-blouse.png" alt="パフそでブラウス" /></div>
+      <div class="asset-meta"><strong>パフそでブラウス</strong><span>トップス</span><code>normalized/item-top-puff-blouse.png</code></div>
+    </article>
+  
+    <article class="asset-card">
+      <div class="asset-thumb"><img src="normalized/item-top-lace-top.png" alt="レーストップス" /></div>
+      <div class="asset-meta"><strong>レーストップス</strong><span>トップス</span><code>normalized/item-top-lace-top.png</code></div>
+    </article>
+  
+    <article class="asset-card">
+      <div class="asset-thumb"><img src="normalized/item-top-cape-top.png" alt="ケープつきトップス" /></div>
+      <div class="asset-meta"><strong>ケープつきトップス</strong><span>トップス</span><code>normalized/item-top-cape-top.png</code></div>
+    </article>
+  
+    <article class="asset-card">
+      <div class="asset-thumb"><img src="normalized/item-bottom-frill-skirt.png" alt="フリルスカート" /></div>
+      <div class="asset-meta"><strong>フリルスカート</strong><span>ボトムス</span><code>normalized/item-bottom-frill-skirt.png</code></div>
+    </article>
+  
+    <article class="asset-card">
+      <div class="asset-thumb"><img src="normalized/item-bottom-pink-skirt.png" alt="ピンクのふんわりスカート" /></div>
+      <div class="asset-meta"><strong>ピンクのふんわりスカート</strong><span>ボトムス</span><code>normalized/item-bottom-pink-skirt.png</code></div>
+    </article>
+  
+    <article class="asset-card">
+      <div class="asset-thumb"><img src="normalized/item-bottom-lavender-longskirt.png" alt="ラベンダースカート" /></div>
+      <div class="asset-meta"><strong>ラベンダースカート</strong><span>ボトムス</span><code>normalized/item-bottom-lavender-longskirt.png</code></div>
+    </article>
+  
+    <article class="asset-card">
+      <div class="asset-thumb"><img src="normalized/item-bottom-denim-shorts.png" alt="デニムショート" /></div>
+      <div class="asset-meta"><strong>デニムショート</strong><span>ボトムス</span><code>normalized/item-bottom-denim-shorts.png</code></div>
+    </article>
+  
+    <article class="asset-card">
+      <div class="asset-thumb"><img src="normalized/item-bottom-rain-pants.png" alt="レインパンツ" /></div>
+      <div class="asset-meta"><strong>レインパンツ</strong><span>ボトムス</span><code>normalized/item-bottom-rain-pants.png</code></div>
+    </article>
+  
+    <article class="asset-card">
+      <div class="asset-thumb"><img src="normalized/item-shoes-ribbon-shoes.png" alt="リボンシューズ" /></div>
+      <div class="asset-meta"><strong>リボンシューズ</strong><span>くつ</span><code>normalized/item-shoes-ribbon-shoes.png</code></div>
+    </article>
+  
+    <article class="asset-card">
+      <div class="asset-thumb"><img src="normalized/item-shoes-pink-ballet.png" alt="ピンクのくつ" /></div>
+      <div class="asset-meta"><strong>ピンクのくつ</strong><span>くつ</span><code>normalized/item-shoes-pink-ballet.png</code></div>
+    </article>
+  
+    <article class="asset-card">
+      <div class="asset-thumb"><img src="normalized/item-shoes-white-pumps.png" alt="しろいパンプス" /></div>
+      <div class="asset-meta"><strong>しろいパンプス</strong><span>くつ</span><code>normalized/item-shoes-white-pumps.png</code></div>
+    </article>
+  
+    <article class="asset-card">
+      <div class="asset-thumb"><img src="normalized/item-shoes-yellow-rainboots.png" alt="レインブーツ" /></div>
+      <div class="asset-meta"><strong>レインブーツ</strong><span>くつ</span><code>normalized/item-shoes-yellow-rainboots.png</code></div>
+    </article>
+  
+    <article class="asset-card">
+      <div class="asset-thumb"><img src="normalized/item-shoes-blue-sneakers.png" alt="スニーカー" /></div>
+      <div class="asset-meta"><strong>スニーカー</strong><span>くつ</span><code>normalized/item-shoes-blue-sneakers.png</code></div>
+    </article>
+  </div>
+        </aside>
+      </section>
+    </main>
+  </body>
+</html>

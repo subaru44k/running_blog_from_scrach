@@ -1,0 +1,66 @@
+{
+  "model": "gpt-image-1.5",
+  "quality": "medium",
+  "size": "1024x1024",
+  "background": "transparent",
+  "outputFormat": "png",
+  "generatedAt": "2026-03-29T22:31:49.157Z",
+  "styleReference": "model-princess-base-b",
+  "assets": [
+    {
+      "id": "item-hair-tiara",
+      "filename": "item-hair-tiara.png",
+      "kind": "item",
+      "prompt": "cute princess encyclopedia style, dress-up game item, designed to match a princess dress-up doll style young girl base model, front view, soft pastel palette, clean outlines, slightly more elegant princess feeling, polished 2D illustration, child-friendly and tidy silhouette, paper doll friendly, transparent background, centered composition, high readability, no background, no text, no watermark, isolated tiara accessory, front-facing, elegant gold tiara with pink and blue jewel accents, soft pastel gold, slim tidy shape, easy to place on top of a girl's fluffy brown hair",
+      "negativePrompt": "photorealistic, realistic metal texture, realistic fabric photo, mature adult fashion illustration, sexy style, dark fantasy, horror, side view, 3/4 view, perspective angle, busy background, furniture, room, landscape, text, logo, watermark, attached to a character, messy linework, blurry transparent edges, oversized ornament, runway fashion editorial look",
+      "revisedPrompt": null,
+      "status": "ok",
+      "error": null,
+      "createdAt": "2026-03-29T22:30:38.073Z"
+    },
+    {
+      "id": "item-necklace-heart",
+      "filename": "item-necklace-heart.png",
+      "kind": "item",
+      "prompt": "cute princess encyclopedia style, dress-up game item, designed to match a princess dress-up doll style young girl base model, front view, soft pastel palette, clean outlines, slightly more elegant princess feeling, polished 2D illustration, child-friendly and tidy silhouette, paper doll friendly, transparent background, centered composition, high readability, no background, no text, no watermark, isolated heart necklace, front-facing, pink heart pendant with pearl chain, delicate but readable shape, clear silhouette for layering on a dress-up doll neck area",
+      "negativePrompt": "photorealistic, realistic metal texture, realistic fabric photo, mature adult fashion illustration, sexy style, dark fantasy, horror, side view, 3/4 view, perspective angle, busy background, furniture, room, landscape, text, logo, watermark, attached to a character, messy linework, blurry transparent edges, oversized ornament, runway fashion editorial look",
+      "revisedPrompt": null,
+      "status": "ok",
+      "error": null,
+      "createdAt": "2026-03-29T22:30:54.008Z"
+    },
+    {
+      "id": "item-top-frill-blouse",
+      "filename": "item-top-frill-blouse.png",
+      "kind": "item",
+      "prompt": "cute princess encyclopedia style, dress-up game item, designed to match a princess dress-up doll style young girl base model, front view, soft pastel palette, clean outlines, slightly more elegant princess feeling, polished 2D illustration, child-friendly and tidy silhouette, paper doll friendly, transparent background, centered composition, high readability, no background, no text, no watermark, isolated frill blouse, front view, pastel pink frilly blouse with puff sleeves and ribbon detail, slim tidy torso fit, princess dress-up doll clothing, shape designed for layering onto a character torso",
+      "negativePrompt": "photorealistic, realistic metal texture, realistic fabric photo, mature adult fashion illustration, sexy style, dark fantasy, horror, side view, 3/4 view, perspective angle, busy background, furniture, room, landscape, text, logo, watermark, attached to a character, messy linework, blurry transparent edges, oversized ornament, runway fashion editorial look",
+      "revisedPrompt": null,
+      "status": "ok",
+      "error": null,
+      "createdAt": "2026-03-29T22:31:12.751Z"
+    },
+    {
+      "id": "item-bottom-fluffy-skirt",
+      "filename": "item-bottom-fluffy-skirt.png",
+      "kind": "item",
+      "prompt": "cute princess encyclopedia style, dress-up game item, designed to match a princess dress-up doll style young girl base model, front view, soft pastel palette, clean outlines, slightly more elegant princess feeling, polished 2D illustration, child-friendly and tidy silhouette, paper doll friendly, transparent background, centered composition, high readability, no background, no text, no watermark, isolated fluffy skirt, front view, pastel lavender pink layered skirt with soft frills and gentle volume, slightly elegant princess style, designed for layering onto a dress-up doll waist and leg area",
+      "negativePrompt": "photorealistic, realistic metal texture, realistic fabric photo, mature adult fashion illustration, sexy style, dark fantasy, horror, side view, 3/4 view, perspective angle, busy background, furniture, room, landscape, text, logo, watermark, attached to a character, messy linework, blurry transparent edges, oversized ornament, runway fashion editorial look",
+      "revisedPrompt": null,
+      "status": "ok",
+      "error": null,
+      "createdAt": "2026-03-29T22:31:31.321Z"
+    },
+    {
+      "id": "item-shoes-ribbon",
+      "filename": "item-shoes-ribbon.png",
+      "kind": "item",
+      "prompt": "cute princess encyclopedia style, dress-up game item, designed to match a princess dress-up doll style young girl base model, front view, soft pastel palette, clean outlines, slightly more elegant princess feeling, polished 2D illustration, child-friendly and tidy silhouette, paper doll friendly, transparent background, centered composition, high readability, no background, no text, no watermark, isolated ribbon shoes, front-facing pair of pastel pink princess shoes with ribbon decoration and small jewel accents, slim tidy child-friendly shape, designed for layering onto a dress-up doll feet area",
+      "negativePrompt": "photorealistic, realistic metal texture, realistic fabric photo, mature adult fashion illustration, sexy style, dark fantasy, horror, side view, 3/4 view, perspective angle, busy background, furniture, room, landscape, text, logo, watermark, attached to a character, messy linework, blurry transparent edges, oversized ornament, runway fashion editorial look",
+      "revisedPrompt": null,
+      "status": "ok",
+      "error": null,
+      "createdAt": "2026-03-29T22:31:49.156Z"
+    }
+  ]
+}

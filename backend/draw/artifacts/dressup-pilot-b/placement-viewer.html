@@ -1,0 +1,533 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Dressup Pilot Placement Viewer B</title>
+    <style>
+      :root { color-scheme: light; --text:#1e293b; --muted:#64748b; --line:rgba(244,114,182,.16); --panel:rgba(255,255,255,.92); }
+      * { box-sizing:border-box; }
+      body { margin:0; font-family:"Hiragino Sans","Yu Gothic",system-ui,sans-serif; color:var(--text); background:linear-gradient(180deg,#fff8fb 0%,#fff1f7 100%); }
+      main { width:min(1280px,calc(100% - 32px)); margin:0 auto; padding:24px 0 40px; }
+      h1 { margin:8px 0 10px; font-size:clamp(28px,4vw,40px); }
+      .lead { margin:0 0 20px; color:var(--muted); line-height:1.8; }
+      .layout { display:grid; grid-template-columns:minmax(320px,720px) minmax(340px,1fr); gap:20px; align-items:start; }
+      .panel { border:1px solid var(--line); border-radius:24px; background:var(--panel); box-shadow:0 24px 60px rgba(236,72,153,.12); }
+      .stage-panel { padding:18px; }
+      .stage { position:relative; width:min(100%,720px); aspect-ratio:1/1; margin:0 auto; overflow:hidden; border-radius:20px; background:radial-gradient(circle at top, rgba(255,255,255,.92), transparent 40%), linear-gradient(180deg, #fffdf5 0%, #fff4f8 100%); border:1px solid rgba(244,114,182,.14); }
+      .layer { position:absolute; inset:0; width:100%; height:100%; object-fit:contain; display:block; pointer-events:none; transform-origin:center center; }
+      .layer.selected { filter: drop-shadow(0 0 10px rgba(244,114,182,.46)); }
+      .crosshair { position:absolute; inset:0; pointer-events:none; background-image:linear-gradient(to right, transparent calc(50% - .5px), rgba(244,114,182,.16) calc(50% - .5px), rgba(244,114,182,.16) calc(50% + .5px), transparent calc(50% + .5px)), linear-gradient(to bottom, transparent calc(50% - .5px), rgba(244,114,182,.16) calc(50% - .5px), rgba(244,114,182,.16) calc(50% + .5px), transparent calc(50% + .5px)); }
+      .controls { padding:18px; display:grid; gap:14px; }
+      .control-group { border:1px solid rgba(148,163,184,.18); border-radius:18px; padding:12px; background:rgba(255,255,255,.88); display:grid; gap:10px; }
+      .row { display:flex; flex-wrap:wrap; gap:8px; align-items:center; }
+      .slot-btn,.mini-btn,.arrow-btn,select { border:1px solid rgba(51,65,85,.18); border-radius:12px; background:white; color:var(--text); padding:9px 12px; font-weight:700; cursor:pointer; }
+      .slot-btn.is-active { background:#0f172a; color:white; border-color:#0f172a; }
+      .slot-selects { display:grid; gap:8px; }
+      .slot-selects label { display:grid; gap:6px; font-size:13px; color:#64748b; }
+      .arrow-grid { display:grid; grid-template-columns:repeat(3,48px); grid-template-rows:repeat(2,44px); gap:8px; justify-content:center; }
+      .arrow-btn { padding:0; }
+      .arrow-up { grid-column:2; grid-row:1; }
+      .arrow-left { grid-column:1; grid-row:2; }
+      .arrow-down { grid-column:2; grid-row:2; }
+      .arrow-right { grid-column:3; grid-row:2; }
+      input[type="range"] { width:100%; }
+      textarea { width:100%; min-height:220px; resize:vertical; border-radius:16px; border:1px solid rgba(148,163,184,.24); padding:12px; font:12px/1.5 ui-monospace,SFMono-Regular,Menlo,monospace; color:#334155; }
+      .hint { margin:0; font-size:13px; color:var(--muted); line-height:1.7; }
+      @media (max-width:980px) { .layout { grid-template-columns:1fr; } }
+    </style>
+  </head>
+  <body>
+    <main>
+      <p style="margin:0;font-size:12px;letter-spacing:.22em;font-weight:700;color:#db2777;">DRESSUP PILOT PLACEMENT</p>
+      <h1>おしゃれゲーム 25点パイロット位置合わせビューアー</h1>
+      <p class="lead">各部位5点ずつのレイヤーを、同じ default 配置値で切り替え確認するビューアーです。部位ごとにアイテムを選び、画像クリックで選択、ドラッグ、微調整、scale、重なり順の調整ができます。</p>
+      <section class="layout">
+        <article class="panel stage-panel">
+          <div class="stage" id="stage">
+            <div class="crosshair"></div>
+            <img class="layer" src="../dressup-model-variants/model-princess-base-b.png" alt="人物モデルB" />
+            <img class="layer" data-slot="hair" alt="かみかざり" />
+            <img class="layer" data-slot="necklace" alt="ネックレス" />
+            <img class="layer" data-slot="top" alt="トップス" />
+            <img class="layer" data-slot="bottom" alt="ボトムス" />
+            <img class="layer" data-slot="leftShoe" alt="左くつ" />
+            <img class="layer" data-slot="rightShoe" alt="右くつ" />
+          </div>
+        </article>
+        <aside class="panel controls">
+          <div class="control-group">
+            <div class="slot-selects" id="slotSelects"></div>
+          </div>
+          <div class="control-group">
+            <div class="row" id="slotButtons"></div>
+            <label class="row"><input id="visibleToggle" type="checkbox" checked /> 表示する</label>
+          </div>
+          <div class="control-group">
+            <strong>ドラッグ / 微調整</strong>
+            <p class="hint">ステージ上でドラッグするか、下の矢印で1pxずつ動かせます。Shift + 矢印キーでも動かせます。</p>
+            <div class="arrow-grid">
+              <button class="arrow-btn arrow-up" data-dx="0" data-dy="-1" type="button">↑</button>
+              <button class="arrow-btn arrow-left" data-dx="-1" data-dy="0" type="button">←</button>
+              <button class="arrow-btn arrow-down" data-dx="0" data-dy="1" type="button">↓</button>
+              <button class="arrow-btn arrow-right" data-dx="1" data-dy="0" type="button">→</button>
+            </div>
+          </div>
+          <div class="control-group">
+            <strong>サイズ</strong>
+            <input id="scaleRange" type="range" min="0.4" max="1.8" step="0.01" value="1" />
+            <div class="row">
+              <button class="mini-btn" id="scaleDown" type="button">- 0.01</button>
+              <button class="mini-btn" id="scaleUp" type="button">+ 0.01</button>
+              <span id="scaleText">1.00</span>
+            </div>
+          </div>
+          <div class="control-group">
+            <strong>重なり順</strong>
+            <div class="row">
+              <button class="mini-btn" id="bringForward" type="button">前へ</button>
+              <button class="mini-btn" id="sendBackward" type="button">後ろへ</button>
+              <span id="zText">z: 0</span>
+            </div>
+          </div>
+          <div class="control-group">
+            <strong>JSON</strong>
+            <div class="row">
+              <button class="mini-btn" id="refreshJson" type="button">JSON を更新</button>
+              <button class="mini-btn" id="copyJson" type="button">コピー</button>
+            </div>
+            <textarea id="jsonOutput"></textarea>
+          </div>
+        </aside>
+      </section>
+    </main>
+    <script>
+      const state = {
+  "hair": {
+    "label": "ティアラ",
+    "visible": true,
+    "x": 0,
+    "y": -125,
+    "scale": 0.69,
+    "z": 5
+  },
+  "necklace": {
+    "label": "ネックレス",
+    "visible": true,
+    "x": -4,
+    "y": 20,
+    "scale": 0.82,
+    "z": 4
+  },
+  "top": {
+    "label": "トップス",
+    "visible": true,
+    "x": 0,
+    "y": -43,
+    "scale": 0.56,
+    "z": 3
+  },
+  "bottom": {
+    "label": "ボトムス",
+    "visible": true,
+    "x": 2,
+    "y": 14,
+    "scale": 0.82,
+    "z": 2
+  },
+  "leftShoe": {
+    "label": "左くつ",
+    "visible": true,
+    "x": 9,
+    "y": 85,
+    "scale": 0.8,
+    "z": 1
+  },
+  "rightShoe": {
+    "label": "右くつ",
+    "visible": true,
+    "x": -7,
+    "y": 85,
+    "scale": 0.8,
+    "z": 1
+  }
+};
+      const labels = Object.fromEntries(Object.entries(state).map(([key, value]) => [key, value.label]));
+      const slotCatalog = {
+  "hair": [
+    {
+      "id": "gold-tiara",
+      "label": "ティアラ",
+      "src": "normalized/item-hair-gold-tiara.png"
+    },
+    {
+      "id": "pink-ribbon",
+      "label": "ピンクのリボン",
+      "src": "normalized/item-hair-pink-ribbon.png"
+    },
+    {
+      "id": "sun-flower",
+      "label": "おはなのかざり",
+      "src": "normalized/item-hair-sun-flower.png"
+    },
+    {
+      "id": "star-pin",
+      "label": "ほしのピン",
+      "src": "normalized/item-hair-star-pin.png"
+    },
+    {
+      "id": "pearl-band",
+      "label": "パールカチューシャ",
+      "src": "normalized/item-hair-pearl-band.png"
+    }
+  ],
+  "necklace": [
+    {
+      "id": "heart-necklace",
+      "label": "ハートのネックレス",
+      "src": "normalized/item-necklace-heart-necklace.png"
+    },
+    {
+      "id": "pearl-necklace",
+      "label": "パールのネックレス",
+      "src": "normalized/item-necklace-pearl-necklace.png"
+    },
+    {
+      "id": "star-necklace",
+      "label": "ほしのネックレス",
+      "src": "normalized/item-necklace-star-necklace.png"
+    },
+    {
+      "id": "ribbon-choker",
+      "label": "りぼんチョーカー",
+      "src": "normalized/item-necklace-ribbon-choker.png"
+    },
+    {
+      "id": "gem-necklace",
+      "label": "ほうせきネックレス",
+      "src": "normalized/item-necklace-gem-necklace.png"
+    }
+  ],
+  "top": [
+    {
+      "id": "frill-blouse",
+      "label": "ふりふりブラウス",
+      "src": "normalized/item-top-frill-blouse.png"
+    },
+    {
+      "id": "pink-blouse",
+      "label": "ピンクのブラウス",
+      "src": "normalized/item-top-pink-blouse.png"
+    },
+    {
+      "id": "puff-blouse",
+      "label": "パフそでブラウス",
+      "src": "normalized/item-top-puff-blouse.png"
+    },
+    {
+      "id": "lace-top",
+      "label": "レーストップス",
+      "src": "normalized/item-top-lace-top.png"
+    },
+    {
+      "id": "cape-top",
+      "label": "ケープつきトップス",
+      "src": "normalized/item-top-cape-top.png"
+    }
+  ],
+  "bottom": [
+    {
+      "id": "frill-skirt",
+      "label": "フリルスカート",
+      "src": "normalized/item-bottom-frill-skirt.png"
+    },
+    {
+      "id": "pink-skirt",
+      "label": "ピンクのふんわりスカート",
+      "src": "normalized/item-bottom-pink-skirt.png"
+    },
+    {
+      "id": "lavender-longskirt",
+      "label": "ラベンダースカート",
+      "src": "normalized/item-bottom-lavender-longskirt.png"
+    },
+    {
+      "id": "denim-shorts",
+      "label": "デニムショート",
+      "src": "normalized/item-bottom-denim-shorts.png"
+    },
+    {
+      "id": "rain-pants",
+      "label": "レインパンツ",
+      "src": "normalized/item-bottom-rain-pants.png"
+    }
+  ],
+  "shoes": [
+    {
+      "id": "ribbon-shoes",
+      "label": "リボンシューズ",
+      "leftSrc": "split/item-shoes-ribbon-shoes-left.png",
+      "rightSrc": "split/item-shoes-ribbon-shoes-right.png"
+    },
+    {
+      "id": "pink-ballet",
+      "label": "ピンクのくつ",
+      "leftSrc": "split/item-shoes-pink-ballet-left.png",
+      "rightSrc": "split/item-shoes-pink-ballet-right.png"
+    },
+    {
+      "id": "white-pumps",
+      "label": "しろいパンプス",
+      "leftSrc": "split/item-shoes-white-pumps-left.png",
+      "rightSrc": "split/item-shoes-white-pumps-right.png"
+    },
+    {
+      "id": "yellow-rainboots",
+      "label": "レインブーツ",
+      "leftSrc": "split/item-shoes-yellow-rainboots-left.png",
+      "rightSrc": "split/item-shoes-yellow-rainboots-right.png"
+    },
+    {
+      "id": "blue-sneakers",
+      "label": "スニーカー",
+      "leftSrc": "split/item-shoes-blue-sneakers-left.png",
+      "rightSrc": "split/item-shoes-blue-sneakers-right.png"
+    }
+  ]
+};
+      const selectedItems = {
+        hair: slotCatalog.hair[0].id,
+        necklace: slotCatalog.necklace[0].id,
+        top: slotCatalog.top[0].id,
+        bottom: slotCatalog.bottom[0].id,
+        shoes: slotCatalog.shoes[0].id,
+      };
+      const stage = document.getElementById('stage');
+      const layerEls = Object.fromEntries([...stage.querySelectorAll('[data-slot]')].map((el) => [el.dataset.slot, el]));
+      const slotButtons = document.getElementById('slotButtons');
+      const slotSelects = document.getElementById('slotSelects');
+      const visibleToggle = document.getElementById('visibleToggle');
+      const scaleRange = document.getElementById('scaleRange');
+      const scaleText = document.getElementById('scaleText');
+      const zText = document.getElementById('zText');
+      const jsonOutput = document.getElementById('jsonOutput');
+      const refreshJsonBtn = document.getElementById('refreshJson');
+      const copyJsonBtn = document.getElementById('copyJson');
+      const bringForwardBtn = document.getElementById('bringForward');
+      const sendBackwardBtn = document.getElementById('sendBackward');
+      let activeSlot = 'hair';
+      let dragState = null;
+      const layerBitmaps = {};
+      const DRAG_THRESHOLD = 5;
+
+      function setSlotSources() {
+        const hairItem = slotCatalog.hair.find((item) => item.id === selectedItems.hair);
+        const necklaceItem = slotCatalog.necklace.find((item) => item.id === selectedItems.necklace);
+        const topItem = slotCatalog.top.find((item) => item.id === selectedItems.top);
+        const bottomItem = slotCatalog.bottom.find((item) => item.id === selectedItems.bottom);
+        const shoeItem = slotCatalog.shoes.find((item) => item.id === selectedItems.shoes);
+        layerEls.hair.src = hairItem.src;
+        layerEls.necklace.src = necklaceItem.src;
+        layerEls.top.src = topItem.src;
+        layerEls.bottom.src = bottomItem.src;
+        layerEls.leftShoe.src = shoeItem.leftSrc;
+        layerEls.rightShoe.src = shoeItem.rightSrc;
+      }
+
+      function renderSlotSelects() {
+        const sections = [
+          ['hair', 'かみかざり'],
+          ['necklace', 'ネックレス'],
+          ['top', 'トップス'],
+          ['bottom', 'ボトムス'],
+          ['shoes', 'くつ'],
+        ];
+        slotSelects.innerHTML = sections.map(([slot, label]) => {
+          const options = slotCatalog[slot].map((item) => '<option value="' + item.id + '"' + (selectedItems[slot] === item.id ? ' selected' : '') + '>' + item.label + '</option>').join('');
+          return '<label>' + label + '<select data-slot-select="' + slot + '">' + options + '</select></label>';
+        }).join('');
+        slotSelects.querySelectorAll('[data-slot-select]').forEach((select) => {
+          select.addEventListener('change', async () => {
+            selectedItems[select.dataset.slotSelect] = select.value;
+            setSlotSources();
+            await primeBitmaps();
+            render();
+          });
+        });
+      }
+
+      function renderSlotButtons() {
+        slotButtons.innerHTML = Object.entries(labels).map(([key, label]) =>
+          '<button class="slot-btn' + (key === activeSlot ? ' is-active' : '') + '" data-slot-btn="' + key + '" type="button">' + label + '</button>'
+        ).join('');
+        slotButtons.querySelectorAll('[data-slot-btn]').forEach((button) => {
+          button.addEventListener('click', () => {
+            activeSlot = button.dataset.slotBtn;
+            syncControls();
+            render();
+          });
+        });
+      }
+
+      function applyTransform(slot) {
+        const cfg = state[slot];
+        const el = layerEls[slot];
+        el.style.display = cfg.visible ? 'block' : 'none';
+        el.style.zIndex = String(cfg.z);
+        el.style.transform = 'translate(' + cfg.x + 'px,' + cfg.y + 'px) scale(' + cfg.scale + ')';
+        el.classList.toggle('selected', slot === activeSlot);
+      }
+
+      function render() {
+        Object.keys(layerEls).forEach(applyTransform);
+        renderSlotButtons();
+        jsonOutput.value = JSON.stringify({ placement: state, selectedItems }, null, 2);
+      }
+
+      function syncControls() {
+        const cfg = state[activeSlot];
+        visibleToggle.checked = cfg.visible;
+        scaleRange.value = cfg.scale;
+        scaleText.textContent = cfg.scale.toFixed(2);
+        zText.textContent = 'z: ' + cfg.z;
+      }
+
+      function moveActive(dx, dy) {
+        state[activeSlot].x += dx;
+        state[activeSlot].y += dy;
+        render();
+      }
+
+      function updateScale(delta) {
+        const cfg = state[activeSlot];
+        cfg.scale = Number(Math.max(0.4, Math.min(1.8, cfg.scale + delta)).toFixed(2));
+        syncControls();
+        render();
+      }
+
+      function sortSlotsByZ() {
+        return Object.keys(layerEls).sort((a, b) => state[b].z - state[a].z);
+      }
+
+      function swapZ(direction) {
+        const ordered = Object.keys(layerEls).sort((a, b) => state[a].z - state[b].z);
+        const index = ordered.indexOf(activeSlot);
+        const targetIndex = direction === 'forward' ? index + 1 : index - 1;
+        if (targetIndex < 0 || targetIndex >= ordered.length) return;
+        const otherSlot = ordered[targetIndex];
+        const currentZ = state[activeSlot].z;
+        state[activeSlot].z = state[otherSlot].z;
+        state[otherSlot].z = currentZ;
+        syncControls();
+        render();
+      }
+
+      function canvasCoordinates(event) {
+        const rect = stage.getBoundingClientRect();
+        return {
+          x: Math.round(((event.clientX - rect.left) / rect.width) * 1024),
+          y: Math.round(((event.clientY - rect.top) / rect.height) * 1024),
+        };
+      }
+
+      function isHit(slot, x, y) {
+        const bitmap = layerBitmaps[slot];
+        const cfg = state[slot];
+        if (!bitmap || !cfg.visible) return false;
+        const scale = cfg.scale;
+        const localX = Math.floor((x - cfg.x) / scale);
+        const localY = Math.floor((y - cfg.y) / scale);
+        if (localX < 0 || localY < 0 || localX >= bitmap.width || localY >= bitmap.height) return false;
+        const alpha = bitmap.data[(bitmap.width * localY + localX) * 4 + 3];
+        return alpha >= 16;
+      }
+
+      async function primeBitmaps() {
+        await Promise.all(Object.entries(layerEls).map(async ([slot, img]) => {
+          await img.decode().catch(() => {});
+          const canvas = document.createElement('canvas');
+          canvas.width = 1024;
+          canvas.height = 1024;
+          const context = canvas.getContext('2d');
+          context.clearRect(0, 0, 1024, 1024);
+          context.drawImage(img, 0, 0, 1024, 1024);
+          layerBitmaps[slot] = context.getImageData(0, 0, 1024, 1024);
+        }));
+      }
+
+      function pickTopSlot(x, y) {
+        for (const slot of sortSlotsByZ()) {
+          if (isHit(slot, x, y)) return slot;
+        }
+        return null;
+      }
+
+      visibleToggle.addEventListener('change', () => {
+        state[activeSlot].visible = visibleToggle.checked;
+        render();
+      });
+      scaleRange.addEventListener('input', () => {
+        state[activeSlot].scale = Number(scaleRange.value);
+        syncControls();
+        render();
+      });
+      document.getElementById('scaleDown').addEventListener('click', () => updateScale(-0.01));
+      document.getElementById('scaleUp').addEventListener('click', () => updateScale(0.01));
+      bringForwardBtn.addEventListener('click', () => swapZ('forward'));
+      sendBackwardBtn.addEventListener('click', () => swapZ('backward'));
+      stage.addEventListener('pointerdown', (event) => {
+        const point = canvasCoordinates(event);
+        const slot = pickTopSlot(point.x, point.y);
+        if (!slot) return;
+        activeSlot = slot;
+        syncControls();
+        render();
+        dragState = { slot, startX: event.clientX, startY: event.clientY, originX: state[slot].x, originY: state[slot].y, dragging: false };
+        stage.setPointerCapture(event.pointerId);
+      });
+      stage.addEventListener('pointermove', (event) => {
+        if (!dragState) return;
+        const dx = event.clientX - dragState.startX;
+        const dy = event.clientY - dragState.startY;
+        if (!dragState.dragging && Math.hypot(dx, dy) >= DRAG_THRESHOLD) dragState.dragging = true;
+        if (!dragState.dragging) return;
+        state[dragState.slot].x = dragState.originX + Math.round(dx * (1024 / stage.getBoundingClientRect().width));
+        state[dragState.slot].y = dragState.originY + Math.round(dy * (1024 / stage.getBoundingClientRect().height));
+        render();
+      });
+      const finishDrag = (event) => {
+        if (!dragState) return;
+        if (stage.hasPointerCapture(event.pointerId)) stage.releasePointerCapture(event.pointerId);
+        dragState = null;
+      };
+      stage.addEventListener('pointerup', finishDrag);
+      stage.addEventListener('pointercancel', finishDrag);
+      document.querySelectorAll('[data-dx]').forEach((button) => {
+        button.addEventListener('click', () => moveActive(Number(button.dataset.dx), Number(button.dataset.dy)));
+      });
+      window.addEventListener('keydown', (event) => {
+        if (!event.shiftKey) return;
+        if (event.key === 'ArrowUp') { event.preventDefault(); moveActive(0, -1); }
+        if (event.key === 'ArrowDown') { event.preventDefault(); moveActive(0, 1); }
+        if (event.key === 'ArrowLeft') { event.preventDefault(); moveActive(-1, 0); }
+        if (event.key === 'ArrowRight') { event.preventDefault(); moveActive(1, 0); }
+      });
+      refreshJsonBtn.addEventListener('click', () => { jsonOutput.value = JSON.stringify({ placement: state, selectedItems }, null, 2); });
+      copyJsonBtn.addEventListener('click', async () => {
+        jsonOutput.value = JSON.stringify({ placement: state, selectedItems }, null, 2);
+        try {
+          await navigator.clipboard.writeText(jsonOutput.value);
+          copyJsonBtn.textContent = 'コピーした';
+          setTimeout(() => { copyJsonBtn.textContent = 'コピー'; }, 1200);
+        } catch (_error) {
+          copyJsonBtn.textContent = '手でコピー';
+          setTimeout(() => { copyJsonBtn.textContent = 'コピー'; }, 1200);
+        }
+      });
+
+      renderSlotSelects();
+      setSlotSources();
+      primeBitmaps().then(() => { syncControls(); render(); });
+    </script>
+  </body>
+</html>
