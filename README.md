@@ -7,6 +7,11 @@ AWS リソース名・Region・識別情報は `docs/aws-resources.md` を参照
 AWS CLI の標準プロファイル（`codex-prod`）と実行主体も `docs/aws-resources.md` を参照してください。
 一時ファイルの cleanup（uploads/previews/outputs の削除）も `docs/aws-resources.md` を参照してください。
 
+## Experimental Branches
+
+- 作りかけの PNG 素材版 `おしゃれゲーム` 試作は `feature/dressup-next-png-spike` に退避しています。
+- `main` にはまだ適用していません。必要になったらそのブランチを参照してください。
+
 ## Repo Layout
 
 - `astro-blog/`
