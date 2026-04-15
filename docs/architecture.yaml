@@ -26,6 +26,7 @@ repo:
           - /draw/play/
           - /draw/result/
           - /games/
+          - /games/balloon-catch/
           - /games/dressup/
           - /games/match-quiz/
           - /games/janken/
@@ -81,6 +82,7 @@ site:
       - /draw/play/
       - /draw/result/
       - /games/
+      - /games/balloon-catch/
       - /games/dressup/
       - /games/match-quiz/
       - /games/janken/
@@ -174,6 +176,7 @@ features:
   mini_games:
     routes:
       - /games/
+      - /games/balloon-catch/
       - /games/dressup/
       - /games/match-quiz/
       - /games/janken/
@@ -185,16 +188,17 @@ features:
     behavior:
       - /games/ is the hub page for lightweight browser games
       - global nav links separately to /draw/ and /games/ to keep draw as a first-class feature
-      - /games/ includes the draw game as the featured card and links to eight lighter mini-games
-      - snake, maze, tic-tac-toe, reversi, janken, clock, dressup, and match-quiz are shipped as static Astro pages with client-side logic and no backend dependency
+      - /games/ includes the draw game as the featured card and links to nine lighter mini-games
+      - balloon-catch, snake, maze, tic-tac-toe, reversi, janken, clock, dressup, and match-quiz are shipped as static Astro pages with client-side logic and no backend dependency
+      - /games/balloon-catch/ is a 30-second balloon catching game where the player moves a dog horizontally to catch balloons thrown by a CPU character, offers おそい/ふつう/はやい difficulty settings, uses only pre-generated game assets, and draws the dog from the selected sprite sheet rather than separate dog pose images
       - /games/match-quiz/ is a local-first image-to-text multiple-choice quiz that starts from seeded sample sets, keeps quiz-start as the primary in-page CTA, stores cards in browser storage through a repository layer, and keeps quiz generation separate from the UI for future media/login/sync expansion
       - /games/match-quiz/ seeds read-only sample sets and lets users create or delete custom local sets; only custom sets can add or delete cards
       - /games/dressup/ is a theme-based outfit duel where the player dresses a mannequin by tapping body regions, each slot also offers a `なし` option, Chat-san chooses outfit parts in fixed order with about two seconds of visible thinking per part, and the round ends by asking which coordinate is preferred rather than auto-scoring
       - /games/janken/ provides Chat-san mode and local 1v1 mode, uses one-round matches, waits briefly before Chat-san reveals a hand, and uses sequential hidden input for local two-player play
       - /games/clock/ asks the player to match a target time by dragging the analog clock hands directly, carries the hour forward or backward when the minute hand crosses 12, offers やさしい/ふつう/むずかしい difficulty levels (whole hours / half hours / 5-minute steps), and checks correctness only when the player presses the answer button
       - /games/snake/ offers three speed modes (おそい / ふつう / はやい), defaults to ふつう on each visit, and applies the selected speed when the player presses start/restart
-      - /games/maze/ and /games/snake/ accept Gamepad API input in addition to keyboard and touch controls, with Android Chrome as the primary target environment
-      - /games/maze/ and /games/snake/ treat directional input as game-priority while the page is open, preventing page scroll and browser focus navigation from arrow-key-like controller input
+      - /games/balloon-catch/, /games/maze/, and /games/snake/ accept Gamepad API input in addition to keyboard and touch controls, with Android Chrome as the primary target environment
+      - /games/balloon-catch/, /games/maze/, and /games/snake/ treat directional input as game-priority while the page is open, preventing page scroll and browser focus navigation from arrow-key-like controller input
       - gamepad support maps D-pad and left stick to movement, uses a primary button for restart/start, and a secondary button for pause in snake
       - reversi provides AI play and local two-player mode, with localStorage used only for settings persistence
       - a dedicated Service Worker quietly enables offline use for /games/ and /games/* after those routes are visited once online

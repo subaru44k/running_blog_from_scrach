@@ -1,0 +1,616 @@
+---
+import Layout from '../../layouts/Layout.astro';
+
+const pageTitle = 'ふうせんゲーム｜ミニゲーム';
+const metaDescription = 'わんちゃんを左右に動かして、いたずらおじさんが投げる風船をキャッチする30秒のミニゲームです。';
+---
+
+<Layout
+  pageTitle={pageTitle}
+  metaDescription={metaDescription}
+  noSidebar={true}
+  pageHeading="ふうせんゲーム"
+  pageLead="いたずらおじさんが風船をどんどん投げるよ。わんちゃんを動かして、30秒でたくさんキャッチしよう。"
+>
+  <section class="grid gap-6 lg:grid-cols-[minmax(0,1fr)_18rem] lg:items-start">
+    <article class="card p-5 md:p-6">
+      <div class="bc-shell">
+        <div class="bc-top">
+          <div>
+            <p class="bc-kicker">MINI GAME</p>
+            <h2 class="bc-title">ふうせんゲーム</h2>
+          </div>
+          <div class="bc-score" id="scoreText">スコア: 0</div>
+        </div>
+
+        <div class="bc-status" id="statusText">むずかしさをえらんで、スタートしよう</div>
+
+        <div class="bc-settings">
+          <div class="bc-field">
+            <label for="difficultySelect">むずかしさ</label>
+            <select id="difficultySelect" aria-label="むずかしさ">
+              <option value="slow">おそい</option>
+              <option value="normal" selected>ふつう</option>
+              <option value="fast">はやい</option>
+            </select>
+          </div>
+          <button class="bc-btn bc-btn-primary" id="startBtn" type="button">スタート</button>
+        </div>
+
+        <div class="bc-meta" aria-live="polite">
+          <div class="bc-chip">
+            <span>のこり</span>
+            <strong id="timeText">30</strong>
+          </div>
+          <div class="bc-chip">
+            <span>キャッチ</span>
+            <strong id="catchText">0</strong>
+          </div>
+          <div class="bc-chip">
+            <span>そうさ</span>
+            <strong id="controlText">パッドOK</strong>
+          </div>
+        </div>
+
+        <div class="bc-stage-wrap">
+          <canvas id="balloonGame" width="960" height="540" aria-label="ふうせんゲーム"></canvas>
+          <div class="bc-result" id="resultPanel" hidden>
+            <div class="bc-result-card">
+              <p class="bc-result-kicker">おしまい</p>
+              <h3 id="resultTitle">よくできました</h3>
+              <p id="resultBody">スコア 0</p>
+              <button class="bc-btn bc-btn-primary" id="retryBtn" type="button">もういちど</button>
+            </div>
+          </div>
+        </div>
+
+        <p class="bc-hint">操作: PS5コントローラーの左スティック / 十字キー、キーボードの←→、画面タップ・ドラッグ</p>
+
+        <div class="mt-5 grid gap-4 md:grid-cols-2">
+          <div class="rounded-2xl border border-slate-200/80 bg-white/70 p-4 dark:border-slate-700/80 dark:bg-slate-900/60">
+            <h3 class="mt-0 text-base font-semibold">遊び方</h3>
+            <p class="mt-2 text-sm leading-7 text-slate-600 dark:text-slate-300">わんちゃんを左右に動かして、落ちてくる風船をキャッチします。キラキラ風船は高得点、あぶない風船は少しだけスコアが下がります。</p>
+          </div>
+          <div class="rounded-2xl border border-slate-200/80 bg-white/70 p-4 dark:border-slate-700/80 dark:bg-slate-900/60">
+            <h3 class="mt-0 text-base font-semibold">ちいさい子向け</h3>
+            <p class="mt-2 text-sm leading-7 text-slate-600 dark:text-slate-300">ふわっと落ちる風船を追いかけるだけの、短く遊べるゲームです。おそいモードなら、はじめてでも追いやすくしています。</p>
+          </div>
+        </div>
+      </div>
+    </article>
+
+    <aside class="panel-muted p-5">
+      <h2 class="text-lg font-semibold mt-0">ほかのゲーム</h2>
+      <div class="mt-4 flex flex-col gap-3 text-sm">
+        <span class="rounded-2xl border border-slate-900/15 bg-slate-900 px-4 py-3 font-semibold text-white dark:border-white/15 dark:bg-white dark:text-slate-950">ふうせんゲーム</span>
+        <a href="/games/dressup/" class="rounded-2xl border border-slate-200/80 bg-white/85 px-4 py-3 no-underline transition hover:bg-white dark:border-slate-700/80 dark:bg-slate-900/80 dark:hover:bg-slate-900">おしゃれゲーム</a>
+        <a href="/games/match-quiz/" class="rounded-2xl border border-slate-200/80 bg-white/85 px-4 py-3 no-underline transition hover:bg-white dark:border-slate-700/80 dark:bg-slate-900/80 dark:hover:bg-slate-900">えあわせクイズ</a>
+        <a href="/games/janken/" class="rounded-2xl border border-slate-200/80 bg-white/85 px-4 py-3 no-underline transition hover:bg-white dark:border-slate-700/80 dark:bg-slate-900/80 dark:hover:bg-slate-900">じゃんけんゲーム</a>
+        <a href="/games/clock/" class="rounded-2xl border border-slate-200/80 bg-white/85 px-4 py-3 no-underline transition hover:bg-white dark:border-slate-700/80 dark:bg-slate-900/80 dark:hover:bg-slate-900">とけいゲーム</a>
+        <a href="/games/snake/" class="rounded-2xl border border-slate-200/80 bg-white/85 px-4 py-3 no-underline transition hover:bg-white dark:border-slate-700/80 dark:bg-slate-900/80 dark:hover:bg-slate-900">スネークゲーム</a>
+        <a href="/games/maze/" class="rounded-2xl border border-slate-200/80 bg-white/85 px-4 py-3 no-underline transition hover:bg-white dark:border-slate-700/80 dark:bg-slate-900/80 dark:hover:bg-slate-900">めいろゲーム</a>
+        <a href="/games/tic-tac-toe/" class="rounded-2xl border border-slate-200/80 bg-white/85 px-4 py-3 no-underline transition hover:bg-white dark:border-slate-700/80 dark:bg-slate-900/80 dark:hover:bg-slate-900">まるばつゲーム</a>
+        <a href="/games/reversi/" class="rounded-2xl border border-slate-200/80 bg-white/85 px-4 py-3 no-underline transition hover:bg-white dark:border-slate-700/80 dark:bg-slate-900/80 dark:hover:bg-slate-900">リバーシ</a>
+        <a href="/draw/" class="rounded-2xl border border-slate-200/80 bg-white/85 px-4 py-3 no-underline transition hover:bg-white dark:border-slate-700/80 dark:bg-slate-900/80 dark:hover:bg-slate-900">お絵かきゲーム</a>
+      </div>
+    </aside>
+  </section>
+
+  <style>
+    .bc-shell { color: rgb(15 23 42); overscroll-behavior: contain; }
+    .bc-top { display:flex; justify-content:space-between; align-items:flex-start; gap:1rem; margin-bottom:1rem; }
+    .bc-kicker { margin:0; font-size:.72rem; letter-spacing:.24em; font-weight:700; color:rgb(100 116 139); }
+    .bc-title { margin:.35rem 0 0; font-size:1.65rem; }
+    .bc-score { font-weight:800; border:1px solid rgba(148,163,184,.35); background:rgba(255,255,255,.86); border-radius:999px; padding:.65rem 1rem; white-space:nowrap; }
+    .bc-status { margin-bottom:1rem; font-weight:800; padding:.95rem 1rem; border-radius:1rem; background:linear-gradient(135deg, rgba(253,244,255,.92), rgba(224,242,254,.88)); border:1px solid rgba(148,163,184,.28); }
+    .bc-settings { display:grid; grid-template-columns:minmax(0,1fr) auto; gap:.75rem; margin-bottom:1rem; }
+    .bc-field { display:grid; gap:.35rem; }
+    .bc-field label { font-size:.86rem; font-weight:800; color:rgb(71 85 105); }
+    .bc-field select,
+    .bc-btn {
+      border:1px solid rgba(51,65,85,.22);
+      border-radius:1rem;
+      background:rgba(255,255,255,.92);
+      color:rgb(15 23 42);
+      font-weight:800;
+      padding:.8rem 1rem;
+    }
+    .bc-btn { cursor:pointer; transition:transform .15s ease, background-color .15s ease; }
+    .bc-btn:hover { transform:translateY(-1px); background:white; }
+    .bc-btn-primary { background:rgb(15 23 42); color:white; border-color:rgb(15 23 42); }
+    .bc-btn-primary:hover { background:rgb(30 41 59); }
+    .bc-meta { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:.75rem; margin-bottom:1rem; }
+    .bc-chip { display:grid; gap:.2rem; border:1px solid rgba(148,163,184,.35); border-radius:1rem; background:rgba(255,255,255,.82); padding:.75rem .9rem; }
+    .bc-chip span { font-size:.75rem; font-weight:800; color:rgb(100 116 139); }
+    .bc-chip strong { font-size:1.2rem; line-height:1.1; }
+    .bc-stage-wrap { position:relative; border:1px solid rgba(51,65,85,.18); border-radius:1.25rem; overflow:hidden; background:linear-gradient(180deg,#dff8ff,#f9f7ff); box-shadow: inset 0 1px 0 rgba(255,255,255,.8); }
+    #balloonGame { display:block; width:100%; height:auto; aspect-ratio:16 / 9; touch-action:none; user-select:none; }
+    .bc-result { position:absolute; inset:0; display:grid; place-items:center; background:rgba(15,23,42,.38); padding:1rem; }
+    .bc-result[hidden] { display:none; }
+    .bc-result-card { width:min(90%, 24rem); border-radius:1.25rem; background:rgba(255,255,255,.95); padding:1.4rem; text-align:center; box-shadow:0 18px 45px rgba(15,23,42,.25); }
+    .bc-result-card h3 { margin:.2rem 0 .5rem; font-size:1.7rem; }
+    .bc-result-card p { margin:.45rem 0 1rem; color:rgb(71 85 105); font-weight:800; }
+    .bc-result-kicker { margin:0; font-size:.75rem; letter-spacing:.22em; color:rgb(100 116 139); }
+    .bc-hint { margin-top:1rem; color:rgb(71 85 105); font-size:.95rem; line-height:1.7; }
+    @media (max-width: 560px) {
+      .bc-top { align-items:stretch; flex-direction:column; }
+      .bc-score { justify-self:start; }
+      .bc-settings { grid-template-columns:1fr; }
+      .bc-meta { grid-template-columns:repeat(3,minmax(0,1fr)); gap:.45rem; }
+      .bc-chip { padding:.65rem .55rem; }
+      .bc-chip strong { font-size:1rem; }
+      .bc-hint { font-size:.86rem; }
+    }
+  </style>
+
+  <script type="module">
+    import { createGamepadController } from '/scripts/games/gamepad.js';
+    import { createGameInputLock } from '/scripts/games/keyboard-lock.js';
+
+    const ASSETS = {
+      dogSpriteSheet: '/images/games/balloon-catch/dog-sprite-sheet-original-prompt.png',
+      cpu: '/images/games/balloon-catch/cpu-man-throwing-balloon.png',
+      balloons: {
+        normal: '/images/games/balloon-catch/balloon-normal.png',
+        rare: '/images/games/balloon-catch/balloon-rare-sparkling.png',
+        danger: '/images/games/balloon-catch/balloon-dangerous.png',
+      },
+      background: '/images/games/balloon-catch/park-background.png',
+    };
+
+    const canvas = document.getElementById('balloonGame');
+    const ctx = canvas.getContext('2d');
+    const scoreText = document.getElementById('scoreText');
+    const statusText = document.getElementById('statusText');
+    const timeText = document.getElementById('timeText');
+    const catchText = document.getElementById('catchText');
+    const controlText = document.getElementById('controlText');
+    const difficultySelect = document.getElementById('difficultySelect');
+    const startBtn = document.getElementById('startBtn');
+    const retryBtn = document.getElementById('retryBtn');
+    const resultPanel = document.getElementById('resultPanel');
+    const resultTitle = document.getElementById('resultTitle');
+    const resultBody = document.getElementById('resultBody');
+
+    const DIFFICULTIES = {
+      slow: { label: 'おそい', spawnMs: 1500, riseSpeed: 160, fallSpeed: 115, maxBalloons: 1, sway: 18 },
+      normal: { label: 'ふつう', spawnMs: 1100, riseSpeed: 185, fallSpeed: 145, maxBalloons: 3, sway: 28 },
+      fast: { label: 'はやい', spawnMs: 800, riseSpeed: 215, fallSpeed: 175, maxBalloons: 4, sway: 42 },
+    };
+    const PLAY_MIN_X = 45;
+    const PLAY_MAX_X = 915;
+    const GROUND_Y = 505;
+    const DOG_DRAW_W = 122;
+    const DOG_DRAW_H = 116;
+    const DOG_SOURCE_H = 300;
+    const DOG_SOURCE_FOOT_Y = 248;
+    const DOG_FOOT_OFFSET_Y = DOG_DRAW_H * (DOG_SOURCE_H - DOG_SOURCE_FOOT_Y) / DOG_SOURCE_H;
+    const DOG_FOOT_Y = GROUND_Y - 6;
+    const DOG_DRAW_BOTTOM_Y = DOG_FOOT_Y + DOG_FOOT_OFFSET_Y;
+    const BALLOON_MIN_X = 55;
+    const BALLOON_MAX_X = 905;
+    const BALLOON_THROW_Y = 360;
+    const BALLOON_PEAK_MIN_Y = 34;
+    const BALLOON_PEAK_MAX_Y = 92;
+    const BALLOON_SCORE = { normal: 1, rare: 3, danger: -1 };
+    const BALLOON_SIZE = { normal: 54, rare: 62, danger: 58 };
+    const DOG_FRAME_BOXES = [
+      { x: 35, y: 350, w: 195, h: 300 },
+      { x: 255, y: 350, w: 170, h: 300 },
+      { x: 420, y: 350, w: 195, h: 300 },
+      { x: 625, y: 350, w: 180, h: 300 },
+      { x: 820, y: 350, w: 180, h: 300 },
+      { x: 1045, y: 350, w: 190, h: 300 },
+      { x: 1275, y: 350, w: 180, h: 300 },
+    ];
+    const DOG_FRAMES = {
+      idle: [0, 1],
+      running: [2, 3, 4],
+      catching: [5, 6],
+    };
+
+    const images = {};
+    let phase = 'title';
+    let difficulty = 'normal';
+    let player = { x: 480, y: DOG_DRAW_BOTTOM_Y, targetX: 480, direction: 0, lastCatchAt: -1000 };
+    let balloons = [];
+    let score = 0;
+    let caughtCount = 0;
+    let lastSpawnAt = 0;
+    let startedAt = 0;
+    let lastFrameAt = 0;
+    let messageUntil = 0;
+    let rafId = 0;
+    let balloonId = 1;
+    let pointerActive = false;
+    let gamepadDirection = 0;
+    let gamepadDirectionUntil = 0;
+    let keyboardDirection = 0;
+
+    function loadImage(src) {
+      return new Promise((resolve) => {
+        const image = new Image();
+        image.onload = () => resolve(image);
+        image.onerror = () => resolve(null);
+        image.src = src;
+      });
+    }
+
+    async function preloadAssets() {
+      const entries = [
+        ['dogSpriteSheet', ASSETS.dogSpriteSheet],
+        ['cpu', ASSETS.cpu],
+        ['background', ASSETS.background],
+        ['balloonNormal', ASSETS.balloons.normal],
+        ['balloonRare', ASSETS.balloons.rare],
+        ['balloonDanger', ASSETS.balloons.danger],
+      ];
+      await Promise.all(entries.map(async ([key, src]) => {
+        images[key] = await loadImage(src);
+      }));
+      updateControlText();
+      draw(0);
+    }
+
+    function updateControlText() {
+      const hasGamepad = typeof navigator !== 'undefined' && Array.from(navigator.getGamepads?.() ?? []).some(Boolean);
+      controlText.textContent = hasGamepad ? 'パッドOK' : 'タッチOK';
+    }
+
+    function setStatus(text, durationMs = 0) {
+      statusText.textContent = text;
+      messageUntil = durationMs ? performance.now() + durationMs : 0;
+    }
+
+    function updateHud() {
+      const elapsed = phase === 'playing' ? performance.now() - startedAt : 0;
+      const remaining = phase === 'playing' ? Math.max(0, Math.ceil((30000 - elapsed) / 1000)) : phase === 'finished' ? 0 : 30;
+      scoreText.textContent = `スコア: ${score}`;
+      timeText.textContent = String(remaining);
+      catchText.textContent = String(caughtCount);
+    }
+
+    function clamp(value, min, max) {
+      return Math.max(min, Math.min(max, value));
+    }
+
+    function randomBetween(min, max) {
+      return min + Math.random() * (max - min);
+    }
+
+    function resetGame() {
+      difficulty = difficultySelect.value;
+      player = { x: 480, y: DOG_DRAW_BOTTOM_Y, targetX: 480, direction: 0, lastCatchAt: -1000 };
+      balloons = [];
+      score = 0;
+      caughtCount = 0;
+      lastSpawnAt = 0;
+      balloonId = 1;
+      resultPanel.hidden = true;
+      updateHud();
+    }
+
+    function startGame() {
+      resetGame();
+      phase = 'playing';
+      startedAt = performance.now();
+      lastFrameAt = startedAt;
+      setStatus(`${DIFFICULTIES[difficulty].label}モード。ふうせんをキャッチしよう`);
+      startBtn.textContent = 'さいしょから';
+    }
+
+    function finishGame() {
+      phase = 'finished';
+      balloons = [];
+      updateHud();
+      resultTitle.textContent = score >= 18 ? 'すごいキャッチ！' : score >= 9 ? 'よくできました' : 'またやってみよう';
+      resultBody.textContent = `スコア ${score}、キャッチ ${caughtCount}こ`;
+      resultPanel.hidden = false;
+      setStatus('30びょう おしまい');
+    }
+
+    function chooseBalloonKind() {
+      const value = Math.random();
+      if (value < 0.14) return 'rare';
+      if (value < 0.26) return 'danger';
+      return 'normal';
+    }
+
+    function spawnBalloon(now) {
+      const settings = DIFFICULTIES[difficulty];
+      if (balloons.length >= settings.maxBalloons) return;
+      let originX = randomBetween(BALLOON_MIN_X, BALLOON_MAX_X);
+      for (let attempts = 0; attempts < 4; attempts += 1) {
+        const tooClose = balloons.some((balloon) => Math.abs(balloon.originX - originX) < 120);
+        if (!tooClose) break;
+        originX = randomBetween(BALLOON_MIN_X, BALLOON_MAX_X);
+      }
+      const peakY = randomBetween(BALLOON_PEAK_MIN_Y, BALLOON_PEAK_MAX_Y);
+      balloons.push({
+        id: balloonId,
+        kind: chooseBalloonKind(),
+        x: originX,
+        y: BALLOON_THROW_Y,
+        originX,
+        age: 0,
+        phase: 'rising',
+        peakY,
+        swaySeed: Math.random() * Math.PI * 2,
+        bornAt: now,
+      });
+      balloonId += 1;
+      lastSpawnAt = now;
+    }
+
+    function updateBalloons(dt, now) {
+      const settings = DIFFICULTIES[difficulty];
+      const next = [];
+      for (const balloon of balloons) {
+        balloon.age += dt;
+        if (balloon.phase === 'rising') {
+          balloon.y -= settings.riseSpeed * dt;
+          if (balloon.y <= balloon.peakY) balloon.phase = 'falling';
+        } else {
+          balloon.y += settings.fallSpeed * dt;
+          const driftToPlayer = (player.x - balloon.originX) * 0.08 * Math.min(1, balloon.age / 2.2);
+          balloon.x = clamp(balloon.originX + driftToPlayer + Math.sin(balloon.age * 2.2 + balloon.swaySeed) * settings.sway, BALLOON_MIN_X, BALLOON_MAX_X);
+        }
+        if (balloon.phase === 'rising') {
+          balloon.x = clamp(balloon.originX + Math.sin(balloon.age * 2 + balloon.swaySeed) * settings.sway * 0.45, BALLOON_MIN_X, BALLOON_MAX_X);
+        }
+        if (isCaught(balloon)) {
+          const delta = BALLOON_SCORE[balloon.kind];
+          score = Math.max(0, score + delta);
+          caughtCount += 1;
+          player.lastCatchAt = now;
+          setStatus(delta > 1 ? 'キラキラふうせん！' : delta < 0 ? 'あぶないふうせんだった' : 'キャッチ！', 850);
+          continue;
+        }
+        if (balloon.y >= GROUND_Y) {
+          if (now > messageUntil) setStatus('おちちゃった。つぎをねらおう', 650);
+          continue;
+        }
+        next.push(balloon);
+      }
+      balloons = next;
+    }
+
+    function isCaught(balloon) {
+      if (balloon.phase !== 'falling') return false;
+      return balloon.x >= player.x - 54 && balloon.x <= player.x + 54 && balloon.y >= DOG_FOOT_Y - 112 && balloon.y <= DOG_FOOT_Y + 10;
+    }
+
+    function updatePlayer(dt, now) {
+      if (gamepadDirectionUntil < now) gamepadDirection = 0;
+      const direction = keyboardDirection || gamepadDirection;
+      if (direction) {
+        player.x += direction * 360 * dt;
+        player.targetX = player.x;
+      } else {
+        player.x += (player.targetX - player.x) * Math.min(1, dt * 8);
+      }
+      player.x = clamp(player.x, PLAY_MIN_X, PLAY_MAX_X);
+      player.direction = direction || Math.sign(player.targetX - player.x);
+    }
+
+    function step(now) {
+      const dt = Math.min(0.04, (now - lastFrameAt) / 1000 || 0);
+      lastFrameAt = now;
+      if (phase === 'playing') {
+        const elapsed = now - startedAt;
+        if (elapsed >= 30000) {
+          finishGame();
+        } else {
+          const settings = DIFFICULTIES[difficulty];
+          updatePlayer(dt, now);
+          if (!lastSpawnAt || now - lastSpawnAt >= settings.spawnMs) spawnBalloon(now);
+          updateBalloons(dt, now);
+          updateHud();
+          if (messageUntil && now > messageUntil) {
+            setStatus(`${settings.label}モード。ふうせんをキャッチしよう`);
+          }
+        }
+      }
+      draw(now);
+      rafId = requestAnimationFrame(step);
+    }
+
+    function drawCover(image, x, y, width, height) {
+      if (!image) {
+        const gradient = ctx.createLinearGradient(0, 0, 0, height);
+        gradient.addColorStop(0, '#dff8ff');
+        gradient.addColorStop(1, '#e9fbd7');
+        ctx.fillStyle = gradient;
+        ctx.fillRect(x, y, width, height);
+        return;
+      }
+      const scale = Math.max(width / image.width, height / image.height);
+      const sw = width / scale;
+      const sh = height / scale;
+      const sx = (image.width - sw) / 2;
+      const sy = (image.height - sh) / 2;
+      ctx.drawImage(image, sx, sy, sw, sh, x, y, width, height);
+    }
+
+    function drawCpu(now) {
+      const image = images.cpu;
+      const bounce = phase === 'playing' && performance.now() - lastSpawnAt < 220 ? -8 : 0;
+      if (image) {
+        ctx.drawImage(image, 690, 140 + bounce, 190, 190);
+      } else {
+        ctx.fillStyle = '#fbbf24';
+        ctx.beginPath();
+        ctx.arc(780, 230 + bounce, 42, 0, Math.PI * 2);
+        ctx.fill();
+      }
+    }
+
+    function currentDogFrame(now) {
+      if (now - player.lastCatchAt < 260) {
+        return DOG_FRAMES.catching[Math.floor(now / 130) % DOG_FRAMES.catching.length];
+      }
+      if (phase === 'playing' && (Math.abs(player.direction) > 0 || Math.abs(player.targetX - player.x) > 5)) {
+        return DOG_FRAMES.running[Math.floor(now / 110) % DOG_FRAMES.running.length];
+      }
+      return DOG_FRAMES.idle[Math.floor(now / 420) % DOG_FRAMES.idle.length];
+    }
+
+    function drawDog(now) {
+      const image = images.dogSpriteSheet;
+      const dw = DOG_DRAW_W;
+      const dh = DOG_DRAW_H;
+      const dx = player.x - dw / 2;
+      const dy = player.y - dh;
+      if (!image) {
+        ctx.fillStyle = '#fff7df';
+        ctx.beginPath();
+        ctx.ellipse(player.x, player.y - 46, 48, 36, 0, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.fillStyle = '#d8a06f';
+        ctx.beginPath();
+        ctx.ellipse(player.x - 34, player.y - 58, 16, 22, 0.4, 0, Math.PI * 2);
+        ctx.ellipse(player.x + 34, player.y - 58, 16, 22, -0.4, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.fillStyle = '#2f241f';
+        ctx.beginPath();
+        ctx.arc(player.x - 14, player.y - 50, 4, 0, Math.PI * 2);
+        ctx.arc(player.x + 14, player.y - 50, 4, 0, Math.PI * 2);
+        ctx.fill();
+        return;
+      }
+      const frame = currentDogFrame(now);
+      const box = DOG_FRAME_BOXES[frame] ?? DOG_FRAME_BOXES[0];
+      ctx.drawImage(image, box.x, box.y, box.w, box.h, dx, dy, dw, dh);
+    }
+
+    function drawBalloon(balloon, now) {
+      const key = balloon.kind === 'rare' ? 'balloonRare' : balloon.kind === 'danger' ? 'balloonDanger' : 'balloonNormal';
+      const image = images[key];
+      const baseSize = BALLOON_SIZE[balloon.kind];
+      const pulse = balloon.kind === 'rare' ? Math.sin(now / 160) * 4 : 0;
+      const size = baseSize + pulse;
+      ctx.save();
+      ctx.translate(balloon.x, balloon.y);
+      if (balloon.kind === 'danger') ctx.rotate(Math.sin(now / 300) * 0.12);
+      if (image) {
+        ctx.drawImage(image, -size / 2, -size / 2, size, size);
+      } else {
+        ctx.fillStyle = balloon.kind === 'rare' ? '#c084fc' : balloon.kind === 'danger' ? '#fb923c' : '#f9a8d4';
+        ctx.beginPath();
+        ctx.ellipse(0, -6, size * 0.35, size * 0.42, 0, 0, Math.PI * 2);
+        ctx.fill();
+      }
+      ctx.restore();
+    }
+
+    function draw(now) {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      drawCover(images.background, 0, 0, canvas.width, canvas.height);
+      ctx.fillStyle = 'rgba(255,255,255,.62)';
+      ctx.fillRect(0, 0, canvas.width, 58);
+      ctx.fillStyle = 'rgba(255,255,255,.42)';
+      ctx.fillRect(0, GROUND_Y - 25, canvas.width, canvas.height - (GROUND_Y - 25));
+      drawCpu(now);
+      for (const balloon of balloons) drawBalloon(balloon, now);
+      drawDog(now);
+      if (phase === 'title') {
+        ctx.fillStyle = 'rgba(255,255,255,.72)';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        ctx.fillStyle = '#334155';
+        ctx.font = '700 34px system-ui, sans-serif';
+        ctx.textAlign = 'center';
+        ctx.fillText('スタートで はじめよう', canvas.width / 2, 248);
+        ctx.font = '700 22px system-ui, sans-serif';
+        ctx.fillText('わんちゃんで ふうせんをキャッチ！', canvas.width / 2, 286);
+      }
+    }
+
+    function canvasPoint(event) {
+      const rect = canvas.getBoundingClientRect();
+      const x = ((event.clientX - rect.left) / rect.width) * canvas.width;
+      const y = ((event.clientY - rect.top) / rect.height) * canvas.height;
+      return { x, y };
+    }
+
+    function handlePointer(event) {
+      const point = canvasPoint(event);
+      player.targetX = clamp(point.x, PLAY_MIN_X, PLAY_MAX_X);
+      if (phase === 'title') startGame();
+    }
+
+    startBtn.addEventListener('click', startGame);
+    retryBtn.addEventListener('click', startGame);
+    difficultySelect.addEventListener('change', (event) => {
+      difficulty = event.target.value;
+      if (phase !== 'playing') {
+        setStatus(`${DIFFICULTIES[difficulty].label}モードであそぶよ`);
+      }
+    });
+    canvas.addEventListener('pointerdown', (event) => {
+      pointerActive = true;
+      try {
+        canvas.setPointerCapture?.(event.pointerId);
+      } catch {
+        // Some synthetic or browser-emulated pointer events cannot be captured.
+      }
+      handlePointer(event);
+    });
+    canvas.addEventListener('pointermove', (event) => {
+      if (!pointerActive) return;
+      handlePointer(event);
+    });
+    canvas.addEventListener('pointerup', (event) => {
+      pointerActive = false;
+      try {
+        if (canvas.hasPointerCapture?.(event.pointerId)) canvas.releasePointerCapture(event.pointerId);
+      } catch {
+        // Ignore pointer capture cleanup failures from synthetic events.
+      }
+    });
+    canvas.addEventListener('pointercancel', () => { pointerActive = false; });
+
+    const stopKeyboardLock = createGameInputLock({
+      keys: ['ArrowLeft', 'ArrowRight', 'a', 'd', ' '],
+      onKey: (key) => {
+        if (key === 'arrowleft' || key === 'a') keyboardDirection = -1;
+        if (key === 'arrowright' || key === 'd') keyboardDirection = 1;
+        if (key === ' ') {
+          if (phase !== 'playing') startGame();
+        }
+      },
+    });
+    window.addEventListener('keyup', (event) => {
+      const key = event.key.toLowerCase();
+      if ((key === 'arrowleft' || key === 'a') && keyboardDirection === -1) keyboardDirection = 0;
+      if ((key === 'arrowright' || key === 'd') && keyboardDirection === 1) keyboardDirection = 0;
+    }, { capture: true });
+
+    const stopGamepad = createGamepadController({
+      onDirection: (direction) => {
+        if (direction === 'left') gamepadDirection = -1;
+        else if (direction === 'right') gamepadDirection = 1;
+        else return;
+        gamepadDirectionUntil = performance.now() + 140;
+      },
+      onPrimary: () => {
+        if (phase !== 'playing') startGame();
+      },
+      directionRepeatMs: 60,
+    });
+
+    window.addEventListener('gamepadconnected', updateControlText);
+    window.addEventListener('gamepaddisconnected', updateControlText);
+    window.addEventListener('pagehide', () => {
+      stopGamepad();
+      stopKeyboardLock();
+      if (rafId) cancelAnimationFrame(rafId);
+    }, { once: true });
+
+    resetGame();
+    preloadAssets();
+    rafId = requestAnimationFrame((now) => {
+      lastFrameAt = now;
+      step(now);
+    });
+  </script>
+</Layout>
