@@ -1,0 +1,253 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import MatchQuizApp from '../../components/games/MatchQuizApp';
+
+const pageTitle = 'えあわせクイズ｜ミニゲーム';
+const metaDescription = '画像を見て答えを4択で当てる、すぐ始められるえあわせクイズです。サンプルセットつきで問題の追加や削除もできます。';
+---
+
+<Layout
+  pageTitle={pageTitle}
+  metaDescription={metaDescription}
+  noSidebar={true}
+  pageHeading="えあわせクイズ"
+  pageLead="画像とことばの組み合わせを覚えるための、シンプルな4択クイズです。サンプルですぐ始められて、問題の追加や削除もできます。"
+>
+  <section class="grid gap-6 lg:grid-cols-[minmax(0,1fr)_18rem] lg:items-start">
+    <article class="card p-5 md:p-6">
+      <MatchQuizApp client:load />
+    </article>
+
+    <aside class="panel-muted p-5">
+      <h2 class="text-lg font-semibold mt-0">ほかのゲーム</h2>
+      <div class="mt-4 flex flex-col gap-3 text-sm">
+        <a href="/games/dressup/" class="rounded-2xl border border-slate-200/80 bg-white/85 px-4 py-3 no-underline transition hover:bg-white dark:border-slate-700/80 dark:bg-slate-900/80 dark:hover:bg-slate-900">おしゃれゲーム</a>
+        <a href="/games/janken/" class="rounded-2xl border border-slate-200/80 bg-white/85 px-4 py-3 no-underline transition hover:bg-white dark:border-slate-700/80 dark:bg-slate-900/80 dark:hover:bg-slate-900">じゃんけんゲーム</a>
+        <a href="/games/clock/" class="rounded-2xl border border-slate-200/80 bg-white/85 px-4 py-3 no-underline transition hover:bg-white dark:border-slate-700/80 dark:bg-slate-900/80 dark:hover:bg-slate-900">とけいゲーム</a>
+        <a href="/games/snake/" class="rounded-2xl border border-slate-200/80 bg-white/85 px-4 py-3 no-underline transition hover:bg-white dark:border-slate-700/80 dark:bg-slate-900/80 dark:hover:bg-slate-900">スネークゲーム</a>
+        <a href="/games/maze/" class="rounded-2xl border border-slate-200/80 bg-white/85 px-4 py-3 no-underline transition hover:bg-white dark:border-slate-700/80 dark:bg-slate-900/80 dark:hover:bg-slate-900">めいろゲーム</a>
+        <a href="/games/tic-tac-toe/" class="rounded-2xl border border-slate-200/80 bg-white/85 px-4 py-3 no-underline transition hover:bg-white dark:border-slate-700/80 dark:bg-slate-900/80 dark:hover:bg-slate-900">まるばつゲーム</a>
+        <a href="/games/reversi/" class="rounded-2xl border border-slate-200/80 bg-white/85 px-4 py-3 no-underline transition hover:bg-white dark:border-slate-700/80 dark:bg-slate-900/80 dark:hover:bg-slate-900">リバーシ</a>
+        <span class="rounded-2xl border border-slate-900/15 bg-slate-900 px-4 py-3 font-semibold text-white dark:border-white/15 dark:bg-white dark:text-slate-950">えあわせクイズ</span>
+        <a href="/draw/" class="rounded-2xl border border-slate-200/80 bg-white/85 px-4 py-3 no-underline transition hover:bg-white dark:border-slate-700/80 dark:bg-slate-900/80 dark:hover:bg-slate-900">お絵かきゲーム</a>
+      </div>
+    </aside>
+  </section>
+
+  <style is:global>
+    .mq-shell {
+      color: rgb(15 23 42);
+    }
+    .mq-tab,
+    .mq-btn,
+    .mq-choice,
+    .mq-select,
+    .mq-input,
+    .mq-file {
+      border: 1px solid rgba(51, 65, 85, 0.22);
+      border-radius: 1rem;
+      background: rgba(255, 255, 255, 0.92);
+      color: rgb(15 23 42);
+      font-weight: 700;
+      transition: transform 0.15s ease, background-color 0.15s ease, border-color 0.15s ease;
+    }
+    .mq-tab,
+    .mq-btn,
+    .mq-choice {
+      padding: 0.8rem 1rem;
+      cursor: pointer;
+    }
+    .mq-tab:hover,
+    .mq-btn:hover,
+    .mq-choice:hover:not(:disabled) {
+      transform: translateY(-1px);
+      background: white;
+    }
+    .mq-tab-current,
+    .mq-btn-primary {
+      background: rgb(15 23 42);
+      border-color: rgb(15 23 42);
+      color: white;
+    }
+    .mq-set-card {
+      display: grid;
+      gap: 0.4rem;
+      text-align: left;
+      padding: 1.1rem 1rem;
+      border-radius: 1.3rem;
+      border: 1px solid rgba(148, 163, 184, 0.35);
+      background: rgba(255, 255, 255, 0.88);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,.78);
+      cursor: pointer;
+      transition: transform 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
+    }
+    .mq-set-card:hover {
+      transform: translateY(-1px);
+      border-color: rgba(37, 99, 235, 0.35);
+      box-shadow: 0 10px 20px rgba(148, 163, 184, 0.14);
+    }
+    .mq-set-card-current {
+      border-color: rgba(37, 99, 235, 0.42);
+      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.14);
+    }
+    .mq-set-title {
+      font-size: 1.1rem;
+      font-weight: 800;
+      color: rgb(15 23 42);
+    }
+    .mq-set-sub {
+      font-size: 0.82rem;
+      color: rgb(37 99 235);
+    }
+    .mq-set-hint {
+      font-size: 0.92rem;
+      line-height: 1.7;
+      color: rgb(71 85 105);
+    }
+    .mq-choice {
+      text-align: left;
+    }
+    .mq-choice:disabled {
+      cursor: default;
+    }
+    .mq-mode-card {
+      display: grid;
+      gap: 0.45rem;
+      text-align: left;
+      padding: 1rem;
+      border-radius: 1.25rem;
+      border: 1px solid rgba(148, 163, 184, 0.35);
+      background: rgba(255, 255, 255, 0.88);
+      cursor: pointer;
+      transition: transform 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease, background-color 0.15s ease;
+    }
+    .mq-mode-card:hover {
+      transform: translateY(-1px);
+      border-color: rgba(37, 99, 235, 0.35);
+      background: white;
+      box-shadow: 0 10px 20px rgba(148, 163, 184, 0.14);
+    }
+    .mq-mode-card-current {
+      border-color: rgba(37, 99, 235, 0.5);
+      background: rgba(239, 246, 255, 0.95);
+      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.14);
+    }
+    .mq-mode-kicker {
+      font-size: 0.72rem;
+      font-weight: 800;
+      letter-spacing: 0.18em;
+      color: rgb(37 99 235);
+    }
+    .mq-mode-title {
+      font-size: 1.05rem;
+      font-weight: 850;
+      color: rgb(15 23 42);
+    }
+    .mq-mode-body {
+      font-size: 0.92rem;
+      line-height: 1.7;
+      color: rgb(71 85 105);
+    }
+    .mq-choice-correct {
+      background: rgba(236, 253, 245, 0.95);
+      border-color: rgba(16, 185, 129, 0.35);
+      color: rgb(6 95 70);
+    }
+    .mq-choice-wrong {
+      background: rgba(255, 241, 242, 0.95);
+      border-color: rgba(244, 63, 94, 0.35);
+      color: rgb(159 18 57);
+    }
+    .mq-btn-danger {
+      color: rgb(190 24 93);
+    }
+    .mq-select,
+    .mq-input,
+    .mq-file {
+      padding: 0.8rem 0.9rem;
+    }
+    .mq-file {
+      font-size: 0.95rem;
+    }
+    @media (max-width: 768px) {
+      .mq-tab,
+      .mq-btn,
+      .mq-choice,
+      .mq-select,
+      .mq-input,
+      .mq-file {
+        padding: 0.72rem 0.9rem;
+      }
+      .mq-set-card {
+        padding: 0.95rem 0.9rem;
+      }
+      .mq-set-title {
+        font-size: 1rem;
+      }
+      .mq-set-hint {
+        font-size: 0.88rem;
+      }
+    }
+    .dark .mq-shell {
+      color: rgb(226 232 240);
+    }
+    .dark .mq-tab,
+    .dark .mq-btn,
+    .dark .mq-choice,
+    .dark .mq-mode-card,
+    .dark .mq-select,
+    .dark .mq-input,
+    .dark .mq-file,
+    .dark .mq-set-card {
+      background: rgba(15, 23, 42, 0.92);
+      border-color: rgba(148, 163, 184, 0.2);
+      color: rgb(226 232 240);
+    }
+    .dark .mq-tab-current,
+    .dark .mq-btn-primary {
+      background: white;
+      border-color: white;
+      color: rgb(15 23 42);
+    }
+    .dark .mq-mode-card-current {
+      border-color: rgba(96, 165, 250, 0.45);
+      background: rgba(30, 41, 59, 0.95);
+      box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.14);
+    }
+    .dark .mq-mode-kicker {
+      color: rgb(125 211 252);
+    }
+    .dark .mq-mode-title {
+      color: white;
+    }
+    .dark .mq-mode-body {
+      color: rgb(203 213 225);
+    }
+    .dark .mq-set-card-current {
+      border-color: rgba(96, 165, 250, 0.42);
+      box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.14);
+    }
+    .dark .mq-set-title {
+      color: white;
+    }
+    .dark .mq-set-sub {
+      color: rgb(125 211 252);
+    }
+    .dark .mq-set-hint {
+      color: rgb(203 213 225);
+    }
+    .dark .mq-choice-correct {
+      background: rgba(6, 95, 70, 0.3);
+      border-color: rgba(52, 211, 153, 0.28);
+      color: rgb(209 250 229);
+    }
+    .dark .mq-choice-wrong {
+      background: rgba(136, 19, 55, 0.3);
+      border-color: rgba(251, 113, 133, 0.26);
+      color: rgb(254 205 211);
+    }
+    .dark .mq-btn-danger {
+      color: rgb(251 113 133);
+    }
+  </style>
+</Layout>

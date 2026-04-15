@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="320" viewBox="0 0 512 320">
+  <rect width="512" height="320" rx="32" fill="#fff"/>
+  <rect x="8" y="8" width="496" height="304" rx="26" fill="#ffffff" stroke="#e2e8f0" stroke-width="10"/>
+  <g clip-path="url(#clip)">
+    <rect x="8" y="8" width="496" height="304" fill="#b22234"/>
+    <g fill="#fff">
+      <rect x="8" y="31" width="496" height="23"/>
+      <rect x="8" y="77" width="496" height="23"/>
+      <rect x="8" y="123" width="496" height="23"/>
+      <rect x="8" y="169" width="496" height="23"/>
+      <rect x="8" y="215" width="496" height="23"/>
+      <rect x="8" y="261" width="496" height="23"/>
+    </g>
+    <rect x="8" y="8" width="198" height="164" fill="#3c3b6e"/>
+    <g fill="#fff">
+      <circle cx="34" cy="28" r="6"/><circle cx="66" cy="28" r="6"/><circle cx="98" cy="28" r="6"/><circle cx="130" cy="28" r="6"/><circle cx="162" cy="28" r="6"/>
+      <circle cx="50" cy="48" r="6"/><circle cx="82" cy="48" r="6"/><circle cx="114" cy="48" r="6"/><circle cx="146" cy="48" r="6"/><circle cx="178" cy="48" r="6"/>
+      <circle cx="34" cy="68" r="6"/><circle cx="66" cy="68" r="6"/><circle cx="98" cy="68" r="6"/><circle cx="130" cy="68" r="6"/><circle cx="162" cy="68" r="6"/>
+      <circle cx="50" cy="88" r="6"/><circle cx="82" cy="88" r="6"/><circle cx="114" cy="88" r="6"/><circle cx="146" cy="88" r="6"/><circle cx="178" cy="88" r="6"/>
+      <circle cx="34" cy="108" r="6"/><circle cx="66" cy="108" r="6"/><circle cx="98" cy="108" r="6"/><circle cx="130" cy="108" r="6"/><circle cx="162" cy="108" r="6"/>
+      <circle cx="50" cy="128" r="6"/><circle cx="82" cy="128" r="6"/><circle cx="114" cy="128" r="6"/><circle cx="146" cy="128" r="6"/><circle cx="178" cy="128" r="6"/>
+      <circle cx="34" cy="148" r="6"/><circle cx="66" cy="148" r="6"/><circle cx="98" cy="148" r="6"/><circle cx="130" cy="148" r="6"/><circle cx="162" cy="148" r="6"/>
+    </g>
+  </g>
+  <defs>
+    <clipPath id="clip">
+      <rect x="8" y="8" width="496" height="304" rx="26"/>
+    </clipPath>
+  </defs>
+</svg>
