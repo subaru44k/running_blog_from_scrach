@@ -1,21 +1,11 @@
 ---
 import Layout from '../layouts/Layout.astro';
-import { getCollection } from 'astro:content';
-import { filterPostsForBuild } from '../lib/build-filter';
+import { getSortedPublishedBlogPosts, groupPostsByYearMonth } from '../lib/blog-index';
 
-const posts = filterPostsForBuild(await getCollection('blog', ({ data }) => data.status === 'publish'));
-posts.sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
+const posts = await getSortedPublishedBlogPosts();
 
 // Group by year -> month -> posts
-const grouped: Record<string, Record<string, typeof posts>> = {};
-for (const p of posts) {
-  const d = p.data.date;
-  const y = String(d.getFullYear());
-  const m = String(d.getMonth() + 1).padStart(2, '0');
-  (grouped[y] ||= {});
-  (grouped[y][m] ||= [] as any);
-  grouped[y][m].push(p);
-}
+const grouped = groupPostsByYearMonth(posts);
 const years = Object.keys(grouped).sort((a, b) => Number(b) - Number(a));
 ---
 

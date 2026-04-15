@@ -11,6 +11,15 @@ repo:
       build:
         buildspec: astro-blog/buildspec.yml
         output_dir: astro-blog/dist
+        blog_index:
+          module: astro-blog/src/lib/blog-index.ts
+          responsibility:
+            - cache getCollection results per build process
+            - expose sorted and unsorted published blog post lists
+            - preserve existing route output ordering for blog lists, sitemap, category maps, and calendar maps
+        output_parity_check:
+          baseline_dir: astro-blog/.dist-baseline
+          command: npm run compare:dist --prefix astro-blog
         quick_check:
           command: npm run build:quick --prefix astro-blog
           env:

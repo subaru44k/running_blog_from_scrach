@@ -1,11 +1,9 @@
 ---
 import Layout from '../layouts/Layout.astro';
-import { getCollection } from 'astro:content';
-import { filterPostsForBuild } from '../lib/build-filter';
+import { getSortedPublishedBlogPosts, imageForCategory } from '../lib/blog-index';
 
 // Load published posts and take the latest 6
-const posts = filterPostsForBuild(await getCollection('blog', ({ data }) => data.status === 'publish'));
-posts.sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
+const posts = await getSortedPublishedBlogPosts();
 const latest = posts.slice(0, 6);
 
 function excerpt(html: string, max = 220) {
@@ -13,21 +11,6 @@ function excerpt(html: string, max = 220) {
   return text.length > max ? text.slice(0, max - 1) + '…' : text;
 }
 
-function imageForCategory(cat: string): string {
-  switch (cat) {
-    case '練習(弱)':
-      return '/images/workouts/abstract-04.svg'; // mild
-    case '練習(中)':
-      return '/images/workouts/abstract-03.svg'; // moderate
-    case '練習(強)':
-      return '/images/workouts/abstract-08.svg'; // strong
-    case '試合':
-      return '/images/workouts/abstract-02.svg'; // strongest
-    case '練習(デフォルト)':
-    default:
-      return '/images/workouts/abstract-01.svg'; // neutral
-  }
-}
 ---
 
 <Layout

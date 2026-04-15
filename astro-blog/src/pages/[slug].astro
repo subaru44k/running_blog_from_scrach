@@ -1,20 +1,16 @@
 ---
-import { getCollection, getEntryBySlug } from 'astro:content';
-import { filterPostsForBuild } from '../lib/build-filter';
+import { getEntryBySlug } from 'astro:content';
 import Layout from '../layouts/Layout.astro';
+import { getAllBlogPosts, imageForCategory } from '../lib/blog-index';
 
 export const prerender = true;
 
 export async function getStaticPaths() {
-  const posts = filterPostsForBuild(await getCollection('blog'));
+  const posts = await getAllBlogPosts();
   return posts.map((post) => ({ params: { slug: post.slug } }));
 }
 
 const { slug } = Astro.params;
-
-// Load all published posts for sidebar navigation
-const posts = filterPostsForBuild(await getCollection('blog', ({ data }) => data.status === 'publish'));
-posts.sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
 
 // Load the requested post
 const post = await getEntryBySlug('blog', slug);
@@ -25,21 +21,6 @@ const { Content } = await post.render();
 const noIndexCategories = new Set(['練習(弱)', '練習(中)', '練習(デフォルト)']);
 const shouldNoIndex = noIndexCategories.has(post.data.category) || slug.includes('-summary-');
 
-function imageForCategory(cat: string): string {
-  switch (cat) {
-    case '練習(弱)':
-      return '/images/workouts/abstract-04.svg'; // mild
-    case '練習(中)':
-      return '/images/workouts/abstract-03.svg'; // moderate
-    case '練習(強)':
-      return '/images/workouts/abstract-08.svg'; // strong
-    case '試合':
-      return '/images/workouts/abstract-02.svg'; // strongest
-    case '練習(デフォルト)':
-    default:
-      return '/images/workouts/abstract-01.svg'; // neutral
-  }
-}
 ---
 
 <Layout noIndex={shouldNoIndex}>

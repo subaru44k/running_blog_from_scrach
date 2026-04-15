@@ -1,12 +1,10 @@
 import type { APIRoute } from 'astro';
-import { getCollection } from 'astro:content';
-import { filterPostsForBuild } from '../lib/build-filter';
+import { getSortedPublishedBlogPosts, toSidebarItem } from '../lib/blog-index';
 
 const SIDEBAR_LIMIT = 50;
 
 export const GET: APIRoute = async () => {
-  const posts = filterPostsForBuild(await getCollection('blog', ({ data }) => data.status === 'publish'));
-  posts.sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
+  const posts = await getSortedPublishedBlogPosts();
 
   const map: Record<
     string,
@@ -16,12 +14,7 @@ export const GET: APIRoute = async () => {
   for (const post of posts) {
     const category = post.data.category || 'Uncategorized';
     if (!map[category]) map[category] = [];
-    map[category].push({
-      slug: post.slug,
-      title: post.data.title,
-      date: post.data.date.toISOString(),
-      category,
-    });
+    map[category].push(toSidebarItem(post));
   }
 
   for (const category of Object.keys(map)) {

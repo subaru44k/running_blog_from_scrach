@@ -43,6 +43,8 @@ AWS CLI の標準プロファイル（`codex-prod`）と実行主体も `docs/aw
 
 - Build locally
   - `npm run build`
+  - 出力互換性の基準を作る: `npm run build:baseline`
+  - 変更後の `dist` と基準を比較: `npm run compare:dist`
   - 記事生成を省略したクイック確認: `npm run build:quick`（`ASTRO_BUILD_NO_POSTS=1`）
   - Sanity check built output: `node scripts/sanity-check.mjs astro-blog/dist`
 
@@ -57,6 +59,7 @@ AWS CLI の標準プロファイル（`codex-prod`）と実行主体も `docs/aw
   - Frontend shows 3 variants and lets the user download a chosen result
 
 - Calendar performance
+  - Blog post metadata is shared through `src/lib/blog-index.ts` during builds so repeated page generation does not rebuild the same collection-derived lists.
   - Initial month grid is server-rendered for instant UX
   - Calendar map loads async per month from `/cal-map/{YYYY}/{MM}.json` and is cached in `localStorage`
 

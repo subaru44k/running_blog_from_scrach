@@ -1,8 +1,7 @@
 ---
 import '../styles/global.css';
 // Layout.astro: site metadata for SEO and sidebar post navigation
-import { getCollection } from 'astro:content';
-import { filterPostsForBuild } from '../lib/build-filter';
+import { buildCalendarMap, getSortedPublishedBlogPosts, toSidebarItem } from '../lib/blog-index';
 const { site, url } = Astro;
 const {
   noSidebar = false,
@@ -41,18 +40,12 @@ const isCurrentPath = (href: string) => url.pathname === href || (href !== '/' &
 const enableGamesOffline = url.pathname === '/games/' || url.pathname.startsWith('/games/');
 
 // Fetch published posts for sidebar and calendar
-const posts = filterPostsForBuild(await getCollection('blog', ({ data }) => data.status === 'publish'));
-posts.sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
+const posts = await getSortedPublishedBlogPosts();
 
 // Limit sidebar to latest N posts; category filter can load more via JSON
 const SIDEBAR_LIMIT = 50;
 const sidebarPosts = posts.slice(0, SIDEBAR_LIMIT);
-const sidebarItems = sidebarPosts.map((p) => ({
-  slug: p.slug,
-  title: p.data.title,
-  date: p.data.date.toISOString(),
-  category: p.data.category,
-}));
+const sidebarItems = sidebarPosts.map(toSidebarItem);
 const sidebarItemsJson = JSON.stringify(sidebarItems).replace(/</g, '\\u003c');
 
 // Derive unique categories for sidebar filter
@@ -60,12 +53,7 @@ const categories = Array.from(new Set(posts.map((p) => p.data.category))).sort()
 categories.unshift('All');
 
 // Prepare calendar data: date -> compact { s: first slug, c: count } mapping
-const postsByDate = posts.reduce((acc, p) => {
-  const key = p.slug.slice(0, 10); // YYYY-MM-DD from filename
-  if (!acc[key]) acc[key] = { s: p.slug, c: 1 };
-  else acc[key].c += 1;
-  return acc;
-}, {} as Record<string, { s: string; c: number }>);
+const postsByDate = buildCalendarMap(posts);
 // Note: we no longer inline the calendar map to reduce page size.
 
 // Years available for selection
