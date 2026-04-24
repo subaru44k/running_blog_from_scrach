@@ -1,0 +1,86 @@
+{
+  "model": "gpt-image-2",
+  "generatedAt": "2026-04-24T11:30:11.447Z",
+  "outputDir": "/Users/yamadashinya/work/subaru-misc-blog/backend/draw/artifacts/balloon-catch-gpt-image-2",
+  "publicDir": "/Users/yamadashinya/work/subaru-misc-blog/astro-blog/public/images/games/balloon-catch-gpt-image-2",
+  "assets": [
+    {
+      "id": "dog-sprite-sheet",
+      "filename": "dog-sprite-sheet-original-prompt.png",
+      "kind": "character-sprite-sheet",
+      "size": "1536x1024",
+      "quality": "medium",
+      "background": "transparent",
+      "prompt": "Use case: illustration-story\nAsset type: 2D side-scrolling game sprite sheet, transparent PNG\nPrimary request: Generate a cute small dog character sprite sheet in a single horizontal row.\n\nStyle:\nゆめかわ絵本風, pastel color palette, soft lighting, dreamy atmosphere, fluffy and cute style, children's picture book illustration, simple shapes, rounded design, soft outlines, no harsh shadows, high readability.\n\nCharacter:\ncute small dog character, round body, short legs, big sparkling eyes, fluffy ears, light cream or pastel brown fur, gentle smile.\n\nSprite sheet layout:\nAll animation frames arranged horizontally in a single row.\nAnimations included in order from left to right:\n1. idle: 2 frames, subtle breathing and slight tail movement\n2. running: 4 frames, smooth loop with legs moving\n3. catching: 3 frames, small jump and happy expression\nTotal: 9 frames in one row.\n\nIMPORTANT CONSISTENCY RULES:\n- fixed camera, no perspective change\n- same character size and proportions across all frames\n- same position in each frame, no shifting\n- same ground level alignment, feet aligned perfectly\n- equal spacing between frames\n- character centered in each frame\n- clean outline, minimal detail, high readability for children\n- plain pure white background, no floor, no horizon, no background elements\n- no text, no watermark, no extra objects",
+      "revisedPrompt": null,
+      "status": "ok",
+      "error": null,
+      "createdAt": "2026-04-22T12:32:42.095Z"
+    },
+    {
+      "id": "cpu-man-throwing-balloon",
+      "filename": "cpu-man-throwing-balloon.png",
+      "kind": "character",
+      "size": "1024x1024",
+      "quality": "medium",
+      "background": "transparent",
+      "prompt": "Use case: illustration-story\nAsset type: 2D mobile game character sprite, transparent PNG\nPrimary request: CPU character, a lightly bad-boy style man wearing sunglasses and throwing a balloon.\nSubject: A child-safe cartoon man with dark sunglasses, a playful smug grin, a slightly naughty vibe, rounded face, soft hair, simple pastel street-fashion outfit, and one arm extended in a gentle balloon-throwing motion. He should read as a mischievous troublemaker, not a scary villain.\nStyle/medium: ゆめかわ絵本風, pastel color palette, soft lighting, dreamy atmosphere, fluffy and cute style, children's picture book illustration, simple shapes, rounded design, soft outlines, clean outlines, no harsh shadows, high readability.\nComposition/framing: Centered full-body or near full-body sprite, throwing pose readable at small size, enough transparent padding around arm and balloon, no crop.\nLighting/mood: playful, cheeky, dreamy park-game mood.\nConstraints: plain pure white background, no text, no watermark, no logo, no hard shadows, no realism, no intimidating villain look, no violence, no weapon, no horror, consistent style with the dog and balloon assets.",
+      "revisedPrompt": null,
+      "status": "ok",
+      "error": null,
+      "createdAt": "2026-04-24T11:30:11.446Z"
+    },
+    {
+      "id": "balloon-normal",
+      "filename": "balloon-normal.png",
+      "kind": "item",
+      "size": "1024x1024",
+      "quality": "medium",
+      "background": "transparent",
+      "prompt": "Use case: illustration-story\nAsset type: 2D mobile game item sprite, transparent PNG\nPrimary request: Normal balloon item.\nSubject: A simple round pastel balloon with a tiny tied knot and short soft string, cheerful and easy to recognize, clean silhouette.\nStyle/medium: ゆめかわ絵本風, pastel color palette, soft lighting, dreamy atmosphere, fluffy and cute style, children's picture book illustration, simple shapes, rounded design, soft outlines, clean outlines, no harsh shadows, high readability.\nComposition/framing: Centered item sprite, large readable shape, transparent padding, no crop.\nLighting/mood: gentle dreamy lighting, cute and calm.\nConstraints: plain pure white background, no text, no watermark, no logo, no letters or symbols on the balloon, consistent style with all assets.",
+      "revisedPrompt": null,
+      "status": "ok",
+      "error": null,
+      "createdAt": "2026-04-22T12:34:29.093Z"
+    },
+    {
+      "id": "balloon-rare-sparkling",
+      "filename": "balloon-rare-sparkling.png",
+      "kind": "item",
+      "size": "1024x1024",
+      "quality": "medium",
+      "background": "transparent",
+      "prompt": "Use case: illustration-story\nAsset type: 2D mobile game item sprite, transparent PNG\nPrimary request: Sparkling rare balloon item.\nSubject: A special pastel balloon with small soft sparkles and a subtle magical glow, clearly rarer than a normal balloon but still simple and readable, tiny tied knot and short soft string.\nStyle/medium: ゆめかわ絵本風, pastel color palette, soft lighting, dreamy atmosphere, fluffy and cute style, children's picture book illustration, simple shapes, rounded design, soft outlines, clean outlines, no harsh shadows, high readability.\nComposition/framing: Centered item sprite, large readable balloon shape, sparkles close to the balloon, transparent padding, no crop.\nLighting/mood: dreamy, magical, cheerful.\nConstraints: plain pure white background, no text, no watermark, no logo, no letters or symbols, no busy sparkle field, consistent style with all assets.",
+      "revisedPrompt": null,
+      "status": "ok",
+      "error": null,
+      "createdAt": "2026-04-22T12:35:25.204Z"
+    },
+    {
+      "id": "balloon-dangerous",
+      "filename": "balloon-dangerous.png",
+      "kind": "item",
+      "size": "1024x1024",
+      "quality": "medium",
+      "background": "transparent",
+      "prompt": "Use case: illustration-story\nAsset type: 2D mobile game item sprite, transparent PNG\nPrimary request: Slightly dangerous balloon item.\nSubject: A pastel balloon that reads as a gentle hazard in a children's game, slightly darker warm pastel color, tiny soft thorn-like nubs or taped patches, cute but clearly different from the normal balloon, rounded and not scary, tiny tied knot and short soft string.\nStyle/medium: ゆめかわ絵本風, pastel color palette, soft lighting, dreamy atmosphere, fluffy and cute style, children's picture book illustration, simple shapes, rounded design, soft outlines, clean outlines, no harsh shadows, high readability.\nComposition/framing: Centered item sprite, readable hazard silhouette, transparent padding, no crop.\nLighting/mood: playful caution, child-friendly, not frightening.\nConstraints: plain pure white background, no text, no watermark, no logo, no skulls, no warning signs, no letters or symbols, no sharp realistic spikes, consistent style with all assets.",
+      "revisedPrompt": null,
+      "status": "ok",
+      "error": null,
+      "createdAt": "2026-04-22T12:36:20.568Z"
+    },
+    {
+      "id": "park-background",
+      "filename": "park-background.png",
+      "kind": "background",
+      "size": "1536x1024",
+      "quality": "medium",
+      "background": "opaque",
+      "prompt": "Use case: illustration-story\nAsset type: 2D mobile game background image\nPrimary request: Simple park scene background for a balloon catching game.\nScene/backdrop: A simple dreamy pastel park with soft green grass, rounded trees, a small path, gentle blue sky, tiny fluffy clouds, and open playable space in the center and foreground.\nSubject: Background only, no characters, no balloons, no text.\nStyle/medium: ゆめかわ絵本風, pastel color palette, soft lighting, dreamy atmosphere, fluffy and cute style, children's picture book illustration, simple shapes, rounded design, soft outlines, clean outlines, no harsh shadows, high readability.\nComposition/framing: Wide horizontal game background, uncluttered center area for gameplay, soft horizon, readable on mobile, no crop-sensitive details near edges.\nLighting/mood: calm sunny park, dreamy and cheerful.\nConstraints: no text, no watermark, no logo, no characters, no balloons, no signs with writing, consistent style with the sprite assets.",
+      "revisedPrompt": null,
+      "status": "ok",
+      "error": null,
+      "createdAt": "2026-04-22T12:37:16.454Z"
+    }
+  ]
+}

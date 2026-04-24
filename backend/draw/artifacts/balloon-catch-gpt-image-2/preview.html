@@ -1,0 +1,161 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Balloon Catch Assets Preview</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --bg: #fffaf6;
+        --panel: #ffffff;
+        --border: #eadfd7;
+        --text: #503f42;
+        --muted: #8d7477;
+      }
+      * { box-sizing: border-box; }
+      body {
+        margin: 0;
+        padding: 24px;
+        font-family: "Hiragino Sans", "Yu Gothic", sans-serif;
+        background: linear-gradient(180deg, #fff8fc 0%, #fdf8f2 100%);
+        color: var(--text);
+      }
+      h1 { margin: 0 0 8px; font-size: 28px; }
+      p.meta { margin: 0 0 24px; color: var(--muted); }
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+        gap: 16px;
+      }
+      .card {
+        background: var(--panel);
+        border: 1px solid var(--border);
+        border-radius: 20px;
+        padding: 16px;
+        box-shadow: 0 10px 30px rgba(190, 172, 177, 0.14);
+      }
+      .comparison {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 12px;
+      }
+      figure {
+        margin: 0;
+        background: #fffdfb;
+        border: 1px solid #f0e7df;
+        border-radius: 16px;
+        padding: 12px;
+      }
+      figcaption {
+        margin-bottom: 8px;
+        font-weight: 700;
+        color: var(--muted);
+      }
+      img {
+        width: 100%;
+        height: 220px;
+        object-fit: contain;
+        display: block;
+        background:
+          linear-gradient(45deg, #f8f1ec 25%, transparent 25%) 0 0 / 24px 24px,
+          linear-gradient(-45deg, #f8f1ec 25%, transparent 25%) 0 0 / 24px 24px,
+          linear-gradient(45deg, transparent 75%, #f8f1ec 75%) 0 0 / 24px 24px,
+          linear-gradient(-45deg, transparent 75%, #f8f1ec 75%) 0 0 / 24px 24px,
+          #fff;
+        border-radius: 12px;
+      }
+      .error-message { color: #a34343; font-weight: 700; }
+    </style>
+  </head>
+  <body>
+    <h1>Balloon Catch Asset Comparison</h1>
+    <p class="meta">Current assets remain untouched in /images/games/balloon-catch. Generated files are mirrored into /images/games/balloon-catch-gpt-image-2.</p>
+    <div class="grid">
+      <section class="card ok">
+  <h2>dog-sprite-sheet-original-prompt.png</h2>
+  <p>character-sprite-sheet</p>
+  <div class="comparison">
+      <figure>
+        <figcaption>Current</figcaption>
+        <img src="../../../../astro-blog/public/images/games/balloon-catch/dog-sprite-sheet-original-prompt.png" alt="current dog-sprite-sheet-original-prompt.png" />
+      </figure>
+      <figure>
+        <figcaption>Generated</figcaption>
+        <img src="../../../../astro-blog/public/images/games/balloon-catch-gpt-image-2/dog-sprite-sheet-original-prompt.png" alt="generated dog-sprite-sheet-original-prompt.png" />
+      </figure>
+    </div>
+</section>
+<section class="card ok">
+  <h2>cpu-man-throwing-balloon.png</h2>
+  <p>character</p>
+  <div class="comparison">
+      <figure>
+        <figcaption>Current</figcaption>
+        <img src="../../../../astro-blog/public/images/games/balloon-catch/cpu-man-throwing-balloon.png" alt="current cpu-man-throwing-balloon.png" />
+      </figure>
+      <figure>
+        <figcaption>Generated</figcaption>
+        <img src="../../../../astro-blog/public/images/games/balloon-catch-gpt-image-2/cpu-man-throwing-balloon.png" alt="generated cpu-man-throwing-balloon.png" />
+      </figure>
+    </div>
+</section>
+<section class="card ok">
+  <h2>balloon-normal.png</h2>
+  <p>item</p>
+  <div class="comparison">
+      <figure>
+        <figcaption>Current</figcaption>
+        <img src="../../../../astro-blog/public/images/games/balloon-catch/balloon-normal.png" alt="current balloon-normal.png" />
+      </figure>
+      <figure>
+        <figcaption>Generated</figcaption>
+        <img src="../../../../astro-blog/public/images/games/balloon-catch-gpt-image-2/balloon-normal.png" alt="generated balloon-normal.png" />
+      </figure>
+    </div>
+</section>
+<section class="card ok">
+  <h2>balloon-rare-sparkling.png</h2>
+  <p>item</p>
+  <div class="comparison">
+      <figure>
+        <figcaption>Current</figcaption>
+        <img src="../../../../astro-blog/public/images/games/balloon-catch/balloon-rare-sparkling.png" alt="current balloon-rare-sparkling.png" />
+      </figure>
+      <figure>
+        <figcaption>Generated</figcaption>
+        <img src="../../../../astro-blog/public/images/games/balloon-catch-gpt-image-2/balloon-rare-sparkling.png" alt="generated balloon-rare-sparkling.png" />
+      </figure>
+    </div>
+</section>
+<section class="card ok">
+  <h2>balloon-dangerous.png</h2>
+  <p>item</p>
+  <div class="comparison">
+      <figure>
+        <figcaption>Current</figcaption>
+        <img src="../../../../astro-blog/public/images/games/balloon-catch/balloon-dangerous.png" alt="current balloon-dangerous.png" />
+      </figure>
+      <figure>
+        <figcaption>Generated</figcaption>
+        <img src="../../../../astro-blog/public/images/games/balloon-catch-gpt-image-2/balloon-dangerous.png" alt="generated balloon-dangerous.png" />
+      </figure>
+    </div>
+</section>
+<section class="card ok">
+  <h2>park-background.png</h2>
+  <p>background</p>
+  <div class="comparison">
+      <figure>
+        <figcaption>Current</figcaption>
+        <img src="../../../../astro-blog/public/images/games/balloon-catch/park-background.png" alt="current park-background.png" />
+      </figure>
+      <figure>
+        <figcaption>Generated</figcaption>
+        <img src="../../../../astro-blog/public/images/games/balloon-catch-gpt-image-2/park-background.png" alt="generated park-background.png" />
+      </figure>
+    </div>
+</section>
+    </div>
+  </body>
+</html>
