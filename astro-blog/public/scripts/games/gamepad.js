@@ -48,15 +48,21 @@ export function createGamepadController({
   let primaryPressed = false;
   let secondaryPressed = false;
 
+  const resetButtons = () => {
+    previousDirection = null;
+    primaryPressed = false;
+    secondaryPressed = false;
+  };
+
+  const hasGamepad = () => Array.from(navigator.getGamepads?.() ?? []).some(Boolean);
+
   const loop = (timestamp) => {
     const gamepads = navigator.getGamepads?.() ?? [];
     const gamepad = Array.from(gamepads).find(Boolean) ?? null;
 
     if (!gamepad) {
-      previousDirection = null;
-      primaryPressed = false;
-      secondaryPressed = false;
-      rafId = window.requestAnimationFrame(loop);
+      resetButtons();
+      rafId = 0;
       return;
     }
 
@@ -83,9 +89,25 @@ export function createGamepadController({
     rafId = window.requestAnimationFrame(loop);
   };
 
-  rafId = window.requestAnimationFrame(loop);
+  const startLoop = () => {
+    if (rafId || !hasGamepad()) return;
+    rafId = window.requestAnimationFrame(loop);
+  };
+
+  const handleDisconnected = () => {
+    if (hasGamepad()) return;
+    resetButtons();
+    if (rafId) window.cancelAnimationFrame(rafId);
+    rafId = 0;
+  };
+
+  window.addEventListener('gamepadconnected', startLoop);
+  window.addEventListener('gamepaddisconnected', handleDisconnected);
+  startLoop();
 
   return () => {
     if (rafId) window.cancelAnimationFrame(rafId);
+    window.removeEventListener('gamepadconnected', startLoop);
+    window.removeEventListener('gamepaddisconnected', handleDisconnected);
   };
 }
