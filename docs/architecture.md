@@ -92,7 +92,7 @@ flowchart LR
 
 ## PDF圧縮のデータフロー
 - PDFアップロードは最大50MBまで（S3のpresigned POSTポリシーで強制）。
-- downloadUrl / previewUrl の有効期限はデフォルト10分（DOWNLOAD_URL_TTLで変更可）、uploadUrlもデフォルト10分（UPLOAD_URL_TTL）。
+- downloadUrl / previewUrl の有効期限はデフォルト10分（DOWNLOAD_URL_TTLで変更可）、Upload URLもデフォルト10分（UPLOAD_URL_TTL）。
 
 ```mermaid
 sequenceDiagram

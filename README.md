@@ -16,7 +16,7 @@ AWS CLI の標準プロファイル（`codex-prod`）と実行主体も `docs/aw
 
 - `astro-blog/`
   - Astro v5 website (tools hub + blog + tools pages)
-  - Pages: Hub (`/`), Blog (`/blog/`), Draw (`/draw/`), Mini Games (`/games/` incl. balloon-catch/snake/maze/tic-tac-toe/reversi), Running Pace (`/running-pace/`), PDF Compressor (`/pdf-compress/`), About, Contact, Privacy, 404
+  - Pages: Hub (`/`), Blog (`/blog/`), Archive (`/archive/`), Draw (`/draw/`), Mini Games (`/games/` incl. balloon-catch/dressup/match-quiz/janken/clock/snake/maze/tic-tac-toe/reversi), Running Pace (`/running-pace/`), PDF Compressor (`/pdf-compress/`), About, Contact, Privacy, 404
   - Async calendar data at `GET /cal-map/{YYYY}/{MM}.json` reduces page weight
   - Google Analytics (gtag) with IP anonymization and AdSense snippet
   - CodeBuild buildspec (`astro-blog/buildspec.yml`) for S3 + CloudFront deploy
@@ -24,7 +24,7 @@ AWS CLI の標準プロファイル（`codex-prod`）と実行主体も `docs/aw
   - Lambda container image with Ghostscript to compress PDFs
   - Supports S3-based inputs/outputs and deletes source uploads on success
 - `lambdas/sign-upload-v3/`
-  - Node.js 20 Lambda that issues pre‑signed PUT URLs for direct browser upload
+  - Node.js 20 Lambda that issues S3 presigned POST data for direct browser upload
   - Uses AWS SDK v3; deployed as a zip
 - `lambdas/fitbit-callback/`
   - Node.js 20 Lambda that handles the Fitbit OAuth callback and stores refreshed tokens in S3
@@ -52,8 +52,8 @@ AWS CLI の標準プロファイル（`codex-prod`）と実行主体も `docs/aw
   - `PUBLIC_PDF_API_BASE` (required): API Gateway base for the PDF endpoints
 
 - PDF Compressor flow
-  - Browser POSTs `PUBLIC_PDF_API_BASE/sign-upload` → gets `{ uploadUrl, objectKey, bucket }`
-  - Browser PUTs the PDF to `uploadUrl`
+  - Browser POSTs `PUBLIC_PDF_API_BASE/sign-upload` → gets `{ url, fields, objectKey, bucket, expiresIn }`
+  - Browser POSTs the PDF to S3 with `url` + `fields` as multipart form data
   - Browser POSTs `PUBLIC_PDF_API_BASE/compress` in parallel for levels 1/2/3
   - Service returns `{ downloadUrl, outputSizeBytes, previewUrl }` per level
   - Frontend shows 3 variants and lets the user download a chosen result
@@ -92,6 +92,7 @@ AWS CLI の標準プロファイル（`codex-prod`）と実行主体も `docs/aw
     - Source deletion is best‑effort when `keepSource=false`
     - PDFアップロードは最大50MBまで（sign-upload-v3でチェック）
     - downloadUrl/previewUrl の有効期限はデフォルト10分（`DOWNLOAD_URL_TTL`）
+    - Upload URL の有効期限はデフォルト10分（`UPLOAD_URL_TTL`）
   - Base64 mode (for local testing): `{ fileBase64, filename? ... }` → returns base64 PDF
 
 - Build & push (ECR)

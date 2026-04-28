@@ -5,6 +5,7 @@
 ## 目次
 - `docs/architecture.md`: 全体設計とデータフロー
 - `docs/architecture.yaml`: AI向けの構造化設計
+- `docs/codex-startup.md`: Codex起動時に最初に読むプロジェクト概要
 - `docs/components/*.md`: コンポーネント別の詳細
 - `docs/runbooks/*.md`: 検証・デプロイ手順
 - `docs/prompts/*.md`: Codex CLI 用のプロンプト集
@@ -13,10 +14,8 @@
 ## TODO / Assumptions
 以下は未確定または環境依存のため、確定後に更新してください。
 
-- TODO: CloudFront へのデプロイ経路（CodeBuild以外の代替経路の有無）
-- TODO: S3 バケットのライフサイクル設定（uploads/ や outputs/ の削除ポリシー）
-- TODO: PDF圧縮 API のAPI Gateway/Lambda構成（正確な名称とリージョン）
+- AWS実リソース名・リージョン・API ID・Lambda名は `docs/aws-resources.md` を参照
+- PDF圧縮のTTL・サイズ上限・cleanup・S3削除ポリシーは `docs/ops-parameters.md` を参照
 - TODO: Fitbitトークン保管のS3バケット名と暗号化方式の正式な運用ルール
 - TODO: 管理アプリの本番利用有無（ローカル専用か、社内用か）
-- TODO: CloudFront Functions / OAC の更新ポリシーと権限境界
-
+- 未確定: CloudFront Functions / OAC の更新ポリシーと権限境界

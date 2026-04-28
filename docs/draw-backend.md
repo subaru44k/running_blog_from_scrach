@@ -2,7 +2,7 @@
 
 ## アーキテクチャ概要
 - API Gateway（/api/draw/*）
-- Lambda（prompt / upload-url / submit / leaderboard / monthly cleanup）
+- Lambda（prompt / upload-url / submit / leaderboard / submission / monthly cleanup）
 - DynamoDB（DrawSubmissions / DrawRateLimit）
 - S3（画像保管: draw/{promptId}/{submissionId}.png）
 - CloudFront（S3非公開 + 署名URL 15分）
@@ -15,10 +15,11 @@
 - Secrets Manager: `draw/cf-private-key`
 - DynamoDB: `DrawSubmissions`, `DrawRateLimit`
 - Lambda:
- - `draw-upload-url-prod`
+  - `draw-upload-url-prod`
   - `draw-prompt-prod`
   - `draw-submit-prod`
   - `draw-leaderboard-prod`
+  - `draw-submission-prod`
   - `draw-monthly-cleanup-prod`
 - API Gateway: `draw-api`（API ID: `2vzy10yq0e`, Endpoint: `https://2vzy10yq0e.execute-api.ap-northeast-1.amazonaws.com`）
 

@@ -8,6 +8,7 @@ Codex: You MUST read and follow this file for every task in this repository.
 
 - **Design SSOT:** `docs/architecture.yaml`
 - Human-readable docs (`docs/architecture.md`, `docs/components/*`, `README.md`) must stay consistent with the SSOT.
+- Project startup context for Codex is summarized in `docs/codex-startup.md`.
 
 ---
 
@@ -65,4 +66,3 @@ For every task:
 ## Failure condition
 
 If you modify code in a way that affects design decisions **without updating the SSOT**, the task is considered **incorrect and incomplete**.
-

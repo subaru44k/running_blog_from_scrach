@@ -1,7 +1,7 @@
 # Draw AI採点メモ
 
 ## モデル
-- 一次採点: OpenAI GPT-4.1 mini（PRIMARY_MODEL_ID）
+- 一次採点: OpenAI GPT-5 mini（PRIMARY_MODEL_ID）
 - 二次講評: 廃止
 
 ## 必要IAM

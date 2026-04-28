@@ -25,11 +25,13 @@ repo:
           env:
             ASTRO_BUILD_NO_POSTS: "1"
       deploy_targets:
-        - TODO: CloudFront + S3 (exact resource names)
+        - CloudFront distribution EMED5317DC581
+        - S3 bucket 20250805-subaru-running-blog-site
       url_routes:
         canonical:
           - /
           - /blog/
+          - /archive/
           - /draw/
           - /draw/archive/
           - /draw/play/
@@ -49,10 +51,11 @@ repo:
           - /contact/
           - /privacy/
           - /about/
-          - /404.html
         generated:
           - /sitemap.xml
           - /category-map.json
+          - /cal-map.json
+          - /cal-map/{year}/{month}.json
     admin_app:
       purpose: "管理UIとスクリプトによるブログ編集/生成"
       entry: admin-app/server.js
@@ -79,6 +82,7 @@ repo:
         - backend/draw/src/handlers/uploadUrl.ts
         - backend/draw/src/handlers/submit.ts
         - backend/draw/src/handlers/leaderboard.ts
+        - backend/draw/src/handlers/submission.ts
         - backend/draw/src/handlers/monthlyCleanup.ts
 
 site:
@@ -86,6 +90,7 @@ site:
     canonical_routes:
       - /
       - /blog/
+      - /archive/
       - /draw/
       - /draw/archive/
       - /draw/play/
@@ -141,7 +146,12 @@ features:
     url_ttl_seconds:
       download_preview: 600
       upload: 600
-    aws_resources: TODO
+    aws_resources:
+      api_gateway: pdf-compress-api (6zzbxx14u6)
+      uploads_bucket: pdf-compress-uploads-prod
+      compress_lambda: pdf-compress-lambda
+      sign_upload_lambda: pdf-sign-upload
+      cleanup_lambda: pdf-compress-cleanup-s3-prod
     security_notes:
       - temp files are stored for a limited time (S3 lifecycle assumed)
       - keepSource=true avoids race deletion during parallel processing
@@ -162,7 +172,7 @@ features:
       - GET /api/draw/prompt provides server-authoritative monthly prompt
       - frontend uses PUBLIC_DRAW_API_BASE to call /api/draw/*
       - Lambda handlers are bundled as CommonJS (.cjs) for Node 20 runtime compatibility
-      - `npm run build --prefix backend/draw` rebuilds both `dist/*.cjs` and deployable `artifacts/*.zip`
+      - "`npm run build --prefix backend/draw` rebuilds both `dist/*.cjs` and deployable `artifacts/*.zip`"
       - prompt switches monthly (JST) with fixed sequence; 2026-02 is index 0 (熊)
       - image upload via S3 signed PUT
       - CloudFront signed URL for image viewing (900s)
@@ -223,8 +233,8 @@ features:
       - blog and archive listing pages continue to link to those articles for human navigation
 
 assumptions:
-  - TODO: CloudFront Distribution ID and error response settings are managed outside docs
-  - TODO: S3 lifecycle policies for uploads/outputs/previews
-  - TODO: API Gateway endpoints for pdf-compress and sign-upload lambdas
+  - CloudFront distribution/resource IDs are documented in docs/aws-resources.md
+  - S3 lifecycle and cleanup policies for uploads/outputs/previews are documented in docs/ops-parameters.md
+  - API Gateway IDs and public endpoints for pdf-compress and draw are documented in docs/aws-resources.md
   - TODO: Exact production domains for admin-app (if any)
   - TODO: OAuth app scopes and admin-app env var templates

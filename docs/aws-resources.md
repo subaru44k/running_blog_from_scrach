@@ -230,8 +230,9 @@ Cost Explorer での基本フィルタ:
 | Function Name | Region | 用途 |
 | --- | --- | --- |
 | `draw-prompt-prod` | `ap-northeast-1` | 月次お題取得（JST） |
-| `draw-upload-url-prod` | `ap-northeast-1` | 署名PUT URL発行 |
-| `draw-submit-prod` | `ap-northeast-1` | 一次採点（OpenAI GPT-4.1 mini / ink gate / token cost保存） |
+| `draw-upload-url-prod` | `ap-northeast-1` | 画像アップロード用署名URL発行 |
+| `draw-submit-prod` | `ap-northeast-1` | 一次採点（OpenAI GPT-5 mini / ink gate / token cost保存） |
+| `draw-submission-prod` | `ap-northeast-1` | 投稿詳細取得（archive 詳細モーダル用） |
 | `draw-leaderboard-prod` | `ap-northeast-1` | ランキング取得 |
 | `draw-monthly-cleanup-prod` | `ap-northeast-1` | 前月Top20以外の画像削除 |
 
@@ -264,13 +265,13 @@ Cost Explorer での基本フィルタ:
 | API ID | `2vzy10yq0e` |
 | Stage | `$default` |
 | Region | `ap-northeast-1` |
-| Routes | `GET /api/draw/prompt`, `POST /api/draw/upload-url`, `POST /api/draw/submit`, `GET /api/draw/leaderboard` |
+| Routes | `GET /api/draw/prompt`, `POST /api/draw/upload-url`, `POST /api/draw/submit`, `GET /api/draw/leaderboard`, `GET /api/draw/submission` |
 
 | Endpoint | `https://2vzy10yq0e.execute-api.ap-northeast-1.amazonaws.com` |
 
 ### タグ適用済みリソース（draw）
 
-- Lambda: `draw-prompt-prod`, `draw-upload-url-prod`, `draw-submit-prod`, `draw-leaderboard-prod`, `draw-monthly-cleanup-prod`
+- Lambda: `draw-prompt-prod`, `draw-upload-url-prod`, `draw-submit-prod`, `draw-leaderboard-prod`, `draw-submission-prod`, `draw-monthly-cleanup-prod`
 - Secrets Manager: `draw/cf-private-key`, `draw/openai-api-key`
 - DynamoDB: `DrawSubmissions`, `DrawRateLimit`
 - S3: `draw-uploads-20260124-58904f87`

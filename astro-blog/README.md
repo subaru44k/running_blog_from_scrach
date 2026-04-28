@@ -81,9 +81,9 @@ Only files with `status: publish` appear on the site. The legacy `convertBreaks`
 - Start dev: `npm run dev`, open `http://localhost:4321/`.
 - Calendar and sidebar help navigate posts; click a date with posts or a title to open.
 
-## AWS CI/CD (CodePipeline + CodeBuild)
+## AWS CI/CD (CodeBuild)
 
-This site is static (no SSR) and deploys well to S3 + CloudFront. Use CodePipeline (Source → Build) and perform the deploy in CodeBuild.
+This site is static (no SSR) and deploys to S3 + CloudFront from CodeBuild. Current production resource details are documented in `../docs/aws-resources.md`.
 
 - Buildspec: `astro-blog/buildspec.yml` (already included)
 - CodeBuild environment variables (set in the project):
