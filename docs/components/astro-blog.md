@@ -7,6 +7,7 @@ Astroで生成する静的サイト本体。ブログ、PDF圧縮、ペース計
 - `astro-blog/src/pages/*.astro`
   - `index.astro`: トップページ（ツールへのハブ）
   - `blog.astro`: ブログUI（最新記事＋サイドバー機能）
+  - `archive.astro`: 公開済み記事の年月別一覧。カテゴリ表示と `category` クエリによる絞り込みを提供し、古いカテゴリ記事を辿る導線を担う
   - `running-pace.astro`: ペース計算ツール（#calculator / #table のアンカーで計算と表を同一ページ内に配置）
   - `pdf-compress.astro`: PDF圧縮UI（署名→圧縮API）
   - `draw/index.astro`, `draw/play.astro`, `draw/result.astro`: 30秒お絵描き採点ゲーム（`/api/draw/*` と連携）

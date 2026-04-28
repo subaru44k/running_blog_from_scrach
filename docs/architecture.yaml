@@ -231,6 +231,8 @@ features:
       - those categories are excluded from sitemap.xml
       - summary article pages are excluded from sitemap.xml
       - blog and archive listing pages continue to link to those articles for human navigation
+      - /archive/ lists published articles by year/month, shows each article category, and supports client-side category filtering via the category query parameter
+      - sidebar category navigation keeps /category-map.json limited to recent items per category and links to /archive/?category=... for older category history
 
 assumptions:
   - CloudFront distribution/resource IDs are documented in docs/aws-resources.md

@@ -7,6 +7,7 @@ const posts = await getSortedPublishedBlogPosts();
 // Group by year -> month -> posts
 const grouped = groupPostsByYearMonth(posts);
 const years = Object.keys(grouped).sort((a, b) => Number(b) - Number(a));
+const categories = Array.from(new Set(posts.map((p) => p.data.category))).sort();
 ---
 
 <Layout pageHeading="アーカイブ" pageLead="公開済みの記事を年月ごとに表示しています。">
@@ -15,25 +16,40 @@ const years = Object.keys(grouped).sort((a, b) => Number(b) - Number(a));
     年ごと・月ごとにまとめて見返したいときのための一覧です。日々のログを時系列で追いやすくしています。
   </section>
 
-  <div class="space-y-10">
+  <section class="card mb-8 px-5 py-4">
+    <label for="archiveCategory" class="mb-2 block text-sm font-medium text-slate-700 dark:text-slate-200">カテゴリで絞り込み</label>
+    <select id="archiveCategory" class="w-full rounded-xl border border-slate-200 bg-white/90 px-3 py-2 text-sm shadow-sm dark:border-slate-700 dark:bg-slate-900">
+      <option value="">すべて</option>
+      {categories.map((category) => (
+        <option value={category}>{category}</option>
+      ))}
+    </select>
+  </section>
+
+  <p id="archiveEmptyMessage" class="panel-muted mb-8 hidden px-5 py-4 text-sm text-slate-700 dark:text-slate-300">
+    選択したカテゴリの記事はありません。
+  </p>
+
+  <div id="archiveList" class="space-y-10">
     {years.map((year) => (
-      <section>
+      <section data-archive-year>
         <h2 class="text-2xl font-semibold mb-3">{year}</h2>
         <div class="grid md:grid-cols-2 gap-6">
           {Object.keys(grouped[year]).sort((a, b) => Number(b) - Number(a)).map((month) => (
-            <div class="card p-5">
+            <div class="card p-5" data-archive-month>
               <div class="mb-3 flex items-center justify-between gap-3">
                 <h3 class="text-lg font-semibold mb-0 mt-0">{new Date(Number(year), Number(month)-1, 1).toLocaleString('ja-JP', { month: 'long' })} {year}</h3>
-                <span class="badge">{grouped[year][month].length} posts</span>
+                <span class="badge" data-month-count>{grouped[year][month].length} posts</span>
               </div>
               <ul class="space-y-1">
                 {grouped[year][month].map((p) => (
-                  <li>
-                    <a href={`/${p.slug}/`} class="group flex items-start gap-3 rounded-xl px-3 py-2 no-underline transition hover:bg-white/80 dark:hover:bg-slate-900/80">
+                  <li data-archive-item data-category={p.data.category}>
+                    <a href={`/${p.slug}/`} class="group flex flex-wrap items-start gap-x-3 gap-y-1 rounded-xl px-3 py-2 no-underline transition hover:bg-white/80 dark:hover:bg-slate-900/80">
                       <span class="shrink-0 text-sm text-slate-500">{p.data.date.toISOString().slice(0,10)}</span>
-                      <span class="text-slate-800 dark:text-slate-100 group-hover:text-slate-950 dark:group-hover:text-white">
-                      {p.data.title}
+                      <span class="min-w-0 flex-1 text-slate-800 dark:text-slate-100 group-hover:text-slate-950 dark:group-hover:text-white">
+                        {p.data.title}
                       </span>
+                      <span class="badge shrink-0">{p.data.category}</span>
                     </a>
                   </li>
                 ))}
@@ -44,5 +60,68 @@ const years = Object.keys(grouped).sort((a, b) => Number(b) - Number(a));
       </section>
     ))}
   </div>
+
+  <script>
+    (function initArchiveFilter() {
+      const select = document.getElementById('archiveCategory');
+      const archiveList = document.getElementById('archiveList');
+      const emptyMessage = document.getElementById('archiveEmptyMessage');
+      if (!select || !archiveList || !emptyMessage) return;
+
+      const items = Array.from(archiveList.querySelectorAll('[data-archive-item]'));
+      const months = Array.from(archiveList.querySelectorAll('[data-archive-month]'));
+      const years = Array.from(archiveList.querySelectorAll('[data-archive-year]'));
+      const validCategories = new Set(
+        Array.from(select.querySelectorAll('option'))
+          .map((option) => option.value)
+          .filter(Boolean)
+      );
+
+      function updateUrl(category) {
+        const url = new URL(window.location.href);
+        if (category) {
+          url.searchParams.set('category', category);
+        } else {
+          url.searchParams.delete('category');
+        }
+        window.history.replaceState({}, '', url);
+      }
+
+      function applyFilter(category, shouldUpdateUrl) {
+        let visibleItems = 0;
+
+        for (const item of items) {
+          const isVisible = !category || item.dataset.category === category;
+          item.classList.toggle('hidden', !isVisible);
+          if (isVisible) visibleItems += 1;
+        }
+
+        for (const month of months) {
+          const count = month.querySelectorAll('[data-archive-item]:not(.hidden)').length;
+          month.classList.toggle('hidden', count === 0);
+          const countNode = month.querySelector('[data-month-count]');
+          if (countNode) countNode.textContent = `${count} posts`;
+        }
+
+        for (const year of years) {
+          const hasVisibleMonth = Boolean(year.querySelector('[data-archive-month]:not(.hidden)'));
+          year.classList.toggle('hidden', !hasVisibleMonth);
+        }
+
+        emptyMessage.classList.toggle('hidden', visibleItems > 0);
+        if (shouldUpdateUrl) updateUrl(category);
+      }
+
+      const initialCategory = new URL(window.location.href).searchParams.get('category') || '';
+      if (validCategories.has(initialCategory)) {
+        select.value = initialCategory;
+        applyFilter(initialCategory, false);
+      }
+
+      select.addEventListener('change', () => {
+        applyFilter(select.value, true);
+      });
+    })();
+  </script>
 
 </Layout>

@@ -443,6 +443,7 @@ const initialMonthRows = buildInitialMonth(initialYear, initialMonth);
 
       const sel = document.getElementById('sidebarCategory');
       const list = document.querySelector('#blog-nav ul');
+      const archiveLink = document.getElementById('sidebarArchiveLink');
       const currentSlug = window.location.pathname.replace(/^\/|\/$/g, '');
       const sidebarData = document.getElementById('sidebarItemsData');
       let INITIAL_ITEMS = [];
@@ -494,9 +495,15 @@ const initialMonthRows = buildInitialMonth(initialYear, initialMonth);
         return categoryMapPromise;
       }
 
+      function updateArchiveLink(category) {
+        if (!archiveLink) return;
+        archiveLink.href = category && category !== 'All' ? `/archive/?category=${encodeURIComponent(category)}` : '/archive/';
+      }
+
       if (sel && list) {
         sel.addEventListener('change', async () => {
           const selected = sel.value;
+          updateArchiveLink(selected);
           if (selected === 'All') {
             renderList(INITIAL_ITEMS);
             return;
@@ -556,7 +563,7 @@ const initialMonthRows = buildInitialMonth(initialYear, initialMonth);
 							))}
 						</ul>
 						<div class="px-2 py-2 border-t border-gray-100 dark:border-gray-800 text-sm">
-							<a class="underline" href="/archive/">記事一覧を見る →</a>
+							<a id="sidebarArchiveLink" class="underline" href="/archive/">記事一覧を見る →</a>
 						</div>
 						</nav>
 			</div>
