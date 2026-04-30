@@ -3,7 +3,7 @@
   "quality": "medium",
   "size": "1024x1536",
   "outputFormat": "png",
-  "generatedAt": "2026-04-30T13:30:21.551Z",
+  "generatedAt": "2026-04-30T13:42:24.787Z",
   "outputDir": "/Users/yamadashinya/work/subaru-misc-blog/backend/draw/artifacts/dressup-gpt-image-2-validation",
   "rawDir": "/Users/yamadashinya/work/subaru-misc-blog/backend/draw/artifacts/dressup-gpt-image-2-validation/model-candidates/raw",
   "cutoutDir": "/Users/yamadashinya/work/subaru-misc-blog/backend/draw/artifacts/dressup-gpt-image-2-validation/model-candidates/cutout",
@@ -1165,5 +1165,106 @@
     }
   ],
   "itemFitV10SelectedStyle": "style-d-encyclopedia-clean-base",
-  "itemFitV10MeasuredStyleModel": "anchor-audit/measured-style-model.json"
+  "itemFitV10MeasuredStyleModel": "anchor-audit/measured-style-model.json",
+  "itemFitV11Dir": "/Users/yamadashinya/work/subaru-misc-blog/backend/draw/artifacts/dressup-gpt-image-2-validation/item-fit-v11-hair-accessory",
+  "itemFitV11Candidates": [
+    {
+      "id": "hairband-tiny-ribbon-fit",
+      "type": "hairAccessory",
+      "placement": "headband",
+      "filename": "hairband-tiny-ribbon-fit.png",
+      "label": "Hair accessory: tiny ribbon headband",
+      "prompt": "single small ribbon headband layer for a children princess dress-up game, original pastel storybook encyclopedia illustration matching a soft Japanese picture-book fashion encyclopedia, soft watercolor-like coloring, clean fine linework, front view accessory only, no head, no hair, no face, no body, no mannequin, no shadow, pure white 1024 by 1536 canvas, a slim pale pink headband arc with one tiny centered bow, symmetrical and lightweight, suitable for placing across the upper hair of a front-facing paper doll, keep the whole accessory compact, no tiara, no crown, no earrings, no necklace, no text, no watermark",
+      "rawPath": "item-fit-v11-hair-accessory/raw/hairband-tiny-ribbon-fit.png",
+      "cutoutPath": "item-fit-v11-hair-accessory/cutout/hairband-tiny-ribbon-fit.png",
+      "revisedPrompt": null,
+      "createdAt": "2026-04-30T13:40:30.368Z",
+      "status": "ok",
+      "error": null,
+      "sourceBounds": {
+        "x": 198,
+        "y": 438,
+        "width": 645,
+        "height": 481
+      },
+      "targetRect": {
+        "x": 383,
+        "y": 77,
+        "width": 244,
+        "height": 118
+      },
+      "placedRect": {
+        "x": 426,
+        "y": 77,
+        "width": 158,
+        "height": 118
+      },
+      "normalizedPath": "item-fit-v11-hair-accessory/normalized/hairband-tiny-ribbon-fit.png",
+      "compositePath": "item-fit-v11-hair-accessory/composite/hairband-tiny-ribbon-fit-composite.png"
+    },
+    {
+      "id": "hairpin-small-flower-fit",
+      "type": "hairAccessory",
+      "placement": "hairpinRight",
+      "filename": "hairpin-small-flower-fit.png",
+      "label": "Hair accessory: small flower hairpin",
+      "prompt": "single small flower hairpin layer for a children princess dress-up game, original pastel storybook encyclopedia illustration matching a soft Japanese picture-book fashion encyclopedia, soft watercolor-like coloring, clean fine linework, front view accessory only, no head, no hair, no face, no body, no mannequin, no shadow, pure white 1024 by 1536 canvas, one tiny pale pink flower clip with a short simple pin, compact enough to sit on the side of a bob haircut without covering the eye or face, keep the whole accessory small and readable, no tiara, no crown, no earrings, no necklace, no text, no watermark",
+      "rawPath": "item-fit-v11-hair-accessory/raw/hairpin-small-flower-fit.png",
+      "cutoutPath": "item-fit-v11-hair-accessory/cutout/hairpin-small-flower-fit.png",
+      "revisedPrompt": null,
+      "createdAt": "2026-04-30T13:41:27.728Z",
+      "status": "ok",
+      "error": null,
+      "sourceBounds": {
+        "x": 368,
+        "y": 619,
+        "width": 326,
+        "height": 243
+      },
+      "targetRect": {
+        "x": 584,
+        "y": 185,
+        "width": 58,
+        "height": 62
+      },
+      "placedRect": {
+        "x": 584,
+        "y": 195,
+        "width": 58,
+        "height": 43
+      },
+      "normalizedPath": "item-fit-v11-hair-accessory/normalized/hairpin-small-flower-fit.png",
+      "compositePath": "item-fit-v11-hair-accessory/composite/hairpin-small-flower-fit-composite.png"
+    }
+  ],
+  "itemFitV11SelectedStyle": "style-d-encyclopedia-clean-base",
+  "itemFitV11MeasuredHairAccessoryAnchors": {
+    "selectedStyleCandidateId": "style-d-encyclopedia-clean-base",
+    "measuredAt": "2026-04-30T13:42:23.390Z",
+    "method": "alpha bounds scan over the head and upper hair region of selected-style/model-base.png",
+    "headBounds": {
+      "x": 367,
+      "y": 49,
+      "width": 275,
+      "height": 321
+    },
+    "headCenter": {
+      "x": 505,
+      "y": 210
+    },
+    "targetRects": {
+      "headband": {
+        "x": 383,
+        "y": 77,
+        "width": 244,
+        "height": 118
+      },
+      "hairpinRight": {
+        "x": 584,
+        "y": 185,
+        "width": 58,
+        "height": 62
+      }
+    }
+  }
 }

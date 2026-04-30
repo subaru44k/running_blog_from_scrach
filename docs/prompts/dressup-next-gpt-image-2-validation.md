@@ -499,6 +499,43 @@ v10 の方針:
 
 2026-04-30 の v10 実行では、cream boots の半透明 interior pixel が片足あたり約 2k から 30 未満まで減りました。目視でも足指が透ける問題は大きく改善し、ribbon boots 側にも目立つ副作用はありませんでした。淡色 boots には、通常の背景除去後に v10 の opaque-interior normalization を使うのが妥当です。
 
+## high-risk fit v11: hairAccessory
+
+`ITEM_BATCH=high-risk-fit-v11-hair-accessory` では、necklace / boots から次のスロットへ進めるため、髪まわりの小物が顔や目を邪魔せずに重ねられるかを検証します。生成対象は headband 1点、hairpin 1点の合計 2 call に限定します。
+
+実行:
+
+```bash
+ITEM_BATCH=high-risk-fit-v11-hair-accessory npm --prefix backend/draw run generate-dressup-gpt-image-2-validation
+```
+
+特定アイテムだけ再生成する場合:
+
+```bash
+ITEM_BATCH=high-risk-fit-v11-hair-accessory ITEM_IDS=hairband-tiny-ribbon-fit npm --prefix backend/draw run generate-dressup-gpt-image-2-validation
+ITEM_BATCH=high-risk-fit-v11-hair-accessory ITEM_IDS=hairpin-small-flower-fit npm --prefix backend/draw run generate-dressup-gpt-image-2-validation
+```
+
+v11 の配置方針:
+
+- base cutout の頭部 alpha bounds を測定し、head center と accessory target rect を機械的に決める。
+- headband は頭頂寄りの横長 rect に収め、顔・目を覆わないかを見る。
+- hairpin は画像右側の髪の外縁寄り rect に収め、髪に留まって見えるかを見る。
+- 生成プロンプトだけに依存せず、生成後の cutout を target rect へ normalize する。
+
+出力:
+
+- `backend/draw/artifacts/dressup-gpt-image-2-validation/item-fit-v11-hair-accessory/raw/`
+- `backend/draw/artifacts/dressup-gpt-image-2-validation/item-fit-v11-hair-accessory/cutout/`
+- `backend/draw/artifacts/dressup-gpt-image-2-validation/item-fit-v11-hair-accessory/normalized/`
+- `backend/draw/artifacts/dressup-gpt-image-2-validation/item-fit-v11-hair-accessory/composite/`
+- `backend/draw/artifacts/dressup-gpt-image-2-validation/item-fit-v11-hair-accessory/item-fit-v11-preview.html`
+- `backend/draw/artifacts/dressup-gpt-image-2-validation/item-fit-v11-hair-accessory/item-fit-v11-review.md`
+
+v11 で headband と hairpin がともに合格すれば、次は hairAccessory を 2-3 点追加して配置安定性を確認します。顔や目への干渉、髪から浮いて見える問題、背景除去の破綻が出る場合は、他パーツに進む前に hair accessory 用 anchor を補正します。
+
+2026-04-30 の v11 実行では、headband 1点と hairpin 1点を生成しました。headband は頭部 center から求めた横長 target rect で顔・目に干渉せず、上髪に沿う見え方になりました。hairpin は初回 rect だと画像右側の目に干渉したため、新規生成はせず、target rect を小さくして髪の外縁へ寄せる再配置を行いました。最終的には flower hairpin も顔・目への干渉がなく、髪に留まって見えるため、hairAccessory も機械的な head bounds 測定と slot-specific rect で成立しそうです。次は hairAccessory の候補を 2-3 点増やし、同じ anchor で安定するかを確認します。
+
 ## AGENTS.md 判定
 
 このメモの追加自体は調査ドキュメントの追加であり、URL ルーティング、SEO、外部連携、データフロー、インフラ、ビルド・実行時前提を変更しません。
