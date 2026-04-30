@@ -1,0 +1,46 @@
+{
+  "selectedStyleCandidateId": "style-d-encyclopedia-clean-base",
+  "selectedAt": "2026-04-30T04:15:00.000Z",
+  "sourceRaw": "style-candidates/raw/style-d-encyclopedia-clean-base.png",
+  "sourceCutout": "style-candidates/cutout/style-d-encyclopedia-clean-base.png",
+  "selectedRaw": "selected-style/model-base-raw.png",
+  "selectedCutout": "selected-style/model-base.png",
+  "canvas": {
+    "width": 1024,
+    "height": 1536
+  },
+  "rationale": [
+    "Closest generated candidate to the intended soft storybook encyclopedia direction.",
+    "Avoids baked-in tiara, earrings, necklace, or other slot-contaminating accessories.",
+    "Short bob hair stays clear of the torso and neckline.",
+    "Round neckline leaves room for necklace validation.",
+    "Feet are visible enough to test left and right shoe placement."
+  ],
+  "risks": [
+    "The watercolor texture may make automatic background removal and later recoloring less crisp than the previous cleaner base.",
+    "The inner dress has visible watercolor shading, so top and bottom overlays may need to fully cover the torso and skirt region.",
+    "Manual anchors are still estimates and should be adjusted after the first necklace and shoe composites."
+  ],
+  "anchors": {
+    "headTop": { "x": 512, "y": 90 },
+    "neckCenter": { "x": 512, "y": 358 },
+    "necklaceCenter": { "x": 512, "y": 405 },
+    "shoulderLeft": { "x": 370, "y": 420 },
+    "shoulderRight": { "x": 654, "y": 420 },
+    "torsoCenter": { "x": 512, "y": 610 },
+    "waistCenter": { "x": 512, "y": 725 },
+    "hemCenter": { "x": 512, "y": 905 },
+    "ankleLeft": { "x": 456, "y": 1350 },
+    "ankleRight": { "x": 568, "y": 1350 },
+    "toeLeft": { "x": 450, "y": 1436 },
+    "toeRight": { "x": 572, "y": 1436 }
+  },
+  "slotRects": {
+    "hairAccessory": { "x": 330, "y": 70, "width": 364, "height": 140 },
+    "necklace": { "x": 400, "y": 360, "width": 224, "height": 120 },
+    "top": { "x": 315, "y": 390, "width": 394, "height": 360 },
+    "bottom": { "x": 300, "y": 700, "width": 424, "height": 300 },
+    "leftShoe": { "x": 394, "y": 1308, "width": 132, "height": 170 },
+    "rightShoe": { "x": 508, "y": 1308, "width": 132, "height": 170 }
+  }
+}

@@ -1,0 +1,46 @@
+{
+  "selectedCandidateId": "model-princess-base-b-validation-a",
+  "selectedAt": "2026-04-30T03:00:00.000Z",
+  "sourceRaw": "model-candidates/raw/model-princess-base-b-validation-a.png",
+  "sourceCutout": "model-candidates/cutout/model-princess-base-b-validation-a.png",
+  "selectedRaw": "selected/model-base-raw.png",
+  "selectedCutout": "selected/model-base.png",
+  "canvas": {
+    "width": 1024,
+    "height": 1536
+  },
+  "rationale": [
+    "Best balance of child-friendly storybook style and dress-up usability among the generated candidates.",
+    "Short bob hair stays clear of the torso and waist, reducing top and necklace layer conflicts.",
+    "Arms are separated from the torso enough for outfit overlays.",
+    "Round neckline leaves room for necklace validation.",
+    "Feet are visible and separated enough to test left/right shoe placement."
+  ],
+  "risks": [
+    "The base dress hem covers the upper legs, so bottoms may need to fully cover or replace the skirt region.",
+    "Hands are close to the skirt area and may need to stay visually behind wide tops or dresses.",
+    "The initial anchors are manual estimates and must be adjusted after the first item composites."
+  ],
+  "anchors": {
+    "headTop": { "x": 512, "y": 58 },
+    "neckCenter": { "x": 512, "y": 338 },
+    "necklaceCenter": { "x": 512, "y": 374 },
+    "shoulderLeft": { "x": 365, "y": 385 },
+    "shoulderRight": { "x": 659, "y": 385 },
+    "torsoCenter": { "x": 512, "y": 570 },
+    "waistCenter": { "x": 512, "y": 675 },
+    "hemCenter": { "x": 512, "y": 885 },
+    "ankleLeft": { "x": 456, "y": 1342 },
+    "ankleRight": { "x": 568, "y": 1342 },
+    "toeLeft": { "x": 450, "y": 1432 },
+    "toeRight": { "x": 570, "y": 1432 }
+  },
+  "slotRects": {
+    "hairAccessory": { "x": 330, "y": 36, "width": 364, "height": 150 },
+    "necklace": { "x": 402, "y": 330, "width": 220, "height": 110 },
+    "top": { "x": 315, "y": 350, "width": 394, "height": 360 },
+    "bottom": { "x": 300, "y": 660, "width": 424, "height": 300 },
+    "leftShoe": { "x": 396, "y": 1300, "width": 130, "height": 170 },
+    "rightShoe": { "x": 508, "y": 1300, "width": 130, "height": 170 }
+  }
+}

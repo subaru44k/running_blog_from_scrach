@@ -9,6 +9,7 @@
     "generate-dressup-assets": "node ./scripts/generate-dressup-assets.mjs",
     "generate-dressup-assets-b": "node ./scripts/generate-dressup-assets-b.mjs",
     "generate-dressup-asset-layers-b": "node ./scripts/generate-dressup-asset-layers-b.mjs",
+    "generate-dressup-gpt-image-2-validation": "node ./scripts/generate-dressup-gpt-image-2-validation.mjs",
     "generate-dressup-pilot-layers-b": "node ./scripts/generate-dressup-pilot-layers-b.mjs",
     "generate-dressup-model-variants": "node ./scripts/generate-dressup-model-variants.mjs",
     "generate-dressup-normalized-layers-b": "node ./scripts/normalize-dressup-asset-layers-b.mjs",

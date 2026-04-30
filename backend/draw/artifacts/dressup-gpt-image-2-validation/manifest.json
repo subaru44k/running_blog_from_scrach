@@ -1,0 +1,103 @@
+{
+  "model": "gpt-image-2",
+  "quality": "medium",
+  "size": "1024x1536",
+  "outputFormat": "png",
+  "generatedAt": "2026-04-30T04:14:22.770Z",
+  "outputDir": "/Users/yamadashinya/work/subaru-misc-blog/backend/draw/artifacts/dressup-gpt-image-2-validation",
+  "rawDir": "/Users/yamadashinya/work/subaru-misc-blog/backend/draw/artifacts/dressup-gpt-image-2-validation/model-candidates/raw",
+  "cutoutDir": "/Users/yamadashinya/work/subaru-misc-blog/backend/draw/artifacts/dressup-gpt-image-2-validation/model-candidates/cutout",
+  "candidates": [
+    {
+      "id": "model-princess-base-b-validation-a",
+      "label": "A: storybook paper doll",
+      "filename": "model-princess-base-b-validation-a.png",
+      "rawPath": "model-candidates/raw/model-princess-base-b-validation-a.png",
+      "cutoutPath": "model-candidates/cutout/model-princess-base-b-validation-a.png",
+      "prompt": "cute storybook encyclopedia paper doll mannequin for a princess dress-up game, non-realistic 2D illustration, front view, full body, standing straight and centered, modest rounded proportions, soft friendly face, light brown short bob hair kept above the shoulders and away from the torso, arms slightly away from the body for clean outfit overlays, visible neck, shoulders, waist, ankles, and toes, simple pale cream-pink sleeveless inner dress with a modest round neckline below the neck so necklaces can be tested, clear silhouette for dress-up validation, plain pure white background, no props, no text, no watermark",
+      "negativePrompt": "side view, three-quarter view, cropped head, cropped feet, cropped ankles, cropped toes, cropped hands, cropped arms, arms glued to body, hair covering torso, hair covering shoulders, hair covering waist, occluded neck, occluded shoulders, occluded waist, busy background, furniture, room, props, text, logo, watermark, photorealistic, realistic skin texture, adult proportions, sexy pose, dramatic pose, perspective distortion, extra limbs, extra fingers, multiple characters, dark background, gradients, strong shadows, long hem hiding the feet",
+      "revisedPrompt": null,
+      "status": "ok",
+      "error": null,
+      "createdAt": "2026-04-30T02:57:36.221Z"
+    },
+    {
+      "id": "model-princess-base-b-validation-b",
+      "label": "B: slightly softer pose",
+      "filename": "model-princess-base-b-validation-b.png",
+      "rawPath": "model-candidates/raw/model-princess-base-b-validation-b.png",
+      "cutoutPath": "model-candidates/cutout/model-princess-base-b-validation-b.png",
+      "prompt": "dress-up game base model inspired by model-princess-base-b, exact front view, full body, standing straight, arms gently away from the body, neck, shoulders, waist, ankles, and toes clearly visible, hair not covering the torso, simple pale inner dress, tidy princess doll proportions, elegant but practical dress-up base silhouette, plain pure white background, no props, no text, no watermark",
+      "negativePrompt": "side view, three-quarter view, cropped head, cropped feet, cropped ankles, cropped toes, cropped hands, cropped arms, arms glued to body, hair covering torso, hair covering shoulders, hair covering waist, occluded neck, occluded shoulders, occluded waist, busy background, furniture, room, props, text, logo, watermark, photorealistic, realistic skin texture, adult proportions, sexy pose, dramatic pose, perspective distortion, extra limbs, extra fingers, multiple characters, dark background, gradients, strong shadows, long hem hiding the feet",
+      "revisedPrompt": null,
+      "status": "ok",
+      "error": null,
+      "createdAt": "2026-04-30T02:52:58.022Z"
+    },
+    {
+      "id": "model-princess-base-b-validation-c",
+      "label": "C: flatter illustration feel",
+      "filename": "model-princess-base-b-validation-c.png",
+      "rawPath": "model-candidates/raw/model-princess-base-b-validation-c.png",
+      "cutoutPath": "model-candidates/cutout/model-princess-base-b-validation-c.png",
+      "prompt": "dress-up game base model inspired by model-princess-base-b, front view, full body, centered and symmetrical, arms slightly away from the body, visible neck, shoulders, waist, ankles, and toes, hair arranged so it does not cover the torso, simple pale inner dress, clean 2D illustration with a clear dress-up silhouette, readable and stable for clothing overlays, plain pure white background, no props, no text, no watermark",
+      "negativePrompt": "side view, three-quarter view, cropped head, cropped feet, cropped ankles, cropped toes, cropped hands, cropped arms, arms glued to body, hair covering torso, hair covering shoulders, hair covering waist, occluded neck, occluded shoulders, occluded waist, busy background, furniture, room, props, text, logo, watermark, photorealistic, realistic skin texture, adult proportions, sexy pose, dramatic pose, perspective distortion, extra limbs, extra fingers, multiple characters, dark background, gradients, strong shadows, long hem hiding the feet",
+      "revisedPrompt": null,
+      "status": "ok",
+      "error": null,
+      "createdAt": "2026-04-30T02:53:50.611Z"
+    }
+  ],
+  "styleRawDir": "/Users/yamadashinya/work/subaru-misc-blog/backend/draw/artifacts/dressup-gpt-image-2-validation/style-candidates/raw",
+  "styleCutoutDir": "/Users/yamadashinya/work/subaru-misc-blog/backend/draw/artifacts/dressup-gpt-image-2-validation/style-candidates/cutout",
+  "styleCandidates": [
+    {
+      "id": "style-a-encyclopedia",
+      "filename": "style-a-encyclopedia.png",
+      "label": "Style A: encyclopedia page",
+      "prompt": "pastel storybook encyclopedia illustration for a princess dress-up game, original non-realistic 2D paper doll mannequin, front view, full body, centered, compact Japanese children picture-book diagram feel, delicate simple line art, soft watercolor-like shading, gentle warm colors, small refined princess-fashion details, modest rounded proportions, friendly face, short tidy hair kept away from the torso, arms slightly away from the body, visible neck, shoulders, waist, ankles, and toes, simple pale pink sleeveless inner dress with a modest round neckline for necklace testing, plain pure white background, no props, no text, no watermark",
+      "rawPath": "style-candidates/raw/style-a-encyclopedia.png",
+      "cutoutPath": "style-candidates/cutout/style-a-encyclopedia.png",
+      "revisedPrompt": null,
+      "createdAt": "2026-04-30T04:09:12.129Z",
+      "status": "ok",
+      "error": null
+    },
+    {
+      "id": "style-b-princess-paper-doll",
+      "filename": "style-b-princess-paper-doll.png",
+      "label": "Style B: princess paper doll",
+      "prompt": "original princess paper doll for a children dress-up game, pastel picture-book encyclopedia style, flat 2D illustration, clean delicate outlines, soft airy coloring, slightly decorative but simple enough for clothing overlays, front view, full body, standing straight, arms gently separated from the torso, short bob hair clear of shoulders and waist, visible neck, shoulders, waist, ankles, and toes, simple cream-pink inner dress with round neckline, child-friendly modest proportions, plain pure white background, no props, no text, no watermark",
+      "rawPath": "style-candidates/raw/style-b-princess-paper-doll.png",
+      "cutoutPath": "style-candidates/cutout/style-b-princess-paper-doll.png",
+      "revisedPrompt": null,
+      "createdAt": "2026-04-30T04:09:56.408Z",
+      "status": "ok",
+      "error": null
+    },
+    {
+      "id": "style-c-dress-catalog",
+      "filename": "style-c-dress-catalog.png",
+      "label": "Style C: dress catalog",
+      "prompt": "children princess fashion encyclopedia base model, original flat 2D storybook diagram illustration, pastel colors, fine but readable linework, soft watercolor texture, dress catalog clarity with tiny elegant details kept subtle, front view, full body, symmetrical standing pose, arms slightly away for dress-up overlays, short neat hair not covering torso, visible neck, shoulders, waist, ankles, and toes, simple pale inner dress with necklace space at the neckline, plain pure white background, no props, no text, no watermark",
+      "rawPath": "style-candidates/raw/style-c-dress-catalog.png",
+      "cutoutPath": "style-candidates/cutout/style-c-dress-catalog.png",
+      "revisedPrompt": null,
+      "createdAt": "2026-04-30T04:10:30.870Z",
+      "status": "ok",
+      "error": null
+    },
+    {
+      "id": "style-d-encyclopedia-clean-base",
+      "filename": "style-d-encyclopedia-clean-base.png",
+      "label": "Style D: clean encyclopedia base",
+      "prompt": "pastel storybook encyclopedia illustration for a princess dress-up game, original non-realistic 2D paper doll mannequin, front view, full body, centered, compact Japanese children picture-book diagram feel, delicate simple line art, soft watercolor-like shading, gentle warm colors, refined but minimal princess feeling, no tiara, no earrings, no necklace, no hair accessories, no jewelry, no decorative props, short tidy bob hair kept away from the torso and neckline, arms slightly away from the body, visible neck, shoulders, waist, ankles, and toes, simple pale pink sleeveless inner dress with a modest round neckline for necklace testing, plain pure white background, no text, no watermark",
+      "rawPath": "style-candidates/raw/style-d-encyclopedia-clean-base.png",
+      "cutoutPath": "style-candidates/cutout/style-d-encyclopedia-clean-base.png",
+      "revisedPrompt": null,
+      "createdAt": "2026-04-30T04:12:06.814Z",
+      "status": "ok",
+      "error": null
+    }
+  ]
+}
