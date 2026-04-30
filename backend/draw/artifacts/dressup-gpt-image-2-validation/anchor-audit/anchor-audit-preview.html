@@ -1,0 +1,399 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Dressup Anchor Audit</title>
+    <style>
+      body { margin:0; font-family:"Hiragino Sans","Yu Gothic",system-ui,sans-serif; color:#142235; background:#f8fafc; }
+      main { width:min(1120px,calc(100% - 32px)); margin:0 auto; padding:28px 0 42px; }
+      h1 { margin:0 0 8px; font-size:30px; }
+      p { color:#64758a; line-height:1.7; }
+      .grid { display:grid; grid-template-columns:360px 1fr; gap:18px; align-items:start; }
+      .panel { border:1px solid #d8e2ec; border-radius:8px; background:#fff; padding:16px; }
+      img { width:100%; display:block; object-fit:contain; max-height:720px; }
+      pre { overflow:auto; margin:0; white-space:pre-wrap; font-size:13px; line-height:1.55; }
+      @media (max-width:860px) { .grid { grid-template-columns:1fr; } }
+    </style>
+  </head>
+  <body>
+    <main>
+      <h1>Anchor audit: style-d-encyclopedia-clean-base</h1>
+      <p>Measured from alpha row scans. Existing manual anchors are retained for comparison.</p>
+      <div class="grid">
+        <section class="panel"><img src="../selected-style/model-base.png" alt="selected style base" /></section>
+        <section class="panel"><pre>{
+  &quot;selectedStyleCandidateId&quot;: &quot;style-d-encyclopedia-clean-base&quot;,
+  &quot;baseCutout&quot;: &quot;selected-style/model-base.png&quot;,
+  &quot;measuredAt&quot;: &quot;2026-04-30T11:24:59.178Z&quot;,
+  &quot;method&quot;: &quot;alpha row scan over selected-style/model-base.png&quot;,
+  &quot;manualAnchors&quot;: {
+    &quot;headTop&quot;: {
+      &quot;x&quot;: 512,
+      &quot;y&quot;: 90
+    },
+    &quot;neckCenter&quot;: {
+      &quot;x&quot;: 512,
+      &quot;y&quot;: 358
+    },
+    &quot;necklaceCenter&quot;: {
+      &quot;x&quot;: 512,
+      &quot;y&quot;: 405
+    },
+    &quot;shoulderLeft&quot;: {
+      &quot;x&quot;: 370,
+      &quot;y&quot;: 420
+    },
+    &quot;shoulderRight&quot;: {
+      &quot;x&quot;: 654,
+      &quot;y&quot;: 420
+    },
+    &quot;torsoCenter&quot;: {
+      &quot;x&quot;: 512,
+      &quot;y&quot;: 610
+    },
+    &quot;waistCenter&quot;: {
+      &quot;x&quot;: 512,
+      &quot;y&quot;: 725
+    },
+    &quot;hemCenter&quot;: {
+      &quot;x&quot;: 512,
+      &quot;y&quot;: 905
+    },
+    &quot;ankleLeft&quot;: {
+      &quot;x&quot;: 456,
+      &quot;y&quot;: 1350
+    },
+    &quot;ankleRight&quot;: {
+      &quot;x&quot;: 568,
+      &quot;y&quot;: 1350
+    },
+    &quot;toeLeft&quot;: {
+      &quot;x&quot;: 450,
+      &quot;y&quot;: 1436
+    },
+    &quot;toeRight&quot;: {
+      &quot;x&quot;: 572,
+      &quot;y&quot;: 1436
+    }
+  },
+  &quot;manualSlotRects&quot;: {
+    &quot;hairAccessory&quot;: {
+      &quot;x&quot;: 330,
+      &quot;y&quot;: 70,
+      &quot;width&quot;: 364,
+      &quot;height&quot;: 140
+    },
+    &quot;necklace&quot;: {
+      &quot;x&quot;: 400,
+      &quot;y&quot;: 360,
+      &quot;width&quot;: 224,
+      &quot;height&quot;: 120
+    },
+    &quot;top&quot;: {
+      &quot;x&quot;: 315,
+      &quot;y&quot;: 390,
+      &quot;width&quot;: 394,
+      &quot;height&quot;: 360
+    },
+    &quot;bottom&quot;: {
+      &quot;x&quot;: 300,
+      &quot;y&quot;: 700,
+      &quot;width&quot;: 424,
+      &quot;height&quot;: 300
+    },
+    &quot;leftShoe&quot;: {
+      &quot;x&quot;: 394,
+      &quot;y&quot;: 1308,
+      &quot;width&quot;: 132,
+      &quot;height&quot;: 170
+    },
+    &quot;rightShoe&quot;: {
+      &quot;x&quot;: 508,
+      &quot;y&quot;: 1308,
+      &quot;width&quot;: 132,
+      &quot;height&quot;: 170
+    }
+  },
+  &quot;bodyCenterX&quot;: 504,
+  &quot;neckContourRows&quot;: [
+    {
+      &quot;y&quot;: 350,
+      &quot;left&quot;: 404,
+      &quot;right&quot;: 604,
+      &quot;center&quot;: 504,
+      &quot;width&quot;: 201
+    },
+    {
+      &quot;y&quot;: 360,
+      &quot;left&quot;: 385,
+      &quot;right&quot;: 623,
+      &quot;center&quot;: 504,
+      &quot;width&quot;: 239
+    },
+    {
+      &quot;y&quot;: 370,
+      &quot;left&quot;: 377,
+      &quot;right&quot;: 631,
+      &quot;center&quot;: 504,
+      &quot;width&quot;: 255
+    },
+    {
+      &quot;y&quot;: 380,
+      &quot;left&quot;: 372,
+      &quot;right&quot;: 636,
+      &quot;center&quot;: 504,
+      &quot;width&quot;: 265
+    },
+    {
+      &quot;y&quot;: 390,
+      &quot;left&quot;: 368,
+      &quot;right&quot;: 639,
+      &quot;center&quot;: 503.5,
+      &quot;width&quot;: 272
+    },
+    {
+      &quot;y&quot;: 400,
+      &quot;left&quot;: 366,
+      &quot;right&quot;: 642,
+      &quot;center&quot;: 504,
+      &quot;width&quot;: 277
+    },
+    {
+      &quot;y&quot;: 410,
+      &quot;left&quot;: 364,
+      &quot;right&quot;: 644,
+      &quot;center&quot;: 504,
+      &quot;width&quot;: 281
+    },
+    {
+      &quot;y&quot;: 420,
+      &quot;left&quot;: 363,
+      &quot;right&quot;: 645,
+      &quot;center&quot;: 504,
+      &quot;width&quot;: 283
+    },
+    {
+      &quot;y&quot;: 430,
+      &quot;left&quot;: 362,
+      &quot;right&quot;: 646,
+      &quot;center&quot;: 504,
+      &quot;width&quot;: 285
+    },
+    {
+      &quot;y&quot;: 440,
+      &quot;left&quot;: 361,
+      &quot;right&quot;: 647,
+      &quot;center&quot;: 504,
+      &quot;width&quot;: 287
+    }
+  ],
+  &quot;necklaceRect&quot;: {
+    &quot;x&quot;: 416,
+    &quot;y&quot;: 386,
+    &quot;width&quot;: 176,
+    &quot;height&quot;: 78
+  },
+  &quot;feet&quot;: {
+    &quot;imageLeft&quot;: {
+      &quot;bounds&quot;: {
+        &quot;x&quot;: 421,
+        &quot;y&quot;: 1320,
+        &quot;width&quot;: 69,
+        &quot;height&quot;: 136
+      },
+      &quot;ankleCenter&quot;: {
+        &quot;x&quot;: 463,
+        &quot;y&quot;: 1335
+      },
+      &quot;toeCenter&quot;: {
+        &quot;x&quot;: 455,
+        &quot;y&quot;: 1425
+      },
+      &quot;rows&quot;: [
+        {
+          &quot;y&quot;: 1320,
+          &quot;left&quot;: 440,
+          &quot;right&quot;: 485,
+          &quot;center&quot;: 462.5,
+          &quot;width&quot;: 46
+        },
+        {
+          &quot;y&quot;: 1335,
+          &quot;left&quot;: 441,
+          &quot;right&quot;: 484,
+          &quot;center&quot;: 462.5,
+          &quot;width&quot;: 44
+        },
+        {
+          &quot;y&quot;: 1350,
+          &quot;left&quot;: 441,
+          &quot;right&quot;: 485,
+          &quot;center&quot;: 463,
+          &quot;width&quot;: 45
+        },
+        {
+          &quot;y&quot;: 1365,
+          &quot;left&quot;: 438,
+          &quot;right&quot;: 486,
+          &quot;center&quot;: 462,
+          &quot;width&quot;: 49
+        },
+        {
+          &quot;y&quot;: 1380,
+          &quot;left&quot;: 434,
+          &quot;right&quot;: 486,
+          &quot;center&quot;: 460,
+          &quot;width&quot;: 53
+        },
+        {
+          &quot;y&quot;: 1395,
+          &quot;left&quot;: 430,
+          &quot;right&quot;: 486,
+          &quot;center&quot;: 458,
+          &quot;width&quot;: 57
+        },
+        {
+          &quot;y&quot;: 1410,
+          &quot;left&quot;: 426,
+          &quot;right&quot;: 488,
+          &quot;center&quot;: 457,
+          &quot;width&quot;: 63
+        },
+        {
+          &quot;y&quot;: 1425,
+          &quot;left&quot;: 421,
+          &quot;right&quot;: 489,
+          &quot;center&quot;: 455,
+          &quot;width&quot;: 69
+        },
+        {
+          &quot;y&quot;: 1440,
+          &quot;left&quot;: 423,
+          &quot;right&quot;: 486,
+          &quot;center&quot;: 454.5,
+          &quot;width&quot;: 64
+        },
+        {
+          &quot;y&quot;: 1455,
+          &quot;left&quot;: 442,
+          &quot;right&quot;: 482,
+          &quot;center&quot;: 462,
+          &quot;width&quot;: 41
+        }
+      ]
+    },
+    &quot;imageRight&quot;: {
+      &quot;bounds&quot;: {
+        &quot;x&quot;: 514,
+        &quot;y&quot;: 1320,
+        &quot;width&quot;: 69,
+        &quot;height&quot;: 136
+      },
+      &quot;ankleCenter&quot;: {
+        &quot;x&quot;: 541,
+        &quot;y&quot;: 1335
+      },
+      &quot;toeCenter&quot;: {
+        &quot;x&quot;: 548,
+        &quot;y&quot;: 1425
+      },
+      &quot;rows&quot;: [
+        {
+          &quot;y&quot;: 1320,
+          &quot;left&quot;: 518,
+          &quot;right&quot;: 563,
+          &quot;center&quot;: 540.5,
+          &quot;width&quot;: 46
+        },
+        {
+          &quot;y&quot;: 1335,
+          &quot;left&quot;: 519,
+          &quot;right&quot;: 562,
+          &quot;center&quot;: 540.5,
+          &quot;width&quot;: 44
+        },
+        {
+          &quot;y&quot;: 1350,
+          &quot;left&quot;: 518,
+          &quot;right&quot;: 562,
+          &quot;center&quot;: 540,
+          &quot;width&quot;: 45
+        },
+        {
+          &quot;y&quot;: 1365,
+          &quot;left&quot;: 517,
+          &quot;right&quot;: 565,
+          &quot;center&quot;: 541,
+          &quot;width&quot;: 49
+        },
+        {
+          &quot;y&quot;: 1380,
+          &quot;left&quot;: 517,
+          &quot;right&quot;: 569,
+          &quot;center&quot;: 543,
+          &quot;width&quot;: 53
+        },
+        {
+          &quot;y&quot;: 1395,
+          &quot;left&quot;: 517,
+          &quot;right&quot;: 573,
+          &quot;center&quot;: 545,
+          &quot;width&quot;: 57
+        },
+        {
+          &quot;y&quot;: 1410,
+          &quot;left&quot;: 515,
+          &quot;right&quot;: 577,
+          &quot;center&quot;: 546,
+          &quot;width&quot;: 63
+        },
+        {
+          &quot;y&quot;: 1425,
+          &quot;left&quot;: 514,
+          &quot;right&quot;: 582,
+          &quot;center&quot;: 548,
+          &quot;width&quot;: 69
+        },
+        {
+          &quot;y&quot;: 1440,
+          &quot;left&quot;: 517,
+          &quot;right&quot;: 580,
+          &quot;center&quot;: 548.5,
+          &quot;width&quot;: 64
+        },
+        {
+          &quot;y&quot;: 1455,
+          &quot;left&quot;: 522,
+          &quot;right&quot;: 562,
+          &quot;center&quot;: 542,
+          &quot;width&quot;: 41
+        }
+      ]
+    }
+  },
+  &quot;bootRects&quot;: {
+    &quot;leftShoe&quot;: {
+      &quot;x&quot;: 409,
+      &quot;y&quot;: 1315,
+      &quot;width&quot;: 92,
+      &quot;height&quot;: 148
+    },
+    &quot;rightShoe&quot;: {
+      &quot;x&quot;: 502,
+      &quot;y&quot;: 1315,
+      &quot;width&quot;: 92,
+      &quot;height&quot;: 148
+    }
+  },
+  &quot;deltasFromManual&quot;: {
+    &quot;bodyCenterX&quot;: -8,
+    &quot;imageLeftToeX&quot;: 5,
+    &quot;imageRightToeX&quot;: -24,
+    &quot;rightBootRectXFromV4&quot;: -20
+  }
+}</pre></section>
+      </div>
+    </main>
+  </body>
+</html>

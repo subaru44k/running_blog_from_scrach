@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Dressup Necklace Anchor Audit</title>
+    <style>
+      body { margin:0; font-family:"Hiragino Sans","Yu Gothic",system-ui,sans-serif; color:#142235; background:#f8fafc; }
+      main { width:min(1120px,calc(100% - 32px)); margin:0 auto; padding:28px 0 42px; }
+      h1 { margin:0 0 8px; font-size:30px; }
+      p { color:#64758a; line-height:1.7; }
+      .grid { display:grid; grid-template-columns:360px 1fr; gap:18px; align-items:start; }
+      .panel { border:1px solid #d8e2ec; border-radius:8px; background:#fff; padding:16px; }
+      img { width:100%; display:block; object-fit:contain; max-height:720px; }
+      pre { overflow:auto; margin:0; white-space:pre-wrap; font-size:13px; line-height:1.55; }
+      @media (max-width:860px) { .grid { grid-template-columns:1fr; } }
+    </style>
+  </head>
+  <body>
+    <main>
+      <h1>Necklace anchor audit: style-d-encyclopedia-clean-base</h1>
+      <p>Measures the base shoulder/neck top boundary and the generated necklace start points.</p>
+      <div class="grid">
+        <section class="panel"><img src="../selected-style/model-base.png" alt="selected style base" /></section>
+        <section class="panel"><pre>{
+  &quot;selectedStyleCandidateId&quot;: &quot;style-d-encyclopedia-clean-base&quot;,
+  &quot;measuredAt&quot;: &quot;2026-04-30T12:16:39.322Z&quot;,
+  &quot;method&quot;: &quot;base alpha top-boundary plus necklace cutout alpha start anchors&quot;,
+  &quot;bodyCenterX&quot;: 504,
+  &quot;baseTopBoundaryAtTargetX&quot;: {
+    &quot;leftStart&quot;: 339,
+    &quot;rightStart&quot;: 338
+  },
+  &quot;targetAnchors&quot;: {
+    &quot;leftStart&quot;: {
+      &quot;x&quot;: 452,
+      &quot;y&quot;: 340
+    },
+    &quot;rightStart&quot;: {
+      &quot;x&quot;: 556,
+      &quot;y&quot;: 340
+    }
+  },
+  &quot;v7Cutout&quot;: {
+    &quot;path&quot;: &quot;item-fit-v7-necklace/cutout/necklace-inner-shoulder-line-fit.png&quot;,
+    &quot;sourceBounds&quot;: {
+      &quot;x&quot;: 367,
+      &quot;y&quot;: 476,
+      &quot;width&quot;: 334,
+      &quot;height&quot;: 288
+    },
+    &quot;sourceAnchorsWithinBounds&quot;: {
+      &quot;leftStart&quot;: {
+        &quot;x&quot;: 7,
+        &quot;y&quot;: 1
+      },
+      &quot;rightStart&quot;: {
+        &quot;x&quot;: 325,
+        &quot;y&quot;: 0
+      }
+    },
+    &quot;croppedSize&quot;: {
+      &quot;width&quot;: 334,
+      &quot;height&quot;: 288
+    }
+  },
+  &quot;v7Normalized&quot;: {
+    &quot;path&quot;: &quot;item-fit-v7-necklace/normalized/necklace-inner-shoulder-line-fit.png&quot;,
+    &quot;anchors&quot;: {
+      &quot;leftStart&quot;: {
+        &quot;x&quot;: 453,
+        &quot;y&quot;: 361
+      },
+      &quot;rightStart&quot;: {
+        &quot;x&quot;: 555,
+        &quot;y&quot;: 360
+      }
+    },
+    &quot;deltasFromTarget&quot;: {
+      &quot;leftStartY&quot;: 21,
+      &quot;rightStartY&quot;: 20
+    }
+  }
+}</pre></section>
+      </div>
+    </main>
+  </body>
+</html>

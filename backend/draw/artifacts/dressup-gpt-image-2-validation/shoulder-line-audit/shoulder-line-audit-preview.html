@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Dressup Shoulder Line Audit</title>
+    <style>
+      body { margin:0; font-family:"Hiragino Sans","Yu Gothic",system-ui,sans-serif; color:#142235; background:#f8fafc; }
+      main { width:min(1120px,calc(100% - 32px)); margin:0 auto; padding:28px 0 42px; }
+      h1 { margin:0 0 8px; font-size:30px; }
+      p { color:#64758a; line-height:1.7; }
+      .grid { display:grid; grid-template-columns:360px 1fr; gap:18px; align-items:start; }
+      .panel { border:1px solid #d8e2ec; border-radius:8px; background:#fff; padding:16px; }
+      img { width:100%; display:block; object-fit:contain; max-height:720px; }
+      pre { overflow:auto; margin:0; white-space:pre-wrap; font-size:13px; line-height:1.55; }
+      @media (max-width:860px) { .grid { grid-template-columns:1fr; } }
+    </style>
+  </head>
+  <body>
+    <main>
+      <h1>Shoulder line audit: style-d-encyclopedia-clean-base</h1>
+      <p>Measured shoulder/body surface for necklace placement. This intentionally avoids the dress neckline anchor used by v5.</p>
+      <div class="grid">
+        <section class="panel"><img src="../selected-style/model-base.png" alt="selected style base" /></section>
+        <section class="panel"><pre>{
+  &quot;selectedStyleCandidateId&quot;: &quot;style-d-encyclopedia-clean-base&quot;,
+  &quot;baseCutout&quot;: &quot;selected-style/model-base.png&quot;,
+  &quot;measuredAt&quot;: &quot;2026-04-30T11:39:48.408Z&quot;,
+  &quot;method&quot;: &quot;alpha top-boundary scan on selected-style/model-base.png; necklace endpoints target the shoulder/body surface, not the dress neckline&quot;,
+  &quot;bodyCenterX&quot;: 504,
+  &quot;shoulderLine&quot;: {
+    &quot;left&quot;: {
+      &quot;x&quot;: 400,
+      &quot;y&quot;: 376
+    },
+    &quot;center&quot;: {
+      &quot;x&quot;: 504,
+      &quot;y&quot;: 410
+    },
+    &quot;right&quot;: {
+      &quot;x&quot;: 608,
+      &quot;y&quot;: 376
+    },
+    &quot;sourceTopY&quot;: {
+      &quot;left&quot;: 352,
+      &quot;right&quot;: 351
+    },
+    &quot;width&quot;: 208
+  },
+  &quot;shoulderContourRows&quot;: [
+    {
+      &quot;y&quot;: 360,
+      &quot;left&quot;: 385,
+      &quot;right&quot;: 623,
+      &quot;center&quot;: 504,
+      &quot;width&quot;: 239
+    },
+    {
+      &quot;y&quot;: 370,
+      &quot;left&quot;: 377,
+      &quot;right&quot;: 631,
+      &quot;center&quot;: 504,
+      &quot;width&quot;: 255
+    },
+    {
+      &quot;y&quot;: 380,
+      &quot;left&quot;: 372,
+      &quot;right&quot;: 636,
+      &quot;center&quot;: 504,
+      &quot;width&quot;: 265
+    },
+    {
+      &quot;y&quot;: 390,
+      &quot;left&quot;: 368,
+      &quot;right&quot;: 639,
+      &quot;center&quot;: 503.5,
+      &quot;width&quot;: 272
+    },
+    {
+      &quot;y&quot;: 400,
+      &quot;left&quot;: 366,
+      &quot;right&quot;: 642,
+      &quot;center&quot;: 504,
+      &quot;width&quot;: 277
+    },
+    {
+      &quot;y&quot;: 410,
+      &quot;left&quot;: 364,
+      &quot;right&quot;: 644,
+      &quot;center&quot;: 504,
+      &quot;width&quot;: 281
+    },
+    {
+      &quot;y&quot;: 420,
+      &quot;left&quot;: 363,
+      &quot;right&quot;: 645,
+      &quot;center&quot;: 504,
+      &quot;width&quot;: 283
+    },
+    {
+      &quot;y&quot;: 430,
+      &quot;left&quot;: 362,
+      &quot;right&quot;: 646,
+      &quot;center&quot;: 504,
+      &quot;width&quot;: 285
+    }
+  ],
+  &quot;necklaceShoulderRect&quot;: {
+    &quot;x&quot;: 384,
+    &quot;y&quot;: 364,
+    &quot;width&quot;: 240,
+    &quot;height&quot;: 118
+  },
+  &quot;preferredSourceAsset&quot;: &quot;item-fit-v3/cutout/necklace-shoulder-aligned-fit.png&quot;,
+  &quot;comparison&quot;: {
+    &quot;previousV5NecklaceRect&quot;: {
+      &quot;x&quot;: 416,
+      &quot;y&quot;: 386,
+      &quot;width&quot;: 176,
+      &quot;height&quot;: 78
+    },
+    &quot;intent&quot;: &quot;place the chain from the shoulder/body line and keep the pendant centered on the measured body axis&quot;
+  }
+}</pre></section>
+      </div>
+    </main>
+  </body>
+</html>

@@ -1,0 +1,60 @@
+{
+  "selectedStyleCandidateId": "style-d-encyclopedia-clean-base",
+  "measuredAt": "2026-04-30T12:16:39.322Z",
+  "method": "base alpha top-boundary plus necklace cutout alpha start anchors",
+  "bodyCenterX": 504,
+  "baseTopBoundaryAtTargetX": {
+    "leftStart": 339,
+    "rightStart": 338
+  },
+  "targetAnchors": {
+    "leftStart": {
+      "x": 452,
+      "y": 340
+    },
+    "rightStart": {
+      "x": 556,
+      "y": 340
+    }
+  },
+  "v7Cutout": {
+    "path": "item-fit-v7-necklace/cutout/necklace-inner-shoulder-line-fit.png",
+    "sourceBounds": {
+      "x": 367,
+      "y": 476,
+      "width": 334,
+      "height": 288
+    },
+    "sourceAnchorsWithinBounds": {
+      "leftStart": {
+        "x": 7,
+        "y": 1
+      },
+      "rightStart": {
+        "x": 325,
+        "y": 0
+      }
+    },
+    "croppedSize": {
+      "width": 334,
+      "height": 288
+    }
+  },
+  "v7Normalized": {
+    "path": "item-fit-v7-necklace/normalized/necklace-inner-shoulder-line-fit.png",
+    "anchors": {
+      "leftStart": {
+        "x": 453,
+        "y": 361
+      },
+      "rightStart": {
+        "x": 555,
+        "y": 360
+      }
+    },
+    "deltasFromTarget": {
+      "leftStartY": 21,
+      "rightStartY": 20
+    }
+  }
+}

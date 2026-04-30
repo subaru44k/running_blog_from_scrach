@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Dressup Item Fit V2 Preview</title>
+    <style>
+      :root { color-scheme: light; --panel:#fff; --border:#d8e2ec; --text:#142235; --muted:#64758a; --accent:#7c3aed; --error:#b42318; }
+      * { box-sizing:border-box; }
+      body { margin:0; font-family:"Hiragino Sans","Yu Gothic",system-ui,sans-serif; color:var(--text); background:#f8fafc; }
+      main { width:min(1280px,calc(100% - 32px)); margin:0 auto; padding:28px 0 42px; }
+      .hero { margin-bottom:20px; }
+      .eyebrow, header p { margin:0; color:var(--accent); font-size:12px; font-weight:800; letter-spacing:.14em; text-transform:uppercase; }
+      h1 { margin:6px 0 8px; font-size:32px; line-height:1.15; }
+      .meta, .prompt { margin:0; color:var(--muted); line-height:1.7; }
+      .grid { display:grid; gap:18px; }
+      .card { border:1px solid var(--border); border-radius:8px; background:var(--panel); padding:16px; box-shadow:0 10px 28px rgba(15,35,55,.06); }
+      header { display:flex; justify-content:space-between; gap:14px; align-items:flex-start; margin-bottom:14px; }
+      h2 { margin:4px 0 0; font-size:19px; line-height:1.3; }
+      strong { border:1px solid #ddd6fe; border-radius:999px; color:var(--accent); padding:5px 9px; font-size:12px; text-transform:uppercase; }
+      .comparison { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:10px; }
+      figure { margin:0; border:1px solid #e4ebf2; border-radius:8px; overflow:hidden; background:linear-gradient(45deg,#edf2f7 25%,transparent 25%) 0 0/18px 18px,linear-gradient(-45deg,#edf2f7 25%,transparent 25%) 0 0/18px 18px,linear-gradient(45deg,transparent 75%,#edf2f7 75%) 0 0/18px 18px,linear-gradient(-45deg,transparent 75%,#edf2f7 75%) 0 0/18px 18px,#fff; }
+      figcaption { padding:9px 10px 0; color:var(--muted); font-size:12px; font-weight:800; }
+      img { width:100%; height:460px; object-fit:contain; display:block; }
+      .prompt { margin-top:12px; font-size:13px; }
+      .error { color:var(--error); font-weight:800; }
+      @media (max-width:1100px) { .comparison { grid-template-columns:repeat(2,minmax(0,1fr)); } }
+      @media (max-width:680px) { .comparison { grid-template-columns:1fr; } img { height:340px; } }
+    </style>
+  </head>
+  <body>
+    <main>
+      <section class="hero">
+        <p class="eyebrow">DRESSUP ITEM FIT V2 VALIDATION</p>
+        <h1>style-d symmetric necklace and footwear patch</h1>
+        <p class="meta">Base: style-d-encyclopedia-clean-base. Footwear uses a replacement patch: mask {&quot;x&quot;:382,&quot;y&quot;:1298,&quot;width&quot;:280,&quot;height&quot;:205}, then composite.</p>
+      </section>
+      <div class="grid"><article class="card ok"><header><div><p>necklace</p><h2>Necklace: symmetric heart pearl fit</h2></div><strong>ok</strong></header><div class="comparison"><figure><figcaption>Base</figcaption><img src="../selected-style/model-base.png" alt="selected style base" /></figure><figure><figcaption>Cutout</figcaption><img src="cutout/necklace-symmetric-heart-pearl-fit.png" alt="Necklace: symmetric heart pearl fit cutout" /></figure><figure><figcaption>Normalized</figcaption><img src="normalized/necklace-symmetric-heart-pearl-fit.png" alt="Normalized" /></figure><figure><figcaption>Composite</figcaption><img src="masked-composite/necklace-symmetric-heart-pearl-fit-composite.png" alt="Necklace: symmetric heart pearl fit composite" /></figure></div><p class="prompt">perfectly symmetrical small princess necklace layer for a children dress-up game, original pastel storybook encyclopedia illustration, soft watercolor-like coloring, clean fine linework, front view U-shaped pearl chain, left and right chain ends at exactly the same height, one tiny heart pendant exactly on the vertical center line, draw only the necklace and no body, no neck, no dress, no mannequin, pure white 1024 by 1536 canvas, place the pendant at canvas x 512 y 430 and keep the entire necklace inside x 410 to 614 and y 365 to 475, total width no more than 204 pixels, balanced and centered for a front-facing paper doll neckline, no earrings, no tiara, no text, no watermark</p></article>
+<article class="card ok"><header><div><p>footwearPatch</p><h2>Footwear patch: Mary Jane fit</h2></div><strong>ok</strong></header><div class="comparison"><figure><figcaption>Base</figcaption><img src="../selected-style/model-base.png" alt="selected style base" /></figure><figure><figcaption>Cutout</figcaption><img src="cutout/footwear-patch-mary-jane-fit.png" alt="Footwear patch: Mary Jane fit cutout" /></figure><figure><figcaption>Footwear patch normalized</figcaption><img src="normalized/footwear-patch-mary-jane-fit.png" alt="Footwear patch normalized" /></figure><figure><figcaption>Masked composite</figcaption><img src="masked-composite/footwear-patch-mary-jane-fit-masked-composite.png" alt="Footwear patch: Mary Jane fit composite" /></figure></div><p class="prompt">footwear replacement patch for a children princess dress-up game, original pastel storybook encyclopedia illustration, soft watercolor-like coloring, clean fine linework, front view pair of lower ankles and feet wearing low pink Mary Jane flat shoes, draw the visible skin ankles above the shoes and the shoes covering toes naturally, draw only the lower ankles, feet, and shoes, no knees, no full legs, no dress, no body, no mannequin, pure white 1024 by 1536 canvas, place the patch near the bottom center: left ankle near x 456 y 1350 and left toe/shoe tip near x 450 y 1436, right ankle near x 568 y 1350 and right toe/shoe tip near x 572 y 1436, keep the complete replacement patch inside x 382 to 662 and y 1298 to 1503, maintain the same front-facing stance and spacing as a paper doll base, no text, no watermark</p></article></div>
+    </main>
+  </body>
+</html>

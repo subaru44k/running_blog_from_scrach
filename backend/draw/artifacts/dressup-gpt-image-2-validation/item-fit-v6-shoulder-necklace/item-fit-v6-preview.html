@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Dressup Item Fit V6 Shoulder Necklace Preview</title>
+    <style>
+      :root { color-scheme: light; --panel:#fff; --border:#d8e2ec; --text:#142235; --muted:#64758a; --accent:#0f766e; }
+      * { box-sizing:border-box; }
+      body { margin:0; font-family:"Hiragino Sans","Yu Gothic",system-ui,sans-serif; color:var(--text); background:#f8fafc; }
+      main { width:min(1120px,calc(100% - 32px)); margin:0 auto; padding:28px 0 42px; }
+      h1 { margin:6px 0 8px; font-size:32px; line-height:1.15; }
+      .meta { margin:0 0 18px; color:var(--muted); line-height:1.7; }
+      .card { border:1px solid var(--border); border-radius:8px; background:var(--panel); padding:16px; box-shadow:0 10px 28px rgba(15,35,55,.06); }
+      header { margin-bottom:14px; }
+      header p { margin:0; color:var(--accent); font-size:12px; font-weight:800; letter-spacing:.14em; text-transform:uppercase; }
+      h2 { margin:4px 0 0; font-size:19px; line-height:1.3; }
+      .comparison { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:10px; }
+      figure { margin:0; border:1px solid #e4ebf2; border-radius:8px; overflow:hidden; background:linear-gradient(45deg,#edf2f7 25%,transparent 25%) 0 0/18px 18px,linear-gradient(-45deg,#edf2f7 25%,transparent 25%) 0 0/18px 18px,linear-gradient(45deg,transparent 75%,#edf2f7 75%) 0 0/18px 18px,linear-gradient(-45deg,transparent 75%,#edf2f7 75%) 0 0/18px 18px,#fff; }
+      figcaption { padding:9px 10px 0; color:var(--muted); font-size:12px; font-weight:800; }
+      img { width:100%; height:560px; object-fit:contain; display:block; }
+      @media (max-width:980px) { .comparison { grid-template-columns:repeat(2,minmax(0,1fr)); } img { height:420px; } }
+      @media (max-width:620px) { .comparison { grid-template-columns:1fr; } img { height:340px; } }
+    </style>
+  </head>
+  <body>
+    <main>
+      <h1>V6 shoulder-line necklace placement</h1>
+      <p class="meta">bodyCenterX=504, shoulderLine={&quot;left&quot;:{&quot;x&quot;:400,&quot;y&quot;:376},&quot;center&quot;:{&quot;x&quot;:504,&quot;y&quot;:410},&quot;right&quot;:{&quot;x&quot;:608,&quot;y&quot;:376},&quot;sourceTopY&quot;:{&quot;left&quot;:352,&quot;right&quot;:351},&quot;width&quot;:208}, necklace={&quot;x&quot;:384,&quot;y&quot;:364,&quot;width&quot;:240,&quot;height&quot;:118}</p>
+      <article class="card">
+        <header><p>necklace</p><h2>Necklace: v3 cutout shoulder-line measured placement</h2></header>
+        <div class="comparison">
+          <figure><figcaption>Base</figcaption><img src="../selected-style/model-base.png" alt="selected style base" /></figure>
+          <figure><figcaption>Source</figcaption><img src="../item-fit-v3/cutout/necklace-shoulder-aligned-fit.png" alt="source necklace" /></figure>
+          <figure><figcaption>Shoulder-line normalized</figcaption><img src="normalized/necklace-shoulder-line-fit.png" alt="normalized necklace" /></figure>
+          <figure><figcaption>Composite</figcaption><img src="composite/necklace-shoulder-line-fit-composite.png" alt="composite necklace" /></figure>
+        </div>
+      </article>
+    </main>
+  </body>
+</html>

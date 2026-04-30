@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Dressup Item Fit V4 Preview</title>
+    <style>
+      :root { color-scheme: light; --panel:#fff; --border:#d8e2ec; --text:#142235; --muted:#64758a; --accent:#0f766e; --error:#b42318; }
+      * { box-sizing:border-box; }
+      body { margin:0; font-family:"Hiragino Sans","Yu Gothic",system-ui,sans-serif; color:var(--text); background:#f8fafc; }
+      main { width:min(1320px,calc(100% - 32px)); margin:0 auto; padding:28px 0 42px; }
+      .hero { margin-bottom:20px; }
+      .eyebrow, header p { margin:0; color:var(--accent); font-size:12px; font-weight:800; letter-spacing:.14em; text-transform:uppercase; }
+      h1 { margin:6px 0 8px; font-size:32px; line-height:1.15; }
+      .meta, .prompt { margin:0; color:var(--muted); line-height:1.7; }
+      .grid { display:grid; gap:18px; }
+      .card { border:1px solid var(--border); border-radius:8px; background:var(--panel); padding:16px; box-shadow:0 10px 28px rgba(15,35,55,.06); }
+      header { display:flex; justify-content:space-between; gap:14px; align-items:flex-start; margin-bottom:14px; }
+      h2 { margin:4px 0 0; font-size:19px; line-height:1.3; }
+      strong { border:1px solid #bee3db; border-radius:999px; color:var(--accent); padding:5px 9px; font-size:12px; text-transform:uppercase; }
+      .comparison { display:grid; grid-template-columns:repeat(6,minmax(0,1fr)); gap:10px; }
+      figure { margin:0; border:1px solid #e4ebf2; border-radius:8px; overflow:hidden; background:linear-gradient(45deg,#edf2f7 25%,transparent 25%) 0 0/18px 18px,linear-gradient(-45deg,#edf2f7 25%,transparent 25%) 0 0/18px 18px,linear-gradient(45deg,transparent 75%,#edf2f7 75%) 0 0/18px 18px,linear-gradient(-45deg,transparent 75%,#edf2f7 75%) 0 0/18px 18px,#fff; }
+      figcaption { padding:9px 10px 0; color:var(--muted); font-size:12px; font-weight:800; }
+      img { width:100%; height:440px; object-fit:contain; display:block; }
+      .prompt { margin-top:12px; font-size:13px; }
+      .error { color:var(--error); font-weight:800; }
+      @media (max-width:1180px) { .comparison { grid-template-columns:repeat(3,minmax(0,1fr)); } }
+      @media (max-width:760px) { .comparison { grid-template-columns:1fr; } img { height:340px; } }
+    </style>
+  </head>
+  <body>
+    <main>
+      <section class="hero">
+        <p class="eyebrow">DRESSUP ITEM FIT V4 VALIDATION</p>
+        <h1>short necklace and ankle-scale boots overlay</h1>
+        <p class="meta">Base: style-d-encyclopedia-clean-base. Boots use fixed smaller fit rects: {&quot;leftShoe&quot;:{&quot;x&quot;:410,&quot;y&quot;:1330,&quot;width&quot;:92,&quot;height&quot;:148},&quot;rightShoe&quot;:{&quot;x&quot;:522,&quot;y&quot;:1330,&quot;width&quot;:92,&quot;height&quot;:148}}.</p>
+      </section>
+      <div class="grid"><article class="card ok"><header><div><p>necklace</p><h2>Necklace: short collarbone fit</h2></div><strong>ok</strong></header><div class="comparison"><figure><figcaption>Base</figcaption><img src="../selected-style/model-base.png" alt="selected style base" /></figure><figure><figcaption>Cutout</figcaption><img src="cutout/necklace-short-collarbone-fit.png" alt="Necklace: short collarbone fit cutout" /></figure><figure><figcaption>Normalized</figcaption><img src="normalized/necklace-short-collarbone-fit.png" alt="Normalized" /></figure><figure><figcaption>Composite</figcaption><img src="composite/necklace-short-collarbone-fit-composite.png" alt="Necklace: short collarbone fit composite" /></figure></div><p class="prompt">very short collarbone princess necklace fitted inside a front-facing paper doll neckline, original pastel storybook encyclopedia illustration, soft watercolor-like coloring, clean fine linework, draw only the necklace and no body, no neck, no dress, no mannequin, pure white 1024 by 1536 canvas, tiny symmetrical shallow U-shaped chain with one small heart pendant exactly on the body center line at x 512, chain ends near x 452 and x 572 around y 392, the chain stays inside the dress neckline opening, does not touch shoulder straps, does not extend toward shoulders, total width no more than 150 pixels, small delicate child paper doll accessory, no earrings, no tiara, no text, no watermark</p></article>
+<article class="card ok"><header><div><p>boots</p><h2>Boots: ankle scale overlay fit</h2></div><strong>ok</strong></header><div class="comparison"><figure><figcaption>Base</figcaption><img src="../selected-style/model-base.png" alt="selected style base" /></figure><figure><figcaption>Cutout</figcaption><img src="cutout/boots-ankle-scale-fit.png" alt="Boots: ankle scale overlay fit cutout" /></figure><figure><figcaption>Left split</figcaption><img src="split/boots-ankle-scale-fit-left.png" alt="Left split" /></figure><figure><figcaption>Right split</figcaption><img src="split/boots-ankle-scale-fit-right.png" alt="Right split" /></figure><figure><figcaption>Left normalized</figcaption><img src="normalized/boots-ankle-scale-fit-left.png" alt="Left normalized" /></figure><figure><figcaption>Right normalized</figcaption><img src="normalized/boots-ankle-scale-fit-right.png" alt="Right normalized" /></figure><figure><figcaption>Composite</figcaption><img src="composite/boots-ankle-scale-fit-composite.png" alt="Boots: ankle scale overlay fit composite" /></figure></div><p class="prompt">pair of slim short ankle boots only for a children princess dress-up game, original pastel storybook encyclopedia illustration, soft watercolor-like coloring, clean fine linework, front view boots only, no legs, no feet, no socks, no skin, no body, no mannequin, pure white 1024 by 1536 canvas, narrow boot opening matching a small ankle width, rounded toe covers toes but the boot is not oversized, each boot about as wide as a child paper doll foot, soft pink simple ankle boots with minimal decoration, place left boot near toe x 450 y 1436 and right boot near toe x 572 y 1436, matched pair, same size left and right, no text, no watermark</p></article></div>
+    </main>
+  </body>
+</html>

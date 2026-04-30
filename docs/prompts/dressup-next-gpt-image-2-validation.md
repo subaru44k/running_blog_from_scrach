@@ -144,6 +144,295 @@ STYLE_BATCH=storybook-encyclopedia npm --prefix backend/draw run generate-dressu
 
 次の生成は、`style-d-encyclopedia-clean-base` に対して、`necklace` 1点と `shoes` 1点だけで開始します。
 
+## high-risk fit validation: necklace と shoes
+
+`ITEM_BATCH=high-risk-fit` で、選定済みの `style-d-encyclopedia-clean-base` に対して、失敗リスクが高い `necklace` 1点と `shoes` 1点だけを生成します。
+
+実行:
+
+```bash
+ITEM_BATCH=high-risk-fit npm --prefix backend/draw run generate-dressup-gpt-image-2-validation
+```
+
+特定アイテムだけ再生成する場合:
+
+```bash
+ITEM_BATCH=high-risk-fit ITEM_IDS=necklace-heart-pearl-fit npm --prefix backend/draw run generate-dressup-gpt-image-2-validation
+ITEM_BATCH=high-risk-fit ITEM_IDS=shoes-ribbon-ballet-fit npm --prefix backend/draw run generate-dressup-gpt-image-2-validation
+```
+
+生成後は、`selected-style-model.json` の slot rect に合わせて後処理します。`necklace` は単体で正規化し、`shoes` は左右ペアを生成したあと `leftShoe` / `rightShoe` に分割して正規化します。プロンプトの座標追従性だけでなく、ゲーム用素材として後処理で安定させられるかを同時に見ます。
+
+出力:
+
+- `backend/draw/artifacts/dressup-gpt-image-2-validation/item-fit/raw/`
+- `backend/draw/artifacts/dressup-gpt-image-2-validation/item-fit/cutout/`
+- `backend/draw/artifacts/dressup-gpt-image-2-validation/item-fit/normalized/`
+- `backend/draw/artifacts/dressup-gpt-image-2-validation/item-fit/split/`
+- `backend/draw/artifacts/dressup-gpt-image-2-validation/item-fit/composite/`
+- `backend/draw/artifacts/dressup-gpt-image-2-validation/item-fit/item-fit-preview.html`
+- `backend/draw/artifacts/dressup-gpt-image-2-validation/item-fit/item-fit-review.md`
+
+コストを抑えるため、初回は画像生成 API を 2 call に限定します。失敗した場合は該当アイテムだけを `ITEM_IDS` で再実行します。
+
+2026-04-30 の初回実行では、`necklace-heart-pearl-fit` と `shoes-ribbon-ballet-fit` を生成しました。ネックレスは slot 正規化後に首元へ自然に収まりました。靴は左右分割と正規化で足位置には合いましたが、リボン付きバレエシューズとして生成した結果、足首方向にやや高く出たため、次回は低めのメリージェーンまたはフラットシューズ指定で再検証する価値があります。
+
+## high-risk fit v2: 足込み footwear patch
+
+`ITEM_BATCH=high-risk-fit-v2` では、靴を単純な上乗せレイヤーとして扱わず、足先を含む `footwearPatch` として検証します。base の足元矩形を白で隠してから、靴と足首を含む差替えパッチを合成します。
+
+実行:
+
+```bash
+ITEM_BATCH=high-risk-fit-v2 npm --prefix backend/draw run generate-dressup-gpt-image-2-validation
+```
+
+特定アイテムだけ再生成する場合:
+
+```bash
+ITEM_BATCH=high-risk-fit-v2 ITEM_IDS=necklace-symmetric-heart-pearl-fit npm --prefix backend/draw run generate-dressup-gpt-image-2-validation
+ITEM_BATCH=high-risk-fit-v2 ITEM_IDS=footwear-patch-mary-jane-fit npm --prefix backend/draw run generate-dressup-gpt-image-2-validation
+```
+
+v2 の初期 mask rect:
+
+```json
+{ "x": 382, "y": 1298, "width": 280, "height": 205 }
+```
+
+出力:
+
+- `backend/draw/artifacts/dressup-gpt-image-2-validation/item-fit-v2/raw/`
+- `backend/draw/artifacts/dressup-gpt-image-2-validation/item-fit-v2/cutout/`
+- `backend/draw/artifacts/dressup-gpt-image-2-validation/item-fit-v2/normalized/`
+- `backend/draw/artifacts/dressup-gpt-image-2-validation/item-fit-v2/masked-composite/`
+- `backend/draw/artifacts/dressup-gpt-image-2-validation/item-fit-v2/item-fit-v2-preview.html`
+- `backend/draw/artifacts/dressup-gpt-image-2-validation/item-fit-v2/item-fit-v2-generated-review.md`
+- `backend/draw/artifacts/dressup-gpt-image-2-validation/item-fit-v2/item-fit-v2-review.md`
+
+v2 では、生成サマリーと人間の目視レビューを分けます。`item-fit-v2-generated-review.md` は再生成されますが、`item-fit-v2-review.md` は既存ファイルがある場合は上書きしません。
+
+2026-04-30 の v2 実行では、`necklace-symmetric-heart-pearl-fit` と `footwear-patch-mary-jane-fit` を生成しました。ネックレスは v1 より中心線に合いました。`footwearPatch` は元の足指が靴の下から見える問題を解消できましたが、生成物が足首より上の筒状の脚まで含み、base の脚と自然につながらない問題が出ました。この結果から、次の候補は「足込み patch」ではなく、靴本体を生成し、足指・足先だけを別 mask で隠す `shoeBody + footOcclusionMask` 方式です。量産性を優先する場合は、ブーツなど足が完全に隠れる靴だけに限定する案も残ります。
+
+## high-risk fit v3: shoulder-aligned necklace と boots overlay
+
+`ITEM_BATCH=high-risk-fit-v3` では、ネックレスをモデル中心と肩・襟ラインに寄せ直し、靴は足込み patch ではなく高カバー率のブーツ overlay として検証します。
+
+実行:
+
+```bash
+ITEM_BATCH=high-risk-fit-v3 npm --prefix backend/draw run generate-dressup-gpt-image-2-validation
+```
+
+特定アイテムだけ再生成する場合:
+
+```bash
+ITEM_BATCH=high-risk-fit-v3 ITEM_IDS=necklace-shoulder-aligned-fit npm --prefix backend/draw run generate-dressup-gpt-image-2-validation
+ITEM_BATCH=high-risk-fit-v3 ITEM_IDS=boots-high-coverage-fit npm --prefix backend/draw run generate-dressup-gpt-image-2-validation
+```
+
+v3 の方針:
+
+- `necklace-shoulder-aligned-fit`: pendant を `x=512` 付近に置き、左右端を肩より内側かつ襟ぐり付近へ揃える。
+- `boots-high-coverage-fit`: 足や脚を含めず、足指・足先を覆う short boots だけを生成する。
+- boots は左右分割後、既存の `leftShoe` / `rightShoe` slot に overlay する。base の足は消さず、靴の不透明部分で自然に覆えるかを見る。
+
+出力:
+
+- `backend/draw/artifacts/dressup-gpt-image-2-validation/item-fit-v3/raw/`
+- `backend/draw/artifacts/dressup-gpt-image-2-validation/item-fit-v3/cutout/`
+- `backend/draw/artifacts/dressup-gpt-image-2-validation/item-fit-v3/normalized/`
+- `backend/draw/artifacts/dressup-gpt-image-2-validation/item-fit-v3/split/`
+- `backend/draw/artifacts/dressup-gpt-image-2-validation/item-fit-v3/composite/`
+- `backend/draw/artifacts/dressup-gpt-image-2-validation/item-fit-v3/item-fit-v3-preview.html`
+- `backend/draw/artifacts/dressup-gpt-image-2-validation/item-fit-v3/item-fit-v3-generated-review.md`
+- `backend/draw/artifacts/dressup-gpt-image-2-validation/item-fit-v3/item-fit-v3-review.md`
+
+コストを抑えるため、初回は画像生成 API を 2 call に限定します。`item-fit-v3-generated-review.md` は再生成されますが、`item-fit-v3-review.md` は既存ファイルがある場合は上書きしません。
+
+2026-04-30 の v3 実行では、`necklace-shoulder-aligned-fit` と `boots-high-coverage-fit` を生成しました。ネックレスは v1/v2 より中心線と左右対称性が改善しましたが、チェーン端が肩紐の上に乗るため、最終候補としては襟ぐり内に収まる短い collarbone necklace の方がよさそうです。ブーツは足や脚を含まない overlay として生成でき、横方向の正規化で足指をほぼ覆えました。少し幅広で左右が近いものの、靴カテゴリは高カバー率のブーツ中心にすれば、足込み patch よりゲーム素材として成立しやすい見込みです。
+
+## high-risk fit v4: short collarbone necklace と ankle-scale boots
+
+`ITEM_BATCH=high-risk-fit-v4` では、ネックレスを肩紐まで伸ばさない短い collarbone necklace として検証し、ブーツは足首幅・足幅に近い小さい固定 rect へ正規化します。
+
+実行:
+
+```bash
+ITEM_BATCH=high-risk-fit-v4 npm --prefix backend/draw run generate-dressup-gpt-image-2-validation
+```
+
+特定アイテムだけ再生成する場合:
+
+```bash
+ITEM_BATCH=high-risk-fit-v4 ITEM_IDS=necklace-short-collarbone-fit npm --prefix backend/draw run generate-dressup-gpt-image-2-validation
+ITEM_BATCH=high-risk-fit-v4 ITEM_IDS=boots-ankle-scale-fit npm --prefix backend/draw run generate-dressup-gpt-image-2-validation
+```
+
+v4 の方針:
+
+- `necklace-short-collarbone-fit`: target rect は `{ "x": 424, "y": 370, "width": 176, "height": 86 }`。襟ぐり内に収め、肩紐へ乗せない。
+- `boots-ankle-scale-fit`: target rect は左 `{ "x": 410, "y": 1330, "width": 92, "height": 148 }`、右 `{ "x": 522, "y": 1330, "width": 92, "height": 148 }`。v3 より幅と高さを絞り、足首幅・足幅に近づける。
+- boots は引き続き overlay のみで検証し、base の足は消さない。
+
+出力:
+
+- `backend/draw/artifacts/dressup-gpt-image-2-validation/item-fit-v4/raw/`
+- `backend/draw/artifacts/dressup-gpt-image-2-validation/item-fit-v4/cutout/`
+- `backend/draw/artifacts/dressup-gpt-image-2-validation/item-fit-v4/normalized/`
+- `backend/draw/artifacts/dressup-gpt-image-2-validation/item-fit-v4/split/`
+- `backend/draw/artifacts/dressup-gpt-image-2-validation/item-fit-v4/composite/`
+- `backend/draw/artifacts/dressup-gpt-image-2-validation/item-fit-v4/item-fit-v4-preview.html`
+- `backend/draw/artifacts/dressup-gpt-image-2-validation/item-fit-v4/item-fit-v4-generated-review.md`
+- `backend/draw/artifacts/dressup-gpt-image-2-validation/item-fit-v4/item-fit-v4-review.md`
+
+コストを抑えるため、初回は画像生成 API を 2 call に限定します。`item-fit-v4-generated-review.md` は再生成されますが、`item-fit-v4-review.md` は既存ファイルがある場合は上書きしません。
+
+2026-04-30 の v4 実行では、`necklace-short-collarbone-fit` と `boots-ankle-scale-fit` を生成しました。ネックレスは中心と肩紐回避が改善し、v1-v3 より実用に近づきました。ただし、襟ぐりの曲線に完全に沿うには、単体生成ではなく base 画像を参照した編集生成の方がよさそうです。ブーツは固定の小さめ fit rect により、v3 の「足より大幅に大きい」問題が大きく改善し、足首幅・足幅に近い overlay として成立しました。現時点では、靴カテゴリは高カバー率ブーツ + 固定 ankle-scale placement を基準にするのが最も安定しています。
+
+## anchor audit: 手入力 anchor の再検査
+
+`selected-style-model.json` の anchor は手入力の初期推定であり、`style-d-encyclopedia-clean-base` の実際の体中心や足中心とずれている可能性があります。`ITEM_BATCH=anchor-audit` では画像生成 API を使わず、`selected-style/model-base.png` を alpha scan して anchor を再計測します。
+
+実行:
+
+```bash
+ITEM_BATCH=anchor-audit npm --prefix backend/draw run generate-dressup-gpt-image-2-validation
+```
+
+出力:
+
+- `backend/draw/artifacts/dressup-gpt-image-2-validation/anchor-audit/measured-style-model.json`
+- `backend/draw/artifacts/dressup-gpt-image-2-validation/anchor-audit/anchor-audit-preview.html`
+- `backend/draw/artifacts/dressup-gpt-image-2-validation/anchor-audit/anchor-audit-review.md`
+
+`ITEM_BATCH=high-risk-fit-v5-measured` では、v4 の生成済み necklace / boots cutout を使い、計測済み anchor で再配置します。新規画像生成は行いません。
+
+実行:
+
+```bash
+RENDER_ONLY=1 ITEM_BATCH=high-risk-fit-v5-measured npm --prefix backend/draw run generate-dressup-gpt-image-2-validation
+```
+
+出力:
+
+- `backend/draw/artifacts/dressup-gpt-image-2-validation/item-fit-v5-measured/normalized/`
+- `backend/draw/artifacts/dressup-gpt-image-2-validation/item-fit-v5-measured/split/`
+- `backend/draw/artifacts/dressup-gpt-image-2-validation/item-fit-v5-measured/composite/`
+- `backend/draw/artifacts/dressup-gpt-image-2-validation/item-fit-v5-measured/item-fit-v5-preview.html`
+- `backend/draw/artifacts/dressup-gpt-image-2-validation/item-fit-v5-measured/item-fit-v5-review.md`
+
+この段階では追加生成コストをかけず、配置仕様の信頼性だけを確認します。
+
+2026-04-30 の anchor audit では、手入力 anchor のずれが確認できました。体中心 X は手入力 `512` に対して実測 `504`、画像右側のつま先 X は手入力 `572` に対して実測 `548` でした。`high-risk-fit-v5-measured` では v4 の既存 necklace / boots を再配置し、右 boot の位置合わせは改善しました。ネックレスも中心は改善しましたが、襟ぐりに沿わない問題は残り、これは配置ではなくアセット形状の問題として扱うべきです。
+
+## shoulder-line audit / v6: ネックレスの肩ライン配置
+
+v5 の short collarbone necklace は中心 X は改善したものの、服の襟ぐりにくっついたように見えました。実際の着用感としては、チェーン端は服の襟ではなく人物の肩・首まわりの身体ラインから始まり、ペンダントが身体中心に落ちる必要があります。
+
+`ITEM_BATCH=shoulder-line-audit` では画像生成 API を使わず、`selected-style/model-base.png` の alpha top-boundary を読み、肩・身体ライン用の基準を再計測します。
+
+実行:
+
+```bash
+RENDER_ONLY=1 ITEM_BATCH=shoulder-line-audit npm --prefix backend/draw run generate-dressup-gpt-image-2-validation
+```
+
+出力:
+
+- `backend/draw/artifacts/dressup-gpt-image-2-validation/shoulder-line-audit/measured-shoulder-line.json`
+- `backend/draw/artifacts/dressup-gpt-image-2-validation/shoulder-line-audit/shoulder-line-audit-preview.html`
+- `backend/draw/artifacts/dressup-gpt-image-2-validation/shoulder-line-audit/shoulder-line-audit-review.md`
+
+`ITEM_BATCH=high-risk-fit-v6-shoulder-necklace` では、追加生成コストをかけず、既存の v3 `necklace-shoulder-aligned-fit.png` を肩ライン基準の rect へ再配置します。v5 の boot はすでに改善しているため、この batch では靴を触らず、ネックレスだけを検証します。
+
+実行:
+
+```bash
+RENDER_ONLY=1 ITEM_BATCH=high-risk-fit-v6-shoulder-necklace npm --prefix backend/draw run generate-dressup-gpt-image-2-validation
+```
+
+出力:
+
+- `backend/draw/artifacts/dressup-gpt-image-2-validation/item-fit-v6-shoulder-necklace/normalized/`
+- `backend/draw/artifacts/dressup-gpt-image-2-validation/item-fit-v6-shoulder-necklace/composite/`
+- `backend/draw/artifacts/dressup-gpt-image-2-validation/item-fit-v6-shoulder-necklace/item-fit-v6-preview.html`
+- `backend/draw/artifacts/dressup-gpt-image-2-validation/item-fit-v6-shoulder-necklace/item-fit-v6-review.md`
+
+この段階で視覚的に近づくなら、次の有料生成は 1 call だけに絞り、base 参照付きで「肩ラインから始まり、服の襟に貼り付かないネックレス」を新規生成します。v6 の local placement でも違和感が強い場合は、ネックレスを単体アイテムではなく `top` ごとの一体レイヤーまたは `necklace-under/over-collar` の種別に分ける必要があります。
+
+## high-risk fit v7: narrow inner shoulder-line necklace
+
+v6 は肩ラインを意識したものの、合成結果では幅が広く、肩外側に引っ張られたアクセサリに見えました。`ITEM_BATCH=high-risk-fit-v7-necklace` では、追加生成コストを necklace 1点に限定し、最初から短い内側の肩・鎖骨ラインに収まる素材を生成します。
+
+実行:
+
+```bash
+ITEM_BATCH=high-risk-fit-v7-necklace npm --prefix backend/draw run generate-dressup-gpt-image-2-validation
+```
+
+v7 の target rect:
+
+```json
+{ "x": 434, "y": 360, "width": 140, "height": 92 }
+```
+
+生成プロンプトの主要制約:
+
+- pendant center は `x=504 y=424`。
+- chain end は左 `x=444 y=376`、右 `x=564 y=376`。
+- necklace 全幅は `120-140px`、全高は `60-85px`。
+- 肩紐や外肩まで伸ばさず、服の襟ぐりにも沿わせない。
+- 服、首、肌、人物、影、文字は生成しない。
+
+出力:
+
+- `backend/draw/artifacts/dressup-gpt-image-2-validation/item-fit-v7-necklace/raw/`
+- `backend/draw/artifacts/dressup-gpt-image-2-validation/item-fit-v7-necklace/cutout/`
+- `backend/draw/artifacts/dressup-gpt-image-2-validation/item-fit-v7-necklace/normalized/`
+- `backend/draw/artifacts/dressup-gpt-image-2-validation/item-fit-v7-necklace/composite/`
+- `backend/draw/artifacts/dressup-gpt-image-2-validation/item-fit-v7-necklace/item-fit-v7-preview.html`
+- `backend/draw/artifacts/dressup-gpt-image-2-validation/item-fit-v7-necklace/item-fit-v7-review.md`
+
+v7 でまだ広い場合のみ、2 call 目として全幅 `100-120px`、chain end `x=452` / `x=556` に締めた候補を試します。これ以上の反復は、ネックレス単体レイヤーではなく `top` 側との一体化や z-index 種別分割の検討に戻します。
+
+2026-04-30 の v7 実行では、`necklace-inner-shoulder-line-fit` を 1 call だけ生成しました。正規化後の placement は `{"x":451,"y":360,"width":107,"height":92}` で、v6 より幅が大きく改善しました。ただし、後続レビューでネックレスの実開始点が肩位置より下にあることが分かったため、v7 は「幅の改善候補」であり、最終 baseline ではありません。
+
+## necklace anchor audit / v8: ネックレス開始点の再計測と再配置
+
+`ITEM_BATCH=necklace-anchor-audit` では、手入力 shoulder anchor ではなく、base 画像の alpha top-boundary とネックレス画像自体の alpha 開始点を測ります。v7 の固定 rect 合成では、base 側の首付け根・肩上端が `y=338-339` 付近なのに対し、ネックレス開始点は `y=361-362` 付近で、約 23px 下から始まっていました。
+
+実行:
+
+```bash
+RENDER_ONLY=1 ITEM_BATCH=necklace-anchor-audit npm --prefix backend/draw run generate-dressup-gpt-image-2-validation
+```
+
+出力:
+
+- `backend/draw/artifacts/dressup-gpt-image-2-validation/necklace-anchor-audit/measured-necklace-anchors.json`
+- `backend/draw/artifacts/dressup-gpt-image-2-validation/necklace-anchor-audit/necklace-anchor-audit-preview.html`
+- `backend/draw/artifacts/dressup-gpt-image-2-validation/necklace-anchor-audit/necklace-anchor-audit-review.md`
+
+`ITEM_BATCH=high-risk-fit-v8-necklace-reanchor` では、追加生成を行わず、既存 v7 cutout の左右開始点を検出して、base 側の target anchors に直接合わせます。固定 rect ではなく、ネックレス画像内の開始点から配置を逆算するため、開始位置のずれを検証しやすくなります。
+
+実行:
+
+```bash
+RENDER_ONLY=1 ITEM_BATCH=high-risk-fit-v8-necklace-reanchor npm --prefix backend/draw run generate-dressup-gpt-image-2-validation
+```
+
+出力:
+
+- `backend/draw/artifacts/dressup-gpt-image-2-validation/item-fit-v8-necklace-reanchor/normalized/`
+- `backend/draw/artifacts/dressup-gpt-image-2-validation/item-fit-v8-necklace-reanchor/composite/`
+- `backend/draw/artifacts/dressup-gpt-image-2-validation/item-fit-v8-necklace-reanchor/item-fit-v8-preview.html`
+- `backend/draw/artifacts/dressup-gpt-image-2-validation/item-fit-v8-necklace-reanchor/item-fit-v8-review.md`
+
+v8 local re-anchor でもペンダント位置や肩ライン追従が不自然な場合だけ、次に `gpt-image-2` を 1 call 使い、開始点 `x=452/556 y=340` を明示した新規 necklace を生成します。
+
+2026-04-30 の v8 実行では、`necklace-inner-shoulder-line-fit` の既存 v7 cutout を追加生成なしで再配置しました。v7 normalized の開始点は target より左 `+21px`、右 `+20px` 下でしたが、v8 では placed anchors が target anchors `{"leftStart":{"x":452,"y":340},"rightStart":{"x":556,"y":340}}` と一致しました。幅は v7 相当を維持しつつ、肩・首付け根の上端から始まる見え方に改善したため、現時点では v8 を necklace baseline とします。
+
 ## AGENTS.md 判定
 
 このメモの追加自体は調査ドキュメントの追加であり、URL ルーティング、SEO、外部連携、データフロー、インフラ、ビルド・実行時前提を変更しません。
