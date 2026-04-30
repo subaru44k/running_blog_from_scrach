@@ -3,7 +3,7 @@
   "quality": "medium",
   "size": "1024x1536",
   "outputFormat": "png",
-  "generatedAt": "2026-04-30T12:16:44.535Z",
+  "generatedAt": "2026-04-30T13:30:21.551Z",
   "outputDir": "/Users/yamadashinya/work/subaru-misc-blog/backend/draw/artifacts/dressup-gpt-image-2-validation",
   "rawDir": "/Users/yamadashinya/work/subaru-misc-blog/backend/draw/artifacts/dressup-gpt-image-2-validation/model-candidates/raw",
   "cutoutDir": "/Users/yamadashinya/work/subaru-misc-blog/backend/draw/artifacts/dressup-gpt-image-2-validation/model-candidates/cutout",
@@ -696,5 +696,474 @@
       "scale": 0.327
     }
   ],
-  "itemFitV8MeasuredNecklaceAnchors": "necklace-anchor-audit/measured-necklace-anchors.json"
+  "itemFitV8MeasuredNecklaceAnchors": "necklace-anchor-audit/measured-necklace-anchors.json",
+  "itemFitV9Dir": "/Users/yamadashinya/work/subaru-misc-blog/backend/draw/artifacts/dressup-gpt-image-2-validation/item-fit-v9-accessory-stability",
+  "itemFitV9Candidates": [
+    {
+      "id": "necklace-tiny-ribbon-stability-fit",
+      "type": "necklace",
+      "filename": "necklace-tiny-ribbon-stability-fit.png",
+      "label": "Necklace: tiny ribbon stability fit",
+      "prompt": "single small delicate princess necklace layer for a children dress-up game, original pastel storybook encyclopedia illustration matching a soft Japanese picture-book fashion encyclopedia, soft watercolor-like coloring, clean fine linework, front view, draw only the necklace and no body, no neck, no skin, no dress, no mannequin, no shadow, pure white 1024 by 1536 canvas, very narrow symmetrical shallow U-shaped fine gold chain with one tiny pale pink ribbon charm, pendant exactly on the body center line at canvas x 504 y 424, left chain start near canvas x 452 y 340 and right chain start near canvas x 556 y 340, total visible necklace width between 100 and 125 pixels, small enough to sit on the inner shoulder and collarbone line, do not extend to shoulder straps, do not make a wide shoulder-draped necklace, no earrings, no tiara, no text, no watermark",
+      "rawPath": "item-fit-v9-accessory-stability/raw/necklace-tiny-ribbon-stability-fit.png",
+      "cutoutPath": "item-fit-v9-accessory-stability/cutout/necklace-tiny-ribbon-stability-fit.png",
+      "revisedPrompt": null,
+      "createdAt": "2026-04-30T12:24:10.950Z",
+      "status": "ok",
+      "error": null,
+      "sourceBounds": {
+        "x": 331,
+        "y": 565,
+        "width": 367,
+        "height": 292
+      },
+      "sourceAnchors": {
+        "bounds": {
+          "x": 331,
+          "y": 565,
+          "width": 367,
+          "height": 292
+        },
+        "croppedSize": {
+          "width": 367,
+          "height": 292
+        },
+        "leftStart": {
+          "x": 2,
+          "y": 0
+        },
+        "rightStart": {
+          "x": 363,
+          "y": 1
+        }
+      },
+      "targetAnchors": {
+        "leftStart": {
+          "x": 452,
+          "y": 340
+        },
+        "rightStart": {
+          "x": 556,
+          "y": 340
+        }
+      },
+      "placedAnchors": {
+        "leftStart": {
+          "x": 452,
+          "y": 340
+        },
+        "rightStart": {
+          "x": 556,
+          "y": 340
+        }
+      },
+      "placedRects": {
+        "necklace": {
+          "x": 451,
+          "y": 340,
+          "width": 106,
+          "height": 84
+        }
+      },
+      "scale": 0.2881,
+      "normalizedPaths": [
+        {
+          "label": "Re-anchored normalized",
+          "path": "item-fit-v9-accessory-stability/normalized/necklace-tiny-ribbon-stability-fit.png"
+        }
+      ],
+      "compositePath": "item-fit-v9-accessory-stability/composite/necklace-tiny-ribbon-stability-fit-composite.png"
+    },
+    {
+      "id": "necklace-moon-pearl-stability-fit",
+      "type": "necklace",
+      "filename": "necklace-moon-pearl-stability-fit.png",
+      "label": "Necklace: moon pearl stability fit",
+      "prompt": "single small delicate princess necklace layer for a children dress-up game, original pastel storybook encyclopedia illustration matching a soft Japanese picture-book fashion encyclopedia, soft watercolor-like coloring, clean fine linework, front view, draw only the necklace and no body, no neck, no skin, no dress, no mannequin, no shadow, pure white 1024 by 1536 canvas, very narrow symmetrical shallow U-shaped pearl chain with one tiny crescent moon charm, pendant exactly on the body center line at canvas x 504 y 424, left chain start near canvas x 452 y 340 and right chain start near canvas x 556 y 340, total visible necklace width between 100 and 125 pixels, small enough to sit on the inner shoulder and collarbone line, do not extend to shoulder straps, do not make a wide shoulder-draped necklace, no earrings, no tiara, no text, no watermark",
+      "rawPath": "item-fit-v9-accessory-stability/raw/necklace-moon-pearl-stability-fit.png",
+      "cutoutPath": "item-fit-v9-accessory-stability/cutout/necklace-moon-pearl-stability-fit.png",
+      "revisedPrompt": null,
+      "createdAt": "2026-04-30T12:25:06.363Z",
+      "status": "ok",
+      "error": null,
+      "sourceBounds": {
+        "x": 358,
+        "y": 525,
+        "width": 308,
+        "height": 264
+      },
+      "sourceAnchors": {
+        "bounds": {
+          "x": 358,
+          "y": 525,
+          "width": 308,
+          "height": 264
+        },
+        "croppedSize": {
+          "width": 308,
+          "height": 264
+        },
+        "leftStart": {
+          "x": 5,
+          "y": 0
+        },
+        "rightStart": {
+          "x": 302,
+          "y": 0
+        }
+      },
+      "targetAnchors": {
+        "leftStart": {
+          "x": 452,
+          "y": 340
+        },
+        "rightStart": {
+          "x": 556,
+          "y": 340
+        }
+      },
+      "placedAnchors": {
+        "leftStart": {
+          "x": 452,
+          "y": 340
+        },
+        "rightStart": {
+          "x": 556,
+          "y": 340
+        }
+      },
+      "placedRects": {
+        "necklace": {
+          "x": 450,
+          "y": 340,
+          "width": 108,
+          "height": 92
+        }
+      },
+      "scale": 0.3502,
+      "normalizedPaths": [
+        {
+          "label": "Re-anchored normalized",
+          "path": "item-fit-v9-accessory-stability/normalized/necklace-moon-pearl-stability-fit.png"
+        }
+      ],
+      "compositePath": "item-fit-v9-accessory-stability/composite/necklace-moon-pearl-stability-fit-composite.png"
+    },
+    {
+      "id": "boots-ribbon-ankle-stability-fit",
+      "type": "boots",
+      "filename": "boots-ribbon-ankle-stability-fit.png",
+      "label": "Boots: ribbon ankle stability fit",
+      "prompt": "pair of slim short ankle boots only for a children princess dress-up game, original pastel storybook encyclopedia illustration, soft watercolor-like coloring, clean fine linework, front view boots only, no legs, no feet, no socks, no skin, no body, no mannequin, pure white 1024 by 1536 canvas, narrow boot openings matching a small ankle width, rounded toes that cover the full toes, soft rose pink ankle boots with a tiny ribbon detail on each boot, left boot and right boot are the same size, separated as a matched front-facing pair, not oversized, no text, no watermark",
+      "rawPath": "item-fit-v9-accessory-stability/raw/boots-ribbon-ankle-stability-fit.png",
+      "cutoutPath": "item-fit-v9-accessory-stability/cutout/boots-ribbon-ankle-stability-fit.png",
+      "revisedPrompt": null,
+      "createdAt": "2026-04-30T12:25:49.774Z",
+      "status": "ok",
+      "error": null,
+      "sourceBounds": {
+        "x": 181,
+        "y": 398,
+        "width": 668,
+        "height": 720
+      },
+      "splitX": 515,
+      "placedRects": {
+        "leftShoe": {
+          "x": 409,
+          "y": 1315,
+          "width": 92,
+          "height": 148
+        },
+        "rightShoe": {
+          "x": 502,
+          "y": 1315,
+          "width": 92,
+          "height": 148
+        }
+      },
+      "splitPaths": [
+        {
+          "label": "Left split",
+          "path": "item-fit-v9-accessory-stability/split/boots-ribbon-ankle-stability-fit-left.png"
+        },
+        {
+          "label": "Right split",
+          "path": "item-fit-v9-accessory-stability/split/boots-ribbon-ankle-stability-fit-right.png"
+        }
+      ],
+      "normalizedPaths": [
+        {
+          "label": "Left measured normalized",
+          "path": "item-fit-v9-accessory-stability/normalized/boots-ribbon-ankle-stability-fit-left.png"
+        },
+        {
+          "label": "Right measured normalized",
+          "path": "item-fit-v9-accessory-stability/normalized/boots-ribbon-ankle-stability-fit-right.png"
+        }
+      ],
+      "compositePath": "item-fit-v9-accessory-stability/composite/boots-ribbon-ankle-stability-fit-composite.png"
+    },
+    {
+      "id": "boots-pearl-button-stability-fit",
+      "type": "boots",
+      "filename": "boots-pearl-button-stability-fit.png",
+      "label": "Boots: pearl button stability fit",
+      "prompt": "pair of slim short ankle boots only for a children princess dress-up game, original pastel storybook encyclopedia illustration, soft watercolor-like coloring, clean fine linework, front view boots only, no legs, no feet, no socks, no skin, no body, no mannequin, pure white 1024 by 1536 canvas, narrow boot openings matching a small ankle width, rounded toes that cover the full toes, cream white ankle boots with tiny pearl button details kept very small, left boot and right boot are the same size, separated as a matched front-facing pair, not oversized, no text, no watermark",
+      "rawPath": "item-fit-v9-accessory-stability/raw/boots-pearl-button-stability-fit.png",
+      "cutoutPath": "item-fit-v9-accessory-stability/cutout/boots-pearl-button-stability-fit.png",
+      "revisedPrompt": null,
+      "createdAt": "2026-04-30T12:26:31.383Z",
+      "status": "ok",
+      "error": null,
+      "sourceBounds": {
+        "x": 156,
+        "y": 431,
+        "width": 722,
+        "height": 696
+      },
+      "splitX": 517,
+      "placedRects": {
+        "leftShoe": {
+          "x": 409,
+          "y": 1315,
+          "width": 92,
+          "height": 148
+        },
+        "rightShoe": {
+          "x": 502,
+          "y": 1315,
+          "width": 92,
+          "height": 148
+        }
+      },
+      "splitPaths": [
+        {
+          "label": "Left split",
+          "path": "item-fit-v9-accessory-stability/split/boots-pearl-button-stability-fit-left.png"
+        },
+        {
+          "label": "Right split",
+          "path": "item-fit-v9-accessory-stability/split/boots-pearl-button-stability-fit-right.png"
+        }
+      ],
+      "normalizedPaths": [
+        {
+          "label": "Left measured normalized",
+          "path": "item-fit-v9-accessory-stability/normalized/boots-pearl-button-stability-fit-left.png"
+        },
+        {
+          "label": "Right measured normalized",
+          "path": "item-fit-v9-accessory-stability/normalized/boots-pearl-button-stability-fit-right.png"
+        }
+      ],
+      "compositePath": "item-fit-v9-accessory-stability/composite/boots-pearl-button-stability-fit-composite.png"
+    }
+  ],
+  "itemFitV9SelectedStyle": "style-d-encyclopedia-clean-base",
+  "itemFitV9MeasuredStyleModel": "anchor-audit/measured-style-model.json",
+  "itemFitV9MeasuredNecklaceAnchors": "necklace-anchor-audit/measured-necklace-anchors.json",
+  "itemFitV10Dir": "/Users/yamadashinya/work/subaru-misc-blog/backend/draw/artifacts/dressup-gpt-image-2-validation/item-fit-v10-boots-alpha",
+  "itemFitV10Candidates": [
+    {
+      "id": "boots-ribbon-ankle-stability-fit",
+      "type": "boots",
+      "filename": "boots-ribbon-ankle-stability-fit.png",
+      "label": "Boots: ribbon ankle stability fit",
+      "prompt": "pair of slim short ankle boots only for a children princess dress-up game, original pastel storybook encyclopedia illustration, soft watercolor-like coloring, clean fine linework, front view boots only, no legs, no feet, no socks, no skin, no body, no mannequin, pure white 1024 by 1536 canvas, narrow boot openings matching a small ankle width, rounded toes that cover the full toes, soft rose pink ankle boots with a tiny ribbon detail on each boot, left boot and right boot are the same size, separated as a matched front-facing pair, not oversized, no text, no watermark",
+      "rawPath": "item-fit-v9-accessory-stability/raw/boots-ribbon-ankle-stability-fit.png",
+      "cutoutPath": "item-fit-v9-accessory-stability/cutout/boots-ribbon-ankle-stability-fit.png",
+      "revisedPrompt": null,
+      "createdAt": "2026-04-30T12:25:49.774Z",
+      "status": "ok",
+      "error": null,
+      "sourceBounds": {
+        "x": 181,
+        "y": 398,
+        "width": 668,
+        "height": 720
+      },
+      "splitX": 515,
+      "placedRects": {
+        "leftShoe": {
+          "x": 409,
+          "y": 1315,
+          "width": 92,
+          "height": 148
+        },
+        "rightShoe": {
+          "x": 502,
+          "y": 1315,
+          "width": 92,
+          "height": 148
+        }
+      },
+      "splitPaths": [
+        {
+          "label": "Left split",
+          "path": "item-fit-v10-boots-alpha/split/boots-ribbon-ankle-stability-fit-left.png"
+        },
+        {
+          "label": "Right split",
+          "path": "item-fit-v10-boots-alpha/split/boots-ribbon-ankle-stability-fit-right.png"
+        }
+      ],
+      "normalizedPaths": [
+        {
+          "label": "Left opaque normalized",
+          "path": "item-fit-v10-boots-alpha/normalized/boots-ribbon-ankle-stability-fit-left-opaque.png"
+        },
+        {
+          "label": "Right opaque normalized",
+          "path": "item-fit-v10-boots-alpha/normalized/boots-ribbon-ankle-stability-fit-right-opaque.png"
+        }
+      ],
+      "compositePath": "item-fit-v10-boots-alpha/composite/boots-ribbon-ankle-stability-fit-opaque-composite.png",
+      "sourcePath": "item-fit-v9-accessory-stability/cutout/boots-ribbon-ankle-stability-fit.png",
+      "v9CompositePath": "item-fit-v9-accessory-stability/composite/boots-ribbon-ankle-stability-fit-composite.png",
+      "alphaStats": {
+        "left": {
+          "bounds": {
+            "x": 409,
+            "y": 1315,
+            "width": 92,
+            "height": 148
+          },
+          "before": {
+            "semiTransparent": 325,
+            "transparentInterior": 6,
+            "nonTransparent": 10550
+          },
+          "after": {
+            "semiTransparent": 25,
+            "transparentInterior": 0,
+            "nonTransparent": 10556
+          },
+          "alphaRaised": 306,
+          "holesFilled": 6
+        },
+        "right": {
+          "bounds": {
+            "x": 502,
+            "y": 1315,
+            "width": 92,
+            "height": 148
+          },
+          "before": {
+            "semiTransparent": 313,
+            "transparentInterior": 6,
+            "nonTransparent": 10510
+          },
+          "after": {
+            "semiTransparent": 28,
+            "transparentInterior": 0,
+            "nonTransparent": 10516
+          },
+          "alphaRaised": 291,
+          "holesFilled": 6
+        }
+      }
+    },
+    {
+      "id": "boots-pearl-button-stability-fit",
+      "type": "boots",
+      "filename": "boots-pearl-button-stability-fit.png",
+      "label": "Boots: pearl button stability fit",
+      "prompt": "pair of slim short ankle boots only for a children princess dress-up game, original pastel storybook encyclopedia illustration, soft watercolor-like coloring, clean fine linework, front view boots only, no legs, no feet, no socks, no skin, no body, no mannequin, pure white 1024 by 1536 canvas, narrow boot openings matching a small ankle width, rounded toes that cover the full toes, cream white ankle boots with tiny pearl button details kept very small, left boot and right boot are the same size, separated as a matched front-facing pair, not oversized, no text, no watermark",
+      "rawPath": "item-fit-v9-accessory-stability/raw/boots-pearl-button-stability-fit.png",
+      "cutoutPath": "item-fit-v9-accessory-stability/cutout/boots-pearl-button-stability-fit.png",
+      "revisedPrompt": null,
+      "createdAt": "2026-04-30T12:26:31.383Z",
+      "status": "ok",
+      "error": null,
+      "sourceBounds": {
+        "x": 156,
+        "y": 431,
+        "width": 722,
+        "height": 696
+      },
+      "splitX": 517,
+      "placedRects": {
+        "leftShoe": {
+          "x": 409,
+          "y": 1315,
+          "width": 92,
+          "height": 148
+        },
+        "rightShoe": {
+          "x": 502,
+          "y": 1315,
+          "width": 92,
+          "height": 148
+        }
+      },
+      "splitPaths": [
+        {
+          "label": "Left split",
+          "path": "item-fit-v10-boots-alpha/split/boots-pearl-button-stability-fit-left.png"
+        },
+        {
+          "label": "Right split",
+          "path": "item-fit-v10-boots-alpha/split/boots-pearl-button-stability-fit-right.png"
+        }
+      ],
+      "normalizedPaths": [
+        {
+          "label": "Left opaque normalized",
+          "path": "item-fit-v10-boots-alpha/normalized/boots-pearl-button-stability-fit-left-opaque.png"
+        },
+        {
+          "label": "Right opaque normalized",
+          "path": "item-fit-v10-boots-alpha/normalized/boots-pearl-button-stability-fit-right-opaque.png"
+        }
+      ],
+      "compositePath": "item-fit-v10-boots-alpha/composite/boots-pearl-button-stability-fit-opaque-composite.png",
+      "sourcePath": "item-fit-v9-accessory-stability/cutout/boots-pearl-button-stability-fit.png",
+      "v9CompositePath": "item-fit-v9-accessory-stability/composite/boots-pearl-button-stability-fit-composite.png",
+      "alphaStats": {
+        "left": {
+          "bounds": {
+            "x": 409,
+            "y": 1315,
+            "width": 92,
+            "height": 148
+          },
+          "before": {
+            "semiTransparent": 2134,
+            "transparentInterior": 7,
+            "nonTransparent": 11063
+          },
+          "after": {
+            "semiTransparent": 26,
+            "transparentInterior": 0,
+            "nonTransparent": 11070
+          },
+          "alphaRaised": 2115,
+          "holesFilled": 7
+        },
+        "right": {
+          "bounds": {
+            "x": 502,
+            "y": 1315,
+            "width": 92,
+            "height": 148
+          },
+          "before": {
+            "semiTransparent": 2039,
+            "transparentInterior": 2,
+            "nonTransparent": 11058
+          },
+          "after": {
+            "semiTransparent": 27,
+            "transparentInterior": 0,
+            "nonTransparent": 11060
+          },
+          "alphaRaised": 2014,
+          "holesFilled": 2
+        }
+      }
+    }
+  ],
+  "itemFitV10SelectedStyle": "style-d-encyclopedia-clean-base",
+  "itemFitV10MeasuredStyleModel": "anchor-audit/measured-style-model.json"
 }

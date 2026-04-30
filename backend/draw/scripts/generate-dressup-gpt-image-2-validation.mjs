@@ -94,6 +94,20 @@ const ITEM_FIT_V8_NORMALIZED_DIR = resolve(ITEM_FIT_V8_DIR, 'normalized');
 const ITEM_FIT_V8_COMPOSITE_DIR = resolve(ITEM_FIT_V8_DIR, 'composite');
 const ITEM_FIT_V8_PREVIEW_PATH = resolve(ITEM_FIT_V8_DIR, 'item-fit-v8-preview.html');
 const ITEM_FIT_V8_REVIEW_PATH = resolve(ITEM_FIT_V8_DIR, 'item-fit-v8-review.md');
+const ITEM_FIT_V9_DIR = resolve(OUTPUT_DIR, 'item-fit-v9-accessory-stability');
+const ITEM_FIT_V9_RAW_DIR = resolve(ITEM_FIT_V9_DIR, 'raw');
+const ITEM_FIT_V9_CUTOUT_DIR = resolve(ITEM_FIT_V9_DIR, 'cutout');
+const ITEM_FIT_V9_NORMALIZED_DIR = resolve(ITEM_FIT_V9_DIR, 'normalized');
+const ITEM_FIT_V9_SPLIT_DIR = resolve(ITEM_FIT_V9_DIR, 'split');
+const ITEM_FIT_V9_COMPOSITE_DIR = resolve(ITEM_FIT_V9_DIR, 'composite');
+const ITEM_FIT_V9_PREVIEW_PATH = resolve(ITEM_FIT_V9_DIR, 'item-fit-v9-preview.html');
+const ITEM_FIT_V9_REVIEW_PATH = resolve(ITEM_FIT_V9_DIR, 'item-fit-v9-review.md');
+const ITEM_FIT_V10_DIR = resolve(OUTPUT_DIR, 'item-fit-v10-boots-alpha');
+const ITEM_FIT_V10_SPLIT_DIR = resolve(ITEM_FIT_V10_DIR, 'split');
+const ITEM_FIT_V10_NORMALIZED_DIR = resolve(ITEM_FIT_V10_DIR, 'normalized');
+const ITEM_FIT_V10_COMPOSITE_DIR = resolve(ITEM_FIT_V10_DIR, 'composite');
+const ITEM_FIT_V10_PREVIEW_PATH = resolve(ITEM_FIT_V10_DIR, 'item-fit-v10-preview.html');
+const ITEM_FIT_V10_REVIEW_PATH = resolve(ITEM_FIT_V10_DIR, 'item-fit-v10-review.md');
 
 const MODEL = 'gpt-image-2';
 const QUALITY = 'medium';
@@ -165,6 +179,14 @@ for (const dir of [
   NECKLACE_ANCHOR_AUDIT_DIR,
   ITEM_FIT_V8_NORMALIZED_DIR,
   ITEM_FIT_V8_COMPOSITE_DIR,
+  ITEM_FIT_V9_RAW_DIR,
+  ITEM_FIT_V9_CUTOUT_DIR,
+  ITEM_FIT_V9_NORMALIZED_DIR,
+  ITEM_FIT_V9_SPLIT_DIR,
+  ITEM_FIT_V9_COMPOSITE_DIR,
+  ITEM_FIT_V10_SPLIT_DIR,
+  ITEM_FIT_V10_NORMALIZED_DIR,
+  ITEM_FIT_V10_COMPOSITE_DIR,
 ]) {
   mkdirSync(dir, { recursive: true });
 }
@@ -370,6 +392,55 @@ const itemFitV7Candidates = [
   },
 ];
 
+const itemFitV9Candidates = [
+  {
+    id: 'necklace-tiny-ribbon-stability-fit',
+    type: 'necklace',
+    filename: 'necklace-tiny-ribbon-stability-fit.png',
+    label: 'Necklace: tiny ribbon stability fit',
+    prompt:
+      'single small delicate princess necklace layer for a children dress-up game, original pastel storybook encyclopedia illustration matching a soft Japanese picture-book fashion encyclopedia, soft watercolor-like coloring, clean fine linework, ' +
+      'front view, draw only the necklace and no body, no neck, no skin, no dress, no mannequin, no shadow, pure white 1024 by 1536 canvas, ' +
+      'very narrow symmetrical shallow U-shaped fine gold chain with one tiny pale pink ribbon charm, pendant exactly on the body center line at canvas x 504 y 424, ' +
+      'left chain start near canvas x 452 y 340 and right chain start near canvas x 556 y 340, total visible necklace width between 100 and 125 pixels, ' +
+      'small enough to sit on the inner shoulder and collarbone line, do not extend to shoulder straps, do not make a wide shoulder-draped necklace, no earrings, no tiara, no text, no watermark',
+  },
+  {
+    id: 'necklace-moon-pearl-stability-fit',
+    type: 'necklace',
+    filename: 'necklace-moon-pearl-stability-fit.png',
+    label: 'Necklace: moon pearl stability fit',
+    prompt:
+      'single small delicate princess necklace layer for a children dress-up game, original pastel storybook encyclopedia illustration matching a soft Japanese picture-book fashion encyclopedia, soft watercolor-like coloring, clean fine linework, ' +
+      'front view, draw only the necklace and no body, no neck, no skin, no dress, no mannequin, no shadow, pure white 1024 by 1536 canvas, ' +
+      'very narrow symmetrical shallow U-shaped pearl chain with one tiny crescent moon charm, pendant exactly on the body center line at canvas x 504 y 424, ' +
+      'left chain start near canvas x 452 y 340 and right chain start near canvas x 556 y 340, total visible necklace width between 100 and 125 pixels, ' +
+      'small enough to sit on the inner shoulder and collarbone line, do not extend to shoulder straps, do not make a wide shoulder-draped necklace, no earrings, no tiara, no text, no watermark',
+  },
+  {
+    id: 'boots-ribbon-ankle-stability-fit',
+    type: 'boots',
+    filename: 'boots-ribbon-ankle-stability-fit.png',
+    label: 'Boots: ribbon ankle stability fit',
+    prompt:
+      'pair of slim short ankle boots only for a children princess dress-up game, original pastel storybook encyclopedia illustration, soft watercolor-like coloring, clean fine linework, ' +
+      'front view boots only, no legs, no feet, no socks, no skin, no body, no mannequin, pure white 1024 by 1536 canvas, ' +
+      'narrow boot openings matching a small ankle width, rounded toes that cover the full toes, soft rose pink ankle boots with a tiny ribbon detail on each boot, ' +
+      'left boot and right boot are the same size, separated as a matched front-facing pair, not oversized, no text, no watermark',
+  },
+  {
+    id: 'boots-pearl-button-stability-fit',
+    type: 'boots',
+    filename: 'boots-pearl-button-stability-fit.png',
+    label: 'Boots: pearl button stability fit',
+    prompt:
+      'pair of slim short ankle boots only for a children princess dress-up game, original pastel storybook encyclopedia illustration, soft watercolor-like coloring, clean fine linework, ' +
+      'front view boots only, no legs, no feet, no socks, no skin, no body, no mannequin, pure white 1024 by 1536 canvas, ' +
+      'narrow boot openings matching a small ankle width, rounded toes that cover the full toes, cream white ankle boots with tiny pearl button details kept very small, ' +
+      'left boot and right boot are the same size, separated as a matched front-facing pair, not oversized, no text, no watermark',
+  },
+];
+
 const escapeHtml = (value) =>
   String(value)
     .replaceAll('&', '&amp;')
@@ -386,6 +457,8 @@ const toRelative = (path) => {
     'selected-style/',
     'selected/',
     'necklace-anchor-audit/',
+    'item-fit-v10-boots-alpha/',
+    'item-fit-v9-accessory-stability/',
     'item-fit-v8-necklace-reanchor/',
     'shoulder-line-audit/',
     'item-fit-v7-necklace/',
@@ -625,6 +698,73 @@ const splitShoeCutout = ({ sourcePath, leftPath, rightPath }) => {
   writeFileSync(leftPath, PNG.sync.write(cropPng(source, leftRect)));
   writeFileSync(rightPath, PNG.sync.write(cropPng(source, rightRect)));
   return { sourceBounds: bounds, splitX: midX, leftRect, rightRect };
+};
+
+const reinforceOpaqueInterior = ({ path, minimumAlpha = 8, opaqueAlpha = 245, fillAlpha = 235 }) => {
+  const png = PNG.sync.read(readFileSync(path));
+  const bounds = alphaBounds(png, minimumAlpha);
+  if (!bounds) throw new Error(`No non-transparent pixels found in ${path}`);
+  const before = { semiTransparent: 0, transparentInterior: 0, nonTransparent: 0 };
+  const after = { semiTransparent: 0, transparentInterior: 0, nonTransparent: 0 };
+  let alphaRaised = 0;
+  let holesFilled = 0;
+
+  const neighborStats = (x, y) => {
+    let count = 0;
+    const rgb = [0, 0, 0];
+    for (let yy = y - 1; yy <= y + 1; yy += 1) {
+      for (let xx = x - 1; xx <= x + 1; xx += 1) {
+        if (xx === x && yy === y) continue;
+        if (xx < 0 || yy < 0 || xx >= png.width || yy >= png.height) continue;
+        const offset = pixelOffset(png, xx, yy);
+        if (png.data[offset + 3] <= minimumAlpha) continue;
+        count += 1;
+        rgb[0] += png.data[offset];
+        rgb[1] += png.data[offset + 1];
+        rgb[2] += png.data[offset + 2];
+      }
+    }
+    return { count, rgb: count ? rgb.map((value) => Math.round(value / count)) : [255, 255, 255] };
+  };
+
+  for (let y = bounds.y; y < bounds.y + bounds.height; y += 1) {
+    for (let x = bounds.x; x < bounds.x + bounds.width; x += 1) {
+      const offset = pixelOffset(png, x, y);
+      const alpha = png.data[offset + 3];
+      const neighbors = neighborStats(x, y);
+      const isInterior = neighbors.count >= 7;
+      if (alpha > minimumAlpha) {
+        before.nonTransparent += 1;
+        if (alpha < opaqueAlpha) before.semiTransparent += 1;
+        if (isInterior && alpha < opaqueAlpha) {
+          png.data[offset + 3] = opaqueAlpha;
+          alphaRaised += 1;
+        }
+      } else if (isInterior) {
+        before.transparentInterior += 1;
+        png.data[offset] = neighbors.rgb[0];
+        png.data[offset + 1] = neighbors.rgb[1];
+        png.data[offset + 2] = neighbors.rgb[2];
+        png.data[offset + 3] = fillAlpha;
+        holesFilled += 1;
+      }
+    }
+  }
+
+  for (let y = bounds.y; y < bounds.y + bounds.height; y += 1) {
+    for (let x = bounds.x; x < bounds.x + bounds.width; x += 1) {
+      const alpha = png.data[pixelOffset(png, x, y) + 3];
+      if (alpha > minimumAlpha) {
+        after.nonTransparent += 1;
+        if (alpha < opaqueAlpha) after.semiTransparent += 1;
+      } else if (neighborStats(x, y).count >= 7) {
+        after.transparentInterior += 1;
+      }
+    }
+  }
+
+  writeFileSync(path, PNG.sync.write(png));
+  return { bounds, before, after, alphaRaised, holesFilled };
 };
 
 const compositePngs = ({ basePath, layerPaths, outputPath, canvas }) => {
@@ -2809,6 +2949,392 @@ const runItemFitV8NecklaceReanchorBatch = async (previousManifest) => {
   console.log(`item fit v8 review: ${ITEM_FIT_V8_REVIEW_PATH}`);
 };
 
+const renderItemFitV9Preview = ({ selectedStyle, measuredStyle, measuredNecklace, items }) => {
+  const relative = (path) => toDirectoryRelative(ITEM_FIT_V9_DIR, path);
+  const basePath = relative(selectedStyle.selectedCutout);
+  const cards = items
+    .map((item) => {
+      const split = (item.splitPaths || [])
+        .map((path) => `<figure><figcaption>${escapeHtml(path.label)}</figcaption><img src="${relative(path.path)}" alt="${escapeHtml(path.label)}" /></figure>`)
+        .join('');
+      const normalized = item.normalizedPaths
+        .map((path) => `<figure><figcaption>${escapeHtml(path.label)}</figcaption><img src="${relative(path.path)}" alt="${escapeHtml(path.label)}" /></figure>`)
+        .join('');
+      const composite = item.compositePath
+        ? `<figure><figcaption>Composite</figcaption><img src="${relative(item.compositePath)}" alt="${escapeHtml(`${item.label} composite`)}" /></figure>`
+        : '';
+      const body =
+        item.status === 'ok'
+          ? `<div class="comparison"><figure><figcaption>Base</figcaption><img src="${basePath}" alt="selected style base" /></figure><figure><figcaption>Cutout</figcaption><img src="${relative(item.cutoutPath)}" alt="${escapeHtml(`${item.label} cutout`)}" /></figure>${split}${normalized}${composite}</div>`
+          : `<p class="error">${escapeHtml(item.error)}</p>`;
+      return `<article class="card ${item.status === 'ok' ? 'ok' : 'error'}"><header><div><p>${escapeHtml(item.type)}</p><h2>${escapeHtml(item.label)}</h2></div><strong>${escapeHtml(item.status)}</strong></header>${body}<p class="prompt">${escapeHtml(item.revisedPrompt || item.prompt)}</p></article>`;
+    })
+    .join('\n');
+
+  return `<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Dressup Item Fit V9 Accessory Stability Preview</title>
+    <style>
+      :root { color-scheme: light; --panel:#fff; --border:#d8e2ec; --text:#142235; --muted:#64758a; --accent:#0f766e; --error:#b42318; }
+      * { box-sizing:border-box; }
+      body { margin:0; font-family:"Hiragino Sans","Yu Gothic",system-ui,sans-serif; color:var(--text); background:#f8fafc; }
+      main { width:min(1320px,calc(100% - 32px)); margin:0 auto; padding:28px 0 42px; }
+      .hero { margin-bottom:20px; }
+      .eyebrow, header p { margin:0; color:var(--accent); font-size:12px; font-weight:800; letter-spacing:.14em; text-transform:uppercase; }
+      h1 { margin:6px 0 8px; font-size:32px; line-height:1.15; }
+      .meta, .prompt { margin:0; color:var(--muted); line-height:1.7; }
+      .grid { display:grid; gap:18px; }
+      .card { border:1px solid var(--border); border-radius:8px; background:var(--panel); padding:16px; box-shadow:0 10px 28px rgba(15,35,55,.06); }
+      header { display:flex; justify-content:space-between; gap:14px; align-items:flex-start; margin-bottom:14px; }
+      h2 { margin:4px 0 0; font-size:19px; line-height:1.3; }
+      strong { border:1px solid #bee3db; border-radius:999px; color:var(--accent); padding:5px 9px; font-size:12px; text-transform:uppercase; }
+      .comparison { display:grid; grid-template-columns:repeat(6,minmax(0,1fr)); gap:10px; }
+      figure { margin:0; border:1px solid #e4ebf2; border-radius:8px; overflow:hidden; background:linear-gradient(45deg,#edf2f7 25%,transparent 25%) 0 0/18px 18px,linear-gradient(-45deg,#edf2f7 25%,transparent 25%) 0 0/18px 18px,linear-gradient(45deg,transparent 75%,#edf2f7 75%) 0 0/18px 18px,linear-gradient(-45deg,transparent 75%,#edf2f7 75%) 0 0/18px 18px,#fff; }
+      figcaption { padding:9px 10px 0; color:var(--muted); font-size:12px; font-weight:800; }
+      img { width:100%; height:440px; object-fit:contain; display:block; }
+      .prompt { margin-top:12px; font-size:13px; }
+      .error { color:var(--error); font-weight:800; }
+      @media (max-width:1180px) { .comparison { grid-template-columns:repeat(3,minmax(0,1fr)); } }
+      @media (max-width:760px) { .comparison { grid-template-columns:1fr; } img { height:340px; } }
+    </style>
+  </head>
+  <body>
+    <main>
+      <section class="hero">
+        <p class="eyebrow">DRESSUP ITEM FIT V9 STABILITY VALIDATION</p>
+        <h1>necklace and boots placement stability</h1>
+        <p class="meta">Base: ${escapeHtml(selectedStyle.selectedStyleCandidateId)}. Necklace target anchors: ${escapeHtml(JSON.stringify(measuredNecklace.targetAnchors))}. Boot rects: ${escapeHtml(JSON.stringify(measuredStyle.bootRects))}.</p>
+      </section>
+      <div class="grid">${cards}</div>
+    </main>
+  </body>
+</html>`;
+};
+
+const renderItemFitV9Review = ({ selectedStyle, measuredStyle, measuredNecklace, items }) => {
+  const rows = items
+    .map((item) => `| ${item.label} | ${item.type} | ${item.status} | \`${JSON.stringify(item.placedRects || item.placedAnchors || null)}\` |`)
+    .join('\n');
+  return `# Dressup Item Fit V9 Accessory Stability Review
+
+- Base: \`${selectedStyle.selectedStyleCandidateId}\`
+- Model: \`${MODEL}\`
+- Source: 2 necklace candidates + 2 boots candidates.
+- Necklace target anchors: \`${JSON.stringify(measuredNecklace.targetAnchors)}\`
+- Boot rects: \`${JSON.stringify(measuredStyle.bootRects)}\`
+
+| Item | Type | Status | Placement |
+| --- | --- | --- | --- |
+${rows}
+
+## Necklace Stability
+
+- Tiny ribbon necklace start alignment:
+- Tiny ribbon necklace width/center/style:
+- Moon pearl necklace start alignment:
+- Moon pearl necklace width/center/style:
+- Verdict:
+
+## Boots Stability
+
+- Ribbon ankle boots left/right placement:
+- Ribbon ankle boots scale and toe coverage:
+- Pearl button boots left/right placement:
+- Pearl button boots scale and toe coverage:
+- Verdict:
+`;
+};
+
+const processItemFitV9Result = ({ result, selectedStyle, measuredStyle, measuredNecklace }) => {
+  if (result.status !== 'ok') return { ...result, normalizedPaths: [], compositePath: null };
+
+  const canvas = selectedStyle.canvas;
+  const cutoutPath = fromOutputRelative(result.cutoutPath);
+
+  if (result.type === 'necklace') {
+    const normalizedPath = resolve(ITEM_FIT_V9_NORMALIZED_DIR, result.filename);
+    const placement = normalizeNecklaceToStartAnchors({
+      sourcePath: cutoutPath,
+      outputPath: normalizedPath,
+      targetAnchors: measuredNecklace.targetAnchors,
+      canvas,
+    });
+    const compositePath = resolve(ITEM_FIT_V9_COMPOSITE_DIR, `${result.id}-composite.png`);
+    compositePngs({
+      basePath: fromOutputRelative(selectedStyle.selectedCutout),
+      layerPaths: [normalizedPath],
+      outputPath: compositePath,
+      canvas,
+    });
+    return {
+      ...result,
+      sourceBounds: placement.sourceBounds,
+      sourceAnchors: placement.sourceAnchors,
+      targetAnchors: placement.targetAnchors,
+      placedAnchors: placement.placedAnchors,
+      placedRects: { necklace: placement.placedRect },
+      scale: placement.scale,
+      normalizedPaths: [{ label: 'Re-anchored normalized', path: toRelative(normalizedPath) }],
+      compositePath: toRelative(compositePath),
+    };
+  }
+
+  if (result.type === 'boots') {
+    const leftSplitPath = resolve(ITEM_FIT_V9_SPLIT_DIR, `${result.id}-left.png`);
+    const rightSplitPath = resolve(ITEM_FIT_V9_SPLIT_DIR, `${result.id}-right.png`);
+    const split = splitShoeCutout({ sourcePath: cutoutPath, leftPath: leftSplitPath, rightPath: rightSplitPath });
+    const leftNormalizedPath = resolve(ITEM_FIT_V9_NORMALIZED_DIR, `${result.id}-left.png`);
+    const rightNormalizedPath = resolve(ITEM_FIT_V9_NORMALIZED_DIR, `${result.id}-right.png`);
+    const leftPlacement = normalizeToSlotStretch({
+      sourcePath: leftSplitPath,
+      outputPath: leftNormalizedPath,
+      rect: measuredStyle.bootRects.leftShoe,
+      canvas,
+      widthRatio: 1,
+      heightRatio: 1,
+      alignY: 1,
+    });
+    const rightPlacement = normalizeToSlotStretch({
+      sourcePath: rightSplitPath,
+      outputPath: rightNormalizedPath,
+      rect: measuredStyle.bootRects.rightShoe,
+      canvas,
+      widthRatio: 1,
+      heightRatio: 1,
+      alignY: 1,
+    });
+    const compositePath = resolve(ITEM_FIT_V9_COMPOSITE_DIR, `${result.id}-composite.png`);
+    compositePngs({
+      basePath: fromOutputRelative(selectedStyle.selectedCutout),
+      layerPaths: [leftNormalizedPath, rightNormalizedPath],
+      outputPath: compositePath,
+      canvas,
+    });
+    return {
+      ...result,
+      sourceBounds: split.sourceBounds,
+      splitX: split.splitX,
+      placedRects: { leftShoe: leftPlacement.placedRect, rightShoe: rightPlacement.placedRect },
+      splitPaths: [
+        { label: 'Left split', path: toRelative(leftSplitPath) },
+        { label: 'Right split', path: toRelative(rightSplitPath) },
+      ],
+      normalizedPaths: [
+        { label: 'Left measured normalized', path: toRelative(leftNormalizedPath) },
+        { label: 'Right measured normalized', path: toRelative(rightNormalizedPath) },
+      ],
+      compositePath: toRelative(compositePath),
+    };
+  }
+
+  return { ...result, normalizedPaths: [], compositePath: null };
+};
+
+const runItemFitV9AccessoryStabilityBatch = async (previousManifest) => {
+  if (!existsSync(SELECTED_STYLE_PATH)) {
+    throw new Error(`Selected style model is missing: ${SELECTED_STYLE_PATH}`);
+  }
+
+  const selectedStyle = readJson(SELECTED_STYLE_PATH);
+  const measuredStyle = existsSync(ANCHOR_AUDIT_JSON_PATH) ? readJson(ANCHOR_AUDIT_JSON_PATH) : measureStyleModel({ selectedStyle });
+  const measuredNecklace = existsSync(NECKLACE_ANCHOR_AUDIT_JSON_PATH) ? readJson(NECKLACE_ANCHOR_AUDIT_JSON_PATH) : measureNecklaceAnchors({ selectedStyle });
+  const itemResults = await runBatch({
+    allCandidates: itemFitV9Candidates,
+    requestedIds: REQUESTED_ITEM_IDS,
+    previousItems: previousManifest.itemFitV9Candidates || [],
+    rawDir: ITEM_FIT_V9_RAW_DIR,
+    cutoutDir: ITEM_FIT_V9_CUTOUT_DIR,
+    label: 'item fit v9 accessory stability candidates',
+  });
+  const processed = itemResults.map((item) => processItemFitV9Result({ result: item, selectedStyle, measuredStyle, measuredNecklace }));
+
+  writeFileSync(ITEM_FIT_V9_PREVIEW_PATH, renderItemFitV9Preview({ selectedStyle, measuredStyle, measuredNecklace, items: processed }));
+  writeFileSync(ITEM_FIT_V9_REVIEW_PATH, renderItemFitV9Review({ selectedStyle, measuredStyle, measuredNecklace, items: processed }));
+  writeManifest({
+    ...previousManifest,
+    itemFitV9Dir: ITEM_FIT_V9_DIR,
+    itemFitV9Candidates: processed,
+    itemFitV9SelectedStyle: selectedStyle.selectedStyleCandidateId,
+    itemFitV9MeasuredStyleModel: toRelative(ANCHOR_AUDIT_JSON_PATH),
+    itemFitV9MeasuredNecklaceAnchors: toRelative(NECKLACE_ANCHOR_AUDIT_JSON_PATH),
+  });
+  console.log(`manifest: ${MANIFEST_PATH}`);
+  console.log(`item fit v9 preview: ${ITEM_FIT_V9_PREVIEW_PATH}`);
+  console.log(`item fit v9 review: ${ITEM_FIT_V9_REVIEW_PATH}`);
+};
+
+const itemFitV10BootIds = ['boots-ribbon-ankle-stability-fit', 'boots-pearl-button-stability-fit'];
+
+const renderItemFitV10Preview = ({ selectedStyle, measuredStyle, items }) => {
+  const relative = (path) => toDirectoryRelative(ITEM_FIT_V10_DIR, path);
+  const cards = items
+    .map(
+      (item) => `<article class="card">
+        <header><p>${escapeHtml(item.type)}</p><h2>${escapeHtml(item.label)}</h2></header>
+        <div class="comparison">
+          <figure><figcaption>Base</figcaption><img src="${relative(selectedStyle.selectedCutout)}" alt="selected style base" /></figure>
+          <figure><figcaption>V9 composite</figcaption><img src="${relative(item.v9CompositePath)}" alt="${escapeHtml(`${item.label} v9 composite`)}" /></figure>
+          <figure><figcaption>V10 left normalized</figcaption><img src="${relative(item.normalizedPaths[0].path)}" alt="${escapeHtml(`${item.label} left normalized`)}" /></figure>
+          <figure><figcaption>V10 right normalized</figcaption><img src="${relative(item.normalizedPaths[1].path)}" alt="${escapeHtml(`${item.label} right normalized`)}" /></figure>
+          <figure><figcaption>V10 composite</figcaption><img src="${relative(item.compositePath)}" alt="${escapeHtml(`${item.label} v10 composite`)}" /></figure>
+        </div>
+      </article>`,
+    )
+    .join('\n');
+
+  return `<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Dressup Item Fit V10 Boots Alpha Preview</title>
+    <style>
+      :root { color-scheme: light; --panel:#fff; --border:#d8e2ec; --text:#142235; --muted:#64758a; --accent:#0f766e; }
+      * { box-sizing:border-box; }
+      body { margin:0; font-family:"Hiragino Sans","Yu Gothic",system-ui,sans-serif; color:var(--text); background:#f8fafc; }
+      main { width:min(1320px,calc(100% - 32px)); margin:0 auto; padding:28px 0 42px; }
+      .hero { margin-bottom:20px; }
+      .eyebrow, header p { margin:0; color:var(--accent); font-size:12px; font-weight:800; letter-spacing:.14em; text-transform:uppercase; }
+      h1 { margin:6px 0 8px; font-size:32px; line-height:1.15; }
+      .meta { margin:0; color:var(--muted); line-height:1.7; }
+      .grid { display:grid; gap:18px; }
+      .card { border:1px solid var(--border); border-radius:8px; background:var(--panel); padding:16px; box-shadow:0 10px 28px rgba(15,35,55,.06); }
+      header { margin-bottom:14px; }
+      h2 { margin:4px 0 0; font-size:19px; line-height:1.3; }
+      .comparison { display:grid; grid-template-columns:repeat(5,minmax(0,1fr)); gap:10px; }
+      figure { margin:0; border:1px solid #e4ebf2; border-radius:8px; overflow:hidden; background:linear-gradient(45deg,#edf2f7 25%,transparent 25%) 0 0/18px 18px,linear-gradient(-45deg,#edf2f7 25%,transparent 25%) 0 0/18px 18px,linear-gradient(45deg,transparent 75%,#edf2f7 75%) 0 0/18px 18px,linear-gradient(-45deg,transparent 75%,#edf2f7 75%) 0 0/18px 18px,#fff; }
+      figcaption { padding:9px 10px 0; color:var(--muted); font-size:12px; font-weight:800; }
+      img { width:100%; height:460px; object-fit:contain; display:block; }
+      @media (max-width:1180px) { .comparison { grid-template-columns:repeat(3,minmax(0,1fr)); } }
+      @media (max-width:760px) { .comparison { grid-template-columns:1fr; } img { height:340px; } }
+    </style>
+  </head>
+  <body>
+    <main>
+      <section class="hero">
+        <p class="eyebrow">DRESSUP ITEM FIT V10 BOOTS ALPHA VALIDATION</p>
+        <h1>boots alpha reinforcement without regeneration</h1>
+        <p class="meta">Base: ${escapeHtml(selectedStyle.selectedStyleCandidateId)}. Boot rects remain unchanged: ${escapeHtml(JSON.stringify(measuredStyle.bootRects))}.</p>
+      </section>
+      <div class="grid">${cards}</div>
+    </main>
+  </body>
+</html>`;
+};
+
+const renderItemFitV10Review = ({ selectedStyle, measuredStyle, items }) => {
+  const rows = items
+    .map((item) => `| ${item.label} | \`${JSON.stringify(item.alphaStats)}\` | [composite](${item.compositePath}) |`)
+    .join('\n');
+  return `# Dressup Item Fit V10 Boots Alpha Review
+
+- Base: \`${selectedStyle.selectedStyleCandidateId}\`
+- Source: existing v9 boots; no image generation.
+- Boot rects: \`${JSON.stringify(measuredStyle.bootRects)}\`
+
+| Item | Alpha stats | Composite |
+| --- | --- | --- |
+${rows}
+
+## Review
+
+- Ribbon ankle boots alpha:
+- Ribbon ankle boots visual result:
+- Pearl button boots alpha:
+- Pearl button boots visual result:
+- Verdict:
+`;
+};
+
+const processItemFitV10Boot = ({ sourceItem, selectedStyle, measuredStyle }) => {
+  const sourcePath = resolve(ITEM_FIT_V9_CUTOUT_DIR, sourceItem.filename);
+  const v9CompositePath = resolve(ITEM_FIT_V9_COMPOSITE_DIR, `${sourceItem.id}-composite.png`);
+  if (!existsSync(sourcePath)) throw new Error(`v9 boot cutout is missing: ${sourcePath}`);
+  if (!existsSync(v9CompositePath)) throw new Error(`v9 boot composite is missing: ${v9CompositePath}`);
+
+  const leftSplitPath = resolve(ITEM_FIT_V10_SPLIT_DIR, `${sourceItem.id}-left.png`);
+  const rightSplitPath = resolve(ITEM_FIT_V10_SPLIT_DIR, `${sourceItem.id}-right.png`);
+  const split = splitShoeCutout({ sourcePath, leftPath: leftSplitPath, rightPath: rightSplitPath });
+  const leftNormalizedPath = resolve(ITEM_FIT_V10_NORMALIZED_DIR, `${sourceItem.id}-left-opaque.png`);
+  const rightNormalizedPath = resolve(ITEM_FIT_V10_NORMALIZED_DIR, `${sourceItem.id}-right-opaque.png`);
+  const leftPlacement = normalizeToSlotStretch({
+    sourcePath: leftSplitPath,
+    outputPath: leftNormalizedPath,
+    rect: measuredStyle.bootRects.leftShoe,
+    canvas: selectedStyle.canvas,
+    widthRatio: 1,
+    heightRatio: 1,
+    alignY: 1,
+  });
+  const rightPlacement = normalizeToSlotStretch({
+    sourcePath: rightSplitPath,
+    outputPath: rightNormalizedPath,
+    rect: measuredStyle.bootRects.rightShoe,
+    canvas: selectedStyle.canvas,
+    widthRatio: 1,
+    heightRatio: 1,
+    alignY: 1,
+  });
+  const leftAlphaStats = reinforceOpaqueInterior({ path: leftNormalizedPath });
+  const rightAlphaStats = reinforceOpaqueInterior({ path: rightNormalizedPath });
+  const compositePath = resolve(ITEM_FIT_V10_COMPOSITE_DIR, `${sourceItem.id}-opaque-composite.png`);
+  compositePngs({
+    basePath: fromOutputRelative(selectedStyle.selectedCutout),
+    layerPaths: [leftNormalizedPath, rightNormalizedPath],
+    outputPath: compositePath,
+    canvas: selectedStyle.canvas,
+  });
+
+  return {
+    ...sourceItem,
+    sourcePath: toRelative(sourcePath),
+    v9CompositePath: toRelative(v9CompositePath),
+    sourceBounds: split.sourceBounds,
+    placedRects: { leftShoe: leftPlacement.placedRect, rightShoe: rightPlacement.placedRect },
+    splitPaths: [
+      { label: 'Left split', path: toRelative(leftSplitPath) },
+      { label: 'Right split', path: toRelative(rightSplitPath) },
+    ],
+    normalizedPaths: [
+      { label: 'Left opaque normalized', path: toRelative(leftNormalizedPath) },
+      { label: 'Right opaque normalized', path: toRelative(rightNormalizedPath) },
+    ],
+    alphaStats: { left: leftAlphaStats, right: rightAlphaStats },
+    compositePath: toRelative(compositePath),
+  };
+};
+
+const runItemFitV10BootsAlphaBatch = async (previousManifest) => {
+  if (!existsSync(SELECTED_STYLE_PATH)) {
+    throw new Error(`Selected style model is missing: ${SELECTED_STYLE_PATH}`);
+  }
+
+  const selectedStyle = readJson(SELECTED_STYLE_PATH);
+  const measuredStyle = existsSync(ANCHOR_AUDIT_JSON_PATH) ? readJson(ANCHOR_AUDIT_JSON_PATH) : measureStyleModel({ selectedStyle });
+  const v9ItemsById = new Map((previousManifest.itemFitV9Candidates || []).map((item) => [item.id, item]));
+  const items = itemFitV10BootIds.map((id) => {
+    const sourceItem = v9ItemsById.get(id) || itemFitV9Candidates.find((item) => item.id === id);
+    if (!sourceItem) throw new Error(`v9 boot item is missing from manifest and candidates: ${id}`);
+    return processItemFitV10Boot({ sourceItem, selectedStyle, measuredStyle });
+  });
+
+  writeFileSync(ITEM_FIT_V10_PREVIEW_PATH, renderItemFitV10Preview({ selectedStyle, measuredStyle, items }));
+  writeFileSync(ITEM_FIT_V10_REVIEW_PATH, renderItemFitV10Review({ selectedStyle, measuredStyle, items }));
+  writeManifest({
+    ...previousManifest,
+    itemFitV10Dir: ITEM_FIT_V10_DIR,
+    itemFitV10Candidates: items,
+    itemFitV10SelectedStyle: selectedStyle.selectedStyleCandidateId,
+    itemFitV10MeasuredStyleModel: toRelative(ANCHOR_AUDIT_JSON_PATH),
+  });
+  console.log(`manifest: ${MANIFEST_PATH}`);
+  console.log(`item fit v10 preview: ${ITEM_FIT_V10_PREVIEW_PATH}`);
+  console.log(`item fit v10 review: ${ITEM_FIT_V10_REVIEW_PATH}`);
+};
+
 const writeManifest = (manifest) => {
   writeFileSync(
     MANIFEST_PATH,
@@ -2883,6 +3409,16 @@ const main = async () => {
 
   if (ITEM_BATCH === 'high-risk-fit-v8-necklace-reanchor') {
     await runItemFitV8NecklaceReanchorBatch(previousManifest);
+    return;
+  }
+
+  if (ITEM_BATCH === 'stability-fit-v9-accessories') {
+    await runItemFitV9AccessoryStabilityBatch(previousManifest);
+    return;
+  }
+
+  if (ITEM_BATCH === 'stability-fit-v10-boots-alpha') {
+    await runItemFitV10BootsAlphaBatch(previousManifest);
     return;
   }
 
