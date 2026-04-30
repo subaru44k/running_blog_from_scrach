@@ -3,7 +3,7 @@
   "quality": "medium",
   "size": "1024x1536",
   "outputFormat": "png",
-  "generatedAt": "2026-04-30T13:42:24.787Z",
+  "generatedAt": "2026-04-30T13:52:25.777Z",
   "outputDir": "/Users/yamadashinya/work/subaru-misc-blog/backend/draw/artifacts/dressup-gpt-image-2-validation",
   "rawDir": "/Users/yamadashinya/work/subaru-misc-blog/backend/draw/artifacts/dressup-gpt-image-2-validation/model-candidates/raw",
   "cutoutDir": "/Users/yamadashinya/work/subaru-misc-blog/backend/draw/artifacts/dressup-gpt-image-2-validation/model-candidates/cutout",
@@ -1264,6 +1264,141 @@
         "y": 185,
         "width": 58,
         "height": 62
+      }
+    }
+  },
+  "itemFitV12Dir": "/Users/yamadashinya/work/subaru-misc-blog/backend/draw/artifacts/dressup-gpt-image-2-validation/item-fit-v12-hair-accessory-stability",
+  "itemFitV12Candidates": [
+    {
+      "id": "hairpin-side-ribbon-stability-fit",
+      "type": "hairAccessory",
+      "placement": "hairpinRight",
+      "filename": "hairpin-side-ribbon-stability-fit.png",
+      "label": "Hair accessory: side ribbon hairpin stability fit",
+      "prompt": "single small side ribbon hairpin layer for a children princess dress-up game, original pastel storybook encyclopedia illustration matching a soft Japanese picture-book fashion encyclopedia, soft watercolor-like coloring, clean fine linework, front view accessory only, no head, no hair, no face, no body, no mannequin, no shadow, pure white 1024 by 1536 canvas, one compact pale lavender bow hair clip with a very short simple pin, designed to sit on the side edge of a bob haircut without covering the eye or cheek, keep the whole accessory tiny and lightweight, no tiara, no crown, no earrings, no necklace, no text, no watermark",
+      "rawPath": "item-fit-v12-hair-accessory-stability/raw/hairpin-side-ribbon-stability-fit.png",
+      "cutoutPath": "item-fit-v12-hair-accessory-stability/cutout/hairpin-side-ribbon-stability-fit.png",
+      "revisedPrompt": null,
+      "createdAt": "2026-04-30T13:48:41.965Z",
+      "status": "ok",
+      "error": null,
+      "sourceBounds": {
+        "x": 348,
+        "y": 629,
+        "width": 327,
+        "height": 192
+      },
+      "targetRect": {
+        "x": 594,
+        "y": 191,
+        "width": 48,
+        "height": 52
+      },
+      "placedRect": {
+        "x": 594,
+        "y": 203,
+        "width": 48,
+        "height": 28
+      },
+      "normalizedPath": "item-fit-v12-hair-accessory-stability/normalized/hairpin-side-ribbon-stability-fit.png",
+      "compositePath": "item-fit-v12-hair-accessory-stability/composite/hairpin-side-ribbon-stability-fit-composite.png"
+    },
+    {
+      "id": "hairpin-pearl-clips-stability-fit",
+      "type": "hairAccessory",
+      "placement": "hairpinRight",
+      "filename": "hairpin-pearl-clips-stability-fit.png",
+      "label": "Hair accessory: pearl clips stability fit",
+      "prompt": "small pearl hair clips layer for a children princess dress-up game, original pastel storybook encyclopedia illustration matching a soft Japanese picture-book fashion encyclopedia, soft watercolor-like coloring, clean fine linework, front view accessory only, no head, no hair, no face, no body, no mannequin, no shadow, pure white 1024 by 1536 canvas, two tiny cream pearl snap clips close together, compact enough to sit on the side edge of a bob haircut without covering the eye or face, keep the pearls readable but very small, no tiara, no crown, no earrings, no necklace, no text, no watermark",
+      "rawPath": "item-fit-v12-hair-accessory-stability/raw/hairpin-pearl-clips-stability-fit.png",
+      "cutoutPath": "item-fit-v12-hair-accessory-stability/cutout/hairpin-pearl-clips-stability-fit.png",
+      "revisedPrompt": null,
+      "createdAt": "2026-04-30T13:49:23.112Z",
+      "status": "ok",
+      "error": null,
+      "sourceBounds": {
+        "x": 321,
+        "y": 596,
+        "width": 381,
+        "height": 317
+      },
+      "targetRect": {
+        "x": 594,
+        "y": 191,
+        "width": 48,
+        "height": 52
+      },
+      "placedRect": {
+        "x": 594,
+        "y": 197,
+        "width": 48,
+        "height": 40
+      },
+      "normalizedPath": "item-fit-v12-hair-accessory-stability/normalized/hairpin-pearl-clips-stability-fit.png",
+      "compositePath": "item-fit-v12-hair-accessory-stability/composite/hairpin-pearl-clips-stability-fit-composite.png"
+    },
+    {
+      "id": "headband-slim-lace-stability-fit",
+      "type": "hairAccessory",
+      "placement": "headband",
+      "filename": "headband-slim-lace-stability-fit.png",
+      "label": "Hair accessory: slim lace headband stability fit",
+      "prompt": "single slim lace headband layer for a children princess dress-up game, original pastel storybook encyclopedia illustration matching a soft Japanese picture-book fashion encyclopedia, soft watercolor-like coloring, clean fine linework, front view accessory only, no head, no hair, no face, no body, no mannequin, no shadow, pure white 1024 by 1536 canvas, a narrow ivory lace headband arc with very tiny scallop details, symmetrical and lightweight, suitable for placing across the upper hair of a front-facing paper doll, keep the whole accessory compact and thin, no tiara, no crown, no earrings, no necklace, no text, no watermark",
+      "rawPath": "item-fit-v12-hair-accessory-stability/raw/headband-slim-lace-stability-fit.png",
+      "cutoutPath": "item-fit-v12-hair-accessory-stability/cutout/headband-slim-lace-stability-fit.png",
+      "revisedPrompt": null,
+      "createdAt": "2026-04-30T13:50:04.907Z",
+      "status": "ok",
+      "error": null,
+      "sourceBounds": {
+        "x": 108,
+        "y": 353,
+        "width": 813,
+        "height": 402
+      },
+      "targetRect": {
+        "x": 383,
+        "y": 77,
+        "width": 244,
+        "height": 118
+      },
+      "placedRect": {
+        "x": 386,
+        "y": 77,
+        "width": 239,
+        "height": 118
+      },
+      "normalizedPath": "item-fit-v12-hair-accessory-stability/normalized/headband-slim-lace-stability-fit.png",
+      "compositePath": "item-fit-v12-hair-accessory-stability/composite/headband-slim-lace-stability-fit-composite.png"
+    }
+  ],
+  "itemFitV12SelectedStyle": "style-d-encyclopedia-clean-base",
+  "itemFitV12MeasuredHairAccessoryAnchors": {
+    "selectedStyleCandidateId": "style-d-encyclopedia-clean-base",
+    "measuredAt": "2026-04-30T13:52:23.725Z",
+    "method": "alpha bounds scan over the head and upper hair region of selected-style/model-base.png; v12 uses a smaller outward hairpinRight target for mixed hairpin designs",
+    "headBounds": {
+      "x": 367,
+      "y": 49,
+      "width": 275,
+      "height": 321
+    },
+    "headCenter": {
+      "x": 505,
+      "y": 210
+    },
+    "targetRects": {
+      "headband": {
+        "x": 383,
+        "y": 77,
+        "width": 244,
+        "height": 118
+      },
+      "hairpinRight": {
+        "x": 594,
+        "y": 191,
+        "width": 48,
+        "height": 52
       }
     }
   }

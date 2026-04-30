@@ -536,6 +536,43 @@ v11 で headband と hairpin がともに合格すれば、次は hairAccessory 
 
 2026-04-30 の v11 実行では、headband 1点と hairpin 1点を生成しました。headband は頭部 center から求めた横長 target rect で顔・目に干渉せず、上髪に沿う見え方になりました。hairpin は初回 rect だと画像右側の目に干渉したため、新規生成はせず、target rect を小さくして髪の外縁へ寄せる再配置を行いました。最終的には flower hairpin も顔・目への干渉がなく、髪に留まって見えるため、hairAccessory も機械的な head bounds 測定と slot-specific rect で成立しそうです。次は hairAccessory の候補を 2-3 点増やし、同じ anchor で安定するかを確認します。
 
+## stability fit v12: hairAccessory の量産安定性検証
+
+`ITEM_BATCH=stability-fit-v12-hair-accessories` では、v11 で成立した head bounds + slot-specific target rect が別デザインの hairAccessory でも安定するかを確認します。生成対象は hairpin 2点、headband 1点の合計 3 call に限定します。
+
+実行:
+
+```bash
+ITEM_BATCH=stability-fit-v12-hair-accessories npm --prefix backend/draw run generate-dressup-gpt-image-2-validation
+```
+
+特定アイテムだけ再生成する場合:
+
+```bash
+ITEM_BATCH=stability-fit-v12-hair-accessories ITEM_IDS=hairpin-side-ribbon-stability-fit npm --prefix backend/draw run generate-dressup-gpt-image-2-validation
+ITEM_BATCH=stability-fit-v12-hair-accessories ITEM_IDS=hairpin-pearl-clips-stability-fit npm --prefix backend/draw run generate-dressup-gpt-image-2-validation
+ITEM_BATCH=stability-fit-v12-hair-accessories ITEM_IDS=headband-slim-lace-stability-fit npm --prefix backend/draw run generate-dressup-gpt-image-2-validation
+```
+
+v12 の配置方針:
+
+- hairpin は v11 で補正した小さめの `hairpinRight` target rect を使い、顔・目への干渉を避ける。
+- headband は v11 と同じ `headband` target rect を使い、頭頂から浮かず、眉や目を覆わないかを見る。
+- 生成後の cutout を normalize し、追加生成よりも `RENDER_ONLY=1` の再配置を優先する。
+
+出力:
+
+- `backend/draw/artifacts/dressup-gpt-image-2-validation/item-fit-v12-hair-accessory-stability/raw/`
+- `backend/draw/artifacts/dressup-gpt-image-2-validation/item-fit-v12-hair-accessory-stability/cutout/`
+- `backend/draw/artifacts/dressup-gpt-image-2-validation/item-fit-v12-hair-accessory-stability/normalized/`
+- `backend/draw/artifacts/dressup-gpt-image-2-validation/item-fit-v12-hair-accessory-stability/composite/`
+- `backend/draw/artifacts/dressup-gpt-image-2-validation/item-fit-v12-hair-accessory-stability/item-fit-v12-preview.html`
+- `backend/draw/artifacts/dressup-gpt-image-2-validation/item-fit-v12-hair-accessory-stability/item-fit-v12-review.md`
+
+v12 で 3点とも合格すれば、hairAccessory は現行 anchor 方針で次カテゴリへ進めます。headband が浮く、hairpin が顔側へ入る、淡色 pearl の alpha が欠ける場合は、hairAccessory の target rect または background removal 後処理を調整します。
+
+2026-04-30 の v12 実行では、hairpin 2点と headband 1点を生成しました。初回の v11-sized hairpin target では pearl clips が顔側に入りすぎたため、新規生成はせず、v12 専用に `hairpinRight` target rect を小さく外側へ寄せて再配置しました。最終的には side ribbon hairpin、pearl clips、slim lace headband の3点とも顔・目への干渉はなく、髪に留まって見えました。pearl clips は配置としては合格ですが、生成デザインは丸い pearl というより横線状の clip が重なった見え方なので、今後の pearl 系 prompt では fewer round pearl beads、no stacked horizontal bars を強める必要があります。anchor 方針としては v12 の小さめ外側 hairpin rect を採用し、次カテゴリへ進めます。
+
 ## AGENTS.md 判定
 
 このメモの追加自体は調査ドキュメントの追加であり、URL ルーティング、SEO、外部連携、データフロー、インフラ、ビルド・実行時前提を変更しません。
