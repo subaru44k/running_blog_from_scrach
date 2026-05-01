@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Dressup Item Fit V13 Clothing Preview</title>
+    <style>
+      :root { color-scheme: light; --panel:#fff; --border:#d8e2ec; --text:#142235; --muted:#64758a; --accent:#0f766e; --error:#b42318; }
+      * { box-sizing:border-box; }
+      body { margin:0; font-family:"Hiragino Sans","Yu Gothic",system-ui,sans-serif; color:var(--text); background:#f8fafc; }
+      main { width:min(1320px,calc(100% - 32px)); margin:0 auto; padding:28px 0 42px; }
+      .hero { margin-bottom:20px; }
+      .eyebrow, header p { margin:0; color:var(--accent); font-size:12px; font-weight:800; letter-spacing:.14em; text-transform:uppercase; }
+      h1 { margin:6px 0 8px; font-size:32px; line-height:1.15; }
+      .meta, .prompt { margin:0; color:var(--muted); line-height:1.7; }
+      .grid { display:grid; gap:18px; }
+      .card { border:1px solid var(--border); border-radius:8px; background:var(--panel); padding:16px; box-shadow:0 10px 28px rgba(15,35,55,.06); }
+      header { display:flex; justify-content:space-between; gap:14px; align-items:flex-start; margin-bottom:14px; }
+      h2 { margin:4px 0 0; font-size:19px; line-height:1.3; }
+      strong { border:1px solid #bee3db; border-radius:999px; color:var(--accent); padding:5px 9px; font-size:12px; text-transform:uppercase; }
+      .comparison { display:grid; grid-template-columns:repeat(5,minmax(0,1fr)); gap:10px; }
+      figure { margin:0; border:1px solid #e4ebf2; border-radius:8px; overflow:hidden; background:linear-gradient(45deg,#edf2f7 25%,transparent 25%) 0 0/18px 18px,linear-gradient(-45deg,#edf2f7 25%,transparent 25%) 0 0/18px 18px,linear-gradient(45deg,transparent 75%,#edf2f7 75%) 0 0/18px 18px,linear-gradient(-45deg,transparent 75%,#edf2f7 75%) 0 0/18px 18px,#fff; }
+      figcaption { padding:9px 10px 0; color:var(--muted); font-size:12px; font-weight:800; }
+      img { width:100%; height:440px; object-fit:contain; display:block; }
+      .prompt { margin-top:12px; font-size:13px; }
+      .error { color:var(--error); font-weight:800; }
+      @media (max-width:1180px) { .comparison { grid-template-columns:repeat(3,minmax(0,1fr)); } }
+      @media (max-width:760px) { .comparison { grid-template-columns:1fr; } img { height:340px; } }
+    </style>
+  </head>
+  <body>
+    <main>
+      <section class="hero">
+        <p class="eyebrow">DRESSUP ITEM FIT V13 CLOTHING VALIDATION</p>
+        <h1>top, bottom, and one-piece overlay placement</h1>
+        <p class="meta">Base: style-d-encyclopedia-clean-base. Body center X: 504. Target rects: {&quot;top&quot;:{&quot;x&quot;:359,&quot;y&quot;:330,&quot;width&quot;:290,&quot;height&quot;:270},&quot;bottom&quot;:{&quot;x&quot;:299,&quot;y&quot;:535,&quot;width&quot;:410,&quot;height&quot;:380},&quot;dressOverlay&quot;:{&quot;x&quot;:299,&quot;y&quot;:330,&quot;width&quot;:410,&quot;height&quot;:585}}.</p>
+      </section>
+      <div class="grid"><article class="card ok"><header><div><p>top</p><h2>Top: simple frill blouse fit</h2></div><strong>ok</strong></header><div class="comparison">
+              <figure><figcaption>Base</figcaption><img src="../selected-style/model-base.png" alt="selected style base" /></figure>
+              <figure><figcaption>Raw</figcaption><img src="raw/top-frill-blouse-fit.png" alt="Top: simple frill blouse fit raw" /></figure>
+              <figure><figcaption>Cutout</figcaption><img src="cutout/top-frill-blouse-fit.png" alt="Top: simple frill blouse fit cutout" /></figure>
+              <figure><figcaption>Normalized</figcaption><img src="normalized/top-frill-blouse-fit.png" alt="Top: simple frill blouse fit normalized" /></figure>
+              <figure><figcaption>Composite</figcaption><img src="composite/top-frill-blouse-fit-composite.png" alt="Top: simple frill blouse fit composite" /></figure>
+            </div><p class="prompt">single upper clothing layer for a children princess dress-up game, original pastel storybook encyclopedia illustration matching a soft Japanese picture-book fashion encyclopedia, soft watercolor-like coloring, clean fine linework, front view blouse only, no head, no face, no hair, no hands, no legs, no mannequin, no shadow, pure white 1024 by 1536 canvas, a compact pale pink frill blouse with a clean round neckline, tiny ribbon detail, short puff sleeves kept narrow and close to the torso, waist-length hem, designed to overlay a front-facing paper doll torso without covering the arms too much, no skirt, no full dress, no necklace, no text, no watermark</p></article>
+<article class="card ok"><header><div><p>bottom</p><h2>Bottom: fluffy skirt fit</h2></div><strong>ok</strong></header><div class="comparison">
+              <figure><figcaption>Base</figcaption><img src="../selected-style/model-base.png" alt="selected style base" /></figure>
+              <figure><figcaption>Raw</figcaption><img src="raw/bottom-fluffy-skirt-fit.png" alt="Bottom: fluffy skirt fit raw" /></figure>
+              <figure><figcaption>Cutout</figcaption><img src="cutout/bottom-fluffy-skirt-fit.png" alt="Bottom: fluffy skirt fit cutout" /></figure>
+              <figure><figcaption>Normalized</figcaption><img src="normalized/bottom-fluffy-skirt-fit.png" alt="Bottom: fluffy skirt fit normalized" /></figure>
+              <figure><figcaption>Composite</figcaption><img src="composite/bottom-fluffy-skirt-fit-composite.png" alt="Bottom: fluffy skirt fit composite" /></figure>
+            </div><p class="prompt">single skirt layer for a children princess dress-up game, original pastel storybook encyclopedia illustration matching a soft Japanese picture-book fashion encyclopedia, soft watercolor-like coloring, clean fine linework, front view skirt only, no torso, no body, no legs, no feet, no mannequin, no shadow, pure white 1024 by 1536 canvas, a soft lavender pink knee-length fluffy skirt with a simple waistband, gentle A-line volume, small frill details, centered and symmetrical, designed to overlay a front-facing paper doll waist and hide the base dress skirt cleanly, no blouse, no shoes, no text, no watermark</p></article>
+<article class="card ok"><header><div><p>dressOverlay</p><h2>Dress overlay: pastel one-piece fit</h2></div><strong>ok</strong></header><div class="comparison">
+              <figure><figcaption>Base</figcaption><img src="../selected-style/model-base.png" alt="selected style base" /></figure>
+              <figure><figcaption>Raw</figcaption><img src="raw/dress-overlay-pastel-fit.png" alt="Dress overlay: pastel one-piece fit raw" /></figure>
+              <figure><figcaption>Cutout</figcaption><img src="cutout/dress-overlay-pastel-fit.png" alt="Dress overlay: pastel one-piece fit cutout" /></figure>
+              <figure><figcaption>Normalized</figcaption><img src="normalized/dress-overlay-pastel-fit.png" alt="Dress overlay: pastel one-piece fit normalized" /></figure>
+              <figure><figcaption>Composite</figcaption><img src="composite/dress-overlay-pastel-fit-composite.png" alt="Dress overlay: pastel one-piece fit composite" /></figure>
+            </div><p class="prompt">single one-piece dress overlay layer for a children princess dress-up game, original pastel storybook encyclopedia illustration matching a soft Japanese picture-book fashion encyclopedia, soft watercolor-like coloring, clean fine linework, front view dress only, no head, no face, no hair, no hands, no legs, no feet, no mannequin, no shadow, pure white 1024 by 1536 canvas, a pale mint and pink princess one-piece dress with a clean round neckline, narrow shoulder straps, fitted bodice, soft knee-length skirt, centered and symmetrical, designed to overlay a front-facing paper doll from shoulders to skirt hem without covering arms, no necklace, no shoes, no text, no watermark</p></article></div>
+    </main>
+  </body>
+</html>

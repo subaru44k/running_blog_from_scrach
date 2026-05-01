@@ -122,6 +122,13 @@ const ITEM_FIT_V12_NORMALIZED_DIR = resolve(ITEM_FIT_V12_DIR, 'normalized');
 const ITEM_FIT_V12_COMPOSITE_DIR = resolve(ITEM_FIT_V12_DIR, 'composite');
 const ITEM_FIT_V12_PREVIEW_PATH = resolve(ITEM_FIT_V12_DIR, 'item-fit-v12-preview.html');
 const ITEM_FIT_V12_REVIEW_PATH = resolve(ITEM_FIT_V12_DIR, 'item-fit-v12-review.md');
+const ITEM_FIT_V13_DIR = resolve(OUTPUT_DIR, 'item-fit-v13-clothing');
+const ITEM_FIT_V13_RAW_DIR = resolve(ITEM_FIT_V13_DIR, 'raw');
+const ITEM_FIT_V13_CUTOUT_DIR = resolve(ITEM_FIT_V13_DIR, 'cutout');
+const ITEM_FIT_V13_NORMALIZED_DIR = resolve(ITEM_FIT_V13_DIR, 'normalized');
+const ITEM_FIT_V13_COMPOSITE_DIR = resolve(ITEM_FIT_V13_DIR, 'composite');
+const ITEM_FIT_V13_PREVIEW_PATH = resolve(ITEM_FIT_V13_DIR, 'item-fit-v13-preview.html');
+const ITEM_FIT_V13_REVIEW_PATH = resolve(ITEM_FIT_V13_DIR, 'item-fit-v13-review.md');
 
 const MODEL = 'gpt-image-2';
 const QUALITY = 'medium';
@@ -209,6 +216,10 @@ for (const dir of [
   ITEM_FIT_V12_CUTOUT_DIR,
   ITEM_FIT_V12_NORMALIZED_DIR,
   ITEM_FIT_V12_COMPOSITE_DIR,
+  ITEM_FIT_V13_RAW_DIR,
+  ITEM_FIT_V13_CUTOUT_DIR,
+  ITEM_FIT_V13_NORMALIZED_DIR,
+  ITEM_FIT_V13_COMPOSITE_DIR,
 ]) {
   mkdirSync(dir, { recursive: true });
 }
@@ -529,6 +540,45 @@ const itemFitV12Candidates = [
   },
 ];
 
+const itemFitV13Candidates = [
+  {
+    id: 'top-frill-blouse-fit',
+    type: 'top',
+    placement: 'top',
+    filename: 'top-frill-blouse-fit.png',
+    label: 'Top: simple frill blouse fit',
+    prompt:
+      'single upper clothing layer for a children princess dress-up game, original pastel storybook encyclopedia illustration matching a soft Japanese picture-book fashion encyclopedia, soft watercolor-like coloring, clean fine linework, ' +
+      'front view blouse only, no head, no face, no hair, no hands, no legs, no mannequin, no shadow, pure white 1024 by 1536 canvas, ' +
+      'a compact pale pink frill blouse with a clean round neckline, tiny ribbon detail, short puff sleeves kept narrow and close to the torso, waist-length hem, ' +
+      'designed to overlay a front-facing paper doll torso without covering the arms too much, no skirt, no full dress, no necklace, no text, no watermark',
+  },
+  {
+    id: 'bottom-fluffy-skirt-fit',
+    type: 'bottom',
+    placement: 'bottom',
+    filename: 'bottom-fluffy-skirt-fit.png',
+    label: 'Bottom: fluffy skirt fit',
+    prompt:
+      'single skirt layer for a children princess dress-up game, original pastel storybook encyclopedia illustration matching a soft Japanese picture-book fashion encyclopedia, soft watercolor-like coloring, clean fine linework, ' +
+      'front view skirt only, no torso, no body, no legs, no feet, no mannequin, no shadow, pure white 1024 by 1536 canvas, ' +
+      'a soft lavender pink knee-length fluffy skirt with a simple waistband, gentle A-line volume, small frill details, centered and symmetrical, ' +
+      'designed to overlay a front-facing paper doll waist and hide the base dress skirt cleanly, no blouse, no shoes, no text, no watermark',
+  },
+  {
+    id: 'dress-overlay-pastel-fit',
+    type: 'dressOverlay',
+    placement: 'dressOverlay',
+    filename: 'dress-overlay-pastel-fit.png',
+    label: 'Dress overlay: pastel one-piece fit',
+    prompt:
+      'single one-piece dress overlay layer for a children princess dress-up game, original pastel storybook encyclopedia illustration matching a soft Japanese picture-book fashion encyclopedia, soft watercolor-like coloring, clean fine linework, ' +
+      'front view dress only, no head, no face, no hair, no hands, no legs, no feet, no mannequin, no shadow, pure white 1024 by 1536 canvas, ' +
+      'a pale mint and pink princess one-piece dress with a clean round neckline, narrow shoulder straps, fitted bodice, soft knee-length skirt, centered and symmetrical, ' +
+      'designed to overlay a front-facing paper doll from shoulders to skirt hem without covering arms, no necklace, no shoes, no text, no watermark',
+  },
+];
+
 const escapeHtml = (value) =>
   String(value)
     .replaceAll('&', '&amp;')
@@ -545,6 +595,7 @@ const toRelative = (path) => {
     'selected-style/',
     'selected/',
     'necklace-anchor-audit/',
+    'item-fit-v13-clothing/',
     'item-fit-v12-hair-accessory-stability/',
     'item-fit-v11-hair-accessory/',
     'item-fit-v10-boots-alpha/',
@@ -1267,6 +1318,47 @@ const measureHairAccessoryStabilityAnchors = ({ selectedStyle }) => {
         width: 48,
         height: 52,
       }),
+    },
+  };
+};
+
+const measureClothingAnchors = ({ selectedStyle }) => {
+  const base = PNG.sync.read(readFileSync(fromOutputRelative(selectedStyle.selectedCutout)));
+  const measuredStyle = existsSync(ANCHOR_AUDIT_JSON_PATH) ? readJson(ANCHOR_AUDIT_JSON_PATH) : measureStyleModel({ selectedStyle });
+  const bodyCenterX = measuredStyle.bodyCenterX;
+  const upperBodyBounds = alphaBoundsInRect(base, { x: bodyCenterX - 190, y: 330, width: 380, height: 330 }, 8);
+  const skirtBounds = alphaBoundsInRect(base, { x: bodyCenterX - 260, y: 545, width: 520, height: 360 }, 8);
+  if (!upperBodyBounds) throw new Error('Could not measure upper body bounds');
+  if (!skirtBounds) throw new Error('Could not measure skirt bounds');
+  const topRect = roundRect({
+    x: bodyCenterX - 145,
+    y: Math.max(330, upperBodyBounds.y - 6),
+    width: 290,
+    height: 270,
+  });
+  const bottomRect = roundRect({
+    x: bodyCenterX - 205,
+    y: Math.max(535, skirtBounds.y - 10),
+    width: 410,
+    height: 380,
+  });
+  const dressOverlayRect = roundRect({
+    x: bodyCenterX - 205,
+    y: topRect.y,
+    width: 410,
+    height: bottomRect.y + bottomRect.height - topRect.y,
+  });
+  return {
+    selectedStyleCandidateId: selectedStyle.selectedStyleCandidateId,
+    measuredAt: new Date().toISOString(),
+    method: 'bodyCenterX plus alpha bounds scan over upper body and base dress skirt',
+    bodyCenterX,
+    upperBodyBounds: roundRect(upperBodyBounds),
+    skirtBounds: roundRect(skirtBounds),
+    targetRects: {
+      top: topRect,
+      bottom: bottomRect,
+      dressOverlay: dressOverlayRect,
     },
   };
 };
@@ -3791,6 +3883,159 @@ const runItemFitV12HairAccessoryStabilityBatch = async (previousManifest) => {
   console.log(`item fit v12 review: ${ITEM_FIT_V12_REVIEW_PATH}`);
 };
 
+const renderItemFitV13Preview = ({ selectedStyle, measured, items }) => {
+  const relative = (path) => toDirectoryRelative(ITEM_FIT_V13_DIR, path);
+  const basePath = relative(selectedStyle.selectedCutout);
+  const cards = items
+    .map((item) => {
+      const body =
+        item.status === 'ok'
+          ? `<div class="comparison">
+              <figure><figcaption>Base</figcaption><img src="${basePath}" alt="selected style base" /></figure>
+              <figure><figcaption>Raw</figcaption><img src="${relative(item.rawPath)}" alt="${escapeHtml(`${item.label} raw`)}" /></figure>
+              <figure><figcaption>Cutout</figcaption><img src="${relative(item.cutoutPath)}" alt="${escapeHtml(`${item.label} cutout`)}" /></figure>
+              <figure><figcaption>Normalized</figcaption><img src="${relative(item.normalizedPath)}" alt="${escapeHtml(`${item.label} normalized`)}" /></figure>
+              <figure><figcaption>Composite</figcaption><img src="${relative(item.compositePath)}" alt="${escapeHtml(`${item.label} composite`)}" /></figure>
+            </div>`
+          : `<p class="error">${escapeHtml(item.error)}</p>`;
+      return `<article class="card ${item.status === 'ok' ? 'ok' : 'error'}"><header><div><p>${escapeHtml(item.placement)}</p><h2>${escapeHtml(item.label)}</h2></div><strong>${escapeHtml(item.status)}</strong></header>${body}<p class="prompt">${escapeHtml(item.revisedPrompt || item.prompt)}</p></article>`;
+    })
+    .join('\n');
+
+  return `<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Dressup Item Fit V13 Clothing Preview</title>
+    <style>
+      :root { color-scheme: light; --panel:#fff; --border:#d8e2ec; --text:#142235; --muted:#64758a; --accent:#0f766e; --error:#b42318; }
+      * { box-sizing:border-box; }
+      body { margin:0; font-family:"Hiragino Sans","Yu Gothic",system-ui,sans-serif; color:var(--text); background:#f8fafc; }
+      main { width:min(1320px,calc(100% - 32px)); margin:0 auto; padding:28px 0 42px; }
+      .hero { margin-bottom:20px; }
+      .eyebrow, header p { margin:0; color:var(--accent); font-size:12px; font-weight:800; letter-spacing:.14em; text-transform:uppercase; }
+      h1 { margin:6px 0 8px; font-size:32px; line-height:1.15; }
+      .meta, .prompt { margin:0; color:var(--muted); line-height:1.7; }
+      .grid { display:grid; gap:18px; }
+      .card { border:1px solid var(--border); border-radius:8px; background:var(--panel); padding:16px; box-shadow:0 10px 28px rgba(15,35,55,.06); }
+      header { display:flex; justify-content:space-between; gap:14px; align-items:flex-start; margin-bottom:14px; }
+      h2 { margin:4px 0 0; font-size:19px; line-height:1.3; }
+      strong { border:1px solid #bee3db; border-radius:999px; color:var(--accent); padding:5px 9px; font-size:12px; text-transform:uppercase; }
+      .comparison { display:grid; grid-template-columns:repeat(5,minmax(0,1fr)); gap:10px; }
+      figure { margin:0; border:1px solid #e4ebf2; border-radius:8px; overflow:hidden; background:linear-gradient(45deg,#edf2f7 25%,transparent 25%) 0 0/18px 18px,linear-gradient(-45deg,#edf2f7 25%,transparent 25%) 0 0/18px 18px,linear-gradient(45deg,transparent 75%,#edf2f7 75%) 0 0/18px 18px,linear-gradient(-45deg,transparent 75%,#edf2f7 75%) 0 0/18px 18px,#fff; }
+      figcaption { padding:9px 10px 0; color:var(--muted); font-size:12px; font-weight:800; }
+      img { width:100%; height:440px; object-fit:contain; display:block; }
+      .prompt { margin-top:12px; font-size:13px; }
+      .error { color:var(--error); font-weight:800; }
+      @media (max-width:1180px) { .comparison { grid-template-columns:repeat(3,minmax(0,1fr)); } }
+      @media (max-width:760px) { .comparison { grid-template-columns:1fr; } img { height:340px; } }
+    </style>
+  </head>
+  <body>
+    <main>
+      <section class="hero">
+        <p class="eyebrow">DRESSUP ITEM FIT V13 CLOTHING VALIDATION</p>
+        <h1>top, bottom, and one-piece overlay placement</h1>
+        <p class="meta">Base: ${escapeHtml(selectedStyle.selectedStyleCandidateId)}. Body center X: ${escapeHtml(measured.bodyCenterX)}. Target rects: ${escapeHtml(JSON.stringify(measured.targetRects))}.</p>
+      </section>
+      <div class="grid">${cards}</div>
+    </main>
+  </body>
+</html>`;
+};
+
+const renderItemFitV13Review = ({ selectedStyle, measured, items }) => {
+  const rows = items
+    .map((item) => `| ${item.label} | ${item.placement} | ${item.status} | \`${JSON.stringify(item.placedRect || null)}\` |`)
+    .join('\n');
+  return `# Dressup Item Fit V13 Clothing Review
+
+- Base: \`${selectedStyle.selectedStyleCandidateId}\`
+- Model: \`${MODEL}\`
+- Body center X: \`${measured.bodyCenterX}\`
+- Upper body bounds: \`${JSON.stringify(measured.upperBodyBounds)}\`
+- Skirt bounds: \`${JSON.stringify(measured.skirtBounds)}\`
+- Target rects: \`${JSON.stringify(measured.targetRects)}\`
+
+| Item | Placement | Status | Placement rect |
+| --- | --- | --- | --- |
+${rows}
+
+## Review
+
+- Top shoulder/neck fit:
+- Top arm interference:
+- Bottom waist fit:
+- Bottom base-skirt coverage:
+- Dress overlay shoulder/neck fit:
+- Dress overlay arm/leg interference:
+- Background removal:
+- Verdict:
+`;
+};
+
+const processItemFitV13Result = ({ result, selectedStyle, measured }) => {
+  if (result.status !== 'ok') return { ...result, normalizedPath: null, compositePath: null };
+  const rect = measured.targetRects[result.placement];
+  if (!rect) throw new Error(`No clothing target rect for placement: ${result.placement}`);
+  const normalizedPath = resolve(ITEM_FIT_V13_NORMALIZED_DIR, result.filename);
+  const placement = normalizeToSlot({
+    sourcePath: fromOutputRelative(result.cutoutPath),
+    outputPath: normalizedPath,
+    rect,
+    canvas: selectedStyle.canvas,
+    maxScale: 1,
+    alignY: result.placement === 'bottom' ? 0 : 0.5,
+  });
+  const compositePath = resolve(ITEM_FIT_V13_COMPOSITE_DIR, `${result.id}-composite.png`);
+  compositePngs({
+    basePath: fromOutputRelative(selectedStyle.selectedCutout),
+    layerPaths: [normalizedPath],
+    outputPath: compositePath,
+    canvas: selectedStyle.canvas,
+  });
+  return {
+    ...result,
+    sourceBounds: placement.sourceBounds,
+    targetRect: rect,
+    placedRect: placement.placedRect,
+    normalizedPath: toRelative(normalizedPath),
+    compositePath: toRelative(compositePath),
+  };
+};
+
+const runItemFitV13ClothingBatch = async (previousManifest) => {
+  if (!existsSync(SELECTED_STYLE_PATH)) {
+    throw new Error(`Selected style model is missing: ${SELECTED_STYLE_PATH}`);
+  }
+
+  const selectedStyle = readJson(SELECTED_STYLE_PATH);
+  const measured = measureClothingAnchors({ selectedStyle });
+  const itemResults = await runBatch({
+    allCandidates: itemFitV13Candidates,
+    requestedIds: REQUESTED_ITEM_IDS,
+    previousItems: previousManifest.itemFitV13Candidates || [],
+    rawDir: ITEM_FIT_V13_RAW_DIR,
+    cutoutDir: ITEM_FIT_V13_CUTOUT_DIR,
+    label: 'item fit v13 clothing candidates',
+  });
+  const processed = itemResults.map((item) => processItemFitV13Result({ result: item, selectedStyle, measured }));
+
+  writeFileSync(ITEM_FIT_V13_PREVIEW_PATH, renderItemFitV13Preview({ selectedStyle, measured, items: processed }));
+  writeFileSync(ITEM_FIT_V13_REVIEW_PATH, renderItemFitV13Review({ selectedStyle, measured, items: processed }));
+  writeManifest({
+    ...previousManifest,
+    itemFitV13Dir: ITEM_FIT_V13_DIR,
+    itemFitV13Candidates: processed,
+    itemFitV13SelectedStyle: selectedStyle.selectedStyleCandidateId,
+    itemFitV13MeasuredClothingAnchors: measured,
+  });
+  console.log(`manifest: ${MANIFEST_PATH}`);
+  console.log(`item fit v13 preview: ${ITEM_FIT_V13_PREVIEW_PATH}`);
+  console.log(`item fit v13 review: ${ITEM_FIT_V13_REVIEW_PATH}`);
+};
+
 const writeManifest = (manifest) => {
   writeFileSync(
     MANIFEST_PATH,
@@ -3885,6 +4130,11 @@ const main = async () => {
 
   if (ITEM_BATCH === 'stability-fit-v12-hair-accessories') {
     await runItemFitV12HairAccessoryStabilityBatch(previousManifest);
+    return;
+  }
+
+  if (ITEM_BATCH === 'high-risk-fit-v13-clothing') {
+    await runItemFitV13ClothingBatch(previousManifest);
     return;
   }
 

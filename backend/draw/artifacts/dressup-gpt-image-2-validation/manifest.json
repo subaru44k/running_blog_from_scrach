@@ -3,7 +3,7 @@
   "quality": "medium",
   "size": "1024x1536",
   "outputFormat": "png",
-  "generatedAt": "2026-04-30T13:52:25.777Z",
+  "generatedAt": "2026-04-30T14:06:53.807Z",
   "outputDir": "/Users/yamadashinya/work/subaru-misc-blog/backend/draw/artifacts/dressup-gpt-image-2-validation",
   "rawDir": "/Users/yamadashinya/work/subaru-misc-blog/backend/draw/artifacts/dressup-gpt-image-2-validation/model-candidates/raw",
   "cutoutDir": "/Users/yamadashinya/work/subaru-misc-blog/backend/draw/artifacts/dressup-gpt-image-2-validation/model-candidates/cutout",
@@ -1399,6 +1399,150 @@
         "y": 191,
         "width": 48,
         "height": 52
+      }
+    }
+  },
+  "itemFitV13Dir": "/Users/yamadashinya/work/subaru-misc-blog/backend/draw/artifacts/dressup-gpt-image-2-validation/item-fit-v13-clothing",
+  "itemFitV13Candidates": [
+    {
+      "id": "top-frill-blouse-fit",
+      "type": "top",
+      "placement": "top",
+      "filename": "top-frill-blouse-fit.png",
+      "label": "Top: simple frill blouse fit",
+      "prompt": "single upper clothing layer for a children princess dress-up game, original pastel storybook encyclopedia illustration matching a soft Japanese picture-book fashion encyclopedia, soft watercolor-like coloring, clean fine linework, front view blouse only, no head, no face, no hair, no hands, no legs, no mannequin, no shadow, pure white 1024 by 1536 canvas, a compact pale pink frill blouse with a clean round neckline, tiny ribbon detail, short puff sleeves kept narrow and close to the torso, waist-length hem, designed to overlay a front-facing paper doll torso without covering the arms too much, no skirt, no full dress, no necklace, no text, no watermark",
+      "rawPath": "item-fit-v13-clothing/raw/top-frill-blouse-fit.png",
+      "cutoutPath": "item-fit-v13-clothing/cutout/top-frill-blouse-fit.png",
+      "revisedPrompt": null,
+      "createdAt": "2026-04-30T14:05:14.346Z",
+      "status": "ok",
+      "error": null,
+      "sourceBounds": {
+        "x": 107,
+        "y": 339,
+        "width": 810,
+        "height": 747
+      },
+      "targetRect": {
+        "x": 359,
+        "y": 330,
+        "width": 290,
+        "height": 270
+      },
+      "placedRect": {
+        "x": 359,
+        "y": 332,
+        "width": 290,
+        "height": 267
+      },
+      "normalizedPath": "item-fit-v13-clothing/normalized/top-frill-blouse-fit.png",
+      "compositePath": "item-fit-v13-clothing/composite/top-frill-blouse-fit-composite.png"
+    },
+    {
+      "id": "bottom-fluffy-skirt-fit",
+      "type": "bottom",
+      "placement": "bottom",
+      "filename": "bottom-fluffy-skirt-fit.png",
+      "label": "Bottom: fluffy skirt fit",
+      "prompt": "single skirt layer for a children princess dress-up game, original pastel storybook encyclopedia illustration matching a soft Japanese picture-book fashion encyclopedia, soft watercolor-like coloring, clean fine linework, front view skirt only, no torso, no body, no legs, no feet, no mannequin, no shadow, pure white 1024 by 1536 canvas, a soft lavender pink knee-length fluffy skirt with a simple waistband, gentle A-line volume, small frill details, centered and symmetrical, designed to overlay a front-facing paper doll waist and hide the base dress skirt cleanly, no blouse, no shoes, no text, no watermark",
+      "rawPath": "item-fit-v13-clothing/raw/bottom-fluffy-skirt-fit.png",
+      "cutoutPath": "item-fit-v13-clothing/cutout/bottom-fluffy-skirt-fit.png",
+      "revisedPrompt": null,
+      "createdAt": "2026-04-30T14:05:58.439Z",
+      "status": "ok",
+      "error": null,
+      "sourceBounds": {
+        "x": 42,
+        "y": 398,
+        "width": 944,
+        "height": 708
+      },
+      "targetRect": {
+        "x": 299,
+        "y": 535,
+        "width": 410,
+        "height": 380
+      },
+      "placedRect": {
+        "x": 299,
+        "y": 535,
+        "width": 410,
+        "height": 308
+      },
+      "normalizedPath": "item-fit-v13-clothing/normalized/bottom-fluffy-skirt-fit.png",
+      "compositePath": "item-fit-v13-clothing/composite/bottom-fluffy-skirt-fit-composite.png"
+    },
+    {
+      "id": "dress-overlay-pastel-fit",
+      "type": "dressOverlay",
+      "placement": "dressOverlay",
+      "filename": "dress-overlay-pastel-fit.png",
+      "label": "Dress overlay: pastel one-piece fit",
+      "prompt": "single one-piece dress overlay layer for a children princess dress-up game, original pastel storybook encyclopedia illustration matching a soft Japanese picture-book fashion encyclopedia, soft watercolor-like coloring, clean fine linework, front view dress only, no head, no face, no hair, no hands, no legs, no feet, no mannequin, no shadow, pure white 1024 by 1536 canvas, a pale mint and pink princess one-piece dress with a clean round neckline, narrow shoulder straps, fitted bodice, soft knee-length skirt, centered and symmetrical, designed to overlay a front-facing paper doll from shoulders to skirt hem without covering arms, no necklace, no shoes, no text, no watermark",
+      "rawPath": "item-fit-v13-clothing/raw/dress-overlay-pastel-fit.png",
+      "cutoutPath": "item-fit-v13-clothing/cutout/dress-overlay-pastel-fit.png",
+      "revisedPrompt": null,
+      "createdAt": "2026-04-30T14:06:51.381Z",
+      "status": "ok",
+      "error": null,
+      "sourceBounds": {
+        "x": 130,
+        "y": 169,
+        "width": 763,
+        "height": 1128
+      },
+      "targetRect": {
+        "x": 299,
+        "y": 330,
+        "width": 410,
+        "height": 585
+      },
+      "placedRect": {
+        "x": 306,
+        "y": 330,
+        "width": 396,
+        "height": 585
+      },
+      "normalizedPath": "item-fit-v13-clothing/normalized/dress-overlay-pastel-fit.png",
+      "compositePath": "item-fit-v13-clothing/composite/dress-overlay-pastel-fit-composite.png"
+    }
+  ],
+  "itemFitV13SelectedStyle": "style-d-encyclopedia-clean-base",
+  "itemFitV13MeasuredClothingAnchors": {
+    "selectedStyleCandidateId": "style-d-encyclopedia-clean-base",
+    "measuredAt": "2026-04-30T14:04:22.951Z",
+    "method": "bodyCenterX plus alpha bounds scan over upper body and base dress skirt",
+    "bodyCenterX": 504,
+    "upperBodyBounds": {
+      "x": 314,
+      "y": 330,
+      "width": 380,
+      "height": 330
+    },
+    "skirtBounds": {
+      "x": 244,
+      "y": 545,
+      "width": 520,
+      "height": 360
+    },
+    "targetRects": {
+      "top": {
+        "x": 359,
+        "y": 330,
+        "width": 290,
+        "height": 270
+      },
+      "bottom": {
+        "x": 299,
+        "y": 535,
+        "width": 410,
+        "height": 380
+      },
+      "dressOverlay": {
+        "x": 299,
+        "y": 330,
+        "width": 410,
+        "height": 585
       }
     }
   }
