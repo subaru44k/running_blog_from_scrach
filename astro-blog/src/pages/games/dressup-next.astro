@@ -1,0 +1,511 @@
+---
+import Layout from '../../layouts/Layout.astro';
+
+const pageTitle = 'おしゃれゲーム PNG版｜ミニゲーム';
+const metaDescription = 'PNGレイヤー素材で試作した、検証中のおしゃれゲームです。';
+---
+
+<Layout
+  pageTitle={pageTitle}
+  metaDescription={metaDescription}
+  noSidebar={true}
+  noIndex={true}
+  disableCanonical={true}
+  pageHeading="おしゃれゲーム PNG版"
+  pageLead="生成したPNG素材を重ねて遊ぶ、検証中のきせかえゲームです。"
+>
+  <section class="dn-shell">
+    <div class="dn-topbar">
+      <div>
+        <p class="dn-kicker">PNG LAYER TEST</p>
+        <h2>おしゃれゲーム PNG版</h2>
+      </div>
+      <div class="dn-actions">
+        <button id="completeBtn" class="dn-btn dn-btn-primary" type="button">かんせい</button>
+        <button id="restartBtn" class="dn-btn" type="button">もういちど</button>
+      </div>
+    </div>
+
+    <div class="dn-status">
+      <span>テーマ</span>
+      <strong id="themeText">おでかけ</strong>
+      <span>いま</span>
+      <strong id="phaseText">コーデをつくろう</strong>
+      <span>えらぶ</span>
+      <strong id="slotText">かみかざり</strong>
+    </div>
+
+    <div class="dn-duel">
+      <section class="dn-panel">
+        <div class="dn-panel-head">
+          <strong>あなた</strong>
+          <span id="playerHint">すきなところをえらんでね</span>
+        </div>
+        <div class="dn-avatar-wrap">
+          <div class="dn-avatar" id="playerAvatar"></div>
+          <div class="dn-hotspots" id="hotspots">
+            <button class="dn-hotspot dn-hotspot-hair" data-slot="hairAccessory" type="button" aria-label="かみかざりをえらぶ"></button>
+            <button class="dn-hotspot dn-hotspot-necklace" data-slot="necklace" type="button" aria-label="ネックレスをえらぶ"></button>
+            <button class="dn-hotspot dn-hotspot-top" data-slot="top" type="button" aria-label="トップスをえらぶ"></button>
+            <button class="dn-hotspot dn-hotspot-bottom" data-slot="bottom" type="button" aria-label="ボトムスをえらぶ"></button>
+            <button class="dn-hotspot dn-hotspot-shoes" data-slot="shoes" type="button" aria-label="くつをえらぶ"></button>
+          </div>
+        </div>
+      </section>
+
+      <div class="dn-vs">VS</div>
+
+      <section class="dn-panel">
+        <div class="dn-panel-head">
+          <strong>チャットさん</strong>
+          <span id="chatHint">まだ ないしょ</span>
+        </div>
+        <div class="dn-avatar-wrap">
+          <div class="dn-avatar" id="chatAvatar"></div>
+        </div>
+      </section>
+    </div>
+
+    <div class="dn-picker">
+      <div class="dn-picker-head">
+        <strong id="pickerTitle">かみかざり</strong>
+        <span>えらんだものが すぐに ひょうじされます</span>
+      </div>
+      <div class="dn-options" id="optionList"></div>
+    </div>
+
+    <div class="dn-vote" id="voteArea" hidden>
+      <p>どっちがすき？</p>
+      <div>
+        <button class="dn-btn dn-btn-primary" data-pick="player" type="button">あなたのコーデ</button>
+        <button class="dn-btn dn-btn-primary" data-pick="chat" type="button">チャットさんのコーデ</button>
+      </div>
+      <strong id="voteMessage"></strong>
+    </div>
+
+    <div class="dn-note">
+      <strong>検証メモ</strong>
+      <p>レイヤー順は <code>base -> bottom -> top -> shoes -> necklace -> hairAccessory</code> です。このページは noindex の検証用ルートです。</p>
+    </div>
+  </section>
+
+  <style is:global>
+    .dn-shell {
+      display: grid;
+      gap: 18px;
+      color: #182234;
+    }
+
+    .dn-topbar,
+    .dn-status,
+    .dn-picker,
+    .dn-vote,
+    .dn-note,
+    .dn-panel {
+      border: 1px solid rgba(203, 213, 225, 0.85);
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.88);
+      box-shadow: 0 18px 48px rgba(15, 23, 42, 0.07);
+    }
+
+    .dn-topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      padding: 18px;
+    }
+
+    .dn-kicker {
+      margin: 0 0 4px;
+      color: #0f766e;
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: 0.16em;
+    }
+
+    .dn-topbar h2 {
+      margin: 0;
+      font-size: clamp(24px, 4vw, 36px);
+      line-height: 1.15;
+    }
+
+    .dn-actions,
+    .dn-vote div {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .dn-btn {
+      border: 1px solid #cbd5e1;
+      border-radius: 999px;
+      background: #fff;
+      color: #334155;
+      cursor: pointer;
+      font-weight: 800;
+      min-height: 42px;
+      padding: 0 16px;
+    }
+
+    .dn-btn-primary {
+      border-color: #0f766e;
+      background: #0f766e;
+      color: #fff;
+    }
+
+    .dn-status {
+      display: grid;
+      grid-template-columns: repeat(3, max-content 1fr);
+      gap: 8px 12px;
+      align-items: center;
+      padding: 14px 16px;
+    }
+
+    .dn-status span,
+    .dn-panel-head span,
+    .dn-picker-head span,
+    .dn-note p {
+      color: #64748b;
+      font-size: 13px;
+      line-height: 1.7;
+    }
+
+    .dn-status strong {
+      color: #0f766e;
+    }
+
+    .dn-duel {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+      gap: 14px;
+      align-items: center;
+    }
+
+    .dn-panel {
+      padding: 14px;
+    }
+
+    .dn-panel-head,
+    .dn-picker-head {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+
+    .dn-vs {
+      color: #0f766e;
+      font-size: 20px;
+      font-weight: 900;
+    }
+
+    .dn-avatar-wrap {
+      position: relative;
+      width: min(100%, 380px);
+      margin: 0 auto;
+      aspect-ratio: 2 / 3;
+    }
+
+    .dn-avatar {
+      position: absolute;
+      inset: 0;
+    }
+
+    .dn-layer {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      pointer-events: none;
+      user-select: none;
+    }
+
+    .dn-hotspots {
+      position: absolute;
+      inset: 0;
+    }
+
+    .dn-hotspot {
+      position: absolute;
+      border: 2px solid transparent;
+      border-radius: 999px;
+      background: rgba(15, 118, 110, 0.08);
+      cursor: pointer;
+    }
+
+    .dn-hotspot:focus-visible,
+    .dn-hotspot.is-active {
+      border-color: #0f766e;
+      outline: none;
+    }
+
+    .dn-hotspot-hair { left: 55%; top: 12%; width: 18%; height: 9%; }
+    .dn-hotspot-necklace { left: 42%; top: 23%; width: 18%; height: 8%; }
+    .dn-hotspot-top { left: 34%; top: 27%; width: 32%; height: 16%; }
+    .dn-hotspot-bottom { left: 31%; top: 36%; width: 38%; height: 28%; }
+    .dn-hotspot-shoes { left: 35%; top: 84%; width: 30%; height: 11%; }
+
+    .dn-picker {
+      padding: 14px;
+    }
+
+    .dn-options {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(145px, 1fr));
+      gap: 10px;
+    }
+
+    .dn-option {
+      border: 1px solid #dbe4ef;
+      border-radius: 8px;
+      background: #fff;
+      cursor: pointer;
+      min-height: 56px;
+      padding: 10px;
+      text-align: left;
+    }
+
+    .dn-option.is-selected {
+      border-color: #0f766e;
+      box-shadow: inset 0 0 0 2px rgba(15, 118, 110, 0.18);
+    }
+
+    .dn-option strong,
+    .dn-option span {
+      display: block;
+    }
+
+    .dn-option span {
+      color: #64748b;
+      font-size: 12px;
+      margin-top: 3px;
+    }
+
+    .dn-vote,
+    .dn-note {
+      padding: 16px;
+    }
+
+    .dn-vote p {
+      margin: 0 0 12px;
+      font-size: 20px;
+      font-weight: 900;
+    }
+
+    .dn-vote strong {
+      display: block;
+      margin-top: 12px;
+      color: #0f766e;
+    }
+
+    .dn-note p {
+      margin: 6px 0 0;
+    }
+
+    @media (max-width: 860px) {
+      .dn-topbar,
+      .dn-panel-head,
+      .dn-picker-head {
+        align-items: flex-start;
+        flex-direction: column;
+      }
+
+      .dn-status {
+        grid-template-columns: max-content 1fr;
+      }
+
+      .dn-duel {
+        grid-template-columns: 1fr;
+      }
+
+      .dn-vs {
+        text-align: center;
+      }
+
+      .dn-avatar-wrap {
+        max-width: 300px;
+      }
+    }
+  </style>
+
+  <script is:inline>
+    const ASSET_BASE = '/images/games/dressup-next/';
+    const slotOrder = ['hairAccessory', 'necklace', 'top', 'bottom', 'shoes'];
+    const slotLabels = {
+      hairAccessory: 'かみかざり',
+      necklace: 'ネックレス',
+      top: 'トップス',
+      bottom: 'ボトムス',
+      shoes: 'くつ',
+    };
+    const catalog = {
+      hairAccessory: [
+        { id: 'none', label: 'なし', note: 'そのまま' },
+        { id: 'side-ribbon', label: 'リボンピン', note: 'みぎがわに ちょこん', src: 'hairpin-side-ribbon.png' },
+        { id: 'lace-band', label: 'レースカチューシャ', note: 'やさしい しろ', src: 'headband-slim-lace.png' },
+      ],
+      necklace: [
+        { id: 'none', label: 'なし', note: 'そのまま' },
+        { id: 'heart', label: 'ハートネックレス', note: 'ちいさな ハート', src: 'necklace-inner-shoulder.png' },
+        { id: 'ribbon', label: 'リボンネックレス', note: 'りぼんが かわいい', src: 'necklace-tiny-ribbon.png' },
+      ],
+      top: [
+        { id: 'none', label: 'なし', note: 'ベース' },
+        { id: 'frill-blouse', label: 'フリルブラウス', note: 'ふんわり ピンク', src: 'top-frill-blouse.png' },
+      ],
+      bottom: [
+        { id: 'none', label: 'なし', note: 'ベース' },
+        { id: 'long-frill', label: 'ロングフリル', note: 'ひざくらいまで', src: 'bottom-long-frill-skirt.png' },
+        { id: 'a-line', label: 'ピンクスカート', note: 'きれいな Aライン', src: 'bottom-knee-a-line.png' },
+      ],
+      shoes: [
+        { id: 'none', label: 'なし', note: 'そのまま' },
+        { id: 'ribbon-boots', label: 'リボンブーツ', note: 'あしもと かわいい', left: 'boots-ribbon-flat-cuff-left.png', right: 'boots-ribbon-flat-cuff-right.png' },
+        { id: 'pearl-boots', label: 'パールブーツ', note: 'しろくて きれい', left: 'boots-pearl-flat-cuff-left.png', right: 'boots-pearl-flat-cuff-right.png' },
+      ],
+    };
+    const themes = ['おでかけ', 'パーティー', 'おひめさま'];
+    const defaults = {
+      hairAccessory: 'none',
+      necklace: 'none',
+      top: 'none',
+      bottom: 'none',
+      shoes: 'none',
+    };
+    const state = {
+      activeSlot: 'hairAccessory',
+      phase: 'player',
+      theme: themes[Math.floor(Math.random() * themes.length)],
+      player: { ...defaults },
+      chat: { ...defaults },
+    };
+
+    const els = {
+      themeText: document.getElementById('themeText'),
+      phaseText: document.getElementById('phaseText'),
+      slotText: document.getElementById('slotText'),
+      pickerTitle: document.getElementById('pickerTitle'),
+      optionList: document.getElementById('optionList'),
+      playerAvatar: document.getElementById('playerAvatar'),
+      chatAvatar: document.getElementById('chatAvatar'),
+      chatHint: document.getElementById('chatHint'),
+      playerHint: document.getElementById('playerHint'),
+      completeBtn: document.getElementById('completeBtn'),
+      restartBtn: document.getElementById('restartBtn'),
+      hotspots: document.getElementById('hotspots'),
+      voteArea: document.getElementById('voteArea'),
+      voteMessage: document.getElementById('voteMessage'),
+    };
+
+    const optionFor = (slot, id) => catalog[slot].find((item) => item.id === id) || catalog[slot][0];
+    const img = (src, alt, className = '') => `<img class="dn-layer ${className}" src="${ASSET_BASE}${src}" alt="${alt}" loading="eager" decoding="async" />`;
+    const renderAvatar = (outfit) => {
+      const bottom = optionFor('bottom', outfit.bottom);
+      const top = optionFor('top', outfit.top);
+      const shoes = optionFor('shoes', outfit.shoes);
+      const necklace = optionFor('necklace', outfit.necklace);
+      const hair = optionFor('hairAccessory', outfit.hairAccessory);
+      return [
+        img('model-base.png', 'ベースモデル'),
+        bottom.src ? img(bottom.src, bottom.label) : '',
+        top.src ? img(top.src, top.label) : '',
+        shoes.left ? img(shoes.left, `${shoes.label} 左`) : '',
+        shoes.right ? img(shoes.right, `${shoes.label} 右`) : '',
+        necklace.src ? img(necklace.src, necklace.label) : '',
+        hair.src ? img(hair.src, hair.label) : '',
+      ].join('');
+    };
+
+    function renderOptions() {
+      els.pickerTitle.textContent = slotLabels[state.activeSlot];
+      els.slotText.textContent = slotLabels[state.activeSlot];
+      els.optionList.innerHTML = catalog[state.activeSlot]
+        .map((item) => {
+          const selected = state.player[state.activeSlot] === item.id;
+          return `<button class="dn-option ${selected ? 'is-selected' : ''}" data-option="${item.id}" type="button"><strong>${item.label}</strong><span>${item.note}</span></button>`;
+        })
+        .join('');
+    }
+
+    function renderAll() {
+      els.themeText.textContent = state.theme;
+      els.phaseText.textContent = state.phase === 'player' ? 'コーデをつくろう' : state.phase === 'chat' ? 'チャットさん' : 'どっちがすき？';
+      els.playerAvatar.innerHTML = renderAvatar(state.player);
+      els.chatAvatar.innerHTML = renderAvatar(state.chat);
+      document.querySelectorAll('.dn-hotspot').forEach((button) => {
+        button.classList.toggle('is-active', button.dataset.slot === state.activeSlot);
+      });
+      renderOptions();
+    }
+
+    function pickChatOption(slot) {
+      const items = catalog[slot].filter((item) => item.id !== 'none');
+      return items[Math.floor(Math.random() * items.length)]?.id || 'none';
+    }
+
+    function sleep(ms) {
+      return new Promise((resolve) => setTimeout(resolve, ms));
+    }
+
+    async function runChat() {
+      state.phase = 'chat';
+      els.completeBtn.disabled = true;
+      els.voteArea.hidden = true;
+      renderAll();
+      for (const slot of slotOrder) {
+        els.chatHint.textContent = `${slotLabels[slot]}を えらんでいます`;
+        await sleep(650);
+        state.chat[slot] = pickChatOption(slot);
+        renderAll();
+      }
+      state.phase = 'vote';
+      els.chatHint.textContent = 'できあがり';
+      els.phaseText.textContent = 'どっちがすき？';
+      els.voteArea.hidden = false;
+      els.completeBtn.disabled = false;
+    }
+
+    els.hotspots.addEventListener('click', (event) => {
+      const button = event.target.closest('[data-slot]');
+      if (!button || state.phase !== 'player') return;
+      state.activeSlot = button.dataset.slot;
+      renderAll();
+    });
+
+    els.optionList.addEventListener('click', (event) => {
+      const button = event.target.closest('[data-option]');
+      if (!button || state.phase !== 'player') return;
+      state.player[state.activeSlot] = button.dataset.option;
+      renderAll();
+    });
+
+    els.completeBtn.addEventListener('click', () => {
+      if (state.phase === 'player') runChat();
+    });
+
+    els.restartBtn.addEventListener('click', () => {
+      state.phase = 'player';
+      state.theme = themes[Math.floor(Math.random() * themes.length)];
+      state.activeSlot = 'hairAccessory';
+      state.player = { ...defaults };
+      state.chat = { ...defaults };
+      els.voteArea.hidden = true;
+      els.voteMessage.textContent = '';
+      els.playerHint.textContent = 'すきなところをえらんでね';
+      els.chatHint.textContent = 'まだ ないしょ';
+      els.completeBtn.disabled = false;
+      renderAll();
+    });
+
+    els.voteArea.addEventListener('click', (event) => {
+      const button = event.target.closest('[data-pick]');
+      if (!button) return;
+      els.voteMessage.textContent = button.dataset.pick === 'player' ? 'あなたのコーデ、すてきだね。' : 'チャットさんのコーデも いいかんじ。';
+    });
+
+    renderAll();
+  </script>
+</Layout>

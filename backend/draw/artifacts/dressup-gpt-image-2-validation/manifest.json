@@ -3,7 +3,7 @@
   "quality": "medium",
   "size": "1024x1536",
   "outputFormat": "png",
-  "generatedAt": "2026-05-01T00:21:53.027Z",
+  "generatedAt": "2026-05-01T04:59:48.922Z",
   "outputDir": "/Users/yamadashinya/work/subaru-misc-blog/backend/draw/artifacts/dressup-gpt-image-2-validation",
   "rawDir": "/Users/yamadashinya/work/subaru-misc-blog/backend/draw/artifacts/dressup-gpt-image-2-validation/model-candidates/raw",
   "cutoutDir": "/Users/yamadashinya/work/subaru-misc-blog/backend/draw/artifacts/dressup-gpt-image-2-validation/model-candidates/cutout",
@@ -1761,5 +1761,204 @@
       "compositePath": "item-fit-v15-layer-stack/composite/aline-c-composite.png"
     }
   ],
-  "itemFitV15SelectedStyle": "style-d-encyclopedia-clean-base"
+  "itemFitV15SelectedStyle": "style-d-encyclopedia-clean-base",
+  "itemFitV16Dir": "/Users/yamadashinya/work/subaru-misc-blog/backend/draw/artifacts/dressup-gpt-image-2-validation/item-fit-v16-flat-cuff-boots",
+  "itemFitV16Candidates": [
+    {
+      "id": "boots-ribbon-flat-cuff-fit",
+      "type": "boots",
+      "filename": "boots-ribbon-flat-cuff-fit.png",
+      "label": "Boots: ribbon flat cuff fit",
+      "prompt": "pair of slim short ankle boots only for a children princess dress-up game, original pastel storybook encyclopedia illustration matching a soft Japanese picture-book fashion encyclopedia, soft watercolor-like coloring, clean fine linework, front view boots only, no legs, no feet, no socks, no skin, no body, no mannequin, no shadow, pure white 1024 by 1536 canvas, soft rose pink ankle boots with a tiny ribbon detail on each boot, rounded toes that cover the full toes, narrow ankle width, left boot and right boot are the same size and separated as a matched pair, the top of each boot has a flat nearly horizontal cuff edge like a simple cut-off tube, solid boot surface up to the cuff, no visible boot interior, no oval opening, no hole at the top, no dark inside rim, no deep 3D mouth, not oversized, no toe lines, no foot outlines, no skin-colored details, no text, no watermark",
+      "rawPath": "item-fit-v16-flat-cuff-boots/raw/boots-ribbon-flat-cuff-fit.png",
+      "cutoutPath": "item-fit-v16-flat-cuff-boots/cutout/boots-ribbon-flat-cuff-fit.png",
+      "revisedPrompt": null,
+      "createdAt": "2026-05-01T04:59:03.456Z",
+      "status": "ok",
+      "error": null,
+      "sourceBounds": {
+        "x": 167,
+        "y": 445,
+        "width": 689,
+        "height": 709
+      },
+      "splitX": 512,
+      "placedRects": {
+        "leftShoe": {
+          "x": 409,
+          "y": 1315,
+          "width": 92,
+          "height": 148
+        },
+        "rightShoe": {
+          "x": 502,
+          "y": 1315,
+          "width": 92,
+          "height": 148
+        }
+      },
+      "splitPaths": [
+        {
+          "label": "Left split",
+          "path": "item-fit-v16-flat-cuff-boots/split/boots-ribbon-flat-cuff-fit-left.png"
+        },
+        {
+          "label": "Right split",
+          "path": "item-fit-v16-flat-cuff-boots/split/boots-ribbon-flat-cuff-fit-right.png"
+        }
+      ],
+      "normalizedPaths": [
+        {
+          "label": "Left opaque normalized",
+          "path": "item-fit-v16-flat-cuff-boots/normalized/boots-ribbon-flat-cuff-fit-left-opaque.png"
+        },
+        {
+          "label": "Right opaque normalized",
+          "path": "item-fit-v16-flat-cuff-boots/normalized/boots-ribbon-flat-cuff-fit-right-opaque.png"
+        }
+      ],
+      "alphaStats": {
+        "left": {
+          "bounds": {
+            "x": 409,
+            "y": 1315,
+            "width": 92,
+            "height": 148
+          },
+          "before": {
+            "semiTransparent": 17,
+            "transparentInterior": 0,
+            "nonTransparent": 11225
+          },
+          "after": {
+            "semiTransparent": 15,
+            "transparentInterior": 0,
+            "nonTransparent": 11225
+          },
+          "alphaRaised": 2,
+          "holesFilled": 0
+        },
+        "right": {
+          "bounds": {
+            "x": 502,
+            "y": 1315,
+            "width": 92,
+            "height": 148
+          },
+          "before": {
+            "semiTransparent": 16,
+            "transparentInterior": 0,
+            "nonTransparent": 11220
+          },
+          "after": {
+            "semiTransparent": 14,
+            "transparentInterior": 0,
+            "nonTransparent": 11220
+          },
+          "alphaRaised": 2,
+          "holesFilled": 0
+        }
+      },
+      "compositePath": "item-fit-v16-flat-cuff-boots/composite/boots-ribbon-flat-cuff-fit-composite.png"
+    },
+    {
+      "id": "boots-pearl-flat-cuff-fit",
+      "type": "boots",
+      "filename": "boots-pearl-flat-cuff-fit.png",
+      "label": "Boots: pearl flat cuff fit",
+      "prompt": "pair of slim short ankle boots only for a children princess dress-up game, original pastel storybook encyclopedia illustration matching a soft Japanese picture-book fashion encyclopedia, soft watercolor-like coloring, clean fine linework, front view boots only, no legs, no feet, no socks, no skin, no body, no mannequin, no shadow, pure white 1024 by 1536 canvas, warm cream white ankle boots with very small pearl button details kept subtle, rounded toes that cover the full toes, narrow ankle width, left boot and right boot are the same size and separated as a matched pair, the top of each boot has a flat nearly horizontal cuff edge like a simple cut-off tube, solid boot surface up to the cuff, no visible boot interior, no oval opening, no hole at the top, no dark inside rim, no deep 3D mouth, not oversized, no toe lines, no foot outlines, no skin-colored details, no text, no watermark",
+      "rawPath": "item-fit-v16-flat-cuff-boots/raw/boots-pearl-flat-cuff-fit.png",
+      "cutoutPath": "item-fit-v16-flat-cuff-boots/cutout/boots-pearl-flat-cuff-fit.png",
+      "revisedPrompt": null,
+      "createdAt": "2026-05-01T04:59:45.160Z",
+      "status": "ok",
+      "error": null,
+      "sourceBounds": {
+        "x": 121,
+        "y": 422,
+        "width": 781,
+        "height": 705
+      },
+      "splitX": 512,
+      "placedRects": {
+        "leftShoe": {
+          "x": 409,
+          "y": 1315,
+          "width": 92,
+          "height": 148
+        },
+        "rightShoe": {
+          "x": 502,
+          "y": 1315,
+          "width": 92,
+          "height": 148
+        }
+      },
+      "splitPaths": [
+        {
+          "label": "Left split",
+          "path": "item-fit-v16-flat-cuff-boots/split/boots-pearl-flat-cuff-fit-left.png"
+        },
+        {
+          "label": "Right split",
+          "path": "item-fit-v16-flat-cuff-boots/split/boots-pearl-flat-cuff-fit-right.png"
+        }
+      ],
+      "normalizedPaths": [
+        {
+          "label": "Left opaque normalized",
+          "path": "item-fit-v16-flat-cuff-boots/normalized/boots-pearl-flat-cuff-fit-left-opaque.png"
+        },
+        {
+          "label": "Right opaque normalized",
+          "path": "item-fit-v16-flat-cuff-boots/normalized/boots-pearl-flat-cuff-fit-right-opaque.png"
+        }
+      ],
+      "alphaStats": {
+        "left": {
+          "bounds": {
+            "x": 409,
+            "y": 1315,
+            "width": 92,
+            "height": 148
+          },
+          "before": {
+            "semiTransparent": 2513,
+            "transparentInterior": 2,
+            "nonTransparent": 10876
+          },
+          "after": {
+            "semiTransparent": 43,
+            "transparentInterior": 0,
+            "nonTransparent": 10878
+          },
+          "alphaRaised": 2472,
+          "holesFilled": 2
+        },
+        "right": {
+          "bounds": {
+            "x": 502,
+            "y": 1315,
+            "width": 92,
+            "height": 148
+          },
+          "before": {
+            "semiTransparent": 2594,
+            "transparentInterior": 2,
+            "nonTransparent": 10873
+          },
+          "after": {
+            "semiTransparent": 38,
+            "transparentInterior": 0,
+            "nonTransparent": 10875
+          },
+          "alphaRaised": 2558,
+          "holesFilled": 2
+        }
+      },
+      "compositePath": "item-fit-v16-flat-cuff-boots/composite/boots-pearl-flat-cuff-fit-composite.png"
+    }
+  ],
+  "itemFitV16SelectedStyle": "style-d-encyclopedia-clean-base",
+  "itemFitV16MeasuredStyleModel": "anchor-audit/measured-style-model.json"
 }

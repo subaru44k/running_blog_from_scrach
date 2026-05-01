@@ -140,6 +140,14 @@ const ITEM_FIT_V15_DIR = resolve(OUTPUT_DIR, 'item-fit-v15-layer-stack');
 const ITEM_FIT_V15_COMPOSITE_DIR = resolve(ITEM_FIT_V15_DIR, 'composite');
 const ITEM_FIT_V15_PREVIEW_PATH = resolve(ITEM_FIT_V15_DIR, 'item-fit-v15-preview.html');
 const ITEM_FIT_V15_REVIEW_PATH = resolve(ITEM_FIT_V15_DIR, 'item-fit-v15-review.md');
+const ITEM_FIT_V16_DIR = resolve(OUTPUT_DIR, 'item-fit-v16-flat-cuff-boots');
+const ITEM_FIT_V16_RAW_DIR = resolve(ITEM_FIT_V16_DIR, 'raw');
+const ITEM_FIT_V16_CUTOUT_DIR = resolve(ITEM_FIT_V16_DIR, 'cutout');
+const ITEM_FIT_V16_SPLIT_DIR = resolve(ITEM_FIT_V16_DIR, 'split');
+const ITEM_FIT_V16_NORMALIZED_DIR = resolve(ITEM_FIT_V16_DIR, 'normalized');
+const ITEM_FIT_V16_COMPOSITE_DIR = resolve(ITEM_FIT_V16_DIR, 'composite');
+const ITEM_FIT_V16_PREVIEW_PATH = resolve(ITEM_FIT_V16_DIR, 'item-fit-v16-preview.html');
+const ITEM_FIT_V16_REVIEW_PATH = resolve(ITEM_FIT_V16_DIR, 'item-fit-v16-review.md');
 
 const MODEL = 'gpt-image-2';
 const QUALITY = 'medium';
@@ -236,6 +244,11 @@ for (const dir of [
   ITEM_FIT_V14_NORMALIZED_DIR,
   ITEM_FIT_V14_COMPOSITE_DIR,
   ITEM_FIT_V15_COMPOSITE_DIR,
+  ITEM_FIT_V16_RAW_DIR,
+  ITEM_FIT_V16_CUTOUT_DIR,
+  ITEM_FIT_V16_SPLIT_DIR,
+  ITEM_FIT_V16_NORMALIZED_DIR,
+  ITEM_FIT_V16_COMPOSITE_DIR,
 ]) {
   mkdirSync(dir, { recursive: true });
 }
@@ -517,6 +530,33 @@ const itemFitV11Candidates = [
   },
 ];
 
+const itemFitV16Candidates = [
+  {
+    id: 'boots-ribbon-flat-cuff-fit',
+    type: 'boots',
+    filename: 'boots-ribbon-flat-cuff-fit.png',
+    label: 'Boots: ribbon flat cuff fit',
+    prompt:
+      'pair of slim short ankle boots only for a children princess dress-up game, original pastel storybook encyclopedia illustration matching a soft Japanese picture-book fashion encyclopedia, soft watercolor-like coloring, clean fine linework, ' +
+      'front view boots only, no legs, no feet, no socks, no skin, no body, no mannequin, no shadow, pure white 1024 by 1536 canvas, ' +
+      'soft rose pink ankle boots with a tiny ribbon detail on each boot, rounded toes that cover the full toes, narrow ankle width, left boot and right boot are the same size and separated as a matched pair, ' +
+      'the top of each boot has a flat nearly horizontal cuff edge like a simple cut-off tube, solid boot surface up to the cuff, no visible boot interior, no oval opening, no hole at the top, no dark inside rim, no deep 3D mouth, ' +
+      'not oversized, no toe lines, no foot outlines, no skin-colored details, no text, no watermark',
+  },
+  {
+    id: 'boots-pearl-flat-cuff-fit',
+    type: 'boots',
+    filename: 'boots-pearl-flat-cuff-fit.png',
+    label: 'Boots: pearl flat cuff fit',
+    prompt:
+      'pair of slim short ankle boots only for a children princess dress-up game, original pastel storybook encyclopedia illustration matching a soft Japanese picture-book fashion encyclopedia, soft watercolor-like coloring, clean fine linework, ' +
+      'front view boots only, no legs, no feet, no socks, no skin, no body, no mannequin, no shadow, pure white 1024 by 1536 canvas, ' +
+      'warm cream white ankle boots with very small pearl button details kept subtle, rounded toes that cover the full toes, narrow ankle width, left boot and right boot are the same size and separated as a matched pair, ' +
+      'the top of each boot has a flat nearly horizontal cuff edge like a simple cut-off tube, solid boot surface up to the cuff, no visible boot interior, no oval opening, no hole at the top, no dark inside rim, no deep 3D mouth, ' +
+      'not oversized, no toe lines, no foot outlines, no skin-colored details, no text, no watermark',
+  },
+];
+
 const itemFitV12Candidates = [
   {
     id: 'hairpin-side-ribbon-stability-fit',
@@ -639,6 +679,7 @@ const toRelative = (path) => {
     'style-candidates/',
     'selected-style/',
     'selected/',
+    'item-fit-v16-flat-cuff-boots/',
     'necklace-anchor-audit/',
     'item-fit-v15-layer-stack/',
     'item-fit-v14-long-bottom/',
@@ -3647,6 +3688,179 @@ const runItemFitV10BootsAlphaBatch = async (previousManifest) => {
   console.log(`item fit v10 review: ${ITEM_FIT_V10_REVIEW_PATH}`);
 };
 
+const renderItemFitV16Preview = ({ selectedStyle, measuredStyle, items }) => {
+  const relative = (path) => toDirectoryRelative(ITEM_FIT_V16_DIR, path);
+  const basePath = relative(selectedStyle.selectedCutout);
+  const cards = items
+    .map((item) => {
+      const body =
+        item.status === 'ok'
+          ? `<div class="comparison">
+              <figure><figcaption>Base</figcaption><img src="${basePath}" alt="selected style base" /></figure>
+              <figure><figcaption>Cutout</figcaption><img src="${relative(item.cutoutPath)}" alt="${escapeHtml(`${item.label} cutout`)}" /></figure>
+              <figure><figcaption>Left normalized</figcaption><img src="${relative(item.normalizedPaths[0].path)}" alt="${escapeHtml(`${item.label} left normalized`)}" /></figure>
+              <figure><figcaption>Right normalized</figcaption><img src="${relative(item.normalizedPaths[1].path)}" alt="${escapeHtml(`${item.label} right normalized`)}" /></figure>
+              <figure><figcaption>Composite</figcaption><img src="${relative(item.compositePath)}" alt="${escapeHtml(`${item.label} composite`)}" /></figure>
+            </div>`
+          : `<p class="error">${escapeHtml(item.error)}</p>`;
+      return `<article class="card ${item.status === 'ok' ? 'ok' : 'error'}"><header><div><p>${escapeHtml(item.type)}</p><h2>${escapeHtml(item.label)}</h2></div><strong>${escapeHtml(item.status)}</strong></header>${body}<p class="prompt">${escapeHtml(item.revisedPrompt || item.prompt)}</p></article>`;
+    })
+    .join('\n');
+
+  return `<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Dressup Item Fit V16 Flat Cuff Boots Preview</title>
+    <style>
+      :root { color-scheme: light; --panel:#fff; --border:#d8e2ec; --text:#142235; --muted:#64758a; --accent:#0f766e; --error:#b42318; }
+      * { box-sizing:border-box; }
+      body { margin:0; font-family:"Hiragino Sans","Yu Gothic",system-ui,sans-serif; color:var(--text); background:#f8fafc; }
+      main { width:min(1320px,calc(100% - 32px)); margin:0 auto; padding:28px 0 42px; }
+      .hero { margin-bottom:20px; }
+      .eyebrow, header p { margin:0; color:var(--accent); font-size:12px; font-weight:800; letter-spacing:.14em; text-transform:uppercase; }
+      h1 { margin:6px 0 8px; font-size:32px; line-height:1.15; }
+      .meta, .prompt { margin:0; color:var(--muted); line-height:1.7; }
+      .grid { display:grid; gap:18px; }
+      .card { border:1px solid var(--border); border-radius:8px; background:var(--panel); padding:16px; box-shadow:0 10px 28px rgba(15,35,55,.06); }
+      header { display:flex; justify-content:space-between; gap:14px; align-items:flex-start; margin-bottom:14px; }
+      h2 { margin:4px 0 0; font-size:19px; line-height:1.3; }
+      strong { border:1px solid #bee3db; border-radius:999px; color:var(--accent); padding:5px 9px; font-size:12px; text-transform:uppercase; }
+      .comparison { display:grid; grid-template-columns:repeat(5,minmax(0,1fr)); gap:10px; }
+      figure { margin:0; border:1px solid #e4ebf2; border-radius:8px; overflow:hidden; background:linear-gradient(45deg,#edf2f7 25%,transparent 25%) 0 0/18px 18px,linear-gradient(-45deg,#edf2f7 25%,transparent 25%) 0 0/18px 18px,linear-gradient(45deg,transparent 75%,#edf2f7 75%) 0 0/18px 18px,linear-gradient(-45deg,transparent 75%,#edf2f7 75%) 0 0/18px 18px,#fff; }
+      figcaption { padding:9px 10px 0; color:var(--muted); font-size:12px; font-weight:800; }
+      img { width:100%; height:460px; object-fit:contain; display:block; }
+      .prompt { margin-top:12px; font-size:13px; }
+      .error { color:var(--error); font-weight:800; }
+      @media (max-width:1180px) { .comparison { grid-template-columns:repeat(3,minmax(0,1fr)); } }
+      @media (max-width:760px) { .comparison { grid-template-columns:1fr; } img { height:340px; } }
+    </style>
+  </head>
+  <body>
+    <main>
+      <section class="hero">
+        <p class="eyebrow">DRESSUP ITEM FIT V16 FLAT CUFF BOOTS</p>
+        <h1>flat cuff boots without visible boot interior</h1>
+        <p class="meta">Base: ${escapeHtml(selectedStyle.selectedStyleCandidateId)}. Boot rects: ${escapeHtml(JSON.stringify(measuredStyle.bootRects))}.</p>
+      </section>
+      <div class="grid">${cards}</div>
+    </main>
+  </body>
+</html>`;
+};
+
+const renderItemFitV16Review = ({ selectedStyle, measuredStyle, items }) => {
+  const rows = items
+    .map((item) => `| ${item.label} | ${item.status} | \`${JSON.stringify(item.placedRects || null)}\` | \`${JSON.stringify(item.alphaStats || null)}\` | [composite](${item.compositePath || ''}) |`)
+    .join('\n');
+  return `# Dressup Item Fit V16 Flat Cuff Boots Review
+
+- Base: \`${selectedStyle.selectedStyleCandidateId}\`
+- Model: \`${MODEL}\`
+- Goal: remove visible boot interiors by using flat horizontal cuff openings.
+- Boot rects: \`${JSON.stringify(measuredStyle.bootRects)}\`
+
+| Item | Status | Placement | Alpha stats | Composite |
+| --- | --- | --- | --- | --- |
+${rows}
+
+## Review
+
+- Ribbon flat cuff boot interior visibility:
+- Ribbon flat cuff boot fit:
+- Pearl flat cuff boot interior visibility:
+- Pearl flat cuff boot fit:
+- Verdict:
+`;
+};
+
+const processItemFitV16Boot = ({ result, selectedStyle, measuredStyle }) => {
+  if (result.status !== 'ok') return { ...result, splitPaths: [], normalizedPaths: [], compositePath: null };
+
+  const cutoutPath = fromOutputRelative(result.cutoutPath);
+  const leftSplitPath = resolve(ITEM_FIT_V16_SPLIT_DIR, `${result.id}-left.png`);
+  const rightSplitPath = resolve(ITEM_FIT_V16_SPLIT_DIR, `${result.id}-right.png`);
+  const split = splitShoeCutout({ sourcePath: cutoutPath, leftPath: leftSplitPath, rightPath: rightSplitPath });
+  const leftNormalizedPath = resolve(ITEM_FIT_V16_NORMALIZED_DIR, `${result.id}-left-opaque.png`);
+  const rightNormalizedPath = resolve(ITEM_FIT_V16_NORMALIZED_DIR, `${result.id}-right-opaque.png`);
+  const leftPlacement = normalizeToSlotStretch({
+    sourcePath: leftSplitPath,
+    outputPath: leftNormalizedPath,
+    rect: measuredStyle.bootRects.leftShoe,
+    canvas: selectedStyle.canvas,
+    widthRatio: 1,
+    heightRatio: 1,
+    alignY: 1,
+  });
+  const rightPlacement = normalizeToSlotStretch({
+    sourcePath: rightSplitPath,
+    outputPath: rightNormalizedPath,
+    rect: measuredStyle.bootRects.rightShoe,
+    canvas: selectedStyle.canvas,
+    widthRatio: 1,
+    heightRatio: 1,
+    alignY: 1,
+  });
+  const leftAlphaStats = reinforceOpaqueInterior({ path: leftNormalizedPath });
+  const rightAlphaStats = reinforceOpaqueInterior({ path: rightNormalizedPath });
+  const compositePath = resolve(ITEM_FIT_V16_COMPOSITE_DIR, `${result.id}-composite.png`);
+  compositePngs({
+    basePath: fromOutputRelative(selectedStyle.selectedCutout),
+    layerPaths: [leftNormalizedPath, rightNormalizedPath],
+    outputPath: compositePath,
+    canvas: selectedStyle.canvas,
+  });
+
+  return {
+    ...result,
+    sourceBounds: split.sourceBounds,
+    splitX: split.splitX,
+    placedRects: { leftShoe: leftPlacement.placedRect, rightShoe: rightPlacement.placedRect },
+    splitPaths: [
+      { label: 'Left split', path: toRelative(leftSplitPath) },
+      { label: 'Right split', path: toRelative(rightSplitPath) },
+    ],
+    normalizedPaths: [
+      { label: 'Left opaque normalized', path: toRelative(leftNormalizedPath) },
+      { label: 'Right opaque normalized', path: toRelative(rightNormalizedPath) },
+    ],
+    alphaStats: { left: leftAlphaStats, right: rightAlphaStats },
+    compositePath: toRelative(compositePath),
+  };
+};
+
+const runItemFitV16FlatCuffBootsBatch = async (previousManifest) => {
+  if (!existsSync(SELECTED_STYLE_PATH)) {
+    throw new Error(`Selected style model is missing: ${SELECTED_STYLE_PATH}`);
+  }
+
+  const selectedStyle = readJson(SELECTED_STYLE_PATH);
+  const measuredStyle = existsSync(ANCHOR_AUDIT_JSON_PATH) ? readJson(ANCHOR_AUDIT_JSON_PATH) : measureStyleModel({ selectedStyle });
+  const itemResults = await runBatch({
+    allCandidates: itemFitV16Candidates,
+    requestedIds: REQUESTED_ITEM_IDS,
+    previousItems: previousManifest.itemFitV16Candidates || [],
+    rawDir: ITEM_FIT_V16_RAW_DIR,
+    cutoutDir: ITEM_FIT_V16_CUTOUT_DIR,
+    label: 'item fit v16 flat cuff boot candidates',
+  });
+  const processed = itemResults.map((item) => processItemFitV16Boot({ result: item, selectedStyle, measuredStyle }));
+
+  writeFileSync(ITEM_FIT_V16_PREVIEW_PATH, renderItemFitV16Preview({ selectedStyle, measuredStyle, items: processed }));
+  writeFileSync(ITEM_FIT_V16_REVIEW_PATH, renderItemFitV16Review({ selectedStyle, measuredStyle, items: processed }));
+  writeManifest({
+    ...previousManifest,
+    itemFitV16Dir: ITEM_FIT_V16_DIR,
+    itemFitV16Candidates: processed,
+    itemFitV16SelectedStyle: selectedStyle.selectedStyleCandidateId,
+    itemFitV16MeasuredStyleModel: toRelative(ANCHOR_AUDIT_JSON_PATH),
+  });
+  console.log(`manifest: ${MANIFEST_PATH}`);
+  console.log(`item fit v16 preview: ${ITEM_FIT_V16_PREVIEW_PATH}`);
+  console.log(`item fit v16 review: ${ITEM_FIT_V16_REVIEW_PATH}`);
+};
+
 const renderItemFitV11Preview = ({ selectedStyle, measured, items }) => {
   const relative = (path) => toDirectoryRelative(ITEM_FIT_V11_DIR, path);
   const basePath = relative(selectedStyle.selectedCutout);
@@ -4562,6 +4776,11 @@ const main = async () => {
 
   if (ITEM_BATCH === 'full-outfit-v15-layer-stack') {
     await runItemFitV15LayerStackBatch(previousManifest);
+    return;
+  }
+
+  if (ITEM_BATCH === 'flat-cuff-boots-v16') {
+    await runItemFitV16FlatCuffBootsBatch(previousManifest);
     return;
   }
 

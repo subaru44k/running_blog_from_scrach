@@ -35,11 +35,17 @@ self.addEventListener('activate', (event) => {
 });
 
 function isGameNavigation(request, requestUrl) {
-  return request.mode === 'navigate' && requestUrl.origin === self.location.origin && requestUrl.pathname.startsWith('/games/');
+  return (
+    request.mode === 'navigate' &&
+    requestUrl.origin === self.location.origin &&
+    requestUrl.pathname.startsWith('/games/') &&
+    !requestUrl.pathname.startsWith('/games/dressup-next/')
+  );
 }
 
 function isGameAsset(request, requestUrl) {
   if (request.method !== 'GET' || requestUrl.origin !== self.location.origin) return false;
+  if (requestUrl.pathname.startsWith('/images/games/dressup-next/')) return false;
   return (
     requestUrl.pathname.startsWith('/_astro/') ||
     requestUrl.pathname.startsWith('/images/') ||
