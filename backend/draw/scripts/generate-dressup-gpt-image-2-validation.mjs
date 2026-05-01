@@ -129,6 +129,13 @@ const ITEM_FIT_V13_NORMALIZED_DIR = resolve(ITEM_FIT_V13_DIR, 'normalized');
 const ITEM_FIT_V13_COMPOSITE_DIR = resolve(ITEM_FIT_V13_DIR, 'composite');
 const ITEM_FIT_V13_PREVIEW_PATH = resolve(ITEM_FIT_V13_DIR, 'item-fit-v13-preview.html');
 const ITEM_FIT_V13_REVIEW_PATH = resolve(ITEM_FIT_V13_DIR, 'item-fit-v13-review.md');
+const ITEM_FIT_V14_DIR = resolve(OUTPUT_DIR, 'item-fit-v14-long-bottom');
+const ITEM_FIT_V14_RAW_DIR = resolve(ITEM_FIT_V14_DIR, 'raw');
+const ITEM_FIT_V14_CUTOUT_DIR = resolve(ITEM_FIT_V14_DIR, 'cutout');
+const ITEM_FIT_V14_NORMALIZED_DIR = resolve(ITEM_FIT_V14_DIR, 'normalized');
+const ITEM_FIT_V14_COMPOSITE_DIR = resolve(ITEM_FIT_V14_DIR, 'composite');
+const ITEM_FIT_V14_PREVIEW_PATH = resolve(ITEM_FIT_V14_DIR, 'item-fit-v14-preview.html');
+const ITEM_FIT_V14_REVIEW_PATH = resolve(ITEM_FIT_V14_DIR, 'item-fit-v14-review.md');
 
 const MODEL = 'gpt-image-2';
 const QUALITY = 'medium';
@@ -220,6 +227,10 @@ for (const dir of [
   ITEM_FIT_V13_CUTOUT_DIR,
   ITEM_FIT_V13_NORMALIZED_DIR,
   ITEM_FIT_V13_COMPOSITE_DIR,
+  ITEM_FIT_V14_RAW_DIR,
+  ITEM_FIT_V14_CUTOUT_DIR,
+  ITEM_FIT_V14_NORMALIZED_DIR,
+  ITEM_FIT_V14_COMPOSITE_DIR,
 ]) {
   mkdirSync(dir, { recursive: true });
 }
@@ -579,6 +590,35 @@ const itemFitV13Candidates = [
   },
 ];
 
+const itemFitV14Candidates = [
+  {
+    id: 'bottom-knee-a-line-fit',
+    type: 'bottom',
+    placement: 'bottomLong',
+    filename: 'bottom-knee-a-line-fit.png',
+    label: 'Bottom: knee-length A-line skirt fit',
+    prompt:
+      'single skirt layer for a children princess dress-up game, original pastel storybook encyclopedia illustration matching a soft Japanese picture-book fashion encyclopedia, soft watercolor-like coloring, clean fine linework, ' +
+      'front view skirt only, no torso, no body, no legs, no feet, no mannequin, no shadow, pure white 1024 by 1536 canvas, ' +
+      'a modest pastel pink A-line skirt from waist to knee length, opaque fabric, not sheer, no transparent tulle, simple waistband, small child-friendly frill near the hem, ' +
+      'vertical silhouette, taller than wide, centered and symmetrical, designed to overlay a front-facing paper doll waist and cover the base dress hem completely, ' +
+      'no blouse, no shoes, no text, no watermark',
+  },
+  {
+    id: 'bottom-long-frill-skirt-fit',
+    type: 'bottom',
+    placement: 'bottomLong',
+    filename: 'bottom-long-frill-skirt-fit.png',
+    label: 'Bottom: long frill skirt fit',
+    prompt:
+      'single long skirt layer for a children princess dress-up game, original pastel storybook encyclopedia illustration matching a soft Japanese picture-book fashion encyclopedia, soft watercolor-like coloring, clean fine linework, ' +
+      'front view skirt only, no torso, no body, no legs, no feet, no mannequin, no shadow, pure white 1024 by 1536 canvas, ' +
+      'a modest lavender and cream skirt from waist to just below the knees, opaque fabric, not sheer, no transparent tulle, no see-through lace, simple waistband, gentle vertical folds, small frill hem, ' +
+      'vertical silhouette, taller than wide, not a short tutu, centered and symmetrical, designed to overlay a front-facing paper doll waist and cover the base dress hem completely, ' +
+      'no blouse, no shoes, no text, no watermark',
+  },
+];
+
 const escapeHtml = (value) =>
   String(value)
     .replaceAll('&', '&amp;')
@@ -595,6 +635,7 @@ const toRelative = (path) => {
     'selected-style/',
     'selected/',
     'necklace-anchor-audit/',
+    'item-fit-v14-long-bottom/',
     'item-fit-v13-clothing/',
     'item-fit-v12-hair-accessory-stability/',
     'item-fit-v11-hair-accessory/',
@@ -1359,6 +1400,23 @@ const measureClothingAnchors = ({ selectedStyle }) => {
       top: topRect,
       bottom: bottomRect,
       dressOverlay: dressOverlayRect,
+    },
+  };
+};
+
+const measureLongBottomAnchors = ({ selectedStyle }) => {
+  const measured = measureClothingAnchors({ selectedStyle });
+  return {
+    ...measured,
+    measuredAt: new Date().toISOString(),
+    method: `${measured.method}; v14 extends bottom target for opaque knee-length skirts`,
+    targetRects: {
+      bottomLong: roundRect({
+        x: measured.bodyCenterX - 190,
+        y: Math.max(520, measured.skirtBounds.y - 25),
+        width: 380,
+        height: 500,
+      }),
     },
   };
 };
@@ -4036,6 +4094,158 @@ const runItemFitV13ClothingBatch = async (previousManifest) => {
   console.log(`item fit v13 review: ${ITEM_FIT_V13_REVIEW_PATH}`);
 };
 
+const renderItemFitV14Preview = ({ selectedStyle, measured, items }) => {
+  const relative = (path) => toDirectoryRelative(ITEM_FIT_V14_DIR, path);
+  const basePath = relative(selectedStyle.selectedCutout);
+  const cards = items
+    .map((item) => {
+      const body =
+        item.status === 'ok'
+          ? `<div class="comparison">
+              <figure><figcaption>Base</figcaption><img src="${basePath}" alt="selected style base" /></figure>
+              <figure><figcaption>Raw</figcaption><img src="${relative(item.rawPath)}" alt="${escapeHtml(`${item.label} raw`)}" /></figure>
+              <figure><figcaption>Cutout</figcaption><img src="${relative(item.cutoutPath)}" alt="${escapeHtml(`${item.label} cutout`)}" /></figure>
+              <figure><figcaption>Normalized</figcaption><img src="${relative(item.normalizedPath)}" alt="${escapeHtml(`${item.label} normalized`)}" /></figure>
+              <figure><figcaption>Composite</figcaption><img src="${relative(item.compositePath)}" alt="${escapeHtml(`${item.label} composite`)}" /></figure>
+            </div>`
+          : `<p class="error">${escapeHtml(item.error)}</p>`;
+      return `<article class="card ${item.status === 'ok' ? 'ok' : 'error'}"><header><div><p>${escapeHtml(item.placement)}</p><h2>${escapeHtml(item.label)}</h2></div><strong>${escapeHtml(item.status)}</strong></header>${body}<p class="prompt">${escapeHtml(item.revisedPrompt || item.prompt)}</p></article>`;
+    })
+    .join('\n');
+
+  return `<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Dressup Item Fit V14 Long Bottom Preview</title>
+    <style>
+      :root { color-scheme: light; --panel:#fff; --border:#d8e2ec; --text:#142235; --muted:#64758a; --accent:#0f766e; --error:#b42318; }
+      * { box-sizing:border-box; }
+      body { margin:0; font-family:"Hiragino Sans","Yu Gothic",system-ui,sans-serif; color:var(--text); background:#f8fafc; }
+      main { width:min(1320px,calc(100% - 32px)); margin:0 auto; padding:28px 0 42px; }
+      .hero { margin-bottom:20px; }
+      .eyebrow, header p { margin:0; color:var(--accent); font-size:12px; font-weight:800; letter-spacing:.14em; text-transform:uppercase; }
+      h1 { margin:6px 0 8px; font-size:32px; line-height:1.15; }
+      .meta, .prompt { margin:0; color:var(--muted); line-height:1.7; }
+      .grid { display:grid; gap:18px; }
+      .card { border:1px solid var(--border); border-radius:8px; background:var(--panel); padding:16px; box-shadow:0 10px 28px rgba(15,35,55,.06); }
+      header { display:flex; justify-content:space-between; gap:14px; align-items:flex-start; margin-bottom:14px; }
+      h2 { margin:4px 0 0; font-size:19px; line-height:1.3; }
+      strong { border:1px solid #bee3db; border-radius:999px; color:var(--accent); padding:5px 9px; font-size:12px; text-transform:uppercase; }
+      .comparison { display:grid; grid-template-columns:repeat(5,minmax(0,1fr)); gap:10px; }
+      figure { margin:0; border:1px solid #e4ebf2; border-radius:8px; overflow:hidden; background:linear-gradient(45deg,#edf2f7 25%,transparent 25%) 0 0/18px 18px,linear-gradient(-45deg,#edf2f7 25%,transparent 25%) 0 0/18px 18px,linear-gradient(45deg,transparent 75%,#edf2f7 75%) 0 0/18px 18px,linear-gradient(-45deg,transparent 75%,#edf2f7 75%) 0 0/18px 18px,#fff; }
+      figcaption { padding:9px 10px 0; color:var(--muted); font-size:12px; font-weight:800; }
+      img { width:100%; height:440px; object-fit:contain; display:block; }
+      .prompt { margin-top:12px; font-size:13px; }
+      .error { color:var(--error); font-weight:800; }
+      @media (max-width:1180px) { .comparison { grid-template-columns:repeat(3,minmax(0,1fr)); } }
+      @media (max-width:760px) { .comparison { grid-template-columns:1fr; } img { height:340px; } }
+    </style>
+  </head>
+  <body>
+    <main>
+      <section class="hero">
+        <p class="eyebrow">DRESSUP ITEM FIT V14 LONG BOTTOM VALIDATION</p>
+        <h1>knee-length bottom-only placement</h1>
+        <p class="meta">Base: ${escapeHtml(selectedStyle.selectedStyleCandidateId)}. Body center X: ${escapeHtml(measured.bodyCenterX)}. Target rects: ${escapeHtml(JSON.stringify(measured.targetRects))}.</p>
+      </section>
+      <div class="grid">${cards}</div>
+    </main>
+  </body>
+</html>`;
+};
+
+const renderItemFitV14Review = ({ selectedStyle, measured, items }) => {
+  const rows = items
+    .map((item) => `| ${item.label} | ${item.placement} | ${item.status} | \`${JSON.stringify(item.placedRect || null)}\` |`)
+    .join('\n');
+  return `# Dressup Item Fit V14 Long Bottom Review
+
+- Base: \`${selectedStyle.selectedStyleCandidateId}\`
+- Model: \`${MODEL}\`
+- Body center X: \`${measured.bodyCenterX}\`
+- Skirt bounds: \`${JSON.stringify(measured.skirtBounds)}\`
+- Target rects: \`${JSON.stringify(measured.targetRects)}\`
+
+| Item | Placement | Status | Placement rect |
+| --- | --- | --- | --- |
+${rows}
+
+## Review
+
+- A-line skirt waist fit:
+- A-line skirt length/base hem coverage:
+- A-line skirt opacity/independence:
+- Long frill skirt waist fit:
+- Long frill skirt length/base hem coverage:
+- Long frill skirt opacity/independence:
+- Background removal:
+- Verdict:
+`;
+};
+
+const processItemFitV14Result = ({ result, selectedStyle, measured }) => {
+  if (result.status !== 'ok') return { ...result, normalizedPath: null, compositePath: null };
+  const rect = measured.targetRects[result.placement];
+  if (!rect) throw new Error(`No long bottom target rect for placement: ${result.placement}`);
+  const normalizedPath = resolve(ITEM_FIT_V14_NORMALIZED_DIR, result.filename);
+  const placement = normalizeToSlot({
+    sourcePath: fromOutputRelative(result.cutoutPath),
+    outputPath: normalizedPath,
+    rect,
+    canvas: selectedStyle.canvas,
+    maxScale: 1,
+    alignY: 0,
+  });
+  const compositePath = resolve(ITEM_FIT_V14_COMPOSITE_DIR, `${result.id}-composite.png`);
+  compositePngs({
+    basePath: fromOutputRelative(selectedStyle.selectedCutout),
+    layerPaths: [normalizedPath],
+    outputPath: compositePath,
+    canvas: selectedStyle.canvas,
+  });
+  return {
+    ...result,
+    sourceBounds: placement.sourceBounds,
+    targetRect: rect,
+    placedRect: placement.placedRect,
+    normalizedPath: toRelative(normalizedPath),
+    compositePath: toRelative(compositePath),
+  };
+};
+
+const runItemFitV14LongBottomBatch = async (previousManifest) => {
+  if (!existsSync(SELECTED_STYLE_PATH)) {
+    throw new Error(`Selected style model is missing: ${SELECTED_STYLE_PATH}`);
+  }
+
+  const selectedStyle = readJson(SELECTED_STYLE_PATH);
+  const measured = measureLongBottomAnchors({ selectedStyle });
+  const itemResults = await runBatch({
+    allCandidates: itemFitV14Candidates,
+    requestedIds: REQUESTED_ITEM_IDS,
+    previousItems: previousManifest.itemFitV14Candidates || [],
+    rawDir: ITEM_FIT_V14_RAW_DIR,
+    cutoutDir: ITEM_FIT_V14_CUTOUT_DIR,
+    label: 'item fit v14 long bottom candidates',
+  });
+  const processed = itemResults.map((item) => processItemFitV14Result({ result: item, selectedStyle, measured }));
+
+  writeFileSync(ITEM_FIT_V14_PREVIEW_PATH, renderItemFitV14Preview({ selectedStyle, measured, items: processed }));
+  writeFileSync(ITEM_FIT_V14_REVIEW_PATH, renderItemFitV14Review({ selectedStyle, measured, items: processed }));
+  writeManifest({
+    ...previousManifest,
+    itemFitV14Dir: ITEM_FIT_V14_DIR,
+    itemFitV14Candidates: processed,
+    itemFitV14SelectedStyle: selectedStyle.selectedStyleCandidateId,
+    itemFitV14MeasuredLongBottomAnchors: measured,
+  });
+  console.log(`manifest: ${MANIFEST_PATH}`);
+  console.log(`item fit v14 preview: ${ITEM_FIT_V14_PREVIEW_PATH}`);
+  console.log(`item fit v14 review: ${ITEM_FIT_V14_REVIEW_PATH}`);
+};
+
 const writeManifest = (manifest) => {
   writeFileSync(
     MANIFEST_PATH,
@@ -4135,6 +4345,11 @@ const main = async () => {
 
   if (ITEM_BATCH === 'high-risk-fit-v13-clothing') {
     await runItemFitV13ClothingBatch(previousManifest);
+    return;
+  }
+
+  if (ITEM_BATCH === 'high-risk-fit-v14-long-bottom') {
+    await runItemFitV14LongBottomBatch(previousManifest);
     return;
   }
 

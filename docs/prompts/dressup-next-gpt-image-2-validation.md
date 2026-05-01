@@ -612,6 +612,43 @@ v13 で top / bottom / dressOverlay のうち、分割服が不自然で一体 d
 
 2026-04-30 の v13 実行では、top 1点、bottom 1点、dressOverlay 1点を生成しました。top は肩・首元・中心が合い、袖が上腕に少しかかるものの破綻はありませんでした。bottom は腰位置には合いましたが、base dress の裾が下に残るため、bottom-only layer には長めの skirt prompt または base-skirt occlusion mask が必要です。dressOverlay は肩紐、胴体、スカート裾まで自然につながり、腕や脚への干渉も少ないため、最初の PNG 版おしゃれゲームでは `top` / `bottom` 分割より `dressOverlay` 中心で進める方が安定しそうです。
 
+## high-risk fit v14: long bottom
+
+`ITEM_BATCH=high-risk-fit-v14-long-bottom` では、top と bottom を別々に用意する方針を維持したまま、bottom-only layer が小さな子供向けゲームとして自然な膝丈以上になるかを確認します。生成対象は bottom 2点の合計 2 call に限定します。
+
+実行:
+
+```bash
+ITEM_BATCH=high-risk-fit-v14-long-bottom npm --prefix backend/draw run generate-dressup-gpt-image-2-validation
+```
+
+特定アイテムだけ再生成する場合:
+
+```bash
+ITEM_BATCH=high-risk-fit-v14-long-bottom ITEM_IDS=bottom-knee-a-line-fit npm --prefix backend/draw run generate-dressup-gpt-image-2-validation
+ITEM_BATCH=high-risk-fit-v14-long-bottom ITEM_IDS=bottom-long-frill-skirt-fit npm --prefix backend/draw run generate-dressup-gpt-image-2-validation
+```
+
+v14 の配置方針:
+
+- v13 の bottom 課題は配置よりも生成物の丈と透け表現に寄っていたため、prompt で `waist to knee length`、`opaque fabric`、`not sheer`、`vertical silhouette` を強める。
+- bottomLong target rect は v13 bottom より縦長にし、膝付近まで届く余地を持たせる。
+- 今回は base-skirt occlusion mask を導入せず、長め・不透明 prompt と通常 overlay で解決できるかを見る。
+- 初回結果が位置だけの問題なら、追加生成せず `RENDER_ONLY=1` で rect を調整する。
+
+出力:
+
+- `backend/draw/artifacts/dressup-gpt-image-2-validation/item-fit-v14-long-bottom/raw/`
+- `backend/draw/artifacts/dressup-gpt-image-2-validation/item-fit-v14-long-bottom/cutout/`
+- `backend/draw/artifacts/dressup-gpt-image-2-validation/item-fit-v14-long-bottom/normalized/`
+- `backend/draw/artifacts/dressup-gpt-image-2-validation/item-fit-v14-long-bottom/composite/`
+- `backend/draw/artifacts/dressup-gpt-image-2-validation/item-fit-v14-long-bottom/item-fit-v14-preview.html`
+- `backend/draw/artifacts/dressup-gpt-image-2-validation/item-fit-v14-long-bottom/item-fit-v14-review.md`
+
+v14 で base dress の裾が隠れ、膝丈以上に見える bottom が得られれば、`top` / `bottom` 分割方針を維持します。まだ base dress が見える場合は、次に base-skirt occlusion mask を検証します。
+
+2026-05-01 の v14 実行では、bottom 2点を生成しました。`bottom-knee-a-line-fit` は腰位置に合い、v13 より長く不透明で、base dress 裾の露出は大きく改善しました。`bottom-long-frill-skirt-fit` は膝近くまで届き、base dress 裾も自然に隠せたため、occlusion mask なしで bottom-only layer として成立しました。今後の bottom prompt は `waist to just below the knees`、`opaque fabric`、`not sheer`、`vertical silhouette, taller than wide` を基本にし、v14 の `bottomLong` target rect を使います。これにより、`top` / `bottom` 分割方針を維持できます。
+
 ## AGENTS.md 判定
 
 このメモの追加自体は調査ドキュメントの追加であり、URL ルーティング、SEO、外部連携、データフロー、インフラ、ビルド・実行時前提を変更しません。

@@ -3,7 +3,7 @@
   "quality": "medium",
   "size": "1024x1536",
   "outputFormat": "png",
-  "generatedAt": "2026-04-30T14:06:53.807Z",
+  "generatedAt": "2026-05-01T00:12:55.029Z",
   "outputDir": "/Users/yamadashinya/work/subaru-misc-blog/backend/draw/artifacts/dressup-gpt-image-2-validation",
   "rawDir": "/Users/yamadashinya/work/subaru-misc-blog/backend/draw/artifacts/dressup-gpt-image-2-validation/model-candidates/raw",
   "cutoutDir": "/Users/yamadashinya/work/subaru-misc-blog/backend/draw/artifacts/dressup-gpt-image-2-validation/model-candidates/cutout",
@@ -1543,6 +1543,104 @@
         "y": 330,
         "width": 410,
         "height": 585
+      }
+    }
+  },
+  "itemFitV14Dir": "/Users/yamadashinya/work/subaru-misc-blog/backend/draw/artifacts/dressup-gpt-image-2-validation/item-fit-v14-long-bottom",
+  "itemFitV14Candidates": [
+    {
+      "id": "bottom-knee-a-line-fit",
+      "type": "bottom",
+      "placement": "bottomLong",
+      "filename": "bottom-knee-a-line-fit.png",
+      "label": "Bottom: knee-length A-line skirt fit",
+      "prompt": "single skirt layer for a children princess dress-up game, original pastel storybook encyclopedia illustration matching a soft Japanese picture-book fashion encyclopedia, soft watercolor-like coloring, clean fine linework, front view skirt only, no torso, no body, no legs, no feet, no mannequin, no shadow, pure white 1024 by 1536 canvas, a modest pastel pink A-line skirt from waist to knee length, opaque fabric, not sheer, no transparent tulle, simple waistband, small child-friendly frill near the hem, vertical silhouette, taller than wide, centered and symmetrical, designed to overlay a front-facing paper doll waist and cover the base dress hem completely, no blouse, no shoes, no text, no watermark",
+      "rawPath": "item-fit-v14-long-bottom/raw/bottom-knee-a-line-fit.png",
+      "cutoutPath": "item-fit-v14-long-bottom/cutout/bottom-knee-a-line-fit.png",
+      "revisedPrompt": null,
+      "createdAt": "2026-05-01T00:12:07.611Z",
+      "status": "ok",
+      "error": null,
+      "sourceBounds": {
+        "x": 71,
+        "y": 235,
+        "width": 883,
+        "height": 1031
+      },
+      "targetRect": {
+        "x": 314,
+        "y": 520,
+        "width": 380,
+        "height": 500
+      },
+      "placedRect": {
+        "x": 314,
+        "y": 520,
+        "width": 380,
+        "height": 444
+      },
+      "normalizedPath": "item-fit-v14-long-bottom/normalized/bottom-knee-a-line-fit.png",
+      "compositePath": "item-fit-v14-long-bottom/composite/bottom-knee-a-line-fit-composite.png"
+    },
+    {
+      "id": "bottom-long-frill-skirt-fit",
+      "type": "bottom",
+      "placement": "bottomLong",
+      "filename": "bottom-long-frill-skirt-fit.png",
+      "label": "Bottom: long frill skirt fit",
+      "prompt": "single long skirt layer for a children princess dress-up game, original pastel storybook encyclopedia illustration matching a soft Japanese picture-book fashion encyclopedia, soft watercolor-like coloring, clean fine linework, front view skirt only, no torso, no body, no legs, no feet, no mannequin, no shadow, pure white 1024 by 1536 canvas, a modest lavender and cream skirt from waist to just below the knees, opaque fabric, not sheer, no transparent tulle, no see-through lace, simple waistband, gentle vertical folds, small frill hem, vertical silhouette, taller than wide, not a short tutu, centered and symmetrical, designed to overlay a front-facing paper doll waist and cover the base dress hem completely, no blouse, no shoes, no text, no watermark",
+      "rawPath": "item-fit-v14-long-bottom/raw/bottom-long-frill-skirt-fit.png",
+      "cutoutPath": "item-fit-v14-long-bottom/cutout/bottom-long-frill-skirt-fit.png",
+      "revisedPrompt": null,
+      "createdAt": "2026-05-01T00:12:52.304Z",
+      "status": "ok",
+      "error": null,
+      "sourceBounds": {
+        "x": 40,
+        "y": 100,
+        "width": 943,
+        "height": 1331
+      },
+      "targetRect": {
+        "x": 314,
+        "y": 520,
+        "width": 380,
+        "height": 500
+      },
+      "placedRect": {
+        "x": 327,
+        "y": 520,
+        "width": 354,
+        "height": 500
+      },
+      "normalizedPath": "item-fit-v14-long-bottom/normalized/bottom-long-frill-skirt-fit.png",
+      "compositePath": "item-fit-v14-long-bottom/composite/bottom-long-frill-skirt-fit-composite.png"
+    }
+  ],
+  "itemFitV14SelectedStyle": "style-d-encyclopedia-clean-base",
+  "itemFitV14MeasuredLongBottomAnchors": {
+    "selectedStyleCandidateId": "style-d-encyclopedia-clean-base",
+    "measuredAt": "2026-05-01T00:11:26.249Z",
+    "method": "bodyCenterX plus alpha bounds scan over upper body and base dress skirt; v14 extends bottom target for opaque knee-length skirts",
+    "bodyCenterX": 504,
+    "upperBodyBounds": {
+      "x": 314,
+      "y": 330,
+      "width": 380,
+      "height": 330
+    },
+    "skirtBounds": {
+      "x": 244,
+      "y": 545,
+      "width": 520,
+      "height": 360
+    },
+    "targetRects": {
+      "bottomLong": {
+        "x": 314,
+        "y": 520,
+        "width": 380,
+        "height": 500
       }
     }
   }
