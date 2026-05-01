@@ -3,7 +3,7 @@
   "quality": "medium",
   "size": "1024x1536",
   "outputFormat": "png",
-  "generatedAt": "2026-05-01T00:12:55.029Z",
+  "generatedAt": "2026-05-01T00:21:53.027Z",
   "outputDir": "/Users/yamadashinya/work/subaru-misc-blog/backend/draw/artifacts/dressup-gpt-image-2-validation",
   "rawDir": "/Users/yamadashinya/work/subaru-misc-blog/backend/draw/artifacts/dressup-gpt-image-2-validation/model-candidates/raw",
   "cutoutDir": "/Users/yamadashinya/work/subaru-misc-blog/backend/draw/artifacts/dressup-gpt-image-2-validation/model-candidates/cutout",
@@ -1643,5 +1643,123 @@
         "height": 500
       }
     }
-  }
+  },
+  "itemFitV15Dir": "/Users/yamadashinya/work/subaru-misc-blog/backend/draw/artifacts/dressup-gpt-image-2-validation/item-fit-v15-layer-stack",
+  "itemFitV15LayerAssets": {
+    "top": {
+      "label": "Top: simple frill blouse",
+      "path": "item-fit-v13-clothing/normalized/top-frill-blouse-fit.png"
+    },
+    "bottomLong": {
+      "label": "Bottom: long frill skirt",
+      "path": "item-fit-v14-long-bottom/normalized/bottom-long-frill-skirt-fit.png"
+    },
+    "bottomAline": {
+      "label": "Bottom: knee A-line skirt",
+      "path": "item-fit-v14-long-bottom/normalized/bottom-knee-a-line-fit.png"
+    },
+    "bootsLeft": {
+      "label": "Boots: left opaque",
+      "path": "item-fit-v10-boots-alpha/normalized/boots-ribbon-ankle-stability-fit-left-opaque.png"
+    },
+    "bootsRight": {
+      "label": "Boots: right opaque",
+      "path": "item-fit-v10-boots-alpha/normalized/boots-ribbon-ankle-stability-fit-right-opaque.png"
+    },
+    "necklace": {
+      "label": "Necklace: re-anchored baseline",
+      "path": "item-fit-v8-necklace-reanchor/normalized/necklace-inner-shoulder-line-fit-reanchored.png"
+    },
+    "hairAccessory": {
+      "label": "Hair accessory: side ribbon hairpin",
+      "path": "item-fit-v12-hair-accessory-stability/normalized/hairpin-side-ribbon-stability-fit.png"
+    }
+  },
+  "itemFitV15LayerStacks": [
+    {
+      "id": "long-a",
+      "label": "Long skirt A: top then bottom",
+      "bottomKey": "bottomLong",
+      "layerKeys": [
+        "top",
+        "bottomLong",
+        "bootsLeft",
+        "bootsRight",
+        "necklace",
+        "hairAccessory"
+      ],
+      "compositePath": "item-fit-v15-layer-stack/composite/long-a-composite.png"
+    },
+    {
+      "id": "long-b",
+      "label": "Long skirt B: bottom then top",
+      "bottomKey": "bottomLong",
+      "layerKeys": [
+        "bottomLong",
+        "top",
+        "bootsLeft",
+        "bootsRight",
+        "necklace",
+        "hairAccessory"
+      ],
+      "compositePath": "item-fit-v15-layer-stack/composite/long-b-composite.png"
+    },
+    {
+      "id": "long-c",
+      "label": "Long skirt C: necklace before boots",
+      "bottomKey": "bottomLong",
+      "layerKeys": [
+        "bottomLong",
+        "top",
+        "necklace",
+        "bootsLeft",
+        "bootsRight",
+        "hairAccessory"
+      ],
+      "compositePath": "item-fit-v15-layer-stack/composite/long-c-composite.png"
+    },
+    {
+      "id": "aline-a",
+      "label": "A-line A: top then bottom",
+      "bottomKey": "bottomAline",
+      "layerKeys": [
+        "top",
+        "bottomAline",
+        "bootsLeft",
+        "bootsRight",
+        "necklace",
+        "hairAccessory"
+      ],
+      "compositePath": "item-fit-v15-layer-stack/composite/aline-a-composite.png"
+    },
+    {
+      "id": "aline-b",
+      "label": "A-line B: bottom then top",
+      "bottomKey": "bottomAline",
+      "layerKeys": [
+        "bottomAline",
+        "top",
+        "bootsLeft",
+        "bootsRight",
+        "necklace",
+        "hairAccessory"
+      ],
+      "compositePath": "item-fit-v15-layer-stack/composite/aline-b-composite.png"
+    },
+    {
+      "id": "aline-c",
+      "label": "A-line C: necklace before boots",
+      "bottomKey": "bottomAline",
+      "layerKeys": [
+        "bottomAline",
+        "top",
+        "necklace",
+        "bootsLeft",
+        "bootsRight",
+        "hairAccessory"
+      ],
+      "compositePath": "item-fit-v15-layer-stack/composite/aline-c-composite.png"
+    }
+  ],
+  "itemFitV15SelectedStyle": "style-d-encyclopedia-clean-base"
 }

@@ -136,6 +136,10 @@ const ITEM_FIT_V14_NORMALIZED_DIR = resolve(ITEM_FIT_V14_DIR, 'normalized');
 const ITEM_FIT_V14_COMPOSITE_DIR = resolve(ITEM_FIT_V14_DIR, 'composite');
 const ITEM_FIT_V14_PREVIEW_PATH = resolve(ITEM_FIT_V14_DIR, 'item-fit-v14-preview.html');
 const ITEM_FIT_V14_REVIEW_PATH = resolve(ITEM_FIT_V14_DIR, 'item-fit-v14-review.md');
+const ITEM_FIT_V15_DIR = resolve(OUTPUT_DIR, 'item-fit-v15-layer-stack');
+const ITEM_FIT_V15_COMPOSITE_DIR = resolve(ITEM_FIT_V15_DIR, 'composite');
+const ITEM_FIT_V15_PREVIEW_PATH = resolve(ITEM_FIT_V15_DIR, 'item-fit-v15-preview.html');
+const ITEM_FIT_V15_REVIEW_PATH = resolve(ITEM_FIT_V15_DIR, 'item-fit-v15-review.md');
 
 const MODEL = 'gpt-image-2';
 const QUALITY = 'medium';
@@ -231,6 +235,7 @@ for (const dir of [
   ITEM_FIT_V14_CUTOUT_DIR,
   ITEM_FIT_V14_NORMALIZED_DIR,
   ITEM_FIT_V14_COMPOSITE_DIR,
+  ITEM_FIT_V15_COMPOSITE_DIR,
 ]) {
   mkdirSync(dir, { recursive: true });
 }
@@ -635,6 +640,7 @@ const toRelative = (path) => {
     'selected-style/',
     'selected/',
     'necklace-anchor-audit/',
+    'item-fit-v15-layer-stack/',
     'item-fit-v14-long-bottom/',
     'item-fit-v13-clothing/',
     'item-fit-v12-hair-accessory-stability/',
@@ -4246,6 +4252,207 @@ const runItemFitV14LongBottomBatch = async (previousManifest) => {
   console.log(`item fit v14 review: ${ITEM_FIT_V14_REVIEW_PATH}`);
 };
 
+const layerStackV15Assets = {
+  top: {
+    label: 'Top: simple frill blouse',
+    path: resolve(ITEM_FIT_V13_NORMALIZED_DIR, 'top-frill-blouse-fit.png'),
+  },
+  bottomLong: {
+    label: 'Bottom: long frill skirt',
+    path: resolve(ITEM_FIT_V14_NORMALIZED_DIR, 'bottom-long-frill-skirt-fit.png'),
+  },
+  bottomAline: {
+    label: 'Bottom: knee A-line skirt',
+    path: resolve(ITEM_FIT_V14_NORMALIZED_DIR, 'bottom-knee-a-line-fit.png'),
+  },
+  bootsLeft: {
+    label: 'Boots: left opaque',
+    path: resolve(ITEM_FIT_V10_NORMALIZED_DIR, 'boots-ribbon-ankle-stability-fit-left-opaque.png'),
+  },
+  bootsRight: {
+    label: 'Boots: right opaque',
+    path: resolve(ITEM_FIT_V10_NORMALIZED_DIR, 'boots-ribbon-ankle-stability-fit-right-opaque.png'),
+  },
+  necklace: {
+    label: 'Necklace: re-anchored baseline',
+    path: resolve(ITEM_FIT_V8_NORMALIZED_DIR, 'necklace-inner-shoulder-line-fit-reanchored.png'),
+  },
+  hairAccessory: {
+    label: 'Hair accessory: side ribbon hairpin',
+    path: resolve(ITEM_FIT_V12_NORMALIZED_DIR, 'hairpin-side-ribbon-stability-fit.png'),
+  },
+};
+
+const layerStackV15Orders = [
+  {
+    id: 'long-a',
+    label: 'Long skirt A: top then bottom',
+    bottomKey: 'bottomLong',
+    layerKeys: ['top', 'bottomLong', 'bootsLeft', 'bootsRight', 'necklace', 'hairAccessory'],
+  },
+  {
+    id: 'long-b',
+    label: 'Long skirt B: bottom then top',
+    bottomKey: 'bottomLong',
+    layerKeys: ['bottomLong', 'top', 'bootsLeft', 'bootsRight', 'necklace', 'hairAccessory'],
+  },
+  {
+    id: 'long-c',
+    label: 'Long skirt C: necklace before boots',
+    bottomKey: 'bottomLong',
+    layerKeys: ['bottomLong', 'top', 'necklace', 'bootsLeft', 'bootsRight', 'hairAccessory'],
+  },
+  {
+    id: 'aline-a',
+    label: 'A-line A: top then bottom',
+    bottomKey: 'bottomAline',
+    layerKeys: ['top', 'bottomAline', 'bootsLeft', 'bootsRight', 'necklace', 'hairAccessory'],
+  },
+  {
+    id: 'aline-b',
+    label: 'A-line B: bottom then top',
+    bottomKey: 'bottomAline',
+    layerKeys: ['bottomAline', 'top', 'bootsLeft', 'bootsRight', 'necklace', 'hairAccessory'],
+  },
+  {
+    id: 'aline-c',
+    label: 'A-line C: necklace before boots',
+    bottomKey: 'bottomAline',
+    layerKeys: ['bottomAline', 'top', 'necklace', 'bootsLeft', 'bootsRight', 'hairAccessory'],
+  },
+];
+
+const validateLayerStackV15Assets = ({ selectedStyle }) => {
+  const required = [fromOutputRelative(selectedStyle.selectedCutout), ...Object.values(layerStackV15Assets).map((asset) => asset.path)];
+  const missing = required.filter((path) => !existsSync(path));
+  if (missing.length) throw new Error(`Missing v15 layer stack assets: ${missing.join(', ')}`);
+};
+
+const renderItemFitV15Preview = ({ selectedStyle, items }) => {
+  const relative = (path) => toDirectoryRelative(ITEM_FIT_V15_DIR, path);
+  const basePath = relative(selectedStyle.selectedCutout);
+  const layerList = Object.entries(layerStackV15Assets)
+    .map(([key, asset]) => `<li><strong>${escapeHtml(key)}</strong>: ${escapeHtml(asset.label)} <code>${escapeHtml(relative(asset.path))}</code></li>`)
+    .join('\n');
+  const cards = items
+    .map(
+      (item) => `<article class="card">
+        <header><div><p>${escapeHtml(item.id)}</p><h2>${escapeHtml(item.label)}</h2></div><strong>${escapeHtml(item.bottomKey)}</strong></header>
+        <div class="comparison">
+          <figure><figcaption>Base</figcaption><img src="${basePath}" alt="selected style base" /></figure>
+          <figure><figcaption>Composite</figcaption><img src="${relative(item.compositePath)}" alt="${escapeHtml(`${item.label} composite`)}" /></figure>
+        </div>
+        <p class="prompt">Layer order: ${escapeHtml(item.layerKeys.map((key) => layerStackV15Assets[key].label).join(' -> '))}</p>
+      </article>`,
+    )
+    .join('\n');
+
+  return `<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Dressup Item Fit V15 Layer Stack Preview</title>
+    <style>
+      :root { color-scheme: light; --panel:#fff; --border:#d8e2ec; --text:#142235; --muted:#64758a; --accent:#0f766e; }
+      * { box-sizing:border-box; }
+      body { margin:0; font-family:"Hiragino Sans","Yu Gothic",system-ui,sans-serif; color:var(--text); background:#f8fafc; }
+      main { width:min(1320px,calc(100% - 32px)); margin:0 auto; padding:28px 0 42px; }
+      .hero { margin-bottom:20px; }
+      .eyebrow, header p { margin:0; color:var(--accent); font-size:12px; font-weight:800; letter-spacing:.14em; text-transform:uppercase; }
+      h1 { margin:6px 0 8px; font-size:32px; line-height:1.15; }
+      .meta, .prompt, li { color:var(--muted); line-height:1.7; }
+      .grid { display:grid; gap:18px; }
+      .card { border:1px solid var(--border); border-radius:8px; background:var(--panel); padding:16px; box-shadow:0 10px 28px rgba(15,35,55,.06); }
+      header { display:flex; justify-content:space-between; gap:14px; align-items:flex-start; margin-bottom:14px; }
+      h2 { margin:4px 0 0; font-size:19px; line-height:1.3; }
+      strong { color:var(--accent); }
+      header > strong { border:1px solid #bee3db; border-radius:999px; padding:5px 9px; font-size:12px; text-transform:uppercase; }
+      .comparison { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px; }
+      figure { margin:0; border:1px solid #e4ebf2; border-radius:8px; overflow:hidden; background:#fff; }
+      figcaption { padding:9px 10px 0; color:var(--muted); font-size:12px; font-weight:800; }
+      img { width:100%; height:620px; object-fit:contain; display:block; }
+      .prompt { margin:12px 0 0; font-size:13px; }
+      code { font-size:12px; color:#475569; }
+      @media (max-width:760px) { .comparison { grid-template-columns:1fr; } img { height:420px; } }
+    </style>
+  </head>
+  <body>
+    <main>
+      <section class="hero">
+        <p class="eyebrow">DRESSUP ITEM FIT V15 LAYER STACK VALIDATION</p>
+        <h1>full outfit layer order comparison</h1>
+        <p class="meta">Base: ${escapeHtml(selectedStyle.selectedStyleCandidateId)}. No image generation; all composites reuse existing normalized layers.</p>
+        <ul>${layerList}</ul>
+      </section>
+      <div class="grid">${cards}</div>
+    </main>
+  </body>
+</html>`;
+};
+
+const renderItemFitV15Review = ({ selectedStyle, items }) => {
+  const rows = items
+    .map((item) => `| ${item.label} | ${item.bottomKey} | \`${item.layerKeys.join(' -> ')}\` | \`${item.compositePath}\` |`)
+    .join('\n');
+  return `# Dressup Item Fit V15 Layer Stack Review
+
+- Base: \`${selectedStyle.selectedStyleCandidateId}\`
+- Model: no image generation; existing normalized layers only
+
+| Stack | Bottom | Layer order | Composite |
+| --- | --- | --- | --- |
+${rows}
+
+## Review
+
+- Top/bottom waist connection:
+- Bottom over/under top preference:
+- Necklace/top collar relationship:
+- Boots/bottom/leg relationship:
+- Hair accessory face/hair relationship:
+- Best layer order:
+- Verdict:
+`;
+};
+
+const runItemFitV15LayerStackBatch = async (previousManifest) => {
+  if (!existsSync(SELECTED_STYLE_PATH)) {
+    throw new Error(`Selected style model is missing: ${SELECTED_STYLE_PATH}`);
+  }
+
+  const selectedStyle = readJson(SELECTED_STYLE_PATH);
+  validateLayerStackV15Assets({ selectedStyle });
+  const items = layerStackV15Orders.map((stack) => {
+    const compositePath = resolve(ITEM_FIT_V15_COMPOSITE_DIR, `${stack.id}-composite.png`);
+    compositePngs({
+      basePath: fromOutputRelative(selectedStyle.selectedCutout),
+      layerPaths: stack.layerKeys.map((key) => layerStackV15Assets[key].path),
+      outputPath: compositePath,
+      canvas: selectedStyle.canvas,
+    });
+    return {
+      ...stack,
+      compositePath: toRelative(compositePath),
+    };
+  });
+
+  writeFileSync(ITEM_FIT_V15_PREVIEW_PATH, renderItemFitV15Preview({ selectedStyle, items }));
+  writeFileSync(ITEM_FIT_V15_REVIEW_PATH, renderItemFitV15Review({ selectedStyle, items }));
+  writeManifest({
+    ...previousManifest,
+    itemFitV15Dir: ITEM_FIT_V15_DIR,
+    itemFitV15LayerAssets: Object.fromEntries(
+      Object.entries(layerStackV15Assets).map(([key, asset]) => [key, { label: asset.label, path: toRelative(asset.path) }]),
+    ),
+    itemFitV15LayerStacks: items,
+    itemFitV15SelectedStyle: selectedStyle.selectedStyleCandidateId,
+  });
+  console.log(`manifest: ${MANIFEST_PATH}`);
+  console.log(`item fit v15 preview: ${ITEM_FIT_V15_PREVIEW_PATH}`);
+  console.log(`item fit v15 review: ${ITEM_FIT_V15_REVIEW_PATH}`);
+};
+
 const writeManifest = (manifest) => {
   writeFileSync(
     MANIFEST_PATH,
@@ -4350,6 +4557,11 @@ const main = async () => {
 
   if (ITEM_BATCH === 'high-risk-fit-v14-long-bottom') {
     await runItemFitV14LongBottomBatch(previousManifest);
+    return;
+  }
+
+  if (ITEM_BATCH === 'full-outfit-v15-layer-stack') {
+    await runItemFitV15LayerStackBatch(previousManifest);
     return;
   }
 
