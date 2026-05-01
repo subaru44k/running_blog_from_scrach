@@ -148,6 +148,14 @@ const ITEM_FIT_V16_NORMALIZED_DIR = resolve(ITEM_FIT_V16_DIR, 'normalized');
 const ITEM_FIT_V16_COMPOSITE_DIR = resolve(ITEM_FIT_V16_DIR, 'composite');
 const ITEM_FIT_V16_PREVIEW_PATH = resolve(ITEM_FIT_V16_DIR, 'item-fit-v16-preview.html');
 const ITEM_FIT_V16_REVIEW_PATH = resolve(ITEM_FIT_V16_DIR, 'item-fit-v16-review.md');
+const ITEM_FIT_V17_DIR = resolve(OUTPUT_DIR, 'item-fit-v17-game-catalog');
+const ITEM_FIT_V17_RAW_DIR = resolve(ITEM_FIT_V17_DIR, 'raw');
+const ITEM_FIT_V17_CUTOUT_DIR = resolve(ITEM_FIT_V17_DIR, 'cutout');
+const ITEM_FIT_V17_SPLIT_DIR = resolve(ITEM_FIT_V17_DIR, 'split');
+const ITEM_FIT_V17_NORMALIZED_DIR = resolve(ITEM_FIT_V17_DIR, 'normalized');
+const ITEM_FIT_V17_COMPOSITE_DIR = resolve(ITEM_FIT_V17_DIR, 'composite');
+const ITEM_FIT_V17_PREVIEW_PATH = resolve(ITEM_FIT_V17_DIR, 'item-fit-v17-preview.html');
+const ITEM_FIT_V17_REVIEW_PATH = resolve(ITEM_FIT_V17_DIR, 'item-fit-v17-review.md');
 
 const MODEL = 'gpt-image-2';
 const QUALITY = 'medium';
@@ -249,6 +257,11 @@ for (const dir of [
   ITEM_FIT_V16_SPLIT_DIR,
   ITEM_FIT_V16_NORMALIZED_DIR,
   ITEM_FIT_V16_COMPOSITE_DIR,
+  ITEM_FIT_V17_RAW_DIR,
+  ITEM_FIT_V17_CUTOUT_DIR,
+  ITEM_FIT_V17_SPLIT_DIR,
+  ITEM_FIT_V17_NORMALIZED_DIR,
+  ITEM_FIT_V17_COMPOSITE_DIR,
 ]) {
   mkdirSync(dir, { recursive: true });
 }
@@ -557,6 +570,84 @@ const itemFitV16Candidates = [
   },
 ];
 
+const itemFitV17Candidates = [
+  {
+    id: 'hairpin-flower-catalog-fit',
+    type: 'hairAccessory',
+    placement: 'hairpinRight',
+    filename: 'hairpin-flower-catalog-fit.png',
+    label: 'Hair accessory: flower clip catalog fit',
+    prompt:
+      'single small flower hair clip layer for a children princess dress-up game, original pastel storybook encyclopedia illustration matching a soft Japanese picture-book fashion encyclopedia, soft watercolor-like coloring, clean fine linework, ' +
+      'front view accessory only, no head, no hair, no face, no body, no mannequin, no shadow, pure white 1024 by 1536 canvas, ' +
+      'tiny pale yellow and pink flower clip with small leaves, compact and lightweight, suitable for placing on the right side of a front-facing paper doll bob haircut, ' +
+      'no tiara, no crown, no earrings, no necklace, no text, no watermark',
+  },
+  {
+    id: 'necklace-pearl-catalog-fit',
+    type: 'necklace',
+    filename: 'necklace-pearl-catalog-fit.png',
+    label: 'Necklace: pearl catalog fit',
+    prompt:
+      'single small delicate princess necklace layer for a children dress-up game, original pastel storybook encyclopedia illustration matching a soft Japanese picture-book fashion encyclopedia, soft watercolor-like coloring, clean fine linework, ' +
+      'front view, draw only the necklace and no body, no neck, no skin, no dress, no mannequin, no shadow, pure white 1024 by 1536 canvas, ' +
+      'very narrow symmetrical shallow U-shaped tiny pearl chain with one small round pearl charm, pendant exactly on the body center line at canvas x 504 y 424, ' +
+      'left chain start near canvas x 452 y 340 and right chain start near canvas x 556 y 340, total visible necklace width between 100 and 125 pixels, ' +
+      'small enough to sit on the inner shoulder and collarbone line, do not extend to shoulder straps, do not make a wide shoulder-draped necklace, no earrings, no tiara, no text, no watermark',
+  },
+  {
+    id: 'top-sailor-catalog-fit',
+    type: 'clothing',
+    placement: 'top',
+    filename: 'top-sailor-catalog-fit.png',
+    label: 'Top: sailor collar catalog fit',
+    prompt:
+      'single modest top clothing layer for a children princess dress-up game, original pastel storybook encyclopedia illustration matching a soft Japanese picture-book fashion encyclopedia, soft watercolor-like coloring, clean fine linework, ' +
+      'front view top only, no head, no face, no neck, no arms, no hands, no legs, no body, no mannequin, no shadow, pure white 1024 by 1536 canvas, ' +
+      'pastel blue and white sailor collar blouse with short sleeves, modest round neckline, simple hem at waist, opaque solid fabric, not sheer, no transparent fabric, ' +
+      'wide enough to cover both shoulders and the full torso of a front-facing paper doll, short sleeves reach the shoulder edges, body panel is broad and tall enough to cover the base dress bodice, ' +
+      'no skirt, no pants, no jewelry, no text, no watermark',
+  },
+  {
+    id: 'top-puff-catalog-fit',
+    type: 'clothing',
+    placement: 'top',
+    filename: 'top-puff-catalog-fit.png',
+    label: 'Top: puff sleeve catalog fit',
+    prompt:
+      'single modest top clothing layer for a children princess dress-up game, original pastel storybook encyclopedia illustration matching a soft Japanese picture-book fashion encyclopedia, soft watercolor-like coloring, clean fine linework, ' +
+      'front view top only, no head, no face, no neck, no arms, no hands, no legs, no body, no mannequin, no shadow, pure white 1024 by 1536 canvas, ' +
+      'warm cream blouse with small pink puff sleeves and a tiny bow at the collar, modest neckline, simple hem at waist, opaque solid fabric, not sheer, no transparent fabric, ' +
+      'wide enough to cover both shoulders and the full torso of a front-facing paper doll, puff sleeves reach the shoulder edges, body panel is broad and tall enough to cover the base dress bodice, ' +
+      'no skirt, no pants, no jewelry, no text, no watermark',
+  },
+  {
+    id: 'bottom-ribbon-catalog-fit',
+    type: 'clothing',
+    placement: 'bottomLong',
+    filename: 'bottom-ribbon-catalog-fit.png',
+    label: 'Bottom: ribbon skirt catalog fit',
+    prompt:
+      'single long bottom skirt layer for a children princess dress-up game, original pastel storybook encyclopedia illustration matching a soft Japanese picture-book fashion encyclopedia, soft watercolor-like coloring, clean fine linework, ' +
+      'front view skirt only, no torso, no body, no legs, no feet, no mannequin, no shadow, pure white 1024 by 1536 canvas, ' +
+      'a modest mint green and pale pink skirt from waist to just below the knees, opaque fabric, not sheer, no transparent tulle, no see-through lace, simple waistband with one small ribbon, gentle vertical folds, ' +
+      'vertical silhouette, taller than wide, not a short tutu, centered and symmetrical, designed to overlay a front-facing paper doll waist and cover the base dress hem completely, ' +
+      'no blouse, no shoes, no text, no watermark',
+  },
+  {
+    id: 'boots-lavender-flat-cuff-catalog-fit',
+    type: 'boots',
+    filename: 'boots-lavender-flat-cuff-catalog-fit.png',
+    label: 'Boots: lavender flat cuff catalog fit',
+    prompt:
+      'pair of slim short ankle boots only for a children princess dress-up game, original pastel storybook encyclopedia illustration matching a soft Japanese picture-book fashion encyclopedia, soft watercolor-like coloring, clean fine linework, ' +
+      'front view boots only, no legs, no feet, no socks, no skin, no body, no mannequin, no shadow, pure white 1024 by 1536 canvas, ' +
+      'soft lavender ankle boots with tiny star button details kept subtle, rounded toes that cover the full toes, narrow ankle width, left boot and right boot are the same size and separated as a matched pair, ' +
+      'the top of each boot has a flat nearly horizontal cuff edge like a simple cut-off tube, solid boot surface up to the cuff, no visible boot interior, no oval opening, no hole at the top, no dark inside rim, no deep 3D mouth, ' +
+      'not oversized, no toe lines, no foot outlines, no skin-colored details, no text, no watermark',
+  },
+];
+
 const itemFitV12Candidates = [
   {
     id: 'hairpin-side-ribbon-stability-fit',
@@ -679,6 +770,7 @@ const toRelative = (path) => {
     'style-candidates/',
     'selected-style/',
     'selected/',
+    'item-fit-v17-game-catalog/',
     'item-fit-v16-flat-cuff-boots/',
     'necklace-anchor-audit/',
     'item-fit-v15-layer-stack/',
@@ -908,6 +1000,20 @@ const normalizeToSlot = ({ sourcePath, outputPath, rect, canvas, maxScale = 1, a
   const placedRect = drawContain(out, cropped, rect, { maxScale, alignY });
   writeFileSync(outputPath, PNG.sync.write(out));
   return { sourceBounds: bounds, placedRect };
+};
+
+const expandRectWithinCanvas = (rect, canvas, { left = 0, right = 0, top = 0, bottom = 0 } = {}) => {
+  const x = Math.max(0, rect.x - left);
+  const y = Math.max(0, rect.y - top);
+  const x2 = Math.min(canvas.width, rect.x + rect.width + right);
+  const y2 = Math.min(canvas.height, rect.y + rect.height + bottom);
+  return { x, y, width: x2 - x, height: y2 - y };
+};
+
+const clothingTargetRect = ({ placement, rect, canvas }) => {
+  if (placement === 'bottomLong') return expandRectWithinCanvas(rect, canvas, { left: 25, right: 25, top: 8, bottom: 0 });
+  if (placement !== 'top') return rect;
+  return expandRectWithinCanvas(rect, canvas, { left: 30, right: 30, top: 12, bottom: 18 });
 };
 
 const normalizeToSlotStretch = ({ sourcePath, outputPath, rect, canvas, widthRatio = 0.85, heightRatio = 1, alignY = 1 }) => {
@@ -3861,6 +3967,215 @@ const runItemFitV16FlatCuffBootsBatch = async (previousManifest) => {
   console.log(`item fit v16 review: ${ITEM_FIT_V16_REVIEW_PATH}`);
 };
 
+const renderItemFitV17Preview = ({ selectedStyle, measurements, items }) => {
+  const relative = (path) => toDirectoryRelative(ITEM_FIT_V17_DIR, path);
+  const basePath = relative(selectedStyle.selectedCutout);
+  const cards = items
+    .map((item) => {
+      const normalized = (item.normalizedPaths || (item.normalizedPath ? [{ label: 'Normalized', path: item.normalizedPath }] : []))
+        .map((entry) => `<figure><figcaption>${escapeHtml(entry.label)}</figcaption><img src="${relative(entry.path)}" alt="${escapeHtml(entry.label)}" /></figure>`)
+        .join('');
+      const body =
+        item.status === 'ok'
+          ? `<div class="comparison">
+              <figure><figcaption>Base</figcaption><img src="${basePath}" alt="selected style base" /></figure>
+              <figure><figcaption>Cutout</figcaption><img src="${relative(item.cutoutPath)}" alt="${escapeHtml(`${item.label} cutout`)}" /></figure>
+              ${normalized}
+              <figure><figcaption>Composite</figcaption><img src="${relative(item.compositePath)}" alt="${escapeHtml(`${item.label} composite`)}" /></figure>
+            </div>`
+          : `<p class="error">${escapeHtml(item.error)}</p>`;
+      return `<article class="card ${item.status === 'ok' ? 'ok' : 'error'}"><header><div><p>${escapeHtml(item.type)} ${escapeHtml(item.placement || '')}</p><h2>${escapeHtml(item.label)}</h2></div><strong>${escapeHtml(item.status)}</strong></header>${body}<p class="prompt">${escapeHtml(item.revisedPrompt || item.prompt)}</p></article>`;
+    })
+    .join('\n');
+
+  return `<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Dressup Item Fit V17 Game Catalog Preview</title>
+    <style>
+      :root { color-scheme: light; --panel:#fff; --border:#d8e2ec; --text:#142235; --muted:#64758a; --accent:#0f766e; --error:#b42318; }
+      * { box-sizing:border-box; }
+      body { margin:0; font-family:"Hiragino Sans","Yu Gothic",system-ui,sans-serif; color:var(--text); background:#f8fafc; }
+      main { width:min(1320px,calc(100% - 32px)); margin:0 auto; padding:28px 0 42px; }
+      .hero { margin-bottom:20px; }
+      .eyebrow, header p { margin:0; color:var(--accent); font-size:12px; font-weight:800; letter-spacing:.14em; text-transform:uppercase; }
+      h1 { margin:6px 0 8px; font-size:32px; line-height:1.15; }
+      .meta, .prompt { margin:0; color:var(--muted); line-height:1.7; }
+      .grid { display:grid; gap:18px; }
+      .card { border:1px solid var(--border); border-radius:8px; background:var(--panel); padding:16px; box-shadow:0 10px 28px rgba(15,35,55,.06); }
+      header { display:flex; justify-content:space-between; gap:14px; align-items:flex-start; margin-bottom:14px; }
+      h2 { margin:4px 0 0; font-size:19px; line-height:1.3; }
+      strong { border:1px solid #bee3db; border-radius:999px; color:var(--accent); padding:5px 9px; font-size:12px; text-transform:uppercase; }
+      .comparison { display:grid; grid-template-columns:repeat(5,minmax(0,1fr)); gap:10px; }
+      figure { margin:0; border:1px solid #e4ebf2; border-radius:8px; overflow:hidden; background:linear-gradient(45deg,#edf2f7 25%,transparent 25%) 0 0/18px 18px,linear-gradient(-45deg,#edf2f7 25%,transparent 25%) 0 0/18px 18px,linear-gradient(45deg,transparent 75%,#edf2f7 75%) 0 0/18px 18px,linear-gradient(-45deg,transparent 75%,#edf2f7 75%) 0 0/18px 18px,#fff; }
+      figcaption { padding:9px 10px 0; color:var(--muted); font-size:12px; font-weight:800; }
+      img { width:100%; height:440px; object-fit:contain; display:block; }
+      .prompt { margin-top:12px; font-size:13px; }
+      .error { color:var(--error); font-weight:800; }
+      @media (max-width:1180px) { .comparison { grid-template-columns:repeat(3,minmax(0,1fr)); } }
+      @media (max-width:760px) { .comparison { grid-template-columns:1fr; } img { height:340px; } }
+    </style>
+  </head>
+  <body>
+    <main>
+      <section class="hero">
+        <p class="eyebrow">DRESSUP ITEM FIT V17 GAME CATALOG</p>
+        <h1>additional selectable items</h1>
+        <p class="meta">Base: ${escapeHtml(selectedStyle.selectedStyleCandidateId)}. Top rect: ${escapeHtml(JSON.stringify(measurements.clothing.targetRects.top))}. Bottom rect: ${escapeHtml(JSON.stringify(measurements.longBottom.targetRects.bottomLong))}. Boot rects: ${escapeHtml(JSON.stringify(measurements.style.bootRects))}.</p>
+      </section>
+      <div class="grid">${cards}</div>
+    </main>
+  </body>
+</html>`;
+};
+
+const renderItemFitV17Review = ({ selectedStyle, measurements, items }) => {
+  const rows = items
+    .map((item) => `| ${item.label} | ${item.type} | ${item.placement || ''} | ${item.status} | \`${JSON.stringify(item.placedRects || item.placedRect || item.placedAnchors || null)}\` | \`${JSON.stringify(item.alphaStats || null)}\` | [composite](${item.compositePath || ''}) |`)
+    .join('\n');
+  return `# Dressup Item Fit V17 Game Catalog Review
+
+- Base: \`${selectedStyle.selectedStyleCandidateId}\`
+- Model: \`${MODEL}\`
+- Hair target rects: \`${JSON.stringify(measurements.hair.targetRects)}\`
+- Necklace target anchors: \`${JSON.stringify(measurements.necklace.targetAnchors)}\`
+- Clothing target rects: \`${JSON.stringify(measurements.clothing.targetRects)}\`
+- Long bottom target rects: \`${JSON.stringify(measurements.longBottom.targetRects)}\`
+- Boot rects: \`${JSON.stringify(measurements.style.bootRects)}\`
+
+| Item | Type | Placement | Status | Placement | Alpha stats | Composite |
+| --- | --- | --- | --- | --- | --- | --- |
+${rows}
+
+## Review
+
+- Hair accessory stability:
+- Necklace shoulder/collarbone fit:
+- Top fit:
+- Bottom length and base hem coverage:
+- Flat-cuff boot fit:
+- Verdict:
+`;
+};
+
+const processItemFitV17Result = ({ result, selectedStyle, measurements }) => {
+  if (result.status !== 'ok') return { ...result, normalizedPath: null, normalizedPaths: [], compositePath: null };
+  const canvas = selectedStyle.canvas;
+  const cutoutPath = fromOutputRelative(result.cutoutPath);
+
+  if (result.type === 'hairAccessory') {
+    const rect = measurements.hair.targetRects[result.placement];
+    const normalizedPath = resolve(ITEM_FIT_V17_NORMALIZED_DIR, result.filename);
+    const placement = normalizeToSlot({ sourcePath: cutoutPath, outputPath: normalizedPath, rect, canvas, maxScale: 1, alignY: 0.5 });
+    const compositePath = resolve(ITEM_FIT_V17_COMPOSITE_DIR, `${result.id}-composite.png`);
+    compositePngs({ basePath: fromOutputRelative(selectedStyle.selectedCutout), layerPaths: [normalizedPath], outputPath: compositePath, canvas });
+    return { ...result, sourceBounds: placement.sourceBounds, targetRect: rect, placedRect: placement.placedRect, normalizedPath: toRelative(normalizedPath), compositePath: toRelative(compositePath) };
+  }
+
+  if (result.type === 'necklace') {
+    const normalizedPath = resolve(ITEM_FIT_V17_NORMALIZED_DIR, result.filename);
+    const placement = normalizeNecklaceToStartAnchors({ sourcePath: cutoutPath, outputPath: normalizedPath, targetAnchors: measurements.necklace.targetAnchors, canvas });
+    const compositePath = resolve(ITEM_FIT_V17_COMPOSITE_DIR, `${result.id}-composite.png`);
+    compositePngs({ basePath: fromOutputRelative(selectedStyle.selectedCutout), layerPaths: [normalizedPath], outputPath: compositePath, canvas });
+    return {
+      ...result,
+      sourceBounds: placement.sourceBounds,
+      sourceAnchors: placement.sourceAnchors,
+      targetAnchors: placement.targetAnchors,
+      placedAnchors: placement.placedAnchors,
+      placedRects: { necklace: placement.placedRect },
+      scale: placement.scale,
+      normalizedPath: toRelative(normalizedPath),
+      compositePath: toRelative(compositePath),
+    };
+  }
+
+  if (result.type === 'clothing') {
+    const measured = result.placement === 'bottomLong' ? measurements.longBottom : measurements.clothing;
+    const rect = clothingTargetRect({ placement: result.placement, rect: measured.targetRects[result.placement], canvas });
+    const normalizedPath = resolve(ITEM_FIT_V17_NORMALIZED_DIR, result.filename);
+    const placement =
+      result.placement === 'bottomLong'
+        ? normalizeToSlotStretch({ sourcePath: cutoutPath, outputPath: normalizedPath, rect, canvas, widthRatio: 1, heightRatio: 1, alignY: 0 })
+        : normalizeToSlot({ sourcePath: cutoutPath, outputPath: normalizedPath, rect, canvas, maxScale: 1, alignY: 0.5 });
+    const alphaStats = reinforceOpaqueInterior({ path: normalizedPath });
+    const compositePath = resolve(ITEM_FIT_V17_COMPOSITE_DIR, `${result.id}-composite.png`);
+    compositePngs({ basePath: fromOutputRelative(selectedStyle.selectedCutout), layerPaths: [normalizedPath], outputPath: compositePath, canvas });
+    return { ...result, sourceBounds: placement.sourceBounds, targetRect: rect, placedRect: placement.placedRect, alphaStats, normalizedPath: toRelative(normalizedPath), compositePath: toRelative(compositePath) };
+  }
+
+  if (result.type === 'boots') {
+    const leftSplitPath = resolve(ITEM_FIT_V17_SPLIT_DIR, `${result.id}-left.png`);
+    const rightSplitPath = resolve(ITEM_FIT_V17_SPLIT_DIR, `${result.id}-right.png`);
+    const split = splitShoeCutout({ sourcePath: cutoutPath, leftPath: leftSplitPath, rightPath: rightSplitPath });
+    const leftNormalizedPath = resolve(ITEM_FIT_V17_NORMALIZED_DIR, `${result.id}-left-opaque.png`);
+    const rightNormalizedPath = resolve(ITEM_FIT_V17_NORMALIZED_DIR, `${result.id}-right-opaque.png`);
+    const leftPlacement = normalizeToSlotStretch({ sourcePath: leftSplitPath, outputPath: leftNormalizedPath, rect: measurements.style.bootRects.leftShoe, canvas, widthRatio: 1, heightRatio: 1, alignY: 1 });
+    const rightPlacement = normalizeToSlotStretch({ sourcePath: rightSplitPath, outputPath: rightNormalizedPath, rect: measurements.style.bootRects.rightShoe, canvas, widthRatio: 1, heightRatio: 1, alignY: 1 });
+    const leftAlphaStats = reinforceOpaqueInterior({ path: leftNormalizedPath });
+    const rightAlphaStats = reinforceOpaqueInterior({ path: rightNormalizedPath });
+    const compositePath = resolve(ITEM_FIT_V17_COMPOSITE_DIR, `${result.id}-composite.png`);
+    compositePngs({ basePath: fromOutputRelative(selectedStyle.selectedCutout), layerPaths: [leftNormalizedPath, rightNormalizedPath], outputPath: compositePath, canvas });
+    return {
+      ...result,
+      sourceBounds: split.sourceBounds,
+      splitX: split.splitX,
+      placedRects: { leftShoe: leftPlacement.placedRect, rightShoe: rightPlacement.placedRect },
+      splitPaths: [
+        { label: 'Left split', path: toRelative(leftSplitPath) },
+        { label: 'Right split', path: toRelative(rightSplitPath) },
+      ],
+      normalizedPaths: [
+        { label: 'Left opaque normalized', path: toRelative(leftNormalizedPath) },
+        { label: 'Right opaque normalized', path: toRelative(rightNormalizedPath) },
+      ],
+      alphaStats: { left: leftAlphaStats, right: rightAlphaStats },
+      compositePath: toRelative(compositePath),
+    };
+  }
+
+  return { ...result, normalizedPath: null, normalizedPaths: [], compositePath: null };
+};
+
+const runItemFitV17GameCatalogBatch = async (previousManifest) => {
+  if (!existsSync(SELECTED_STYLE_PATH)) {
+    throw new Error(`Selected style model is missing: ${SELECTED_STYLE_PATH}`);
+  }
+
+  const selectedStyle = readJson(SELECTED_STYLE_PATH);
+  const measurements = {
+    style: existsSync(ANCHOR_AUDIT_JSON_PATH) ? readJson(ANCHOR_AUDIT_JSON_PATH) : measureStyleModel({ selectedStyle }),
+    hair: measureHairAccessoryStabilityAnchors({ selectedStyle }),
+    necklace: existsSync(NECKLACE_ANCHOR_AUDIT_JSON_PATH) ? readJson(NECKLACE_ANCHOR_AUDIT_JSON_PATH) : measureNecklaceAnchors({ selectedStyle }),
+    clothing: measureClothingAnchors({ selectedStyle }),
+    longBottom: measureLongBottomAnchors({ selectedStyle }),
+  };
+  const itemResults = await runBatch({
+    allCandidates: itemFitV17Candidates,
+    requestedIds: REQUESTED_ITEM_IDS,
+    previousItems: previousManifest.itemFitV17Candidates || [],
+    rawDir: ITEM_FIT_V17_RAW_DIR,
+    cutoutDir: ITEM_FIT_V17_CUTOUT_DIR,
+    label: 'item fit v17 game catalog candidates',
+  });
+  const processed = itemResults.map((item) => processItemFitV17Result({ result: item, selectedStyle, measurements }));
+
+  writeFileSync(ITEM_FIT_V17_PREVIEW_PATH, renderItemFitV17Preview({ selectedStyle, measurements, items: processed }));
+  writeFileSync(ITEM_FIT_V17_REVIEW_PATH, renderItemFitV17Review({ selectedStyle, measurements, items: processed }));
+  writeManifest({
+    ...previousManifest,
+    itemFitV17Dir: ITEM_FIT_V17_DIR,
+    itemFitV17Candidates: processed,
+    itemFitV17SelectedStyle: selectedStyle.selectedStyleCandidateId,
+    itemFitV17Measurements: measurements,
+  });
+  console.log(`manifest: ${MANIFEST_PATH}`);
+  console.log(`item fit v17 preview: ${ITEM_FIT_V17_PREVIEW_PATH}`);
+  console.log(`item fit v17 review: ${ITEM_FIT_V17_REVIEW_PATH}`);
+};
+
 const renderItemFitV11Preview = ({ selectedStyle, measured, items }) => {
   const relative = (path) => toDirectoryRelative(ITEM_FIT_V11_DIR, path);
   const basePath = relative(selectedStyle.selectedCutout);
@@ -4410,14 +4725,16 @@ const processItemFitV14Result = ({ result, selectedStyle, measured }) => {
   const rect = measured.targetRects[result.placement];
   if (!rect) throw new Error(`No long bottom target rect for placement: ${result.placement}`);
   const normalizedPath = resolve(ITEM_FIT_V14_NORMALIZED_DIR, result.filename);
-  const placement = normalizeToSlot({
+  const placement = normalizeToSlotStretch({
     sourcePath: fromOutputRelative(result.cutoutPath),
     outputPath: normalizedPath,
-    rect,
+    rect: clothingTargetRect({ placement: result.placement, rect, canvas: selectedStyle.canvas }),
     canvas: selectedStyle.canvas,
-    maxScale: 1,
+    widthRatio: 1,
+    heightRatio: 1,
     alignY: 0,
   });
+  const alphaStats = reinforceOpaqueInterior({ path: normalizedPath });
   const compositePath = resolve(ITEM_FIT_V14_COMPOSITE_DIR, `${result.id}-composite.png`);
   compositePngs({
     basePath: fromOutputRelative(selectedStyle.selectedCutout),
@@ -4428,8 +4745,9 @@ const processItemFitV14Result = ({ result, selectedStyle, measured }) => {
   return {
     ...result,
     sourceBounds: placement.sourceBounds,
-    targetRect: rect,
+    targetRect: clothingTargetRect({ placement: result.placement, rect, canvas: selectedStyle.canvas }),
     placedRect: placement.placedRect,
+    alphaStats,
     normalizedPath: toRelative(normalizedPath),
     compositePath: toRelative(compositePath),
   };
@@ -4781,6 +5099,11 @@ const main = async () => {
 
   if (ITEM_BATCH === 'flat-cuff-boots-v16') {
     await runItemFitV16FlatCuffBootsBatch(previousManifest);
+    return;
+  }
+
+  if (ITEM_BATCH === 'game-catalog-v17') {
+    await runItemFitV17GameCatalogBatch(previousManifest);
     return;
   }
 
