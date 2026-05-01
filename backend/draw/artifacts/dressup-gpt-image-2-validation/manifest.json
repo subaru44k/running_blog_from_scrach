@@ -3,7 +3,7 @@
   "quality": "medium",
   "size": "1024x1536",
   "outputFormat": "png",
-  "generatedAt": "2026-05-01T05:50:04.244Z",
+  "generatedAt": "2026-05-01T12:29:52.496Z",
   "outputDir": "/Users/yamadashinya/work/subaru-misc-blog/backend/draw/artifacts/dressup-gpt-image-2-validation",
   "rawDir": "/Users/yamadashinya/work/subaru-misc-blog/backend/draw/artifacts/dressup-gpt-image-2-validation/model-candidates/raw",
   "cutoutDir": "/Users/yamadashinya/work/subaru-misc-blog/backend/draw/artifacts/dressup-gpt-image-2-validation/model-candidates/cutout",
@@ -2325,6 +2325,784 @@
         }
       },
       "compositePath": "item-fit-v17-game-catalog/composite/boots-lavender-flat-cuff-catalog-fit-composite.png"
+    },
+    {
+      "id": "hairpin-round-pearl-catalog-fit",
+      "type": "hairAccessory",
+      "placement": "hairpinRight",
+      "filename": "hairpin-round-pearl-catalog-fit.png",
+      "label": "Hair accessory: round pearl clips catalog fit",
+      "prompt": "two tiny round pearl hair clips layer for a children princess dress-up game, original pastel storybook encyclopedia illustration matching a soft Japanese picture-book fashion encyclopedia, soft watercolor-like coloring, clean fine linework, front view accessory only, no head, no hair, no face, no body, no mannequin, no shadow, pure white 1024 by 1536 canvas, two separate small cream pearl snap clips placed close together on a short invisible-pin shape, compact and lightweight, suitable for placing on the right side edge of a front-facing paper doll bob haircut, pearls are round and readable but tiny, no long horizontal barrette, no tiara, no crown, no earrings, no necklace, no text, no watermark",
+      "rawPath": "item-fit-v17-game-catalog/raw/hairpin-round-pearl-catalog-fit.png",
+      "cutoutPath": "item-fit-v17-game-catalog/cutout/hairpin-round-pearl-catalog-fit.png",
+      "revisedPrompt": null,
+      "createdAt": "2026-05-01T12:22:03.923Z",
+      "status": "ok",
+      "error": null,
+      "sourceBounds": {
+        "x": 369,
+        "y": 386,
+        "width": 284,
+        "height": 187
+      },
+      "targetRect": {
+        "x": 594,
+        "y": 191,
+        "width": 48,
+        "height": 52
+      },
+      "placedRect": {
+        "x": 594,
+        "y": 201,
+        "width": 48,
+        "height": 32
+      },
+      "normalizedPath": "item-fit-v17-game-catalog/normalized/hairpin-round-pearl-catalog-fit.png",
+      "compositePath": "item-fit-v17-game-catalog/composite/hairpin-round-pearl-catalog-fit-composite.png"
+    },
+    {
+      "id": "necklace-star-catalog-fit",
+      "type": "necklace",
+      "filename": "necklace-star-catalog-fit.png",
+      "label": "Necklace: star catalog fit",
+      "prompt": "single small delicate princess necklace layer for a children dress-up game, original pastel storybook encyclopedia illustration matching a soft Japanese picture-book fashion encyclopedia, soft watercolor-like coloring, clean fine linework, front view, draw only the necklace and no body, no neck, no skin, no dress, no mannequin, no shadow, pure white 1024 by 1536 canvas, very narrow symmetrical shallow U-shaped fine gold chain with one tiny pale yellow star charm, pendant exactly on the body center line at canvas x 504 y 424, left chain start near canvas x 452 y 340 and right chain start near canvas x 556 y 340, total visible necklace width between 100 and 125 pixels, small enough to sit on the inner shoulder and collarbone line, do not extend to shoulder straps, do not make a wide shoulder-draped necklace, no earrings, no tiara, no text, no watermark",
+      "rawPath": "item-fit-v17-game-catalog/raw/necklace-star-catalog-fit.png",
+      "cutoutPath": "item-fit-v17-game-catalog/cutout/necklace-star-catalog-fit.png",
+      "revisedPrompt": null,
+      "createdAt": "2026-05-01T12:22:49.695Z",
+      "status": "ok",
+      "error": null,
+      "sourceBounds": {
+        "x": 345,
+        "y": 488,
+        "width": 328,
+        "height": 290
+      },
+      "sourceAnchors": {
+        "bounds": {
+          "x": 345,
+          "y": 488,
+          "width": 328,
+          "height": 290
+        },
+        "croppedSize": {
+          "width": 328,
+          "height": 290
+        },
+        "leftStart": {
+          "x": 2,
+          "y": 0
+        },
+        "rightStart": {
+          "x": 326,
+          "y": 2
+        }
+      },
+      "targetAnchors": {
+        "leftStart": {
+          "x": 452,
+          "y": 340
+        },
+        "rightStart": {
+          "x": 556,
+          "y": 340
+        }
+      },
+      "placedAnchors": {
+        "leftStart": {
+          "x": 452,
+          "y": 340
+        },
+        "rightStart": {
+          "x": 556,
+          "y": 341
+        }
+      },
+      "placedRects": {
+        "necklace": {
+          "x": 451,
+          "y": 340,
+          "width": 105,
+          "height": 93
+        }
+      },
+      "scale": 0.321,
+      "normalizedPath": "item-fit-v17-game-catalog/normalized/necklace-star-catalog-fit.png",
+      "compositePath": "item-fit-v17-game-catalog/composite/necklace-star-catalog-fit-composite.png"
+    },
+    {
+      "id": "necklace-flower-catalog-fit",
+      "type": "necklace",
+      "filename": "necklace-flower-catalog-fit.png",
+      "label": "Necklace: flower catalog fit",
+      "prompt": "single small delicate princess necklace layer for a children dress-up game, original pastel storybook encyclopedia illustration matching a soft Japanese picture-book fashion encyclopedia, soft watercolor-like coloring, clean fine linework, front view, draw only the necklace and no body, no neck, no skin, no dress, no mannequin, no shadow, pure white 1024 by 1536 canvas, very narrow symmetrical shallow U-shaped pearl chain with one tiny pale pink flower charm, pendant exactly on the body center line at canvas x 504 y 424, left chain start near canvas x 452 y 340 and right chain start near canvas x 556 y 340, total visible necklace width between 100 and 125 pixels, small enough to sit on the inner shoulder and collarbone line, do not extend to shoulder straps, do not make a wide shoulder-draped necklace, no earrings, no tiara, no text, no watermark",
+      "rawPath": "item-fit-v17-game-catalog/raw/necklace-flower-catalog-fit.png",
+      "cutoutPath": "item-fit-v17-game-catalog/cutout/necklace-flower-catalog-fit.png",
+      "revisedPrompt": null,
+      "createdAt": "2026-05-01T12:23:26.542Z",
+      "status": "ok",
+      "error": null,
+      "sourceBounds": {
+        "x": 360,
+        "y": 488,
+        "width": 309,
+        "height": 285
+      },
+      "sourceAnchors": {
+        "bounds": {
+          "x": 360,
+          "y": 488,
+          "width": 309,
+          "height": 285
+        },
+        "croppedSize": {
+          "width": 309,
+          "height": 285
+        },
+        "leftStart": {
+          "x": 6,
+          "y": 0
+        },
+        "rightStart": {
+          "x": 303,
+          "y": 0
+        }
+      },
+      "targetAnchors": {
+        "leftStart": {
+          "x": 452,
+          "y": 340
+        },
+        "rightStart": {
+          "x": 556,
+          "y": 340
+        }
+      },
+      "placedAnchors": {
+        "leftStart": {
+          "x": 452,
+          "y": 340
+        },
+        "rightStart": {
+          "x": 556,
+          "y": 340
+        }
+      },
+      "placedRects": {
+        "necklace": {
+          "x": 450,
+          "y": 340,
+          "width": 108,
+          "height": 100
+        }
+      },
+      "scale": 0.3502,
+      "normalizedPath": "item-fit-v17-game-catalog/normalized/necklace-flower-catalog-fit.png",
+      "compositePath": "item-fit-v17-game-catalog/composite/necklace-flower-catalog-fit-composite.png"
+    },
+    {
+      "id": "top-lace-collar-catalog-fit",
+      "type": "clothing",
+      "placement": "top",
+      "filename": "top-lace-collar-catalog-fit.png",
+      "label": "Top: lace collar catalog fit",
+      "prompt": "single modest top clothing layer for a children princess dress-up game, original pastel storybook encyclopedia illustration matching a soft Japanese picture-book fashion encyclopedia, soft watercolor-like coloring, clean fine linework, front view top only, no head, no face, no neck, no arms, no hands, no legs, no body, no mannequin, no shadow, pure white 1024 by 1536 canvas, ivory and pale pink blouse with a small lace collar, short sleeves, modest round neckline, simple waist-length hem, opaque solid fabric, not sheer, no transparent fabric, wide enough to cover both shoulders and the full torso of a front-facing paper doll, sleeves reach the shoulder edges, body panel is broad and tall enough to cover the base dress bodice, no skirt, no pants, no jewelry, no text, no watermark",
+      "rawPath": "item-fit-v17-game-catalog/raw/top-lace-collar-catalog-fit.png",
+      "cutoutPath": "item-fit-v17-game-catalog/cutout/top-lace-collar-catalog-fit.png",
+      "revisedPrompt": null,
+      "createdAt": "2026-05-01T12:24:09.693Z",
+      "status": "ok",
+      "error": null,
+      "sourceBounds": {
+        "x": 0,
+        "y": 274,
+        "width": 1022,
+        "height": 941
+      },
+      "targetRect": {
+        "x": 329,
+        "y": 318,
+        "width": 350,
+        "height": 300
+      },
+      "placedRect": {
+        "x": 341,
+        "y": 318,
+        "width": 326,
+        "height": 300
+      },
+      "alphaStats": {
+        "bounds": {
+          "x": 341,
+          "y": 318,
+          "width": 326,
+          "height": 300
+        },
+        "before": {
+          "semiTransparent": 9953,
+          "transparentInterior": 12,
+          "nonTransparent": 69286
+        },
+        "after": {
+          "semiTransparent": 86,
+          "transparentInterior": 0,
+          "nonTransparent": 69298
+        },
+        "alphaRaised": 9879,
+        "holesFilled": 12
+      },
+      "normalizedPath": "item-fit-v17-game-catalog/normalized/top-lace-collar-catalog-fit.png",
+      "compositePath": "item-fit-v17-game-catalog/composite/top-lace-collar-catalog-fit-composite.png"
+    },
+    {
+      "id": "top-ribbon-vest-catalog-fit",
+      "type": "clothing",
+      "placement": "top",
+      "filename": "top-ribbon-vest-catalog-fit.png",
+      "label": "Top: ribbon vest catalog fit",
+      "prompt": "single modest top clothing layer for a children princess dress-up game, original pastel storybook encyclopedia illustration matching a soft Japanese picture-book fashion encyclopedia, soft watercolor-like coloring, clean fine linework, front view top only, no head, no face, no neck, no arms, no hands, no legs, no body, no mannequin, no shadow, pure white 1024 by 1536 canvas, mint green short-sleeve blouse with a pale cream vest panel and one small centered ribbon, modest neckline, simple waist-length hem, opaque solid fabric, not sheer, no transparent fabric, wide enough to cover both shoulders and the full torso of a front-facing paper doll, sleeves reach the shoulder edges, body panel is broad and tall enough to cover the base dress bodice, no skirt, no pants, no jewelry, no text, no watermark",
+      "rawPath": "item-fit-v17-game-catalog/raw/top-ribbon-vest-catalog-fit.png",
+      "cutoutPath": "item-fit-v17-game-catalog/cutout/top-ribbon-vest-catalog-fit.png",
+      "revisedPrompt": null,
+      "createdAt": "2026-05-01T12:25:00.492Z",
+      "status": "ok",
+      "error": null,
+      "sourceBounds": {
+        "x": 20,
+        "y": 248,
+        "width": 981,
+        "height": 1011
+      },
+      "targetRect": {
+        "x": 329,
+        "y": 318,
+        "width": 350,
+        "height": 300
+      },
+      "placedRect": {
+        "x": 359,
+        "y": 318,
+        "width": 291,
+        "height": 300
+      },
+      "alphaStats": {
+        "bounds": {
+          "x": 359,
+          "y": 318,
+          "width": 291,
+          "height": 300
+        },
+        "before": {
+          "semiTransparent": 517,
+          "transparentInterior": 1,
+          "nonTransparent": 61251
+        },
+        "after": {
+          "semiTransparent": 68,
+          "transparentInterior": 0,
+          "nonTransparent": 61252
+        },
+        "alphaRaised": 450,
+        "holesFilled": 1
+      },
+      "normalizedPath": "item-fit-v17-game-catalog/normalized/top-ribbon-vest-catalog-fit.png",
+      "compositePath": "item-fit-v17-game-catalog/composite/top-ribbon-vest-catalog-fit-composite.png"
+    },
+    {
+      "id": "bottom-fluffy-long-catalog-fit",
+      "type": "clothing",
+      "placement": "bottomLong",
+      "filename": "bottom-fluffy-long-catalog-fit.png",
+      "label": "Bottom: fluffy long catalog fit",
+      "prompt": "single long bottom skirt layer for a children princess dress-up game, original pastel storybook encyclopedia illustration matching a soft Japanese picture-book fashion encyclopedia, soft watercolor-like coloring, clean fine linework, front view skirt only, no torso, no body, no legs, no feet, no mannequin, no shadow, pure white 1024 by 1536 canvas, a soft lavender pink fluffy skirt from waist to just below the knees, opaque fabric, not sheer, no transparent tulle, no see-through lace, simple waistband, gentle A-line volume, small frill details, vertical silhouette, taller than wide, not a short tutu, centered and symmetrical, designed to overlay a front-facing paper doll waist and cover the base dress hem completely, no blouse, no shoes, no text, no watermark",
+      "rawPath": "item-fit-v17-game-catalog/raw/bottom-fluffy-long-catalog-fit.png",
+      "cutoutPath": "item-fit-v17-game-catalog/cutout/bottom-fluffy-long-catalog-fit.png",
+      "revisedPrompt": null,
+      "createdAt": "2026-05-01T12:25:44.587Z",
+      "status": "ok",
+      "error": null,
+      "sourceBounds": {
+        "x": 46,
+        "y": 230,
+        "width": 942,
+        "height": 1084
+      },
+      "targetRect": {
+        "x": 289,
+        "y": 512,
+        "width": 430,
+        "height": 508
+      },
+      "placedRect": {
+        "x": 289,
+        "y": 512,
+        "width": 430,
+        "height": 508
+      },
+      "alphaStats": {
+        "bounds": {
+          "x": 289,
+          "y": 513,
+          "width": 430,
+          "height": 507
+        },
+        "before": {
+          "semiTransparent": 101,
+          "transparentInterior": 0,
+          "nonTransparent": 149082
+        },
+        "after": {
+          "semiTransparent": 101,
+          "transparentInterior": 0,
+          "nonTransparent": 149082
+        },
+        "alphaRaised": 0,
+        "holesFilled": 0
+      },
+      "normalizedPath": "item-fit-v17-game-catalog/normalized/bottom-fluffy-long-catalog-fit.png",
+      "compositePath": "item-fit-v17-game-catalog/composite/bottom-fluffy-long-catalog-fit-composite.png"
+    },
+    {
+      "id": "bottom-pleated-long-catalog-fit",
+      "type": "clothing",
+      "placement": "bottomLong",
+      "filename": "bottom-pleated-long-catalog-fit.png",
+      "label": "Bottom: pleated long catalog fit",
+      "prompt": "single long bottom skirt layer for a children princess dress-up game, original pastel storybook encyclopedia illustration matching a soft Japanese picture-book fashion encyclopedia, soft watercolor-like coloring, clean fine linework, front view skirt only, no torso, no body, no legs, no feet, no mannequin, no shadow, pure white 1024 by 1536 canvas, a pale blue pleated skirt from waist to just below the knees, opaque fabric, not sheer, no transparent tulle, no see-through lace, simple waistband, clean vertical pleats, small ribbon at the waist, vertical silhouette, taller than wide, not a short tutu, centered and symmetrical, designed to overlay a front-facing paper doll waist and cover the base dress hem completely, no blouse, no shoes, no text, no watermark",
+      "rawPath": "item-fit-v17-game-catalog/raw/bottom-pleated-long-catalog-fit.png",
+      "cutoutPath": "item-fit-v17-game-catalog/cutout/bottom-pleated-long-catalog-fit.png",
+      "revisedPrompt": null,
+      "createdAt": "2026-05-01T12:26:30.610Z",
+      "status": "ok",
+      "error": null,
+      "sourceBounds": {
+        "x": 116,
+        "y": 163,
+        "width": 788,
+        "height": 1197
+      },
+      "targetRect": {
+        "x": 289,
+        "y": 512,
+        "width": 430,
+        "height": 508
+      },
+      "placedRect": {
+        "x": 289,
+        "y": 512,
+        "width": 430,
+        "height": 508
+      },
+      "alphaStats": {
+        "bounds": {
+          "x": 289,
+          "y": 512,
+          "width": 430,
+          "height": 508
+        },
+        "before": {
+          "semiTransparent": 9295,
+          "transparentInterior": 0,
+          "nonTransparent": 172523
+        },
+        "after": {
+          "semiTransparent": 122,
+          "transparentInterior": 0,
+          "nonTransparent": 172523
+        },
+        "alphaRaised": 9173,
+        "holesFilled": 0
+      },
+      "normalizedPath": "item-fit-v17-game-catalog/normalized/bottom-pleated-long-catalog-fit.png",
+      "compositePath": "item-fit-v17-game-catalog/composite/bottom-pleated-long-catalog-fit-composite.png"
+    },
+    {
+      "id": "boots-rose-flat-cuff-catalog-fit",
+      "type": "boots",
+      "filename": "boots-rose-flat-cuff-catalog-fit.png",
+      "label": "Boots: rose flat cuff catalog fit",
+      "prompt": "pair of slim short ankle boots only for a children princess dress-up game, original pastel storybook encyclopedia illustration matching a soft Japanese picture-book fashion encyclopedia, soft watercolor-like coloring, clean fine linework, front view boots only, no legs, no feet, no socks, no skin, no body, no mannequin, no shadow, pure white 1024 by 1536 canvas, rose pink ankle boots with tiny round button details kept subtle, rounded toes that cover the full toes, narrow ankle width, left boot and right boot are the same size and separated as a matched pair, the top of each boot has a flat nearly horizontal cuff edge like a simple cut-off tube, solid boot surface up to the cuff, no visible boot interior, no oval opening, no hole at the top, no dark inside rim, no deep 3D mouth, not oversized, no toe lines, no foot outlines, no skin-colored details, no text, no watermark",
+      "rawPath": "item-fit-v17-game-catalog/raw/boots-rose-flat-cuff-catalog-fit.png",
+      "cutoutPath": "item-fit-v17-game-catalog/cutout/boots-rose-flat-cuff-catalog-fit.png",
+      "revisedPrompt": null,
+      "createdAt": "2026-05-01T12:27:11.818Z",
+      "status": "ok",
+      "error": null,
+      "sourceBounds": {
+        "x": 163,
+        "y": 392,
+        "width": 698,
+        "height": 730
+      },
+      "splitX": 512,
+      "placedRects": {
+        "leftShoe": {
+          "x": 409,
+          "y": 1315,
+          "width": 92,
+          "height": 148
+        },
+        "rightShoe": {
+          "x": 502,
+          "y": 1315,
+          "width": 92,
+          "height": 148
+        }
+      },
+      "splitPaths": [
+        {
+          "label": "Left split",
+          "path": "item-fit-v17-game-catalog/split/boots-rose-flat-cuff-catalog-fit-left.png"
+        },
+        {
+          "label": "Right split",
+          "path": "item-fit-v17-game-catalog/split/boots-rose-flat-cuff-catalog-fit-right.png"
+        }
+      ],
+      "normalizedPaths": [
+        {
+          "label": "Left opaque normalized",
+          "path": "item-fit-v17-game-catalog/normalized/boots-rose-flat-cuff-catalog-fit-left-opaque.png"
+        },
+        {
+          "label": "Right opaque normalized",
+          "path": "item-fit-v17-game-catalog/normalized/boots-rose-flat-cuff-catalog-fit-right-opaque.png"
+        }
+      ],
+      "alphaStats": {
+        "left": {
+          "bounds": {
+            "x": 409,
+            "y": 1315,
+            "width": 92,
+            "height": 148
+          },
+          "before": {
+            "semiTransparent": 26,
+            "transparentInterior": 0,
+            "nonTransparent": 10898
+          },
+          "after": {
+            "semiTransparent": 22,
+            "transparentInterior": 0,
+            "nonTransparent": 10898
+          },
+          "alphaRaised": 4,
+          "holesFilled": 0
+        },
+        "right": {
+          "bounds": {
+            "x": 502,
+            "y": 1315,
+            "width": 92,
+            "height": 148
+          },
+          "before": {
+            "semiTransparent": 30,
+            "transparentInterior": 0,
+            "nonTransparent": 10864
+          },
+          "after": {
+            "semiTransparent": 25,
+            "transparentInterior": 0,
+            "nonTransparent": 10864
+          },
+          "alphaRaised": 5,
+          "holesFilled": 0
+        }
+      },
+      "compositePath": "item-fit-v17-game-catalog/composite/boots-rose-flat-cuff-catalog-fit-composite.png"
+    },
+    {
+      "id": "boots-ankle-ribbon-flat-cuff-catalog-fit",
+      "type": "boots",
+      "filename": "boots-ankle-ribbon-flat-cuff-catalog-fit.png",
+      "label": "Boots: ankle ribbon flat cuff catalog fit",
+      "prompt": "pair of slim short ankle boots only for a children princess dress-up game, original pastel storybook encyclopedia illustration matching a soft Japanese picture-book fashion encyclopedia, soft watercolor-like coloring, clean fine linework, front view boots only, no legs, no feet, no socks, no skin, no body, no mannequin, no shadow, pure white 1024 by 1536 canvas, warm cream ankle boots with a tiny ankle ribbon detail on each boot, rounded toes that cover the full toes, narrow ankle width, left boot and right boot are the same size and separated as a matched pair, the top of each boot has a flat nearly horizontal cuff edge like a simple cut-off tube, solid boot surface up to the cuff, no visible boot interior, no oval opening, no hole at the top, no dark inside rim, no deep 3D mouth, not oversized, no toe lines, no foot outlines, no skin-colored details, no text, no watermark",
+      "rawPath": "item-fit-v17-game-catalog/raw/boots-ankle-ribbon-flat-cuff-catalog-fit.png",
+      "cutoutPath": "item-fit-v17-game-catalog/cutout/boots-ankle-ribbon-flat-cuff-catalog-fit.png",
+      "revisedPrompt": null,
+      "createdAt": "2026-05-01T12:27:57.603Z",
+      "status": "ok",
+      "error": null,
+      "sourceBounds": {
+        "x": 137,
+        "y": 360,
+        "width": 749,
+        "height": 818
+      },
+      "splitX": 512,
+      "placedRects": {
+        "leftShoe": {
+          "x": 409,
+          "y": 1315,
+          "width": 92,
+          "height": 148
+        },
+        "rightShoe": {
+          "x": 502,
+          "y": 1315,
+          "width": 92,
+          "height": 148
+        }
+      },
+      "splitPaths": [
+        {
+          "label": "Left split",
+          "path": "item-fit-v17-game-catalog/split/boots-ankle-ribbon-flat-cuff-catalog-fit-left.png"
+        },
+        {
+          "label": "Right split",
+          "path": "item-fit-v17-game-catalog/split/boots-ankle-ribbon-flat-cuff-catalog-fit-right.png"
+        }
+      ],
+      "normalizedPaths": [
+        {
+          "label": "Left opaque normalized",
+          "path": "item-fit-v17-game-catalog/normalized/boots-ankle-ribbon-flat-cuff-catalog-fit-left-opaque.png"
+        },
+        {
+          "label": "Right opaque normalized",
+          "path": "item-fit-v17-game-catalog/normalized/boots-ankle-ribbon-flat-cuff-catalog-fit-right-opaque.png"
+        }
+      ],
+      "alphaStats": {
+        "left": {
+          "bounds": {
+            "x": 409,
+            "y": 1315,
+            "width": 92,
+            "height": 148
+          },
+          "before": {
+            "semiTransparent": 2624,
+            "transparentInterior": 2,
+            "nonTransparent": 11338
+          },
+          "after": {
+            "semiTransparent": 19,
+            "transparentInterior": 0,
+            "nonTransparent": 11340
+          },
+          "alphaRaised": 2607,
+          "holesFilled": 2
+        },
+        "right": {
+          "bounds": {
+            "x": 502,
+            "y": 1315,
+            "width": 92,
+            "height": 148
+          },
+          "before": {
+            "semiTransparent": 2611,
+            "transparentInterior": 0,
+            "nonTransparent": 11276
+          },
+          "after": {
+            "semiTransparent": 16,
+            "transparentInterior": 0,
+            "nonTransparent": 11276
+          },
+          "alphaRaised": 2595,
+          "holesFilled": 0
+        }
+      },
+      "compositePath": "item-fit-v17-game-catalog/composite/boots-ankle-ribbon-flat-cuff-catalog-fit-composite.png"
+    },
+    {
+      "id": "boots-blue-ribbon-flat-cuff-catalog-fit",
+      "type": "boots",
+      "filename": "boots-blue-ribbon-flat-cuff-catalog-fit.png",
+      "label": "Boots: blue ribbon flat cuff catalog fit",
+      "prompt": "pair of slim short ankle boots only for a children princess dress-up game, original pastel storybook encyclopedia illustration matching a soft Japanese picture-book fashion encyclopedia, soft watercolor-like coloring, clean fine linework, front view boots only, no legs, no feet, no socks, no skin, no body, no mannequin, no shadow, pure white 1024 by 1536 canvas, sky blue ankle boots with tiny pale ribbon details kept subtle, rounded toes that cover the full toes, narrow ankle width, left boot and right boot are the same size and separated as a matched pair, the top of each boot has a flat nearly horizontal cuff edge like a simple cut-off tube, solid boot surface up to the cuff, no visible boot interior, no oval opening, no hole at the top, no dark inside rim, no deep 3D mouth, not oversized, no toe lines, no foot outlines, no skin-colored details, no text, no watermark",
+      "rawPath": "item-fit-v17-game-catalog/raw/boots-blue-ribbon-flat-cuff-catalog-fit.png",
+      "cutoutPath": "item-fit-v17-game-catalog/cutout/boots-blue-ribbon-flat-cuff-catalog-fit.png",
+      "revisedPrompt": null,
+      "createdAt": "2026-05-01T12:28:42.640Z",
+      "status": "ok",
+      "error": null,
+      "sourceBounds": {
+        "x": 184,
+        "y": 404,
+        "width": 669,
+        "height": 750
+      },
+      "splitX": 519,
+      "placedRects": {
+        "leftShoe": {
+          "x": 409,
+          "y": 1315,
+          "width": 92,
+          "height": 148
+        },
+        "rightShoe": {
+          "x": 502,
+          "y": 1315,
+          "width": 92,
+          "height": 148
+        }
+      },
+      "splitPaths": [
+        {
+          "label": "Left split",
+          "path": "item-fit-v17-game-catalog/split/boots-blue-ribbon-flat-cuff-catalog-fit-left.png"
+        },
+        {
+          "label": "Right split",
+          "path": "item-fit-v17-game-catalog/split/boots-blue-ribbon-flat-cuff-catalog-fit-right.png"
+        }
+      ],
+      "normalizedPaths": [
+        {
+          "label": "Left opaque normalized",
+          "path": "item-fit-v17-game-catalog/normalized/boots-blue-ribbon-flat-cuff-catalog-fit-left-opaque.png"
+        },
+        {
+          "label": "Right opaque normalized",
+          "path": "item-fit-v17-game-catalog/normalized/boots-blue-ribbon-flat-cuff-catalog-fit-right-opaque.png"
+        }
+      ],
+      "alphaStats": {
+        "left": {
+          "bounds": {
+            "x": 409,
+            "y": 1315,
+            "width": 92,
+            "height": 148
+          },
+          "before": {
+            "semiTransparent": 162,
+            "transparentInterior": 0,
+            "nonTransparent": 11219
+          },
+          "after": {
+            "semiTransparent": 22,
+            "transparentInterior": 0,
+            "nonTransparent": 11219
+          },
+          "alphaRaised": 140,
+          "holesFilled": 0
+        },
+        "right": {
+          "bounds": {
+            "x": 502,
+            "y": 1315,
+            "width": 92,
+            "height": 148
+          },
+          "before": {
+            "semiTransparent": 157,
+            "transparentInterior": 0,
+            "nonTransparent": 11232
+          },
+          "after": {
+            "semiTransparent": 15,
+            "transparentInterior": 0,
+            "nonTransparent": 11232
+          },
+          "alphaRaised": 142,
+          "holesFilled": 0
+        }
+      },
+      "compositePath": "item-fit-v17-game-catalog/composite/boots-blue-ribbon-flat-cuff-catalog-fit-composite.png"
+    },
+    {
+      "id": "boots-mint-button-flat-cuff-catalog-fit",
+      "type": "boots",
+      "filename": "boots-mint-button-flat-cuff-catalog-fit.png",
+      "label": "Boots: mint button flat cuff catalog fit",
+      "prompt": "pair of slim short ankle boots only for a children princess dress-up game, original pastel storybook encyclopedia illustration matching a soft Japanese picture-book fashion encyclopedia, soft watercolor-like coloring, clean fine linework, front view boots only, no legs, no feet, no socks, no skin, no body, no mannequin, no shadow, pure white 1024 by 1536 canvas, mint green ankle boots with tiny round button details kept subtle, rounded toes that cover the full toes, narrow ankle width, left boot and right boot are the same size and separated as a matched pair, the top of each boot has a flat nearly horizontal cuff edge like a simple cut-off tube, solid boot surface up to the cuff, no visible boot interior, no oval opening, no hole at the top, no dark inside rim, no deep 3D mouth, not oversized, no toe lines, no foot outlines, no skin-colored details, no text, no watermark",
+      "rawPath": "item-fit-v17-game-catalog/raw/boots-mint-button-flat-cuff-catalog-fit.png",
+      "cutoutPath": "item-fit-v17-game-catalog/cutout/boots-mint-button-flat-cuff-catalog-fit.png",
+      "revisedPrompt": null,
+      "createdAt": "2026-05-01T12:29:26.461Z",
+      "status": "ok",
+      "error": null,
+      "sourceBounds": {
+        "x": 180,
+        "y": 375,
+        "width": 670,
+        "height": 818
+      },
+      "splitX": 515,
+      "placedRects": {
+        "leftShoe": {
+          "x": 409,
+          "y": 1315,
+          "width": 92,
+          "height": 148
+        },
+        "rightShoe": {
+          "x": 502,
+          "y": 1315,
+          "width": 92,
+          "height": 148
+        }
+      },
+      "splitPaths": [
+        {
+          "label": "Left split",
+          "path": "item-fit-v17-game-catalog/split/boots-mint-button-flat-cuff-catalog-fit-left.png"
+        },
+        {
+          "label": "Right split",
+          "path": "item-fit-v17-game-catalog/split/boots-mint-button-flat-cuff-catalog-fit-right.png"
+        }
+      ],
+      "normalizedPaths": [
+        {
+          "label": "Left opaque normalized",
+          "path": "item-fit-v17-game-catalog/normalized/boots-mint-button-flat-cuff-catalog-fit-left-opaque.png"
+        },
+        {
+          "label": "Right opaque normalized",
+          "path": "item-fit-v17-game-catalog/normalized/boots-mint-button-flat-cuff-catalog-fit-right-opaque.png"
+        }
+      ],
+      "alphaStats": {
+        "left": {
+          "bounds": {
+            "x": 409,
+            "y": 1315,
+            "width": 92,
+            "height": 148
+          },
+          "before": {
+            "semiTransparent": 28,
+            "transparentInterior": 1,
+            "nonTransparent": 10606
+          },
+          "after": {
+            "semiTransparent": 19,
+            "transparentInterior": 0,
+            "nonTransparent": 10607
+          },
+          "alphaRaised": 10,
+          "holesFilled": 1
+        },
+        "right": {
+          "bounds": {
+            "x": 502,
+            "y": 1315,
+            "width": 92,
+            "height": 148
+          },
+          "before": {
+            "semiTransparent": 19,
+            "transparentInterior": 2,
+            "nonTransparent": 10585
+          },
+          "after": {
+            "semiTransparent": 13,
+            "transparentInterior": 0,
+            "nonTransparent": 10587
+          },
+          "alphaRaised": 8,
+          "holesFilled": 2
+        }
+      },
+      "compositePath": "item-fit-v17-game-catalog/composite/boots-mint-button-flat-cuff-catalog-fit-composite.png"
     }
   ],
   "itemFitV17SelectedStyle": "style-d-encyclopedia-clean-base",
@@ -2702,7 +3480,7 @@
     },
     "hair": {
       "selectedStyleCandidateId": "style-d-encyclopedia-clean-base",
-      "measuredAt": "2026-05-01T05:49:49.025Z",
+      "measuredAt": "2026-05-01T12:21:23.288Z",
       "method": "alpha bounds scan over the head and upper hair region of selected-style/model-base.png; v12 uses a smaller outward hairpinRight target for mixed hairpin designs",
       "headBounds": {
         "x": 367,
@@ -2791,7 +3569,7 @@
     },
     "clothing": {
       "selectedStyleCandidateId": "style-d-encyclopedia-clean-base",
-      "measuredAt": "2026-05-01T05:49:49.386Z",
+      "measuredAt": "2026-05-01T12:21:23.423Z",
       "method": "bodyCenterX plus alpha bounds scan over upper body and base dress skirt",
       "bodyCenterX": 504,
       "upperBodyBounds": {
@@ -2829,7 +3607,7 @@
     },
     "longBottom": {
       "selectedStyleCandidateId": "style-d-encyclopedia-clean-base",
-      "measuredAt": "2026-05-01T05:49:49.808Z",
+      "measuredAt": "2026-05-01T12:21:23.546Z",
       "method": "bodyCenterX plus alpha bounds scan over upper body and base dress skirt; v14 extends bottom target for opaque knee-length skirts",
       "bodyCenterX": 504,
       "upperBodyBounds": {

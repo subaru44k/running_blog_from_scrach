@@ -8,6 +8,7 @@ const DRAW_DIR = resolve(SCRIPT_DIR, '..');
 const ROOT_DIR = resolve(DRAW_DIR, '..', '..');
 const ARTIFACT_DIR = resolve(DRAW_DIR, 'artifacts/dressup-gpt-image-2-validation');
 const PUBLIC_DIR = resolve(ROOT_DIR, 'astro-blog/public/images/games/dressup-next');
+const PREVIEW_DIR = resolve(PUBLIC_DIR, 'previews');
 const CATALOG_PATH = resolve(ROOT_DIR, 'astro-blog/src/lib/games/dressup-next-catalog.json');
 
 const fromArtifact = (path) => resolve(ARTIFACT_DIR, path);
@@ -50,6 +51,108 @@ const makeVariant = ({ sourceDest, dest, tint, amount }) => {
   tintAsset({ source: fromPublic(sourceDest), dest, tint, amount });
 };
 
+const alphaBBox = (image, threshold = 8) => {
+  let minX = image.width;
+  let minY = image.height;
+  let maxX = -1;
+  let maxY = -1;
+  for (let y = 0; y < image.height; y += 1) {
+    for (let x = 0; x < image.width; x += 1) {
+      const alpha = image.data[(y * image.width + x) * 4 + 3];
+      if (alpha <= threshold) continue;
+      minX = Math.min(minX, x);
+      minY = Math.min(minY, y);
+      maxX = Math.max(maxX, x);
+      maxY = Math.max(maxY, y);
+    }
+  }
+  if (maxX < 0) return null;
+  return { minX, minY, maxX, maxY };
+};
+
+const expandBBox = (bbox, width, height, paddingRatio = 0.12) => {
+  const boxWidth = bbox.maxX - bbox.minX + 1;
+  const boxHeight = bbox.maxY - bbox.minY + 1;
+  const pad = Math.ceil(Math.max(boxWidth, boxHeight) * paddingRatio);
+  return {
+    minX: Math.max(0, bbox.minX - pad),
+    minY: Math.max(0, bbox.minY - pad),
+    maxX: Math.min(width - 1, bbox.maxX + pad),
+    maxY: Math.min(height - 1, bbox.maxY + pad),
+  };
+};
+
+const unionBBox = (boxes) => {
+  const valid = boxes.filter(Boolean);
+  if (!valid.length) return null;
+  return {
+    minX: Math.min(...valid.map((box) => box.minX)),
+    minY: Math.min(...valid.map((box) => box.minY)),
+    maxX: Math.max(...valid.map((box) => box.maxX)),
+    maxY: Math.max(...valid.map((box) => box.maxY)),
+  };
+};
+
+const cropImagesToPreview = ({ sources, dest, paddingRatio = 0.12 }) => {
+  const images = sources.map((source) => {
+    const sourcePath = fromPublic(source);
+    if (!existsSync(sourcePath)) throw new Error(`Missing preview source asset: ${sourcePath}`);
+    return PNG.sync.read(readFileSync(sourcePath));
+  });
+  const first = images[0];
+  const bbox = expandBBox(
+    unionBBox(images.map((image) => alphaBBox(image))),
+    first.width,
+    first.height,
+    paddingRatio
+  );
+  const output = new PNG({
+    width: bbox.maxX - bbox.minX + 1,
+    height: bbox.maxY - bbox.minY + 1,
+  });
+  for (const image of images) {
+    if (image.width !== first.width || image.height !== first.height) {
+      throw new Error(`Preview source size mismatch for ${dest}`);
+    }
+    for (let y = bbox.minY; y <= bbox.maxY; y += 1) {
+      for (let x = bbox.minX; x <= bbox.maxX; x += 1) {
+        const sourceIdx = (y * image.width + x) * 4;
+        const alpha = image.data[sourceIdx + 3];
+        if (alpha <= 0) continue;
+        const outputIdx = ((y - bbox.minY) * output.width + (x - bbox.minX)) * 4;
+        output.data[outputIdx] = image.data[sourceIdx];
+        output.data[outputIdx + 1] = image.data[sourceIdx + 1];
+        output.data[outputIdx + 2] = image.data[sourceIdx + 2];
+        output.data[outputIdx + 3] = alpha;
+      }
+    }
+  }
+  const outputPath = fromPublic(dest);
+  ensureParent(outputPath);
+  writeFileSync(outputPath, PNG.sync.write(output));
+};
+
+const previewName = (slot, id) => `previews/${slot}-${id}.png`;
+
+const addPreviewAssets = (catalog) => {
+  ensureDir(PREVIEW_DIR);
+  for (const slot of catalog.slots) {
+    for (const catalogItem of catalog.catalog[slot]) {
+      if (catalogItem.id === 'none') {
+        catalogItem.preview = null;
+        continue;
+      }
+      const preview = previewName(slot, catalogItem.id);
+      if (slot === 'shoes') {
+        cropImagesToPreview({ sources: [catalogItem.left, catalogItem.right], dest: preview, paddingRatio: 0.18 });
+      } else {
+        cropImagesToPreview({ sources: [catalogItem.src], dest: preview, paddingRatio: slot === 'hairAccessory' ? 0.22 : 0.14 });
+      }
+      catalogItem.preview = preview;
+    }
+  }
+};
+
 const shoe = (id, label, note, left, right) => ({ id, label, note, left, right });
 const item = (id, label, note, src) => ({ id, label, note, src });
 
@@ -79,7 +182,7 @@ const sourceAssets = [
   },
   {
     dest: 'hairpin-pearl-clips.png',
-    source: fromArtifact('item-fit-v12-hair-accessory-stability/normalized/hairpin-pearl-clips-stability-fit.png'),
+    source: fromArtifact('item-fit-v17-game-catalog/normalized/hairpin-round-pearl-catalog-fit.png'),
   },
   {
     dest: 'necklace-inner-shoulder.png',
@@ -98,6 +201,14 @@ const sourceAssets = [
     source: fromArtifact('item-fit-v17-game-catalog/normalized/necklace-pearl-catalog-fit.png'),
   },
   {
+    dest: 'necklace-star.png',
+    source: fromArtifact('item-fit-v17-game-catalog/normalized/necklace-star-catalog-fit.png'),
+  },
+  {
+    dest: 'necklace-flower.png',
+    source: fromArtifact('item-fit-v17-game-catalog/normalized/necklace-flower-catalog-fit.png'),
+  },
+  {
     dest: 'top-frill-blouse.png',
     source: fromArtifact('item-fit-v13-clothing/normalized/top-frill-blouse-fit.png'),
   },
@@ -108,6 +219,14 @@ const sourceAssets = [
   {
     dest: 'top-cream-blouse.png',
     source: fromArtifact('item-fit-v17-game-catalog/normalized/top-puff-catalog-fit.png'),
+  },
+  {
+    dest: 'top-lace-collar.png',
+    source: fromArtifact('item-fit-v17-game-catalog/normalized/top-lace-collar-catalog-fit.png'),
+  },
+  {
+    dest: 'top-ribbon-vest.png',
+    source: fromArtifact('item-fit-v17-game-catalog/normalized/top-ribbon-vest-catalog-fit.png'),
   },
   {
     dest: 'bottom-long-frill-skirt.png',
@@ -123,7 +242,11 @@ const sourceAssets = [
   },
   {
     dest: 'bottom-fluffy-skirt.png',
-    source: fromArtifact('item-fit-v13-clothing/normalized/bottom-fluffy-skirt-fit.png'),
+    source: fromArtifact('item-fit-v17-game-catalog/normalized/bottom-fluffy-long-catalog-fit.png'),
+  },
+  {
+    dest: 'bottom-pleated-skirt.png',
+    source: fromArtifact('item-fit-v17-game-catalog/normalized/bottom-pleated-long-catalog-fit.png'),
   },
   {
     dest: 'boots-ribbon-flat-cuff-left.png',
@@ -151,19 +274,35 @@ const sourceAssets = [
   },
   {
     dest: 'boots-rose-button-left.png',
-    source: fromArtifact('item-fit-v10-boots-alpha/normalized/boots-pearl-button-stability-fit-left-opaque.png'),
+    source: fromArtifact('item-fit-v17-game-catalog/normalized/boots-rose-flat-cuff-catalog-fit-left-opaque.png'),
   },
   {
     dest: 'boots-rose-button-right.png',
-    source: fromArtifact('item-fit-v10-boots-alpha/normalized/boots-pearl-button-stability-fit-right-opaque.png'),
+    source: fromArtifact('item-fit-v17-game-catalog/normalized/boots-rose-flat-cuff-catalog-fit-right-opaque.png'),
   },
   {
     dest: 'boots-ribbon-ankle-left.png',
-    source: fromArtifact('item-fit-v10-boots-alpha/normalized/boots-ribbon-ankle-stability-fit-left-opaque.png'),
+    source: fromArtifact('item-fit-v17-game-catalog/normalized/boots-ankle-ribbon-flat-cuff-catalog-fit-left-opaque.png'),
   },
   {
     dest: 'boots-ribbon-ankle-right.png',
-    source: fromArtifact('item-fit-v10-boots-alpha/normalized/boots-ribbon-ankle-stability-fit-right-opaque.png'),
+    source: fromArtifact('item-fit-v17-game-catalog/normalized/boots-ankle-ribbon-flat-cuff-catalog-fit-right-opaque.png'),
+  },
+  {
+    dest: 'boots-ribbon-sky-left.png',
+    source: fromArtifact('item-fit-v17-game-catalog/normalized/boots-blue-ribbon-flat-cuff-catalog-fit-left-opaque.png'),
+  },
+  {
+    dest: 'boots-ribbon-sky-right.png',
+    source: fromArtifact('item-fit-v17-game-catalog/normalized/boots-blue-ribbon-flat-cuff-catalog-fit-right-opaque.png'),
+  },
+  {
+    dest: 'boots-rose-mint-left.png',
+    source: fromArtifact('item-fit-v17-game-catalog/normalized/boots-mint-button-flat-cuff-catalog-fit-left-opaque.png'),
+  },
+  {
+    dest: 'boots-rose-mint-right.png',
+    source: fromArtifact('item-fit-v17-game-catalog/normalized/boots-mint-button-flat-cuff-catalog-fit-right-opaque.png'),
   },
 ];
 
@@ -199,10 +338,6 @@ const variants = [
   ['boots-pearl-flat-cuff-right.png', 'boots-pearl-sky-right.png', [125, 181, 222], 0.36],
   ['boots-lavender-flat-cuff-left.png', 'boots-lavender-cream-left.png', [231, 196, 131], 0.34],
   ['boots-lavender-flat-cuff-right.png', 'boots-lavender-cream-right.png', [231, 196, 131], 0.34],
-  ['boots-ribbon-ankle-left.png', 'boots-ribbon-sky-left.png', [118, 177, 220], 0.34],
-  ['boots-ribbon-ankle-right.png', 'boots-ribbon-sky-right.png', [118, 177, 220], 0.34],
-  ['boots-rose-button-left.png', 'boots-rose-mint-left.png', [130, 202, 181], 0.34],
-  ['boots-rose-button-right.png', 'boots-rose-mint-right.png', [130, 202, 181], 0.34],
 ];
 
 variants.forEach(([sourceDest, dest, tint, amount]) => makeVariant({ sourceDest, dest, tint, amount }));
@@ -238,6 +373,8 @@ const catalog = {
       item('ribbon', 'リボンネックレス', 'りぼんが かわいい', 'necklace-tiny-ribbon.png'),
       item('moon', 'ムーンパール', 'つきと パール', 'necklace-moon-pearl.png'),
       item('pearl', 'パールネックレス', 'きらっと ひかる', 'necklace-pearl.png'),
+      item('star', 'スターネックレス', 'ちいさな ほし', 'necklace-star.png'),
+      item('flower', 'お花ネックレス', 'お花が かわいい', 'necklace-flower.png'),
       item('rose-heart', 'ローズハート', 'ピンクの ハート', 'necklace-heart-rose.png'),
       item('lavender-ribbon', 'ラベンダーリボン', 'やさしい むらさき', 'necklace-ribbon-lavender.png'),
       item('sky-moon', 'そらいろムーン', 'さわやか ブルー', 'necklace-moon-sky.png'),
@@ -250,6 +387,8 @@ const catalog = {
       item('frill-blouse', 'フリルブラウス', 'ふんわり ピンク', 'top-frill-blouse.png'),
       item('sailor-blouse', 'セーラーブラウス', 'さわやか ブルー', 'top-sky-blouse.png'),
       item('puff-blouse', 'パフブラウス', 'やさしい きいろ', 'top-cream-blouse.png'),
+      item('lace-collar', 'レースえり', 'やさしい レース', 'top-lace-collar.png'),
+      item('ribbon-vest', 'リボンベスト', 'ミントの リボン', 'top-ribbon-vest.png'),
       item('lavender-frill', 'ラベンダーフリル', 'むらさき フリル', 'top-frill-lavender.png'),
       item('mint-frill', 'ミントフリル', 'さわやか フリル', 'top-frill-mint.png'),
       item('rose-frill', 'ローズフリル', 'あかるい ピンク', 'top-frill-rose.png'),
@@ -264,6 +403,7 @@ const catalog = {
       item('a-line', 'ピンクスカート', 'きれいな Aライン', 'bottom-knee-a-line.png'),
       item('ribbon-skirt', 'リボンスカート', 'ふんわり ミント', 'bottom-mint-skirt.png'),
       item('fluffy-skirt', 'ふわふわスカート', 'やわらか ラベンダー', 'bottom-fluffy-skirt.png'),
+      item('pleated-skirt', 'プリーツスカート', 'そらいろ プリーツ', 'bottom-pleated-skirt.png'),
       item('lavender-long', 'ラベンダーロング', 'ながめの フリル', 'bottom-long-frill-lavender.png'),
       item('cream-long', 'クリームロング', 'あたたかい きいろ', 'bottom-long-frill-cream.png'),
       item('sky-a-line', 'そらいろAライン', 'さわやか スカート', 'bottom-a-line-sky.png'),
@@ -287,6 +427,7 @@ const catalog = {
   },
 };
 
+addPreviewAssets(catalog);
 writeFileSync(CATALOG_PATH, `${JSON.stringify(catalog, null, 2)}\n`);
 console.log(`wrote assets to ${PUBLIC_DIR}`);
 console.log(`wrote catalog to ${CATALOG_PATH}`);

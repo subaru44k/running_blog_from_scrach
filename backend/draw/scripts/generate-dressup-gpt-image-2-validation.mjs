@@ -646,6 +646,142 @@ const itemFitV17Candidates = [
       'the top of each boot has a flat nearly horizontal cuff edge like a simple cut-off tube, solid boot surface up to the cuff, no visible boot interior, no oval opening, no hole at the top, no dark inside rim, no deep 3D mouth, ' +
       'not oversized, no toe lines, no foot outlines, no skin-colored details, no text, no watermark',
   },
+  {
+    id: 'hairpin-round-pearl-catalog-fit',
+    type: 'hairAccessory',
+    placement: 'hairpinRight',
+    filename: 'hairpin-round-pearl-catalog-fit.png',
+    label: 'Hair accessory: round pearl clips catalog fit',
+    prompt:
+      'two tiny round pearl hair clips layer for a children princess dress-up game, original pastel storybook encyclopedia illustration matching a soft Japanese picture-book fashion encyclopedia, soft watercolor-like coloring, clean fine linework, ' +
+      'front view accessory only, no head, no hair, no face, no body, no mannequin, no shadow, pure white 1024 by 1536 canvas, ' +
+      'two separate small cream pearl snap clips placed close together on a short invisible-pin shape, compact and lightweight, suitable for placing on the right side edge of a front-facing paper doll bob haircut, ' +
+      'pearls are round and readable but tiny, no long horizontal barrette, no tiara, no crown, no earrings, no necklace, no text, no watermark',
+  },
+  {
+    id: 'necklace-star-catalog-fit',
+    type: 'necklace',
+    filename: 'necklace-star-catalog-fit.png',
+    label: 'Necklace: star catalog fit',
+    prompt:
+      'single small delicate princess necklace layer for a children dress-up game, original pastel storybook encyclopedia illustration matching a soft Japanese picture-book fashion encyclopedia, soft watercolor-like coloring, clean fine linework, ' +
+      'front view, draw only the necklace and no body, no neck, no skin, no dress, no mannequin, no shadow, pure white 1024 by 1536 canvas, ' +
+      'very narrow symmetrical shallow U-shaped fine gold chain with one tiny pale yellow star charm, pendant exactly on the body center line at canvas x 504 y 424, ' +
+      'left chain start near canvas x 452 y 340 and right chain start near canvas x 556 y 340, total visible necklace width between 100 and 125 pixels, ' +
+      'small enough to sit on the inner shoulder and collarbone line, do not extend to shoulder straps, do not make a wide shoulder-draped necklace, no earrings, no tiara, no text, no watermark',
+  },
+  {
+    id: 'necklace-flower-catalog-fit',
+    type: 'necklace',
+    filename: 'necklace-flower-catalog-fit.png',
+    label: 'Necklace: flower catalog fit',
+    prompt:
+      'single small delicate princess necklace layer for a children dress-up game, original pastel storybook encyclopedia illustration matching a soft Japanese picture-book fashion encyclopedia, soft watercolor-like coloring, clean fine linework, ' +
+      'front view, draw only the necklace and no body, no neck, no skin, no dress, no mannequin, no shadow, pure white 1024 by 1536 canvas, ' +
+      'very narrow symmetrical shallow U-shaped pearl chain with one tiny pale pink flower charm, pendant exactly on the body center line at canvas x 504 y 424, ' +
+      'left chain start near canvas x 452 y 340 and right chain start near canvas x 556 y 340, total visible necklace width between 100 and 125 pixels, ' +
+      'small enough to sit on the inner shoulder and collarbone line, do not extend to shoulder straps, do not make a wide shoulder-draped necklace, no earrings, no tiara, no text, no watermark',
+  },
+  {
+    id: 'top-lace-collar-catalog-fit',
+    type: 'clothing',
+    placement: 'top',
+    filename: 'top-lace-collar-catalog-fit.png',
+    label: 'Top: lace collar catalog fit',
+    prompt:
+      'single modest top clothing layer for a children princess dress-up game, original pastel storybook encyclopedia illustration matching a soft Japanese picture-book fashion encyclopedia, soft watercolor-like coloring, clean fine linework, ' +
+      'front view top only, no head, no face, no neck, no arms, no hands, no legs, no body, no mannequin, no shadow, pure white 1024 by 1536 canvas, ' +
+      'ivory and pale pink blouse with a small lace collar, short sleeves, modest round neckline, simple waist-length hem, opaque solid fabric, not sheer, no transparent fabric, ' +
+      'wide enough to cover both shoulders and the full torso of a front-facing paper doll, sleeves reach the shoulder edges, body panel is broad and tall enough to cover the base dress bodice, ' +
+      'no skirt, no pants, no jewelry, no text, no watermark',
+  },
+  {
+    id: 'top-ribbon-vest-catalog-fit',
+    type: 'clothing',
+    placement: 'top',
+    filename: 'top-ribbon-vest-catalog-fit.png',
+    label: 'Top: ribbon vest catalog fit',
+    prompt:
+      'single modest top clothing layer for a children princess dress-up game, original pastel storybook encyclopedia illustration matching a soft Japanese picture-book fashion encyclopedia, soft watercolor-like coloring, clean fine linework, ' +
+      'front view top only, no head, no face, no neck, no arms, no hands, no legs, no body, no mannequin, no shadow, pure white 1024 by 1536 canvas, ' +
+      'mint green short-sleeve blouse with a pale cream vest panel and one small centered ribbon, modest neckline, simple waist-length hem, opaque solid fabric, not sheer, no transparent fabric, ' +
+      'wide enough to cover both shoulders and the full torso of a front-facing paper doll, sleeves reach the shoulder edges, body panel is broad and tall enough to cover the base dress bodice, ' +
+      'no skirt, no pants, no jewelry, no text, no watermark',
+  },
+  {
+    id: 'bottom-fluffy-long-catalog-fit',
+    type: 'clothing',
+    placement: 'bottomLong',
+    filename: 'bottom-fluffy-long-catalog-fit.png',
+    label: 'Bottom: fluffy long catalog fit',
+    prompt:
+      'single long bottom skirt layer for a children princess dress-up game, original pastel storybook encyclopedia illustration matching a soft Japanese picture-book fashion encyclopedia, soft watercolor-like coloring, clean fine linework, ' +
+      'front view skirt only, no torso, no body, no legs, no feet, no mannequin, no shadow, pure white 1024 by 1536 canvas, ' +
+      'a soft lavender pink fluffy skirt from waist to just below the knees, opaque fabric, not sheer, no transparent tulle, no see-through lace, simple waistband, gentle A-line volume, small frill details, ' +
+      'vertical silhouette, taller than wide, not a short tutu, centered and symmetrical, designed to overlay a front-facing paper doll waist and cover the base dress hem completely, ' +
+      'no blouse, no shoes, no text, no watermark',
+  },
+  {
+    id: 'bottom-pleated-long-catalog-fit',
+    type: 'clothing',
+    placement: 'bottomLong',
+    filename: 'bottom-pleated-long-catalog-fit.png',
+    label: 'Bottom: pleated long catalog fit',
+    prompt:
+      'single long bottom skirt layer for a children princess dress-up game, original pastel storybook encyclopedia illustration matching a soft Japanese picture-book fashion encyclopedia, soft watercolor-like coloring, clean fine linework, ' +
+      'front view skirt only, no torso, no body, no legs, no feet, no mannequin, no shadow, pure white 1024 by 1536 canvas, ' +
+      'a pale blue pleated skirt from waist to just below the knees, opaque fabric, not sheer, no transparent tulle, no see-through lace, simple waistband, clean vertical pleats, small ribbon at the waist, ' +
+      'vertical silhouette, taller than wide, not a short tutu, centered and symmetrical, designed to overlay a front-facing paper doll waist and cover the base dress hem completely, ' +
+      'no blouse, no shoes, no text, no watermark',
+  },
+  {
+    id: 'boots-rose-flat-cuff-catalog-fit',
+    type: 'boots',
+    filename: 'boots-rose-flat-cuff-catalog-fit.png',
+    label: 'Boots: rose flat cuff catalog fit',
+    prompt:
+      'pair of slim short ankle boots only for a children princess dress-up game, original pastel storybook encyclopedia illustration matching a soft Japanese picture-book fashion encyclopedia, soft watercolor-like coloring, clean fine linework, ' +
+      'front view boots only, no legs, no feet, no socks, no skin, no body, no mannequin, no shadow, pure white 1024 by 1536 canvas, ' +
+      'rose pink ankle boots with tiny round button details kept subtle, rounded toes that cover the full toes, narrow ankle width, left boot and right boot are the same size and separated as a matched pair, ' +
+      'the top of each boot has a flat nearly horizontal cuff edge like a simple cut-off tube, solid boot surface up to the cuff, no visible boot interior, no oval opening, no hole at the top, no dark inside rim, no deep 3D mouth, ' +
+      'not oversized, no toe lines, no foot outlines, no skin-colored details, no text, no watermark',
+  },
+  {
+    id: 'boots-ankle-ribbon-flat-cuff-catalog-fit',
+    type: 'boots',
+    filename: 'boots-ankle-ribbon-flat-cuff-catalog-fit.png',
+    label: 'Boots: ankle ribbon flat cuff catalog fit',
+    prompt:
+      'pair of slim short ankle boots only for a children princess dress-up game, original pastel storybook encyclopedia illustration matching a soft Japanese picture-book fashion encyclopedia, soft watercolor-like coloring, clean fine linework, ' +
+      'front view boots only, no legs, no feet, no socks, no skin, no body, no mannequin, no shadow, pure white 1024 by 1536 canvas, ' +
+      'warm cream ankle boots with a tiny ankle ribbon detail on each boot, rounded toes that cover the full toes, narrow ankle width, left boot and right boot are the same size and separated as a matched pair, ' +
+      'the top of each boot has a flat nearly horizontal cuff edge like a simple cut-off tube, solid boot surface up to the cuff, no visible boot interior, no oval opening, no hole at the top, no dark inside rim, no deep 3D mouth, ' +
+      'not oversized, no toe lines, no foot outlines, no skin-colored details, no text, no watermark',
+  },
+  {
+    id: 'boots-blue-ribbon-flat-cuff-catalog-fit',
+    type: 'boots',
+    filename: 'boots-blue-ribbon-flat-cuff-catalog-fit.png',
+    label: 'Boots: blue ribbon flat cuff catalog fit',
+    prompt:
+      'pair of slim short ankle boots only for a children princess dress-up game, original pastel storybook encyclopedia illustration matching a soft Japanese picture-book fashion encyclopedia, soft watercolor-like coloring, clean fine linework, ' +
+      'front view boots only, no legs, no feet, no socks, no skin, no body, no mannequin, no shadow, pure white 1024 by 1536 canvas, ' +
+      'sky blue ankle boots with tiny pale ribbon details kept subtle, rounded toes that cover the full toes, narrow ankle width, left boot and right boot are the same size and separated as a matched pair, ' +
+      'the top of each boot has a flat nearly horizontal cuff edge like a simple cut-off tube, solid boot surface up to the cuff, no visible boot interior, no oval opening, no hole at the top, no dark inside rim, no deep 3D mouth, ' +
+      'not oversized, no toe lines, no foot outlines, no skin-colored details, no text, no watermark',
+  },
+  {
+    id: 'boots-mint-button-flat-cuff-catalog-fit',
+    type: 'boots',
+    filename: 'boots-mint-button-flat-cuff-catalog-fit.png',
+    label: 'Boots: mint button flat cuff catalog fit',
+    prompt:
+      'pair of slim short ankle boots only for a children princess dress-up game, original pastel storybook encyclopedia illustration matching a soft Japanese picture-book fashion encyclopedia, soft watercolor-like coloring, clean fine linework, ' +
+      'front view boots only, no legs, no feet, no socks, no skin, no body, no mannequin, no shadow, pure white 1024 by 1536 canvas, ' +
+      'mint green ankle boots with tiny round button details kept subtle, rounded toes that cover the full toes, narrow ankle width, left boot and right boot are the same size and separated as a matched pair, ' +
+      'the top of each boot has a flat nearly horizontal cuff edge like a simple cut-off tube, solid boot surface up to the cuff, no visible boot interior, no oval opening, no hole at the top, no dark inside rim, no deep 3D mouth, ' +
+      'not oversized, no toe lines, no foot outlines, no skin-colored details, no text, no watermark',
+  },
 ];
 
 const itemFitV12Candidates = [

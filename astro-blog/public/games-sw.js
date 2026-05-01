@@ -1,4 +1,4 @@
-const CACHE_VERSION = 'games-offline-v7';
+const CACHE_VERSION = 'games-offline-v10';
 const OFFLINE_ROUTES = [
   '/games/',
   '/games/balloon-catch/',
