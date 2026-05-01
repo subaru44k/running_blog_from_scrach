@@ -29,6 +29,13 @@ const clamp = (value) => Math.max(0, Math.min(255, Math.round(value)));
 const tintAsset = ({ source, dest, tint, amount = 0.38 }) => {
   if (!existsSync(source)) throw new Error(`Missing source asset: ${source}`);
   const image = PNG.sync.read(readFileSync(source));
+  tintImage({ image, tint, amount });
+  const output = fromPublic(dest);
+  ensureParent(output);
+  writeFileSync(output, PNG.sync.write(image));
+};
+
+const tintImage = ({ image, tint, amount = 0.38 }) => {
   const [tr, tg, tb] = tint;
   for (let i = 0; i < image.data.length; i += 4) {
     const alpha = image.data[i + 3];
@@ -42,9 +49,7 @@ const tintAsset = ({ source, dest, tint, amount = 0.38 }) => {
     image.data[i + 1] = clamp(g * (1 - amount) + tg * shade * amount);
     image.data[i + 2] = clamp(b * (1 - amount) + tb * shade * amount);
   }
-  const output = fromPublic(dest);
-  ensureParent(output);
-  writeFileSync(output, PNG.sync.write(image));
+  return image;
 };
 
 const makeVariant = ({ sourceDest, dest, tint, amount }) => {
@@ -93,12 +98,14 @@ const unionBBox = (boxes) => {
   };
 };
 
-const cropImagesToPreview = ({ sources, dest, paddingRatio = 0.12 }) => {
-  const images = sources.map((source) => {
-    const sourcePath = fromPublic(source);
-    if (!existsSync(sourcePath)) throw new Error(`Missing preview source asset: ${sourcePath}`);
-    return PNG.sync.read(readFileSync(sourcePath));
-  });
+const clonePng = (image) => {
+  const clone = new PNG({ width: image.width, height: image.height });
+  image.data.copy(clone.data);
+  return clone;
+};
+
+const cropImageObjectsToPreview = ({ images, dest, paddingRatio = 0.12 }) => {
+  if (!images.length) throw new Error(`No preview source images for ${dest}`);
   const first = images[0];
   const bbox = expandBBox(
     unionBBox(images.map((image) => alphaBBox(image))),
@@ -132,7 +139,64 @@ const cropImagesToPreview = ({ sources, dest, paddingRatio = 0.12 }) => {
   writeFileSync(outputPath, PNG.sync.write(output));
 };
 
+const cropImagesToPreview = ({ sources, dest, paddingRatio = 0.12 }) => {
+  const images = sources.map((source) => {
+    const sourcePath = fromPublic(source);
+    if (!existsSync(sourcePath)) throw new Error(`Missing preview source asset: ${sourcePath}`);
+    return PNG.sync.read(readFileSync(sourcePath));
+  });
+  cropImageObjectsToPreview({ images, dest, paddingRatio });
+};
+
+const cropArtifactToPreview = ({ source, dest, tint, amount, paddingRatio = 0.12 }) => {
+  if (!existsSync(source)) throw new Error(`Missing preview source asset: ${source}`);
+  const image = PNG.sync.read(readFileSync(source));
+  const previewImage = tint ? tintImage({ image: clonePng(image), tint, amount }) : image;
+  cropImageObjectsToPreview({ images: [previewImage], dest, paddingRatio });
+};
+
 const previewName = (slot, id) => `previews/${slot}-${id}.png`;
+
+const hairAccessoryPreviewSources = {
+  'side-ribbon': {
+    source: fromArtifact('item-fit-v12-hair-accessory-stability/cutout/hairpin-side-ribbon-stability-fit.png'),
+  },
+  'lace-band': {
+    source: fromArtifact('item-fit-v12-hair-accessory-stability/cutout/headband-slim-lace-stability-fit.png'),
+  },
+  'flower-clip': {
+    source: fromArtifact('item-fit-v17-game-catalog/cutout/hairpin-flower-catalog-fit.png'),
+  },
+  'tiny-ribbon': {
+    source: fromArtifact('item-fit-v11-hair-accessory/cutout/hairband-tiny-ribbon-fit.png'),
+  },
+  'small-flower': {
+    source: fromArtifact('item-fit-v11-hair-accessory/cutout/hairpin-small-flower-fit.png'),
+  },
+  'pearl-clips': {
+    source: fromArtifact('item-fit-v17-game-catalog/cutout/hairpin-round-pearl-catalog-fit.png'),
+  },
+  'rose-ribbon': {
+    source: fromArtifact('item-fit-v12-hair-accessory-stability/cutout/hairpin-side-ribbon-stability-fit.png'),
+    tint: [246, 148, 166],
+    amount: 0.36,
+  },
+  'mint-lace': {
+    source: fromArtifact('item-fit-v12-hair-accessory-stability/cutout/headband-slim-lace-stability-fit.png'),
+    tint: [139, 211, 190],
+    amount: 0.36,
+  },
+  'lavender-flower': {
+    source: fromArtifact('item-fit-v17-game-catalog/cutout/hairpin-flower-catalog-fit.png'),
+    tint: [177, 153, 221],
+    amount: 0.36,
+  },
+  'blue-ribbon': {
+    source: fromArtifact('item-fit-v11-hair-accessory/cutout/hairband-tiny-ribbon-fit.png'),
+    tint: [120, 177, 222],
+    amount: 0.38,
+  },
+};
 
 const addPreviewAssets = (catalog) => {
   ensureDir(PREVIEW_DIR);
@@ -145,8 +209,12 @@ const addPreviewAssets = (catalog) => {
       const preview = previewName(slot, catalogItem.id);
       if (slot === 'shoes') {
         cropImagesToPreview({ sources: [catalogItem.left, catalogItem.right], dest: preview, paddingRatio: 0.18 });
+      } else if (slot === 'hairAccessory') {
+        const previewSource = hairAccessoryPreviewSources[catalogItem.id];
+        if (!previewSource) throw new Error(`Missing hair accessory preview source: ${catalogItem.id}`);
+        cropArtifactToPreview({ ...previewSource, dest: preview, paddingRatio: 0.16 });
       } else {
-        cropImagesToPreview({ sources: [catalogItem.src], dest: preview, paddingRatio: slot === 'hairAccessory' ? 0.22 : 0.14 });
+        cropImagesToPreview({ sources: [catalogItem.src], dest: preview, paddingRatio: 0.14 });
       }
       catalogItem.preview = preview;
     }
