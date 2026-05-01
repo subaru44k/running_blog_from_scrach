@@ -1,8 +1,9 @@
-const CACHE_VERSION = 'games-offline-v6';
+const CACHE_VERSION = 'games-offline-v7';
 const OFFLINE_ROUTES = [
   '/games/',
   '/games/balloon-catch/',
   '/games/dressup/',
+  '/games/dressup-next/',
   '/games/match-quiz/',
   '/games/janken/',
   '/games/clock/',
@@ -38,14 +39,12 @@ function isGameNavigation(request, requestUrl) {
   return (
     request.mode === 'navigate' &&
     requestUrl.origin === self.location.origin &&
-    requestUrl.pathname.startsWith('/games/') &&
-    !requestUrl.pathname.startsWith('/games/dressup-next/')
+    requestUrl.pathname.startsWith('/games/')
   );
 }
 
 function isGameAsset(request, requestUrl) {
   if (request.method !== 'GET' || requestUrl.origin !== self.location.origin) return false;
-  if (requestUrl.pathname.startsWith('/images/games/dressup-next/')) return false;
   return (
     requestUrl.pathname.startsWith('/_astro/') ||
     requestUrl.pathname.startsWith('/images/') ||

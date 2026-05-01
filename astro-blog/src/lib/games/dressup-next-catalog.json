@@ -1,0 +1,375 @@
+{
+  "assetBase": "/images/games/dressup-next/",
+  "slots": [
+    "hairAccessory",
+    "necklace",
+    "top",
+    "bottom",
+    "shoes"
+  ],
+  "slotLabels": {
+    "hairAccessory": "かみかざり",
+    "necklace": "ネックレス",
+    "top": "トップス",
+    "bottom": "ボトムス",
+    "shoes": "くつ"
+  },
+  "themes": [
+    "おでかけ",
+    "パーティー",
+    "おひめさま",
+    "えんそうかい",
+    "おたんじょうび"
+  ],
+  "catalog": {
+    "hairAccessory": [
+      {
+        "id": "none",
+        "label": "なし",
+        "note": "そのまま",
+        "src": null
+      },
+      {
+        "id": "side-ribbon",
+        "label": "リボンピン",
+        "note": "みぎがわに ちょこん",
+        "src": "hairpin-side-ribbon.png"
+      },
+      {
+        "id": "lace-band",
+        "label": "レースカチューシャ",
+        "note": "やさしい しろ",
+        "src": "headband-slim-lace.png"
+      },
+      {
+        "id": "flower-clip",
+        "label": "お花クリップ",
+        "note": "ちいさな お花",
+        "src": "hairpin-flower.png"
+      },
+      {
+        "id": "tiny-ribbon",
+        "label": "ちびリボン",
+        "note": "まんなかに ふんわり",
+        "src": "hairband-tiny-ribbon.png"
+      },
+      {
+        "id": "small-flower",
+        "label": "小花ピン",
+        "note": "あかるい お花",
+        "src": "hairpin-small-flower.png"
+      },
+      {
+        "id": "pearl-clips",
+        "label": "パールピン",
+        "note": "きらっと ふたつ",
+        "src": "hairpin-pearl-clips.png"
+      },
+      {
+        "id": "rose-ribbon",
+        "label": "ローズリボン",
+        "note": "あまい ピンク",
+        "src": "hairpin-side-ribbon-rose.png"
+      },
+      {
+        "id": "mint-lace",
+        "label": "ミントレース",
+        "note": "さわやか レース",
+        "src": "headband-slim-lace-mint.png"
+      },
+      {
+        "id": "lavender-flower",
+        "label": "ラベンダー花",
+        "note": "むらさきの お花",
+        "src": "hairpin-flower-lavender.png"
+      },
+      {
+        "id": "blue-ribbon",
+        "label": "ブルーリボン",
+        "note": "すっきり ブルー",
+        "src": "hairband-tiny-ribbon-blue.png"
+      }
+    ],
+    "necklace": [
+      {
+        "id": "none",
+        "label": "なし",
+        "note": "そのまま",
+        "src": null
+      },
+      {
+        "id": "heart",
+        "label": "ハートネックレス",
+        "note": "ちいさな ハート",
+        "src": "necklace-inner-shoulder.png"
+      },
+      {
+        "id": "ribbon",
+        "label": "リボンネックレス",
+        "note": "りぼんが かわいい",
+        "src": "necklace-tiny-ribbon.png"
+      },
+      {
+        "id": "moon",
+        "label": "ムーンパール",
+        "note": "つきと パール",
+        "src": "necklace-moon-pearl.png"
+      },
+      {
+        "id": "pearl",
+        "label": "パールネックレス",
+        "note": "きらっと ひかる",
+        "src": "necklace-pearl.png"
+      },
+      {
+        "id": "rose-heart",
+        "label": "ローズハート",
+        "note": "ピンクの ハート",
+        "src": "necklace-heart-rose.png"
+      },
+      {
+        "id": "lavender-ribbon",
+        "label": "ラベンダーリボン",
+        "note": "やさしい むらさき",
+        "src": "necklace-ribbon-lavender.png"
+      },
+      {
+        "id": "sky-moon",
+        "label": "そらいろムーン",
+        "note": "さわやか ブルー",
+        "src": "necklace-moon-sky.png"
+      },
+      {
+        "id": "mint-pearl",
+        "label": "ミントパール",
+        "note": "みどりの きらきら",
+        "src": "necklace-pearl-mint.png"
+      },
+      {
+        "id": "gold-heart",
+        "label": "ゴールドハート",
+        "note": "あたたかい きいろ",
+        "src": "necklace-heart-gold.png"
+      },
+      {
+        "id": "cream-ribbon",
+        "label": "クリームリボン",
+        "note": "ふんわり きいろ",
+        "src": "necklace-ribbon-cream.png"
+      }
+    ],
+    "top": [
+      {
+        "id": "none",
+        "label": "なし",
+        "note": "ベース",
+        "src": null
+      },
+      {
+        "id": "frill-blouse",
+        "label": "フリルブラウス",
+        "note": "ふんわり ピンク",
+        "src": "top-frill-blouse.png"
+      },
+      {
+        "id": "sailor-blouse",
+        "label": "セーラーブラウス",
+        "note": "さわやか ブルー",
+        "src": "top-sky-blouse.png"
+      },
+      {
+        "id": "puff-blouse",
+        "label": "パフブラウス",
+        "note": "やさしい きいろ",
+        "src": "top-cream-blouse.png"
+      },
+      {
+        "id": "lavender-frill",
+        "label": "ラベンダーフリル",
+        "note": "むらさき フリル",
+        "src": "top-frill-lavender.png"
+      },
+      {
+        "id": "mint-frill",
+        "label": "ミントフリル",
+        "note": "さわやか フリル",
+        "src": "top-frill-mint.png"
+      },
+      {
+        "id": "rose-frill",
+        "label": "ローズフリル",
+        "note": "あかるい ピンク",
+        "src": "top-frill-rose.png"
+      },
+      {
+        "id": "peach-sailor",
+        "label": "ピーチセーラー",
+        "note": "あたたかい セーラー",
+        "src": "top-sailor-peach.png"
+      },
+      {
+        "id": "mint-sailor",
+        "label": "ミントセーラー",
+        "note": "みどりの セーラー",
+        "src": "top-sailor-mint.png"
+      },
+      {
+        "id": "pink-puff",
+        "label": "ピンクパフ",
+        "note": "かわいい そで",
+        "src": "top-puff-pink.png"
+      },
+      {
+        "id": "sky-puff",
+        "label": "そらいろパフ",
+        "note": "ふんわり ブルー",
+        "src": "top-puff-sky.png"
+      }
+    ],
+    "bottom": [
+      {
+        "id": "none",
+        "label": "なし",
+        "note": "ベース",
+        "src": null
+      },
+      {
+        "id": "long-frill",
+        "label": "ロングフリル",
+        "note": "ひざくらいまで",
+        "src": "bottom-long-frill-skirt.png"
+      },
+      {
+        "id": "a-line",
+        "label": "ピンクスカート",
+        "note": "きれいな Aライン",
+        "src": "bottom-knee-a-line.png"
+      },
+      {
+        "id": "ribbon-skirt",
+        "label": "リボンスカート",
+        "note": "ふんわり ミント",
+        "src": "bottom-mint-skirt.png"
+      },
+      {
+        "id": "fluffy-skirt",
+        "label": "ふわふわスカート",
+        "note": "やわらか ラベンダー",
+        "src": "bottom-fluffy-skirt.png"
+      },
+      {
+        "id": "lavender-long",
+        "label": "ラベンダーロング",
+        "note": "ながめの フリル",
+        "src": "bottom-long-frill-lavender.png"
+      },
+      {
+        "id": "cream-long",
+        "label": "クリームロング",
+        "note": "あたたかい きいろ",
+        "src": "bottom-long-frill-cream.png"
+      },
+      {
+        "id": "sky-a-line",
+        "label": "そらいろAライン",
+        "note": "さわやか スカート",
+        "src": "bottom-a-line-sky.png"
+      },
+      {
+        "id": "mint-a-line",
+        "label": "ミントAライン",
+        "note": "みどりの スカート",
+        "src": "bottom-a-line-mint.png"
+      },
+      {
+        "id": "rose-ribbon",
+        "label": "ローズリボン",
+        "note": "ピンクの リボン",
+        "src": "bottom-ribbon-rose.png"
+      },
+      {
+        "id": "lavender-ribbon",
+        "label": "ラベンダーリボン",
+        "note": "むらさき リボン",
+        "src": "bottom-ribbon-lavender.png"
+      }
+    ],
+    "shoes": [
+      {
+        "id": "none",
+        "label": "なし",
+        "note": "そのまま"
+      },
+      {
+        "id": "ribbon-boots",
+        "label": "リボンブーツ",
+        "note": "あしもと かわいい",
+        "left": "boots-ribbon-flat-cuff-left.png",
+        "right": "boots-ribbon-flat-cuff-right.png"
+      },
+      {
+        "id": "pearl-boots",
+        "label": "パールブーツ",
+        "note": "しろくて きれい",
+        "left": "boots-pearl-flat-cuff-left.png",
+        "right": "boots-pearl-flat-cuff-right.png"
+      },
+      {
+        "id": "lavender-boots",
+        "label": "ラベンダーブーツ",
+        "note": "むらさき きれい",
+        "left": "boots-lavender-flat-cuff-left.png",
+        "right": "boots-lavender-flat-cuff-right.png"
+      },
+      {
+        "id": "rose-button",
+        "label": "ローズボタン",
+        "note": "ボタンが かわいい",
+        "left": "boots-rose-button-left.png",
+        "right": "boots-rose-button-right.png"
+      },
+      {
+        "id": "ankle-ribbon",
+        "label": "アンクルリボン",
+        "note": "リボンつき",
+        "left": "boots-ribbon-ankle-left.png",
+        "right": "boots-ribbon-ankle-right.png"
+      },
+      {
+        "id": "mint-ribbon",
+        "label": "ミントブーツ",
+        "note": "さわやか みどり",
+        "left": "boots-ribbon-mint-left.png",
+        "right": "boots-ribbon-mint-right.png"
+      },
+      {
+        "id": "sky-pearl",
+        "label": "そらいろパール",
+        "note": "ブルーの パール",
+        "left": "boots-pearl-sky-left.png",
+        "right": "boots-pearl-sky-right.png"
+      },
+      {
+        "id": "cream-lavender",
+        "label": "クリームスター",
+        "note": "ほしが かわいい",
+        "left": "boots-lavender-cream-left.png",
+        "right": "boots-lavender-cream-right.png"
+      },
+      {
+        "id": "sky-ribbon",
+        "label": "ブルーリボン",
+        "note": "すっきり ブルー",
+        "left": "boots-ribbon-sky-left.png",
+        "right": "boots-ribbon-sky-right.png"
+      },
+      {
+        "id": "mint-button",
+        "label": "ミントボタン",
+        "note": "みどりの ボタン",
+        "left": "boots-rose-mint-left.png",
+        "right": "boots-rose-mint-right.png"
+      }
+    ]
+  }
+}

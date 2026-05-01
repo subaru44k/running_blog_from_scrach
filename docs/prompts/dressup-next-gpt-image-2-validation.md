@@ -100,6 +100,10 @@ OpenAI 公式ドキュメント上では `gpt-image-2` は state-of-the-art imag
 4. composite preview と採点表を生成し、ゲームページへ接続する前に視覚評価する。
 5. 合格した場合のみ、`/games/dressup-next/` の復活や本番導入方針を設計判断として `docs/architecture.yaml` へ反映する。
 
+## 2026-05-01 公開実装への移行
+
+`/games/dressup-next/` は検証ルートから公開PNG版おしゃれゲームへ昇格しました。既存 `/games/dressup/` は残し、PNG版は sitemap と games Service Worker キャッシュ対象に含めます。ゲーム用 catalog は、合格済みの正規化素材を再利用し、フィットが崩れない色違いバリエーションで各カテゴリ約10種類の選択肢を用意します。
+
 ## v2 検証ハーネス
 
 `backend/draw/scripts/generate-dressup-gpt-image-2-validation.mjs` は、旧スパイクを流用せずに新しい人物モデル候補を作るための検証スクリプトです。

@@ -39,6 +39,7 @@ repo:
           - /games/
           - /games/balloon-catch/
           - /games/dressup/
+          - /games/dressup-next/
           - /games/match-quiz/
           - /games/janken/
           - /games/clock/
@@ -56,8 +57,7 @@ repo:
           - /category-map.json
           - /cal-map.json
           - /cal-map/{year}/{month}.json
-        experimental_noindex:
-          - /games/dressup-next/
+        experimental_noindex: []
     admin_app:
       purpose: "管理UIとスクリプトによるブログ編集/生成"
       entry: admin-app/server.js
@@ -100,6 +100,7 @@ site:
       - /games/
       - /games/balloon-catch/
       - /games/dressup/
+      - /games/dressup-next/
       - /games/match-quiz/
       - /games/janken/
       - /games/clock/
@@ -116,8 +117,7 @@ site:
       /running-pace/:
         - "#calculator"
         - "#table"
-    experimental_noindex_routes:
-      - /games/dressup-next/
+    experimental_noindex_routes: []
     not_found_policy:
       status: 404
       body: /404.html
@@ -212,13 +212,13 @@ features:
     behavior:
       - /games/ is the hub page for lightweight browser games
       - global nav links separately to /draw/ and /games/ to keep draw as a first-class feature
-      - /games/ includes the draw game as the featured card and links to nine lighter mini-games
-      - balloon-catch, snake, maze, tic-tac-toe, reversi, janken, clock, dressup, and match-quiz are shipped as static Astro pages with client-side logic and no backend dependency
+      - /games/ includes the draw game as the featured card and links to ten lighter mini-games
+      - balloon-catch, snake, maze, tic-tac-toe, reversi, janken, clock, dressup, dressup-next, and match-quiz are shipped as static Astro pages with client-side logic and no backend dependency
       - /games/balloon-catch/ is a 30-second balloon catching game where the player moves a dog horizontally to catch balloons thrown by a CPU character, offers おそい/ふつう/はやい difficulty settings, uses only pre-generated game assets, draws the dog from the selected sprite sheet rather than separate dog pose images, and provides a wide play mode that uses the Fullscreen API when available with a CSS overlay fallback
       - /games/match-quiz/ is a local-first image-to-text multiple-choice quiz that starts from seeded sample sets, keeps quiz-start as the primary in-page CTA, stores cards in browser storage through a repository layer, and keeps quiz generation separate from the UI for future media/login/sync expansion
       - /games/match-quiz/ seeds read-only sample sets and lets users create or delete custom local sets; only custom sets can add or delete cards
       - /games/dressup/ is a theme-based outfit duel where the player dresses a mannequin by tapping body regions, each slot also offers a `なし` option, Chat-san chooses outfit parts in fixed order with about two seconds of visible thinking per part, and the round ends by asking which coordinate is preferred rather than auto-scoring
-      - /games/dressup-next/ is an experimental noindex PNG-layer version of dressup that keeps /games/dressup/ unchanged, is excluded from sitemap.xml, and is excluded from the games service worker navigation and asset caches
+      - /games/dressup-next/ is a public PNG-layer dress-up game that keeps /games/dressup/ unchanged, offers about ten image-preview choices per clothing/accessory slot, hides editing hotspots after completion, lets Chat-san visibly choose parts in fixed order, and is included in sitemap.xml and the games service worker caches
       - /games/janken/ provides Chat-san mode and local 1v1 mode, uses one-round matches, waits briefly before Chat-san reveals a hand, and uses sequential hidden input for local two-player play
       - /games/clock/ asks the player to match a target time by dragging the analog clock hands directly, carries the hour forward or backward when the minute hand crosses 12, offers やさしい/ふつう/むずかしい difficulty levels (whole hours / half hours / 5-minute steps), and checks correctness only when the player presses the answer button
       - /games/snake/ offers three speed modes (おそい / ふつう / はやい), defaults to ふつう on each visit, and applies the selected speed when the player presses start/restart
