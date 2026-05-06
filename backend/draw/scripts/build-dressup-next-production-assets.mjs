@@ -196,6 +196,36 @@ const hairAccessoryPreviewSources = {
     tint: [120, 177, 222],
     amount: 0.38,
   },
+  tiara: {
+    source: fromArtifact('item-fit-v18-expanded-catalog/cutout/hair-tiara-expanded-fit.png'),
+  },
+  crown: {
+    source: fromArtifact('item-fit-v18-expanded-catalog/cutout/hair-crown-expanded-fit.png'),
+  },
+  'big-ribbon': {
+    source: fromArtifact('item-fit-v18-expanded-catalog/cutout/hair-big-ribbon-expanded-fit.png'),
+  },
+  'double-ribbon': {
+    source: fromArtifact('item-fit-v18-expanded-catalog/cutout/hair-double-ribbon-expanded-fit.png'),
+  },
+  'star-pin': {
+    source: fromArtifact('item-fit-v18-expanded-catalog/cutout/hair-star-pin-expanded-fit.png'),
+  },
+  'heart-pin': {
+    source: fromArtifact('item-fit-v18-expanded-catalog/cutout/hair-heart-pin-expanded-fit.png'),
+  },
+  'strawberry-pin': {
+    source: fromArtifact('item-fit-v18-expanded-catalog/cutout/hair-strawberry-pin-expanded-fit.png'),
+  },
+  'butterfly-pin': {
+    source: fromArtifact('item-fit-v18-expanded-catalog/cutout/hair-butterfly-pin-expanded-fit.png'),
+  },
+  'bunny-ears': {
+    source: fromArtifact('item-fit-v18-expanded-catalog/cutout/hair-bunny-ears-expanded-fit.png'),
+  },
+  'sparkle-band': {
+    source: fromArtifact('item-fit-v18-expanded-catalog/cutout/hair-sparkle-band-expanded-fit.png'),
+  },
 };
 
 const addPreviewAssets = (catalog) => {
