@@ -1,0 +1,35 @@
+---
+interface Props {
+  currentHref: string;
+}
+
+const { currentHref } = Astro.props;
+
+const games = [
+  { href: '/games/balloon-catch/', label: 'ふうせんゲーム' },
+  { href: '/games/dressup/', label: 'おしゃれゲーム' },
+  { href: '/games/dressup-next/', label: 'おしゃれゲーム ネクスト' },
+  { href: '/games/match-quiz/', label: 'えあわせクイズ' },
+  { href: '/games/janken/', label: 'じゃんけんゲーム' },
+  { href: '/games/clock/', label: 'とけいゲーム' },
+  { href: '/games/snake/', label: 'スネークゲーム' },
+  { href: '/games/maze/', label: 'めいろゲーム' },
+  { href: '/games/tic-tac-toe/', label: 'まるばつゲーム' },
+  { href: '/games/reversi/', label: 'リバーシ' },
+  { href: '/draw/', label: 'お絵かきゲーム' },
+];
+
+const linkClass = 'rounded-2xl border border-slate-200/80 bg-white/85 px-4 py-3 no-underline transition hover:bg-white dark:border-slate-700/80 dark:bg-slate-900/80 dark:hover:bg-slate-900';
+const currentClass = 'rounded-2xl border border-slate-900/15 bg-slate-900 px-4 py-3 font-semibold text-white dark:border-white/15 dark:bg-white dark:text-slate-950';
+---
+
+<aside class="panel-muted p-5">
+  <h2 class="text-lg font-semibold mt-0">ほかのゲーム</h2>
+  <div class="mt-4 flex flex-col gap-3 text-sm">
+    {games.map((game) => (
+      game.href === currentHref
+        ? <span class={currentClass}>{game.label}</span>
+        : <a href={game.href} class={linkClass}>{game.label}</a>
+    ))}
+  </div>
+</aside>

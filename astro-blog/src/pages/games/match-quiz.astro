@@ -1,6 +1,7 @@
 ---
 import Layout from '../../layouts/Layout.astro';
 import MatchQuizApp from '../../components/games/MatchQuizApp';
+import RelatedGames from '../../components/games/RelatedGames.astro';
 
 const pageTitle = 'えあわせクイズ｜ミニゲーム';
 const metaDescription = '画像を見て答えを4択で当てる、すぐ始められるえあわせクイズです。サンプルセットつきで問題の追加や削除もできます。';
@@ -18,20 +19,7 @@ const metaDescription = '画像を見て答えを4択で当てる、すぐ始め
       <MatchQuizApp client:load />
     </article>
 
-    <aside class="panel-muted p-5">
-      <h2 class="text-lg font-semibold mt-0">ほかのゲーム</h2>
-      <div class="mt-4 flex flex-col gap-3 text-sm">
-        <a href="/games/dressup/" class="rounded-2xl border border-slate-200/80 bg-white/85 px-4 py-3 no-underline transition hover:bg-white dark:border-slate-700/80 dark:bg-slate-900/80 dark:hover:bg-slate-900">おしゃれゲーム</a>
-        <a href="/games/janken/" class="rounded-2xl border border-slate-200/80 bg-white/85 px-4 py-3 no-underline transition hover:bg-white dark:border-slate-700/80 dark:bg-slate-900/80 dark:hover:bg-slate-900">じゃんけんゲーム</a>
-        <a href="/games/clock/" class="rounded-2xl border border-slate-200/80 bg-white/85 px-4 py-3 no-underline transition hover:bg-white dark:border-slate-700/80 dark:bg-slate-900/80 dark:hover:bg-slate-900">とけいゲーム</a>
-        <a href="/games/snake/" class="rounded-2xl border border-slate-200/80 bg-white/85 px-4 py-3 no-underline transition hover:bg-white dark:border-slate-700/80 dark:bg-slate-900/80 dark:hover:bg-slate-900">スネークゲーム</a>
-        <a href="/games/maze/" class="rounded-2xl border border-slate-200/80 bg-white/85 px-4 py-3 no-underline transition hover:bg-white dark:border-slate-700/80 dark:bg-slate-900/80 dark:hover:bg-slate-900">めいろゲーム</a>
-        <a href="/games/tic-tac-toe/" class="rounded-2xl border border-slate-200/80 bg-white/85 px-4 py-3 no-underline transition hover:bg-white dark:border-slate-700/80 dark:bg-slate-900/80 dark:hover:bg-slate-900">まるばつゲーム</a>
-        <a href="/games/reversi/" class="rounded-2xl border border-slate-200/80 bg-white/85 px-4 py-3 no-underline transition hover:bg-white dark:border-slate-700/80 dark:bg-slate-900/80 dark:hover:bg-slate-900">リバーシ</a>
-        <span class="rounded-2xl border border-slate-900/15 bg-slate-900 px-4 py-3 font-semibold text-white dark:border-white/15 dark:bg-white dark:text-slate-950">えあわせクイズ</span>
-        <a href="/draw/" class="rounded-2xl border border-slate-200/80 bg-white/85 px-4 py-3 no-underline transition hover:bg-white dark:border-slate-700/80 dark:bg-slate-900/80 dark:hover:bg-slate-900">お絵かきゲーム</a>
-      </div>
-    </aside>
+    <RelatedGames currentHref="/games/match-quiz/" />
   </section>
 
   <style is:global>

@@ -16,6 +16,7 @@ Astroで生成する静的サイト本体。ブログ、PDF圧縮、ペース計
   - `contact.astro`, `privacy.astro`, `about.astro`, `404.astro`
   - `sitemap.xml.ts`: サイトマップ生成
 - `astro-blog/src/layouts/Layout.astro`: 共通レイアウト/SEO
+- `astro-blog/src/components/games/RelatedGames.astro`: 個別ミニゲームページの「ほかのゲーム」共通サイドバー。公開済みミニゲームと `/draw/` を統一表示し、現在ページはリンクではなく選択状態で表示する
 - `astro-blog/src/content/config.ts`: ブログコンテンツ設定
 - `astro-blog/buildspec.yml`: CodeBuild用ビルド/デプロイ
 
