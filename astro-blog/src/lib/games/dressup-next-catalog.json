@@ -99,6 +99,76 @@
         "note": "すっきり ブルー",
         "src": "hairband-tiny-ribbon-blue.png",
         "preview": "previews/hairAccessory-blue-ribbon.png"
+      },
+      {
+        "id": "tiara",
+        "label": "ティアラ",
+        "note": "きらきら ひめ",
+        "src": "hair-tiara.png",
+        "preview": "previews/hairAccessory-tiara.png"
+      },
+      {
+        "id": "crown",
+        "label": "かんむり",
+        "note": "ちいさな おうかん",
+        "src": "hair-crown.png",
+        "preview": "previews/hairAccessory-crown.png"
+      },
+      {
+        "id": "big-ribbon",
+        "label": "ビッグリボン",
+        "note": "ふんわり リボン",
+        "src": "hair-big-ribbon.png",
+        "preview": "previews/hairAccessory-big-ribbon.png"
+      },
+      {
+        "id": "double-ribbon",
+        "label": "ふたつリボン",
+        "note": "なかよし リボン",
+        "src": "hair-double-ribbon.png",
+        "preview": "previews/hairAccessory-double-ribbon.png"
+      },
+      {
+        "id": "star-pin",
+        "label": "ほしピン",
+        "note": "ぴかっと ほし",
+        "src": "hair-star-pin.png",
+        "preview": "previews/hairAccessory-star-pin.png"
+      },
+      {
+        "id": "heart-pin",
+        "label": "ハートピン",
+        "note": "あまい ハート",
+        "src": "hair-heart-pin.png",
+        "preview": "previews/hairAccessory-heart-pin.png"
+      },
+      {
+        "id": "strawberry-pin",
+        "label": "いちごピン",
+        "note": "あかい いちご",
+        "src": "hair-strawberry-pin.png",
+        "preview": "previews/hairAccessory-strawberry-pin.png"
+      },
+      {
+        "id": "butterfly-pin",
+        "label": "ちょうちょピン",
+        "note": "ひらひら ちょう",
+        "src": "hair-butterfly-pin.png",
+        "preview": "previews/hairAccessory-butterfly-pin.png"
+      },
+      {
+        "id": "bunny-ears",
+        "label": "うさみみ",
+        "note": "ぴょこんと かわいい",
+        "src": "hair-bunny-ears.png",
+        "preview": "previews/hairAccessory-bunny-ears.png"
+      },
+      {
+        "id": "sparkle-band",
+        "label": "きらきらバンド",
+        "note": "ほうせき きらり",
+        "src": "hair-sparkle-band.png",
+        "preview": "previews/hairAccessory-sparkle-band.png"
       }
     ],
     "necklace": [
@@ -192,6 +262,62 @@
         "note": "ふんわり きいろ",
         "src": "necklace-ribbon-cream.png",
         "preview": "previews/necklace-cream-ribbon.png"
+      },
+      {
+        "id": "sparkle-choker",
+        "label": "きらきらチョーカー",
+        "note": "ほうせき きらり",
+        "src": "necklace-sparkle-choker.png",
+        "preview": "previews/necklace-sparkle-choker.png"
+      },
+      {
+        "id": "gem",
+        "label": "ほうせきネックレス",
+        "note": "むらさき ほうせき",
+        "src": "necklace-gem.png",
+        "preview": "previews/necklace-gem.png"
+      },
+      {
+        "id": "rainbow",
+        "label": "にじいろネックレス",
+        "note": "いろが たのしい",
+        "src": "necklace-rainbow.png",
+        "preview": "previews/necklace-rainbow.png"
+      },
+      {
+        "id": "strawberry",
+        "label": "いちごネックレス",
+        "note": "あかい いちご",
+        "src": "necklace-strawberry.png",
+        "preview": "previews/necklace-strawberry.png"
+      },
+      {
+        "id": "sakura",
+        "label": "さくらネックレス",
+        "note": "さくらの お花",
+        "src": "necklace-sakura.png",
+        "preview": "previews/necklace-sakura.png"
+      },
+      {
+        "id": "music",
+        "label": "おんぷネックレス",
+        "note": "うたが すきそう",
+        "src": "necklace-music.png",
+        "preview": "previews/necklace-music.png"
+      },
+      {
+        "id": "snow",
+        "label": "ゆきネックレス",
+        "note": "ゆきの きらきら",
+        "src": "necklace-snow.png",
+        "preview": "previews/necklace-snow.png"
+      },
+      {
+        "id": "tea-party",
+        "label": "ティーネックレス",
+        "note": "おちゃかい みたい",
+        "src": "necklace-tea-party.png",
+        "preview": "previews/necklace-tea-party.png"
       }
     ],
     "top": [
@@ -285,6 +411,62 @@
         "note": "ふんわり ブルー",
         "src": "top-puff-sky.png",
         "preview": "previews/top-sky-puff.png"
+      },
+      {
+        "id": "cape",
+        "label": "ケープトップス",
+        "note": "おひめさま ケープ",
+        "src": "top-cape.png",
+        "preview": "previews/top-cape.png"
+      },
+      {
+        "id": "heart",
+        "label": "ハートブラウス",
+        "note": "ハート いっぱい",
+        "src": "top-heart.png",
+        "preview": "previews/top-heart.png"
+      },
+      {
+        "id": "star",
+        "label": "ほしブラウス",
+        "note": "ほしが きらきら",
+        "src": "top-star.png",
+        "preview": "previews/top-star.png"
+      },
+      {
+        "id": "flower",
+        "label": "お花ブラウス",
+        "note": "お花 いっぱい",
+        "src": "top-flower.png",
+        "preview": "previews/top-flower.png"
+      },
+      {
+        "id": "strawberry",
+        "label": "いちごトップス",
+        "note": "いちごが ちょこん",
+        "src": "top-strawberry.png",
+        "preview": "previews/top-strawberry.png"
+      },
+      {
+        "id": "raincoat",
+        "label": "レインコート",
+        "note": "あめのひ へいき",
+        "src": "top-raincoat.png",
+        "preview": "previews/top-raincoat.png"
+      },
+      {
+        "id": "snow-poncho",
+        "label": "ゆきポンチョ",
+        "note": "あったか ゆき",
+        "src": "top-snow-poncho.png",
+        "preview": "previews/top-snow-poncho.png"
+      },
+      {
+        "id": "party-jacket",
+        "label": "パーティージャケット",
+        "note": "ちょっぴり ごうか",
+        "src": "top-party-jacket.png",
+        "preview": "previews/top-party-jacket.png"
       }
     ],
     "bottom": [
@@ -371,6 +553,69 @@
         "note": "むらさき リボン",
         "src": "bottom-ribbon-lavender.png",
         "preview": "previews/bottom-lavender-ribbon.png"
+      },
+      {
+        "id": "sparkle-long",
+        "label": "きらきらロング",
+        "note": "ほしが ひかる",
+        "src": "bottom-sparkle-long.png",
+        "preview": "previews/bottom-sparkle-long.png"
+      },
+      {
+        "id": "heart-long",
+        "label": "ハートロング",
+        "note": "ハート いっぱい",
+        "src": "bottom-heart-long.png",
+        "preview": "previews/bottom-heart-long.png"
+      },
+      {
+        "id": "star-long",
+        "label": "ほしロング",
+        "note": "ほしが きらり",
+        "src": "bottom-star-long.png",
+        "preview": "previews/bottom-star-long.png"
+      },
+      {
+        "id": "flower-long",
+        "label": "お花ロング",
+        "note": "お花が かわいい",
+        "src": "bottom-flower-long.png",
+        "preview": "previews/bottom-flower-long.png"
+      },
+      {
+        "id": "tea-party",
+        "label": "ティーパーティー",
+        "note": "おちゃかい みたい",
+        "src": "bottom-tea-party.png",
+        "preview": "previews/bottom-tea-party.png"
+      },
+      {
+        "id": "rain",
+        "label": "あめのひスカート",
+        "note": "しずく もよう",
+        "src": "bottom-rain.png",
+        "preview": "previews/bottom-rain.png"
+      },
+      {
+        "id": "fluffy-warm",
+        "label": "ふわもこロング",
+        "note": "ぬくぬく ロング",
+        "src": "bottom-fluffy-warm.png",
+        "preview": "previews/bottom-fluffy-warm.png"
+      },
+      {
+        "id": "princess",
+        "label": "プリンセス",
+        "note": "おひめさま みたい",
+        "src": "bottom-princess.png",
+        "preview": "previews/bottom-princess.png"
+      },
+      {
+        "id": "ribbon-long",
+        "label": "リボンロング",
+        "note": "リボンが いっぱい",
+        "src": "bottom-ribbon-long.png",
+        "preview": "previews/bottom-ribbon-long.png"
       }
     ],
     "shoes": [
@@ -459,6 +704,86 @@
         "left": "boots-rose-mint-left.png",
         "right": "boots-rose-mint-right.png",
         "preview": "previews/shoes-mint-button.png"
+      },
+      {
+        "id": "rain-boots",
+        "label": "レインブーツ",
+        "note": "あめでも あんしん",
+        "left": "boots-rain-left.png",
+        "right": "boots-rain-right.png",
+        "preview": "previews/shoes-rain-boots.png"
+      },
+      {
+        "id": "star-boots",
+        "label": "ほしブーツ",
+        "note": "ほしが きらり",
+        "left": "boots-star-left.png",
+        "right": "boots-star-right.png",
+        "preview": "previews/shoes-star-boots.png"
+      },
+      {
+        "id": "heart-boots",
+        "label": "ハートブーツ",
+        "note": "ハート かわいい",
+        "left": "boots-heart-left.png",
+        "right": "boots-heart-right.png",
+        "preview": "previews/shoes-heart-boots.png"
+      },
+      {
+        "id": "flower-boots",
+        "label": "お花ブーツ",
+        "note": "お花が ちょこん",
+        "left": "boots-flower-left.png",
+        "right": "boots-flower-right.png",
+        "preview": "previews/shoes-flower-boots.png"
+      },
+      {
+        "id": "fluffy-boots",
+        "label": "ふわもこブーツ",
+        "note": "あったか ふわふわ",
+        "left": "boots-fluffy-left.png",
+        "right": "boots-fluffy-right.png",
+        "preview": "previews/shoes-fluffy-boots.png"
+      },
+      {
+        "id": "snow-boots",
+        "label": "ゆきブーツ",
+        "note": "ゆきの もよう",
+        "left": "boots-snow-left.png",
+        "right": "boots-snow-right.png",
+        "preview": "previews/shoes-snow-boots.png"
+      },
+      {
+        "id": "strawberry-boots",
+        "label": "いちごブーツ",
+        "note": "いちごが かわいい",
+        "left": "boots-strawberry-left.png",
+        "right": "boots-strawberry-right.png",
+        "preview": "previews/shoes-strawberry-boots.png"
+      },
+      {
+        "id": "bunny-boots",
+        "label": "うさぎブーツ",
+        "note": "ぴょこんと かわいい",
+        "left": "boots-bunny-left.png",
+        "right": "boots-bunny-right.png",
+        "preview": "previews/shoes-bunny-boots.png"
+      },
+      {
+        "id": "princess-boots",
+        "label": "プリンセスブーツ",
+        "note": "ひめの ブーツ",
+        "left": "boots-princess-left.png",
+        "right": "boots-princess-right.png",
+        "preview": "previews/shoes-princess-boots.png"
+      },
+      {
+        "id": "sparkle-boots",
+        "label": "きらきらブーツ",
+        "note": "きらっと ひかる",
+        "left": "boots-sparkle-left.png",
+        "right": "boots-sparkle-right.png",
+        "preview": "previews/shoes-sparkle-boots.png"
       }
     ]
   }

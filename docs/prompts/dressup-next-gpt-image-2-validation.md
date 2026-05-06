@@ -682,8 +682,44 @@ v15 で1つ以上の自然なレイヤー順が見つかれば、次は最小 PN
 
 2026-05-01 の v15 実行では、新規生成なしで top、bottom、boots、necklace、hairAccessory を全身合成しました。通常の着用順としては top が bottom より上に来るのが自然なため、現時点の PNG 版 z-index baseline は `base -> bottom -> top -> boots -> necklace -> hairAccessory` とします。`bottom -> top` の順では blouse の半透明フリルが skirt 上に少し乗りますが、ゲーム表示では許容範囲です。necklace は現在の blouse では上に出して問題ありませんが、高襟 top では `necklace-under-collar` または top-specific handling が必要になる可能性があります。
 
+## game catalog v18: expanded catalog
+
+`ITEM_BATCH=game-catalog-v18-expansion` では、`/games/dressup-next/` の各部位を約20種類へ拡張するため、gpt-image-2 で追加アイテムを生成します。追加対象は hairAccessory 10点、necklace 8点、top 8点、bottom 9点、boots 10点です。
+
+実行:
+
+```bash
+ITEM_BATCH=game-catalog-v18-expansion npm --prefix backend/draw run generate-dressup-gpt-image-2-validation
+```
+
+特定アイテムだけ再生成する場合:
+
+```bash
+ITEM_BATCH=game-catalog-v18-expansion ITEM_IDS=necklace-tea-party-expanded-fit npm --prefix backend/draw run generate-dressup-gpt-image-2-validation
+```
+
+v18 の生成方針:
+
+- hairAccessory は tiara、crown、ribbon、star、heart、strawberry、butterfly、bunny ears など、4歳児が選びやすい非現実的なモチーフを増やす。
+- necklace は v8/v17 の肩ライン起点・中央揃え・横幅控えめの正規化を再利用する。
+- top は base dress bodice を覆う幅と高さを prompt で明示する。
+- bottom は `bottomLong` rect を使い、膝丈以上・不透明・base dress 裾を隠すことを必須にする。
+- boots はすべて flat cuff とし、靴穴や内部の楕円が前面に見えない形に限定する。
+
+出力:
+
+- `backend/draw/artifacts/dressup-gpt-image-2-validation/item-fit-v18-expanded-catalog/raw/`
+- `backend/draw/artifacts/dressup-gpt-image-2-validation/item-fit-v18-expanded-catalog/cutout/`
+- `backend/draw/artifacts/dressup-gpt-image-2-validation/item-fit-v18-expanded-catalog/normalized/`
+- `backend/draw/artifacts/dressup-gpt-image-2-validation/item-fit-v18-expanded-catalog/split/`
+- `backend/draw/artifacts/dressup-gpt-image-2-validation/item-fit-v18-expanded-catalog/composite/`
+- `backend/draw/artifacts/dressup-gpt-image-2-validation/item-fit-v18-expanded-catalog/item-fit-v18-preview.html`
+- `backend/draw/artifacts/dressup-gpt-image-2-validation/item-fit-v18-expanded-catalog/item-fit-v18-review.md`
+
+2026-05-06 の v18 実行では、初回に `necklace-tea-party-expanded-fit` だけ API 502 で失敗したため、同 ID を再実行して補完しました。生成済みアセットは `build-dressup-next-production-assets.mjs` から public assets と catalog へ反映し、各カテゴリは `なし` を除いて20種類になります。ゲーム側は1ページ8個の `まえ` / `つぎ` ページ送りで表示します。
+
 ## AGENTS.md 判定
 
-このメモの追加自体は調査ドキュメントの追加であり、URL ルーティング、SEO、外部連携、データフロー、インフラ、ビルド・実行時前提を変更しません。
+v18 の本番反映は `/games/dressup-next/` のアイテム数と選択UIの振る舞いを変更するため、設計判断として `docs/architecture.yaml`、`docs/architecture.md`、`docs/components/astro-blog.md` と同期します。
 
-Design decision affected: NO
+Design decision affected: YES

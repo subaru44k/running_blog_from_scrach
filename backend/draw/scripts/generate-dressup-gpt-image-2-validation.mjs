@@ -156,6 +156,14 @@ const ITEM_FIT_V17_NORMALIZED_DIR = resolve(ITEM_FIT_V17_DIR, 'normalized');
 const ITEM_FIT_V17_COMPOSITE_DIR = resolve(ITEM_FIT_V17_DIR, 'composite');
 const ITEM_FIT_V17_PREVIEW_PATH = resolve(ITEM_FIT_V17_DIR, 'item-fit-v17-preview.html');
 const ITEM_FIT_V17_REVIEW_PATH = resolve(ITEM_FIT_V17_DIR, 'item-fit-v17-review.md');
+const ITEM_FIT_V18_DIR = resolve(OUTPUT_DIR, 'item-fit-v18-expanded-catalog');
+const ITEM_FIT_V18_RAW_DIR = resolve(ITEM_FIT_V18_DIR, 'raw');
+const ITEM_FIT_V18_CUTOUT_DIR = resolve(ITEM_FIT_V18_DIR, 'cutout');
+const ITEM_FIT_V18_SPLIT_DIR = resolve(ITEM_FIT_V18_DIR, 'split');
+const ITEM_FIT_V18_NORMALIZED_DIR = resolve(ITEM_FIT_V18_DIR, 'normalized');
+const ITEM_FIT_V18_COMPOSITE_DIR = resolve(ITEM_FIT_V18_DIR, 'composite');
+const ITEM_FIT_V18_PREVIEW_PATH = resolve(ITEM_FIT_V18_DIR, 'item-fit-v18-preview.html');
+const ITEM_FIT_V18_REVIEW_PATH = resolve(ITEM_FIT_V18_DIR, 'item-fit-v18-review.md');
 
 const MODEL = 'gpt-image-2';
 const QUALITY = 'medium';
@@ -262,6 +270,11 @@ for (const dir of [
   ITEM_FIT_V17_SPLIT_DIR,
   ITEM_FIT_V17_NORMALIZED_DIR,
   ITEM_FIT_V17_COMPOSITE_DIR,
+  ITEM_FIT_V18_RAW_DIR,
+  ITEM_FIT_V18_CUTOUT_DIR,
+  ITEM_FIT_V18_SPLIT_DIR,
+  ITEM_FIT_V18_NORMALIZED_DIR,
+  ITEM_FIT_V18_COMPOSITE_DIR,
 ]) {
   mkdirSync(dir, { recursive: true });
 }
@@ -782,6 +795,91 @@ const itemFitV17Candidates = [
       'the top of each boot has a flat nearly horizontal cuff edge like a simple cut-off tube, solid boot surface up to the cuff, no visible boot interior, no oval opening, no hole at the top, no dark inside rim, no deep 3D mouth, ' +
       'not oversized, no toe lines, no foot outlines, no skin-colored details, no text, no watermark',
   },
+];
+
+const catalogStyle =
+  'original pastel storybook encyclopedia illustration matching a soft Japanese picture-book fashion encyclopedia, soft watercolor-like coloring, clean fine linework';
+
+const hairAccessoryPrompt = ({ description, avoid = '' }) =>
+  `single small hair accessory layer for a children princess dress-up game, ${catalogStyle}, ` +
+  `front view accessory only, no head, no hair, no face, no body, no mannequin, no shadow, pure white 1024 by 1536 canvas, ` +
+  `${description}, compact and lightweight enough for a front-facing paper doll bob haircut, keep the whole accessory readable but not oversized, ` +
+  `${avoid} no earrings, no necklace, no text, no watermark`;
+
+const necklacePrompt = ({ description }) =>
+  `single small delicate princess necklace layer for a children dress-up game, ${catalogStyle}, ` +
+  'front view, draw only the necklace and no body, no neck, no skin, no dress, no mannequin, no shadow, pure white 1024 by 1536 canvas, ' +
+  `${description}, pendant exactly on the body center line at canvas x 504 y 424, ` +
+  'left chain start near canvas x 452 y 340 and right chain start near canvas x 556 y 340, total visible necklace width between 100 and 125 pixels, ' +
+  'very narrow symmetrical shallow U-shaped chain, small enough to sit on the inner shoulder and collarbone line, do not extend to shoulder straps, no earrings, no tiara, no text, no watermark';
+
+const topPrompt = ({ description }) =>
+  `single modest top clothing layer for a children princess dress-up game, ${catalogStyle}, ` +
+  'front view top only, no head, no face, no neck, no arms, no hands, no legs, no body, no mannequin, no shadow, pure white 1024 by 1536 canvas, ' +
+  `${description}, opaque solid fabric, not sheer, no transparent fabric, modest neckline, simple waist-length hem, ` +
+  'wide enough to cover both shoulders and the full torso of a front-facing paper doll, sleeves or cape edges reach the shoulder edges, body panel is broad and tall enough to cover the base dress bodice, ' +
+  'no skirt, no pants, no jewelry, no text, no watermark';
+
+const bottomPrompt = ({ description }) =>
+  `single long bottom skirt layer for a children princess dress-up game, ${catalogStyle}, ` +
+  'front view skirt only, no torso, no body, no legs, no feet, no mannequin, no shadow, pure white 1024 by 1536 canvas, ' +
+  `${description}, from waist to just below the knees or lower, opaque fabric, not sheer, no transparent tulle, no see-through lace, ` +
+  'vertical silhouette, taller than wide, not a short tutu, centered and symmetrical, designed to overlay a front-facing paper doll waist and cover the base dress hem completely, ' +
+  'no blouse, no shoes, no text, no watermark';
+
+const bootsPrompt = ({ description }) =>
+  `pair of slim short ankle boots only for a children princess dress-up game, ${catalogStyle}, ` +
+  'front view boots only, no legs, no feet, no socks, no skin, no body, no mannequin, no shadow, pure white 1024 by 1536 canvas, ' +
+  `${description}, rounded toes that cover the full toes, narrow ankle width, left boot and right boot are the same size and separated as a matched pair, ` +
+  'the top of each boot has a flat nearly horizontal cuff edge like a simple cut-off tube, solid boot surface up to the cuff, no visible boot interior, no oval opening, no hole at the top, no dark inside rim, no deep 3D mouth, ' +
+  'not oversized, no toe lines, no foot outlines, no skin-colored details, no text, no watermark';
+
+const itemFitV18Candidates = [
+  { id: 'hair-tiara-expanded-fit', type: 'hairAccessory', placement: 'headband', filename: 'hair-tiara-expanded-fit.png', label: 'Hair accessory: tiara expanded fit', prompt: hairAccessoryPrompt({ description: 'tiny gold princess tiara with three small pearl dots, shallow curved base, delicate and not tall', avoid: 'no crown, ' }) },
+  { id: 'hair-crown-expanded-fit', type: 'hairAccessory', placement: 'headband', filename: 'hair-crown-expanded-fit.png', label: 'Hair accessory: crown expanded fit', prompt: hairAccessoryPrompt({ description: 'small rounded gold crown hairband, soft yellow gold with tiny pink jewels, low height and childlike', avoid: 'no large royal crown, ' }) },
+  { id: 'hair-big-ribbon-expanded-fit', type: 'hairAccessory', placement: 'headband', filename: 'hair-big-ribbon-expanded-fit.png', label: 'Hair accessory: big ribbon expanded fit', prompt: hairAccessoryPrompt({ description: 'soft pink bow headband, bow centered near the top, bigger than a clip but still narrow enough for the head', avoid: 'no oversized bow covering the face, ' }) },
+  { id: 'hair-double-ribbon-expanded-fit', type: 'hairAccessory', placement: 'headband', filename: 'hair-double-ribbon-expanded-fit.png', label: 'Hair accessory: double ribbon expanded fit', prompt: hairAccessoryPrompt({ description: 'two tiny lavender bows on a slim invisible headband, symmetrical left and right, playful and simple', avoid: 'no large side bows, ' }) },
+  { id: 'hair-star-pin-expanded-fit', type: 'hairAccessory', placement: 'hairpinRight', filename: 'hair-star-pin-expanded-fit.png', label: 'Hair accessory: star pin expanded fit', prompt: hairAccessoryPrompt({ description: 'tiny pale yellow star hairpin with a short simple pin, suitable for the right side of a bob haircut', avoid: 'no moon, ' }) },
+  { id: 'hair-heart-pin-expanded-fit', type: 'hairAccessory', placement: 'hairpinRight', filename: 'hair-heart-pin-expanded-fit.png', label: 'Hair accessory: heart pin expanded fit', prompt: hairAccessoryPrompt({ description: 'tiny rose pink heart hairpin with a short simple pin, sweet and compact', avoid: 'no large barrette, ' }) },
+  { id: 'hair-strawberry-pin-expanded-fit', type: 'hairAccessory', placement: 'hairpinRight', filename: 'hair-strawberry-pin-expanded-fit.png', label: 'Hair accessory: strawberry pin expanded fit', prompt: hairAccessoryPrompt({ description: 'tiny red strawberry hairpin with two small green leaves and a short simple pin', avoid: 'no food pile, ' }) },
+  { id: 'hair-butterfly-pin-expanded-fit', type: 'hairAccessory', placement: 'hairpinRight', filename: 'hair-butterfly-pin-expanded-fit.png', label: 'Hair accessory: butterfly pin expanded fit', prompt: hairAccessoryPrompt({ description: 'tiny lavender and pink butterfly hairpin with a short simple pin, wings rounded and childlike', avoid: 'no realistic insect, ' }) },
+  { id: 'hair-bunny-ears-expanded-fit', type: 'hairAccessory', placement: 'headband', filename: 'hair-bunny-ears-expanded-fit.png', label: 'Hair accessory: bunny ears expanded fit', prompt: hairAccessoryPrompt({ description: 'small white bunny-ear headband with pale pink inner ears, ears short and rounded, cute and non-realistic', avoid: 'no animal face, ' }) },
+  { id: 'hair-sparkle-band-expanded-fit', type: 'hairAccessory', placement: 'headband', filename: 'hair-sparkle-band-expanded-fit.png', label: 'Hair accessory: sparkle band expanded fit', prompt: hairAccessoryPrompt({ description: 'slim gold sparkle headband with tiny pastel jewel dots, elegant but simple', avoid: 'no tiara spikes, ' }) },
+  { id: 'necklace-sparkle-choker-expanded-fit', type: 'necklace', filename: 'necklace-sparkle-choker-expanded-fit.png', label: 'Necklace: sparkle choker expanded fit', prompt: necklacePrompt({ description: 'a fine pale gold choker-like shallow chain with one tiny pink sparkle jewel charm' }) },
+  { id: 'necklace-gem-expanded-fit', type: 'necklace', filename: 'necklace-gem-expanded-fit.png', label: 'Necklace: gem expanded fit', prompt: necklacePrompt({ description: 'a fine gold chain with one tiny lavender oval gemstone charm' }) },
+  { id: 'necklace-rainbow-expanded-fit', type: 'necklace', filename: 'necklace-rainbow-expanded-fit.png', label: 'Necklace: rainbow expanded fit', prompt: necklacePrompt({ description: 'a fine chain with one tiny pastel rainbow arc charm in pink, yellow, mint, and blue' }) },
+  { id: 'necklace-strawberry-expanded-fit', type: 'necklace', filename: 'necklace-strawberry-expanded-fit.png', label: 'Necklace: strawberry expanded fit', prompt: necklacePrompt({ description: 'a fine pearl chain with one tiny red strawberry charm and two small green leaves' }) },
+  { id: 'necklace-sakura-expanded-fit', type: 'necklace', filename: 'necklace-sakura-expanded-fit.png', label: 'Necklace: sakura expanded fit', prompt: necklacePrompt({ description: 'a fine pearl chain with one tiny pale pink sakura blossom charm' }) },
+  { id: 'necklace-music-expanded-fit', type: 'necklace', filename: 'necklace-music-expanded-fit.png', label: 'Necklace: music expanded fit', prompt: necklacePrompt({ description: 'a fine gold chain with one tiny sky blue music note charm' }) },
+  { id: 'necklace-snow-expanded-fit', type: 'necklace', filename: 'necklace-snow-expanded-fit.png', label: 'Necklace: snow expanded fit', prompt: necklacePrompt({ description: 'a fine silver pearl chain with one tiny pale blue snow crystal charm' }) },
+  { id: 'necklace-tea-party-expanded-fit', type: 'necklace', filename: 'necklace-tea-party-expanded-fit.png', label: 'Necklace: tea party expanded fit', prompt: necklacePrompt({ description: 'a fine gold chain with one tiny cream teacup-shaped jewel charm, very simplified' }) },
+  { id: 'top-cape-expanded-fit', type: 'clothing', placement: 'top', filename: 'top-cape-expanded-fit.png', label: 'Top: cape expanded fit', prompt: topPrompt({ description: 'pale lavender short capelet top with a small cream collar and tiny front ribbon' }) },
+  { id: 'top-heart-expanded-fit', type: 'clothing', placement: 'top', filename: 'top-heart-expanded-fit.png', label: 'Top: heart expanded fit', prompt: topPrompt({ description: 'soft pink blouse with tiny heart pattern and short puff sleeves' }) },
+  { id: 'top-star-expanded-fit', type: 'clothing', placement: 'top', filename: 'top-star-expanded-fit.png', label: 'Top: star expanded fit', prompt: topPrompt({ description: 'sky blue blouse with tiny pale yellow stars and short sleeves' }) },
+  { id: 'top-flower-expanded-fit', type: 'clothing', placement: 'top', filename: 'top-flower-expanded-fit.png', label: 'Top: flower expanded fit', prompt: topPrompt({ description: 'cream blouse with small pastel flower pattern and short sleeves' }) },
+  { id: 'top-strawberry-expanded-fit', type: 'clothing', placement: 'top', filename: 'top-strawberry-expanded-fit.png', label: 'Top: strawberry expanded fit', prompt: topPrompt({ description: 'pale pink blouse with tiny strawberry pattern and rounded sleeves' }) },
+  { id: 'top-raincoat-expanded-fit', type: 'clothing', placement: 'top', filename: 'top-raincoat-expanded-fit.png', label: 'Top: raincoat expanded fit', prompt: topPrompt({ description: 'pastel blue childlike raincoat top with simple collar, small buttons, and short rounded sleeves' }) },
+  { id: 'top-snow-poncho-expanded-fit', type: 'clothing', placement: 'top', filename: 'top-snow-poncho-expanded-fit.png', label: 'Top: snow poncho expanded fit', prompt: topPrompt({ description: 'pale blue warm poncho top with cream trim and tiny snowflake details' }) },
+  { id: 'top-party-jacket-expanded-fit', type: 'clothing', placement: 'top', filename: 'top-party-jacket-expanded-fit.png', label: 'Top: party jacket expanded fit', prompt: topPrompt({ description: 'warm gold and cream short party jacket with small rounded lapels and one tiny bow' }) },
+  { id: 'bottom-sparkle-long-expanded-fit', type: 'clothing', placement: 'bottomLong', filename: 'bottom-sparkle-long-expanded-fit.png', label: 'Bottom: sparkle long expanded fit', prompt: bottomPrompt({ description: 'lavender long skirt with tiny pale yellow star sparkles and gentle vertical folds' }) },
+  { id: 'bottom-heart-long-expanded-fit', type: 'clothing', placement: 'bottomLong', filename: 'bottom-heart-long-expanded-fit.png', label: 'Bottom: heart long expanded fit', prompt: bottomPrompt({ description: 'rose pink long skirt with tiny heart pattern, simple waistband, gentle A-line shape' }) },
+  { id: 'bottom-star-long-expanded-fit', type: 'clothing', placement: 'bottomLong', filename: 'bottom-star-long-expanded-fit.png', label: 'Bottom: star long expanded fit', prompt: bottomPrompt({ description: 'sky blue long skirt with tiny pale yellow stars and clean vertical pleats' }) },
+  { id: 'bottom-flower-long-expanded-fit', type: 'clothing', placement: 'bottomLong', filename: 'bottom-flower-long-expanded-fit.png', label: 'Bottom: flower long expanded fit', prompt: bottomPrompt({ description: 'cream and pink long skirt with tiny pastel flower pattern and soft frill hem' }) },
+  { id: 'bottom-tea-party-expanded-fit', type: 'clothing', placement: 'bottomLong', filename: 'bottom-tea-party-expanded-fit.png', label: 'Bottom: tea party expanded fit', prompt: bottomPrompt({ description: 'warm cream and gold long tea-party skirt with small ribbon decorations and gentle folds' }) },
+  { id: 'bottom-rain-expanded-fit', type: 'clothing', placement: 'bottomLong', filename: 'bottom-rain-expanded-fit.png', label: 'Bottom: rain expanded fit', prompt: bottomPrompt({ description: 'pastel blue long rain skirt with tiny droplet pattern and smooth practical shape' }) },
+  { id: 'bottom-fluffy-warm-expanded-fit', type: 'clothing', placement: 'bottomLong', filename: 'bottom-fluffy-warm-expanded-fit.png', label: 'Bottom: fluffy warm expanded fit', prompt: bottomPrompt({ description: 'pale lavender warm fluffy long skirt with cream trim, soft volume but modest width' }) },
+  { id: 'bottom-princess-expanded-fit', type: 'clothing', placement: 'bottomLong', filename: 'bottom-princess-expanded-fit.png', label: 'Bottom: princess expanded fit', prompt: bottomPrompt({ description: 'pink princess long skirt with simple layered frills and tiny gold ribbon details' }) },
+  { id: 'bottom-ribbon-long-expanded-fit', type: 'clothing', placement: 'bottomLong', filename: 'bottom-ribbon-long-expanded-fit.png', label: 'Bottom: ribbon long expanded fit', prompt: bottomPrompt({ description: 'mint green long skirt with small pink ribbon decorations and a clean waistband' }) },
+  { id: 'boots-rain-expanded-fit', type: 'boots', filename: 'boots-rain-expanded-fit.png', label: 'Boots: rain expanded fit', prompt: bootsPrompt({ description: 'pastel yellow rain boots with tiny blue droplet details kept subtle' }) },
+  { id: 'boots-star-expanded-fit', type: 'boots', filename: 'boots-star-expanded-fit.png', label: 'Boots: star expanded fit', prompt: bootsPrompt({ description: 'sky blue ankle boots with tiny pale yellow star details kept subtle' }) },
+  { id: 'boots-heart-expanded-fit', type: 'boots', filename: 'boots-heart-expanded-fit.png', label: 'Boots: heart expanded fit', prompt: bootsPrompt({ description: 'rose pink ankle boots with tiny heart details kept subtle' }) },
+  { id: 'boots-flower-expanded-fit', type: 'boots', filename: 'boots-flower-expanded-fit.png', label: 'Boots: flower expanded fit', prompt: bootsPrompt({ description: 'cream ankle boots with tiny pink flower details kept subtle' }) },
+  { id: 'boots-fluffy-expanded-fit', type: 'boots', filename: 'boots-fluffy-expanded-fit.png', label: 'Boots: fluffy expanded fit', prompt: bootsPrompt({ description: 'pale lavender ankle boots with a flat cream fluffy cuff drawn as a solid trim' }) },
+  { id: 'boots-snow-expanded-fit', type: 'boots', filename: 'boots-snow-expanded-fit.png', label: 'Boots: snow expanded fit', prompt: bootsPrompt({ description: 'pale blue ankle boots with tiny white snowflake details kept subtle' }) },
+  { id: 'boots-strawberry-expanded-fit', type: 'boots', filename: 'boots-strawberry-expanded-fit.png', label: 'Boots: strawberry expanded fit', prompt: bootsPrompt({ description: 'soft pink ankle boots with tiny strawberry details kept subtle' }) },
+  { id: 'boots-bunny-expanded-fit', type: 'boots', filename: 'boots-bunny-expanded-fit.png', label: 'Boots: bunny expanded fit', prompt: bootsPrompt({ description: 'cream ankle boots with tiny rounded bunny-ear decorations on the front, very small and flat' }) },
+  { id: 'boots-princess-expanded-fit', type: 'boots', filename: 'boots-princess-expanded-fit.png', label: 'Boots: princess expanded fit', prompt: bootsPrompt({ description: 'pale pink princess ankle boots with tiny gold jewel details kept subtle' }) },
+  { id: 'boots-sparkle-expanded-fit', type: 'boots', filename: 'boots-sparkle-expanded-fit.png', label: 'Boots: sparkle expanded fit', prompt: bootsPrompt({ description: 'warm gold and cream ankle boots with tiny sparkle dots kept subtle' }) },
 ];
 
 const itemFitV12Candidates = [
@@ -4103,8 +4201,8 @@ const runItemFitV16FlatCuffBootsBatch = async (previousManifest) => {
   console.log(`item fit v16 review: ${ITEM_FIT_V16_REVIEW_PATH}`);
 };
 
-const renderItemFitV17Preview = ({ selectedStyle, measurements, items }) => {
-  const relative = (path) => toDirectoryRelative(ITEM_FIT_V17_DIR, path);
+const renderItemFitV17Preview = ({ selectedStyle, measurements, items, dir = ITEM_FIT_V17_DIR, batchLabel = 'V17 Game Catalog' }) => {
+  const relative = (path) => toDirectoryRelative(dir, path);
   const basePath = relative(selectedStyle.selectedCutout);
   const cards = items
     .map((item) => {
@@ -4129,7 +4227,7 @@ const renderItemFitV17Preview = ({ selectedStyle, measurements, items }) => {
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Dressup Item Fit V17 Game Catalog Preview</title>
+    <title>Dressup Item Fit ${escapeHtml(batchLabel)} Preview</title>
     <style>
       :root { color-scheme: light; --panel:#fff; --border:#d8e2ec; --text:#142235; --muted:#64758a; --accent:#0f766e; --error:#b42318; }
       * { box-sizing:border-box; }
@@ -4157,7 +4255,7 @@ const renderItemFitV17Preview = ({ selectedStyle, measurements, items }) => {
   <body>
     <main>
       <section class="hero">
-        <p class="eyebrow">DRESSUP ITEM FIT V17 GAME CATALOG</p>
+        <p class="eyebrow">DRESSUP ITEM FIT ${escapeHtml(batchLabel).toUpperCase()}</p>
         <h1>additional selectable items</h1>
         <p class="meta">Base: ${escapeHtml(selectedStyle.selectedStyleCandidateId)}. Top rect: ${escapeHtml(JSON.stringify(measurements.clothing.targetRects.top))}. Bottom rect: ${escapeHtml(JSON.stringify(measurements.longBottom.targetRects.bottomLong))}. Boot rects: ${escapeHtml(JSON.stringify(measurements.style.bootRects))}.</p>
       </section>
@@ -4167,11 +4265,11 @@ const renderItemFitV17Preview = ({ selectedStyle, measurements, items }) => {
 </html>`;
 };
 
-const renderItemFitV17Review = ({ selectedStyle, measurements, items }) => {
+const renderItemFitV17Review = ({ selectedStyle, measurements, items, batchLabel = 'V17 Game Catalog' }) => {
   const rows = items
     .map((item) => `| ${item.label} | ${item.type} | ${item.placement || ''} | ${item.status} | \`${JSON.stringify(item.placedRects || item.placedRect || item.placedAnchors || null)}\` | \`${JSON.stringify(item.alphaStats || null)}\` | [composite](${item.compositePath || ''}) |`)
     .join('\n');
-  return `# Dressup Item Fit V17 Game Catalog Review
+  return `# Dressup Item Fit ${batchLabel} Review
 
 - Base: \`${selectedStyle.selectedStyleCandidateId}\`
 - Model: \`${MODEL}\`
@@ -4196,24 +4294,27 @@ ${rows}
 `;
 };
 
-const processItemFitV17Result = ({ result, selectedStyle, measurements }) => {
+const processItemFitV17Result = ({ result, selectedStyle, measurements, dirs = {} }) => {
   if (result.status !== 'ok') return { ...result, normalizedPath: null, normalizedPaths: [], compositePath: null };
+  const splitDir = dirs.splitDir || ITEM_FIT_V17_SPLIT_DIR;
+  const normalizedDir = dirs.normalizedDir || ITEM_FIT_V17_NORMALIZED_DIR;
+  const compositeDir = dirs.compositeDir || ITEM_FIT_V17_COMPOSITE_DIR;
   const canvas = selectedStyle.canvas;
   const cutoutPath = fromOutputRelative(result.cutoutPath);
 
   if (result.type === 'hairAccessory') {
     const rect = measurements.hair.targetRects[result.placement];
-    const normalizedPath = resolve(ITEM_FIT_V17_NORMALIZED_DIR, result.filename);
+    const normalizedPath = resolve(normalizedDir, result.filename);
     const placement = normalizeToSlot({ sourcePath: cutoutPath, outputPath: normalizedPath, rect, canvas, maxScale: 1, alignY: 0.5 });
-    const compositePath = resolve(ITEM_FIT_V17_COMPOSITE_DIR, `${result.id}-composite.png`);
+    const compositePath = resolve(compositeDir, `${result.id}-composite.png`);
     compositePngs({ basePath: fromOutputRelative(selectedStyle.selectedCutout), layerPaths: [normalizedPath], outputPath: compositePath, canvas });
     return { ...result, sourceBounds: placement.sourceBounds, targetRect: rect, placedRect: placement.placedRect, normalizedPath: toRelative(normalizedPath), compositePath: toRelative(compositePath) };
   }
 
   if (result.type === 'necklace') {
-    const normalizedPath = resolve(ITEM_FIT_V17_NORMALIZED_DIR, result.filename);
+    const normalizedPath = resolve(normalizedDir, result.filename);
     const placement = normalizeNecklaceToStartAnchors({ sourcePath: cutoutPath, outputPath: normalizedPath, targetAnchors: measurements.necklace.targetAnchors, canvas });
-    const compositePath = resolve(ITEM_FIT_V17_COMPOSITE_DIR, `${result.id}-composite.png`);
+    const compositePath = resolve(compositeDir, `${result.id}-composite.png`);
     compositePngs({ basePath: fromOutputRelative(selectedStyle.selectedCutout), layerPaths: [normalizedPath], outputPath: compositePath, canvas });
     return {
       ...result,
@@ -4231,28 +4332,28 @@ const processItemFitV17Result = ({ result, selectedStyle, measurements }) => {
   if (result.type === 'clothing') {
     const measured = result.placement === 'bottomLong' ? measurements.longBottom : measurements.clothing;
     const rect = clothingTargetRect({ placement: result.placement, rect: measured.targetRects[result.placement], canvas });
-    const normalizedPath = resolve(ITEM_FIT_V17_NORMALIZED_DIR, result.filename);
+    const normalizedPath = resolve(normalizedDir, result.filename);
     const placement =
       result.placement === 'bottomLong'
         ? normalizeToSlotStretch({ sourcePath: cutoutPath, outputPath: normalizedPath, rect, canvas, widthRatio: 1, heightRatio: 1, alignY: 0 })
         : normalizeToSlot({ sourcePath: cutoutPath, outputPath: normalizedPath, rect, canvas, maxScale: 1, alignY: 0.5 });
     const alphaStats = reinforceOpaqueInterior({ path: normalizedPath });
-    const compositePath = resolve(ITEM_FIT_V17_COMPOSITE_DIR, `${result.id}-composite.png`);
+    const compositePath = resolve(compositeDir, `${result.id}-composite.png`);
     compositePngs({ basePath: fromOutputRelative(selectedStyle.selectedCutout), layerPaths: [normalizedPath], outputPath: compositePath, canvas });
     return { ...result, sourceBounds: placement.sourceBounds, targetRect: rect, placedRect: placement.placedRect, alphaStats, normalizedPath: toRelative(normalizedPath), compositePath: toRelative(compositePath) };
   }
 
   if (result.type === 'boots') {
-    const leftSplitPath = resolve(ITEM_FIT_V17_SPLIT_DIR, `${result.id}-left.png`);
-    const rightSplitPath = resolve(ITEM_FIT_V17_SPLIT_DIR, `${result.id}-right.png`);
+    const leftSplitPath = resolve(splitDir, `${result.id}-left.png`);
+    const rightSplitPath = resolve(splitDir, `${result.id}-right.png`);
     const split = splitShoeCutout({ sourcePath: cutoutPath, leftPath: leftSplitPath, rightPath: rightSplitPath });
-    const leftNormalizedPath = resolve(ITEM_FIT_V17_NORMALIZED_DIR, `${result.id}-left-opaque.png`);
-    const rightNormalizedPath = resolve(ITEM_FIT_V17_NORMALIZED_DIR, `${result.id}-right-opaque.png`);
+    const leftNormalizedPath = resolve(normalizedDir, `${result.id}-left-opaque.png`);
+    const rightNormalizedPath = resolve(normalizedDir, `${result.id}-right-opaque.png`);
     const leftPlacement = normalizeToSlotStretch({ sourcePath: leftSplitPath, outputPath: leftNormalizedPath, rect: measurements.style.bootRects.leftShoe, canvas, widthRatio: 1, heightRatio: 1, alignY: 1 });
     const rightPlacement = normalizeToSlotStretch({ sourcePath: rightSplitPath, outputPath: rightNormalizedPath, rect: measurements.style.bootRects.rightShoe, canvas, widthRatio: 1, heightRatio: 1, alignY: 1 });
     const leftAlphaStats = reinforceOpaqueInterior({ path: leftNormalizedPath });
     const rightAlphaStats = reinforceOpaqueInterior({ path: rightNormalizedPath });
-    const compositePath = resolve(ITEM_FIT_V17_COMPOSITE_DIR, `${result.id}-composite.png`);
+    const compositePath = resolve(compositeDir, `${result.id}-composite.png`);
     compositePngs({ basePath: fromOutputRelative(selectedStyle.selectedCutout), layerPaths: [leftNormalizedPath, rightNormalizedPath], outputPath: compositePath, canvas });
     return {
       ...result,
@@ -4310,6 +4411,48 @@ const runItemFitV17GameCatalogBatch = async (previousManifest) => {
   console.log(`manifest: ${MANIFEST_PATH}`);
   console.log(`item fit v17 preview: ${ITEM_FIT_V17_PREVIEW_PATH}`);
   console.log(`item fit v17 review: ${ITEM_FIT_V17_REVIEW_PATH}`);
+};
+
+const runItemFitV18ExpandedCatalogBatch = async (previousManifest) => {
+  if (!existsSync(SELECTED_STYLE_PATH)) {
+    throw new Error(`Selected style model is missing: ${SELECTED_STYLE_PATH}`);
+  }
+
+  const selectedStyle = readJson(SELECTED_STYLE_PATH);
+  const measurements = {
+    style: existsSync(ANCHOR_AUDIT_JSON_PATH) ? readJson(ANCHOR_AUDIT_JSON_PATH) : measureStyleModel({ selectedStyle }),
+    hair: measureHairAccessoryStabilityAnchors({ selectedStyle }),
+    necklace: existsSync(NECKLACE_ANCHOR_AUDIT_JSON_PATH) ? readJson(NECKLACE_ANCHOR_AUDIT_JSON_PATH) : measureNecklaceAnchors({ selectedStyle }),
+    clothing: measureClothingAnchors({ selectedStyle }),
+    longBottom: measureLongBottomAnchors({ selectedStyle }),
+  };
+  const itemResults = await runBatch({
+    allCandidates: itemFitV18Candidates,
+    requestedIds: REQUESTED_ITEM_IDS,
+    previousItems: previousManifest.itemFitV18Candidates || [],
+    rawDir: ITEM_FIT_V18_RAW_DIR,
+    cutoutDir: ITEM_FIT_V18_CUTOUT_DIR,
+    label: 'item fit v18 expanded catalog candidates',
+  });
+  const dirs = {
+    splitDir: ITEM_FIT_V18_SPLIT_DIR,
+    normalizedDir: ITEM_FIT_V18_NORMALIZED_DIR,
+    compositeDir: ITEM_FIT_V18_COMPOSITE_DIR,
+  };
+  const processed = itemResults.map((item) => processItemFitV17Result({ result: item, selectedStyle, measurements, dirs }));
+
+  writeFileSync(ITEM_FIT_V18_PREVIEW_PATH, renderItemFitV17Preview({ selectedStyle, measurements, items: processed, dir: ITEM_FIT_V18_DIR, batchLabel: 'V18 Expanded Catalog' }));
+  writeFileSync(ITEM_FIT_V18_REVIEW_PATH, renderItemFitV17Review({ selectedStyle, measurements, items: processed, batchLabel: 'V18 Expanded Catalog' }));
+  writeManifest({
+    ...previousManifest,
+    itemFitV18Dir: ITEM_FIT_V18_DIR,
+    itemFitV18Candidates: processed,
+    itemFitV18SelectedStyle: selectedStyle.selectedStyleCandidateId,
+    itemFitV18Measurements: measurements,
+  });
+  console.log(`manifest: ${MANIFEST_PATH}`);
+  console.log(`item fit v18 preview: ${ITEM_FIT_V18_PREVIEW_PATH}`);
+  console.log(`item fit v18 review: ${ITEM_FIT_V18_REVIEW_PATH}`);
 };
 
 const renderItemFitV11Preview = ({ selectedStyle, measured, items }) => {
@@ -5240,6 +5383,11 @@ const main = async () => {
 
   if (ITEM_BATCH === 'game-catalog-v17') {
     await runItemFitV17GameCatalogBatch(previousManifest);
+    return;
+  }
+
+  if (ITEM_BATCH === 'game-catalog-v18-expansion') {
+    await runItemFitV18ExpandedCatalogBatch(previousManifest);
     return;
   }
 

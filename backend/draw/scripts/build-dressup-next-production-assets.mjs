@@ -211,8 +211,11 @@ const addPreviewAssets = (catalog) => {
         cropImagesToPreview({ sources: [catalogItem.left, catalogItem.right], dest: preview, paddingRatio: 0.18 });
       } else if (slot === 'hairAccessory') {
         const previewSource = hairAccessoryPreviewSources[catalogItem.id];
-        if (!previewSource) throw new Error(`Missing hair accessory preview source: ${catalogItem.id}`);
-        cropArtifactToPreview({ ...previewSource, dest: preview, paddingRatio: 0.16 });
+        if (previewSource) {
+          cropArtifactToPreview({ ...previewSource, dest: preview, paddingRatio: 0.16 });
+        } else {
+          cropImagesToPreview({ sources: [catalogItem.src], dest: preview, paddingRatio: 0.16 });
+        }
       } else {
         cropImagesToPreview({ sources: [catalogItem.src], dest: preview, paddingRatio: 0.14 });
       }
@@ -374,6 +377,71 @@ const sourceAssets = [
   },
 ];
 
+const expandedSimpleAssets = [
+  ['hair-tiara.png', 'item-fit-v18-expanded-catalog/normalized/hair-tiara-expanded-fit.png'],
+  ['hair-crown.png', 'item-fit-v18-expanded-catalog/normalized/hair-crown-expanded-fit.png'],
+  ['hair-big-ribbon.png', 'item-fit-v18-expanded-catalog/normalized/hair-big-ribbon-expanded-fit.png'],
+  ['hair-double-ribbon.png', 'item-fit-v18-expanded-catalog/normalized/hair-double-ribbon-expanded-fit.png'],
+  ['hair-star-pin.png', 'item-fit-v18-expanded-catalog/normalized/hair-star-pin-expanded-fit.png'],
+  ['hair-heart-pin.png', 'item-fit-v18-expanded-catalog/normalized/hair-heart-pin-expanded-fit.png'],
+  ['hair-strawberry-pin.png', 'item-fit-v18-expanded-catalog/normalized/hair-strawberry-pin-expanded-fit.png'],
+  ['hair-butterfly-pin.png', 'item-fit-v18-expanded-catalog/normalized/hair-butterfly-pin-expanded-fit.png'],
+  ['hair-bunny-ears.png', 'item-fit-v18-expanded-catalog/normalized/hair-bunny-ears-expanded-fit.png'],
+  ['hair-sparkle-band.png', 'item-fit-v18-expanded-catalog/normalized/hair-sparkle-band-expanded-fit.png'],
+  ['necklace-sparkle-choker.png', 'item-fit-v18-expanded-catalog/normalized/necklace-sparkle-choker-expanded-fit.png'],
+  ['necklace-gem.png', 'item-fit-v18-expanded-catalog/normalized/necklace-gem-expanded-fit.png'],
+  ['necklace-rainbow.png', 'item-fit-v18-expanded-catalog/normalized/necklace-rainbow-expanded-fit.png'],
+  ['necklace-strawberry.png', 'item-fit-v18-expanded-catalog/normalized/necklace-strawberry-expanded-fit.png'],
+  ['necklace-sakura.png', 'item-fit-v18-expanded-catalog/normalized/necklace-sakura-expanded-fit.png'],
+  ['necklace-music.png', 'item-fit-v18-expanded-catalog/normalized/necklace-music-expanded-fit.png'],
+  ['necklace-snow.png', 'item-fit-v18-expanded-catalog/normalized/necklace-snow-expanded-fit.png'],
+  ['necklace-tea-party.png', 'item-fit-v18-expanded-catalog/normalized/necklace-tea-party-expanded-fit.png'],
+  ['top-cape.png', 'item-fit-v18-expanded-catalog/normalized/top-cape-expanded-fit.png'],
+  ['top-heart.png', 'item-fit-v18-expanded-catalog/normalized/top-heart-expanded-fit.png'],
+  ['top-star.png', 'item-fit-v18-expanded-catalog/normalized/top-star-expanded-fit.png'],
+  ['top-flower.png', 'item-fit-v18-expanded-catalog/normalized/top-flower-expanded-fit.png'],
+  ['top-strawberry.png', 'item-fit-v18-expanded-catalog/normalized/top-strawberry-expanded-fit.png'],
+  ['top-raincoat.png', 'item-fit-v18-expanded-catalog/normalized/top-raincoat-expanded-fit.png'],
+  ['top-snow-poncho.png', 'item-fit-v18-expanded-catalog/normalized/top-snow-poncho-expanded-fit.png'],
+  ['top-party-jacket.png', 'item-fit-v18-expanded-catalog/normalized/top-party-jacket-expanded-fit.png'],
+  ['bottom-sparkle-long.png', 'item-fit-v18-expanded-catalog/normalized/bottom-sparkle-long-expanded-fit.png'],
+  ['bottom-heart-long.png', 'item-fit-v18-expanded-catalog/normalized/bottom-heart-long-expanded-fit.png'],
+  ['bottom-star-long.png', 'item-fit-v18-expanded-catalog/normalized/bottom-star-long-expanded-fit.png'],
+  ['bottom-flower-long.png', 'item-fit-v18-expanded-catalog/normalized/bottom-flower-long-expanded-fit.png'],
+  ['bottom-tea-party.png', 'item-fit-v18-expanded-catalog/normalized/bottom-tea-party-expanded-fit.png'],
+  ['bottom-rain.png', 'item-fit-v18-expanded-catalog/normalized/bottom-rain-expanded-fit.png'],
+  ['bottom-fluffy-warm.png', 'item-fit-v18-expanded-catalog/normalized/bottom-fluffy-warm-expanded-fit.png'],
+  ['bottom-princess.png', 'item-fit-v18-expanded-catalog/normalized/bottom-princess-expanded-fit.png'],
+  ['bottom-ribbon-long.png', 'item-fit-v18-expanded-catalog/normalized/bottom-ribbon-long-expanded-fit.png'],
+];
+
+const expandedBoots = [
+  ['boots-rain', 'boots-rain-expanded-fit'],
+  ['boots-star', 'boots-star-expanded-fit'],
+  ['boots-heart', 'boots-heart-expanded-fit'],
+  ['boots-flower', 'boots-flower-expanded-fit'],
+  ['boots-fluffy', 'boots-fluffy-expanded-fit'],
+  ['boots-snow', 'boots-snow-expanded-fit'],
+  ['boots-strawberry', 'boots-strawberry-expanded-fit'],
+  ['boots-bunny', 'boots-bunny-expanded-fit'],
+  ['boots-princess', 'boots-princess-expanded-fit'],
+  ['boots-sparkle', 'boots-sparkle-expanded-fit'],
+];
+
+sourceAssets.push(
+  ...expandedSimpleAssets.map(([dest, source]) => ({ dest, source: fromArtifact(source) })),
+  ...expandedBoots.flatMap(([destPrefix, sourcePrefix]) => [
+    {
+      dest: `${destPrefix}-left.png`,
+      source: fromArtifact(`item-fit-v18-expanded-catalog/normalized/${sourcePrefix}-left-opaque.png`),
+    },
+    {
+      dest: `${destPrefix}-right.png`,
+      source: fromArtifact(`item-fit-v18-expanded-catalog/normalized/${sourcePrefix}-right-opaque.png`),
+    },
+  ])
+);
+
 sourceAssets.forEach(copyAsset);
 
 const variants = [
@@ -410,6 +478,64 @@ const variants = [
 
 variants.forEach(([sourceDest, dest, tint, amount]) => makeVariant({ sourceDest, dest, tint, amount }));
 
+const expandedCatalog = {
+  hairAccessory: [
+    item('tiara', 'ティアラ', 'きらきら ひめ', 'hair-tiara.png'),
+    item('crown', 'かんむり', 'ちいさな おうかん', 'hair-crown.png'),
+    item('big-ribbon', 'ビッグリボン', 'ふんわり リボン', 'hair-big-ribbon.png'),
+    item('double-ribbon', 'ふたつリボン', 'なかよし リボン', 'hair-double-ribbon.png'),
+    item('star-pin', 'ほしピン', 'ぴかっと ほし', 'hair-star-pin.png'),
+    item('heart-pin', 'ハートピン', 'あまい ハート', 'hair-heart-pin.png'),
+    item('strawberry-pin', 'いちごピン', 'あかい いちご', 'hair-strawberry-pin.png'),
+    item('butterfly-pin', 'ちょうちょピン', 'ひらひら ちょう', 'hair-butterfly-pin.png'),
+    item('bunny-ears', 'うさみみ', 'ぴょこんと かわいい', 'hair-bunny-ears.png'),
+    item('sparkle-band', 'きらきらバンド', 'ほうせき きらり', 'hair-sparkle-band.png'),
+  ],
+  necklace: [
+    item('sparkle-choker', 'きらきらチョーカー', 'ほうせき きらり', 'necklace-sparkle-choker.png'),
+    item('gem', 'ほうせきネックレス', 'むらさき ほうせき', 'necklace-gem.png'),
+    item('rainbow', 'にじいろネックレス', 'いろが たのしい', 'necklace-rainbow.png'),
+    item('strawberry', 'いちごネックレス', 'あかい いちご', 'necklace-strawberry.png'),
+    item('sakura', 'さくらネックレス', 'さくらの お花', 'necklace-sakura.png'),
+    item('music', 'おんぷネックレス', 'うたが すきそう', 'necklace-music.png'),
+    item('snow', 'ゆきネックレス', 'ゆきの きらきら', 'necklace-snow.png'),
+    item('tea-party', 'ティーネックレス', 'おちゃかい みたい', 'necklace-tea-party.png'),
+  ],
+  top: [
+    item('cape', 'ケープトップス', 'おひめさま ケープ', 'top-cape.png'),
+    item('heart', 'ハートブラウス', 'ハート いっぱい', 'top-heart.png'),
+    item('star', 'ほしブラウス', 'ほしが きらきら', 'top-star.png'),
+    item('flower', 'お花ブラウス', 'お花 いっぱい', 'top-flower.png'),
+    item('strawberry', 'いちごトップス', 'いちごが ちょこん', 'top-strawberry.png'),
+    item('raincoat', 'レインコート', 'あめのひ へいき', 'top-raincoat.png'),
+    item('snow-poncho', 'ゆきポンチョ', 'あったか ゆき', 'top-snow-poncho.png'),
+    item('party-jacket', 'パーティージャケット', 'ちょっぴり ごうか', 'top-party-jacket.png'),
+  ],
+  bottom: [
+    item('sparkle-long', 'きらきらロング', 'ほしが ひかる', 'bottom-sparkle-long.png'),
+    item('heart-long', 'ハートロング', 'ハート いっぱい', 'bottom-heart-long.png'),
+    item('star-long', 'ほしロング', 'ほしが きらり', 'bottom-star-long.png'),
+    item('flower-long', 'お花ロング', 'お花が かわいい', 'bottom-flower-long.png'),
+    item('tea-party', 'ティーパーティー', 'おちゃかい みたい', 'bottom-tea-party.png'),
+    item('rain', 'あめのひスカート', 'しずく もよう', 'bottom-rain.png'),
+    item('fluffy-warm', 'ふわもこロング', 'ぬくぬく ロング', 'bottom-fluffy-warm.png'),
+    item('princess', 'プリンセス', 'おひめさま みたい', 'bottom-princess.png'),
+    item('ribbon-long', 'リボンロング', 'リボンが いっぱい', 'bottom-ribbon-long.png'),
+  ],
+  shoes: [
+    shoe('rain-boots', 'レインブーツ', 'あめでも あんしん', 'boots-rain-left.png', 'boots-rain-right.png'),
+    shoe('star-boots', 'ほしブーツ', 'ほしが きらり', 'boots-star-left.png', 'boots-star-right.png'),
+    shoe('heart-boots', 'ハートブーツ', 'ハート かわいい', 'boots-heart-left.png', 'boots-heart-right.png'),
+    shoe('flower-boots', 'お花ブーツ', 'お花が ちょこん', 'boots-flower-left.png', 'boots-flower-right.png'),
+    shoe('fluffy-boots', 'ふわもこブーツ', 'あったか ふわふわ', 'boots-fluffy-left.png', 'boots-fluffy-right.png'),
+    shoe('snow-boots', 'ゆきブーツ', 'ゆきの もよう', 'boots-snow-left.png', 'boots-snow-right.png'),
+    shoe('strawberry-boots', 'いちごブーツ', 'いちごが かわいい', 'boots-strawberry-left.png', 'boots-strawberry-right.png'),
+    shoe('bunny-boots', 'うさぎブーツ', 'ぴょこんと かわいい', 'boots-bunny-left.png', 'boots-bunny-right.png'),
+    shoe('princess-boots', 'プリンセスブーツ', 'ひめの ブーツ', 'boots-princess-left.png', 'boots-princess-right.png'),
+    shoe('sparkle-boots', 'きらきらブーツ', 'きらっと ひかる', 'boots-sparkle-left.png', 'boots-sparkle-right.png'),
+  ],
+};
+
 const catalog = {
   assetBase: '/images/games/dressup-next/',
   slots: ['hairAccessory', 'necklace', 'top', 'bottom', 'shoes'],
@@ -434,6 +560,7 @@ const catalog = {
       item('mint-lace', 'ミントレース', 'さわやか レース', 'headband-slim-lace-mint.png'),
       item('lavender-flower', 'ラベンダー花', 'むらさきの お花', 'hairpin-flower-lavender.png'),
       item('blue-ribbon', 'ブルーリボン', 'すっきり ブルー', 'hairband-tiny-ribbon-blue.png'),
+      ...expandedCatalog.hairAccessory,
     ],
     necklace: [
       item('none', 'なし', 'そのまま', null),
@@ -449,6 +576,7 @@ const catalog = {
       item('mint-pearl', 'ミントパール', 'みどりの きらきら', 'necklace-pearl-mint.png'),
       item('gold-heart', 'ゴールドハート', 'あたたかい きいろ', 'necklace-heart-gold.png'),
       item('cream-ribbon', 'クリームリボン', 'ふんわり きいろ', 'necklace-ribbon-cream.png'),
+      ...expandedCatalog.necklace,
     ],
     top: [
       item('none', 'なし', 'ベース', null),
@@ -464,6 +592,7 @@ const catalog = {
       item('mint-sailor', 'ミントセーラー', 'みどりの セーラー', 'top-sailor-mint.png'),
       item('pink-puff', 'ピンクパフ', 'かわいい そで', 'top-puff-pink.png'),
       item('sky-puff', 'そらいろパフ', 'ふんわり ブルー', 'top-puff-sky.png'),
+      ...expandedCatalog.top,
     ],
     bottom: [
       item('none', 'なし', 'ベース', null),
@@ -478,6 +607,7 @@ const catalog = {
       item('mint-a-line', 'ミントAライン', 'みどりの スカート', 'bottom-a-line-mint.png'),
       item('rose-ribbon', 'ローズリボン', 'ピンクの リボン', 'bottom-ribbon-rose.png'),
       item('lavender-ribbon', 'ラベンダーリボン', 'むらさき リボン', 'bottom-ribbon-lavender.png'),
+      ...expandedCatalog.bottom,
     ],
     shoes: [
       { id: 'none', label: 'なし', note: 'そのまま' },
@@ -491,6 +621,7 @@ const catalog = {
       shoe('cream-lavender', 'クリームスター', 'ほしが かわいい', 'boots-lavender-cream-left.png', 'boots-lavender-cream-right.png'),
       shoe('sky-ribbon', 'ブルーリボン', 'すっきり ブルー', 'boots-ribbon-sky-left.png', 'boots-ribbon-sky-right.png'),
       shoe('mint-button', 'ミントボタン', 'みどりの ボタン', 'boots-rose-mint-left.png', 'boots-rose-mint-right.png'),
+      ...expandedCatalog.shoes,
     ],
   },
 };
