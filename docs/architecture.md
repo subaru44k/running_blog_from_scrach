@@ -42,6 +42,7 @@ flowchart LR
 
 ## URL設計と404方針
 - `/` は PDF圧縮、ペース計算、お絵かきゲーム、ミニゲーム、ブログへのハブページ。
+- `/` はWebP化した生成画像を含むビジュアルハブとして、主要コンテンツへの導線をファーストビューと直下に配置する。生成画像は補助的な視覚要素であり、意味のあるラベルやCTAはHTMLテキストで提供する。
 - ブログUIは `/blog/` に集約（記事URLは `/<slug>/` のまま）。
 - `/draw/` は「30秒お絵描き採点ゲーム」のフロントページ。`/draw/archive/`（月別Top20）・`/draw/play/`・`/draw/result/` を含む。
 - `/games/` は軽量なミニゲーム集のハブ。`/games/balloon-catch/`、`/games/dressup/`、`/games/dressup-next/`、`/games/match-quiz/`、`/games/janken/`、`/games/clock/`、`/games/snake/`、`/games/maze/`、`/games/tic-tac-toe/`、`/games/reversi/` を含む。

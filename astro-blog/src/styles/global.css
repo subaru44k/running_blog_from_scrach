@@ -74,6 +74,16 @@
   .panel-muted {
     @apply rounded-2xl border border-white/70 bg-white/70 dark:border-slate-800/70 dark:bg-slate-900/60 backdrop-blur;
   }
+  .hero-media {
+    @apply relative overflow-hidden bg-white/60 dark:bg-slate-900/70;
+  }
+  .hero-media::after {
+    content: '';
+    @apply pointer-events-none absolute inset-0 ring-1 ring-inset ring-white/35 dark:ring-white/10;
+  }
+  .home-feature-media {
+    @apply h-52 w-full object-cover md:h-64;
+  }
   .page-lead {
     @apply max-w-3xl text-[15px] md:text-base leading-7 text-slate-600 dark:text-slate-300;
   }

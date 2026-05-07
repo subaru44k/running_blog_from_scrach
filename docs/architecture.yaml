@@ -97,6 +97,16 @@ site:
     - 30-second drawing scoring game
     - mini games
     - running logs and race reports
+  presentation:
+    home_page:
+      role: visual hub for primary content
+      generated_assets:
+        - astro-blog/public/images/site/home-hero.webp
+        - astro-blog/public/images/site/tools-visual.webp
+        - astro-blog/public/images/site/games-visual.webp
+      notes:
+        - generated images are decorative/supporting visuals only; all meaningful labels and calls to action remain HTML text
+        - top page keeps direct routes to tools, games, and blog content visible before lower supporting links
   routing:
     canonical_routes:
       - /
