@@ -41,7 +41,7 @@ flowchart LR
 ```
 
 ## URL設計と404方針
-- `/` はツールへのハブページ。
+- `/` は PDF圧縮、ペース計算、お絵かきゲーム、ミニゲーム、ブログへのハブページ。
 - ブログUIは `/blog/` に集約（記事URLは `/<slug>/` のまま）。
 - `/draw/` は「30秒お絵描き採点ゲーム」のフロントページ。`/draw/archive/`（月別Top20）・`/draw/play/`・`/draw/result/` を含む。
 - `/games/` は軽量なミニゲーム集のハブ。`/games/balloon-catch/`、`/games/dressup/`、`/games/dressup-next/`、`/games/match-quiz/`、`/games/janken/`、`/games/clock/`、`/games/snake/`、`/games/maze/`、`/games/tic-tac-toe/`、`/games/reversi/` を含む。
@@ -63,10 +63,12 @@ flowchart LR
 - 404ページは **canonical を出さない**、`robots` は **noindex,follow**。
 
 ## SEO / AdSense 方針
+- HTML の言語指定は日本語サイトとして `ja` に統一する。
 - canonical は正規URLに対してのみ出力。
 - 404ページは noindex,follow。
 - sitemap は Astro 側で生成（`sitemap.xml.ts`）。
 - AdSense 用 `ads.txt` は `astro-blog/public/ads.txt` から `/ads.txt` として静的配信する。
+- AdSense 審査向けに、トップページと About で PDF圧縮、ペース計算、お絵かきゲーム、ミニゲーム、ブログを主要コンテンツとして明示する。
 - UI文言は日本語に統一し、信頼性/透明性の説明（about/contact/privacy）を明示。
 - ランニング記事のうち `練習(弱)` `練習(中)` `練習(デフォルト)` は、個別記事ページを `noindex,follow` にする。
 - 月次サマリー記事（slug に `-summary-` を含むもの）も個別記事ページを `noindex,follow` にする。

@@ -90,6 +90,13 @@ repo:
         - backend/draw/src/handlers/monthlyCleanup.ts
 
 site:
+  language: ja
+  primary_content:
+    - PDF compression tool
+    - running pace calculator
+    - 30-second drawing scoring game
+    - mini games
+    - running logs and race reports
   routing:
     canonical_routes:
       - /
@@ -129,6 +136,9 @@ site:
   seo:
     adsense:
       client: ca-pub-7941378059940304
+      content_presentation:
+        - top page links to the drawing game and mini games as primary site content
+        - about page explains tools, games, and running logs consistently with the live navigation
       ads_txt:
         route: /ads.txt
         source: astro-blog/public/ads.txt
