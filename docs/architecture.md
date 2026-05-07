@@ -69,6 +69,9 @@ flowchart LR
 - sitemap は Astro 側で生成（`sitemap.xml.ts`）。
 - AdSense 用 `ads.txt` は `astro-blog/public/ads.txt` から `/ads.txt` として静的配信する。
 - AdSense 審査向けに、トップページと About で PDF圧縮、ペース計算、お絵かきゲーム、ミニゲーム、ブログを主要コンテンツとして明示する。
+- AdSense 審査向けに、Privacy では Google と第三者配信事業者の広告 Cookie、パーソナライズ広告、オプトアウト導線、お絵かきゲームの画像/ランキングデータの扱いを明示する。
+- `/draw/` と `/games/match-quiz/` は、インタラクティブ UI だけでなく、遊び方・データの扱い・向いている場面などの本文を持つ。
+- Contact は X を唯一の公開連絡先とし、不具合報告、削除依頼、プライバシー、広告 Cookie 関連問い合わせを受け付けることを明示する。
 - UI文言は日本語に統一し、信頼性/透明性の説明（about/contact/privacy）を明示。
 - ランニング記事のうち `練習(弱)` `練習(中)` `練習(デフォルト)` は、個別記事ページを `noindex,follow` にする。
 - 月次サマリー記事（slug に `-summary-` を含むもの）も個別記事ページを `noindex,follow` にする。

@@ -139,6 +139,13 @@ site:
       content_presentation:
         - top page links to the drawing game and mini games as primary site content
         - about page explains tools, games, and running logs consistently with the live navigation
+        - draw and match-quiz pages include explanatory publisher content beyond the interactive UI
+        - contact page lists accepted inquiry types while using X as the only public contact channel
+      privacy_required_content:
+        - disclose Google and third-party ad cookies
+        - disclose personalized ads based on visits to this and other sites
+        - link to Google Ads Settings and aboutads.info choices
+        - describe drawing game image/ranking data use
       ads_txt:
         route: /ads.txt
         source: astro-blog/public/ads.txt
