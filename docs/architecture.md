@@ -66,6 +66,7 @@ flowchart LR
 - canonical は正規URLに対してのみ出力。
 - 404ページは noindex,follow。
 - sitemap は Astro 側で生成（`sitemap.xml.ts`）。
+- AdSense 用 `ads.txt` は `astro-blog/public/ads.txt` から `/ads.txt` として静的配信する。
 - UI文言は日本語に統一し、信頼性/透明性の説明（about/contact/privacy）を明示。
 - ランニング記事のうち `練習(弱)` `練習(中)` `練習(デフォルト)` は、個別記事ページを `noindex,follow` にする。
 - 月次サマリー記事（slug に `-summary-` を含むもの）も個別記事ページを `noindex,follow` にする。

@@ -19,6 +19,7 @@ AWS CLI の標準プロファイル（`codex-prod`）と実行主体も `docs/aw
   - Pages: Hub (`/`), Blog (`/blog/`), Archive (`/archive/`), Draw (`/draw/`), Mini Games (`/games/` incl. balloon-catch/dressup/match-quiz/janken/clock/snake/maze/tic-tac-toe/reversi), Running Pace (`/running-pace/`), PDF Compressor (`/pdf-compress/`), About, Contact, Privacy, 404
   - Async calendar data at `GET /cal-map/{YYYY}/{MM}.json` reduces page weight
   - Google Analytics (gtag) with IP anonymization and AdSense snippet
+  - AdSense `ads.txt` is served from `/ads.txt`
   - CodeBuild buildspec (`astro-blog/buildspec.yml`) for S3 + CloudFront deploy
 - `pdf-compress-service/`
   - Lambda container image with Ghostscript to compress PDFs
@@ -66,6 +67,7 @@ AWS CLI の標準プロファイル（`codex-prod`）と実行主体も `docs/aw
 - Analytics & Ads
   - GA (gtag) is included with `anonymize_ip: true` (see `src/layouts/Layout.astro`)
   - AdSense script is included in the page head
+  - AdSense `ads.txt` is published from `public/ads.txt`
 
 ## Deploy (CodeBuild → S3 + CloudFront)
 

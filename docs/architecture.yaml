@@ -5,6 +5,7 @@ repo:
         - astro-blog/src/pages
         - astro-blog/src/layouts/Layout.astro
         - astro-blog/src/content
+        - astro-blog/public
       integrations:
         - tailwind
         - react
@@ -53,6 +54,7 @@ repo:
           - /privacy/
           - /about/
         generated:
+          - /ads.txt
           - /sitemap.xml
           - /category-map.json
           - /cal-map.json
@@ -125,6 +127,12 @@ site:
         canonical: disabled
         robots: noindex,follow
   seo:
+    adsense:
+      client: ca-pub-7941378059940304
+      ads_txt:
+        route: /ads.txt
+        source: astro-blog/public/ads.txt
+        content: "google.com, pub-7941378059940304, DIRECT, f08c47fec0942fa0"
     article_noindex_categories:
       - 練習(弱)
       - 練習(中)
