@@ -3,7 +3,7 @@ import Layout from '../../layouts/Layout.astro';
 import DrawStart from '../../components/draw/DrawStart';
 
 const pageTitle = '30秒お絵描き採点ゲーム｜Subaru is Running';
-const metaDescription = '30秒でお題を描き、AI採点とランキングを楽しめるブラウザゲームです。月別ランキングや過去のお題も確認できます。';
+const metaDescription = '毎月のお題を30秒で描き、AI採点の点数や講評、月別ランキングを楽しめるブラウザお絵描きゲームです。過去のお題と上位作品も確認できます。';
 ---
 
 <Layout
@@ -11,7 +11,7 @@ const metaDescription = '30秒でお題を描き、AI採点とランキングを
   metaDescription={metaDescription}
   noSidebar={true}
   pageHeading="30秒お絵描き採点ゲーム"
-  pageLead="今日のお題にチャレンジして、30秒で描いた絵をAIが採点します。結果を見たり、月別ランキングに挑戦したりできるブラウザゲームです。"
+  pageLead="毎月のお題にチャレンジして、30秒で描いた絵をAIが採点します。点数や講評を見たり、月別ランキングに挑戦したり、過去のお題の上位作品を眺めたりできるブラウザゲームです。"
 >
   <section class="grid gap-6 lg:grid-cols-[minmax(0,1fr)_18rem] lg:items-start">
     <article class="card p-5 md:p-6">
@@ -30,15 +30,55 @@ const metaDescription = '30秒でお題を描き、AI採点とランキングを
   <section class="mt-8 grid gap-5 lg:grid-cols-3">
     <article class="panel-muted p-5">
       <h2 class="text-lg font-semibold mt-0">遊び方</h2>
-      <p class="mt-3 text-sm leading-7 text-slate-600 dark:text-slate-300">毎月のお題を確認し、30秒以内に画面上で絵を描きます。登録なしで始められ、描き終わると結果画面で点数と講評を確認できます。</p>
+      <p class="mt-3 text-sm leading-7 text-slate-600 dark:text-slate-300">毎月のお題を確認し、30秒以内に画面上で絵を描きます。登録なしで始められ、うまさを厳密に競うよりも、短い時間でお題の特徴をどう表すかを楽しむゲームです。</p>
     </article>
     <article class="panel-muted p-5">
       <h2 class="text-lg font-semibold mt-0">採点とランキング</h2>
-      <p class="mt-3 text-sm leading-7 text-slate-600 dark:text-slate-300">採点では点数、講評、ちょっとした改善のヒントを表示します。ランキングは月ごとのお題別に集計し、過去の上位作品もアーカイブから見られます。</p>
+      <p class="mt-3 text-sm leading-7 text-slate-600 dark:text-slate-300">採点結果では点数、講評、ちょっとした改善のヒントを表示します。ランキングは月ごとのお題別に集計し、過去の上位作品や自分の結果をアーカイブから振り返れます。</p>
     </article>
     <article class="panel-muted p-5">
       <h2 class="text-lg font-semibold mt-0">画像の扱い</h2>
-      <p class="mt-3 text-sm leading-7 text-slate-600 dark:text-slate-300">描いた画像は採点とランキング表示のためにアップロードされます。不適切な投稿や削除依頼があった場合は、運営者の判断で非表示または削除することがあります。</p>
+      <p class="mt-3 text-sm leading-7 text-slate-600 dark:text-slate-300">描いた画像は採点、結果画面、ランキング表示のためにアップロードされます。不適切な投稿や削除依頼があった場合は、運営者の判断で非表示または削除することがあります。</p>
     </article>
+  </section>
+
+  <section class="card mt-8 p-5 md:p-6">
+    <h2 class="text-xl font-semibold mt-0">このゲームで楽しめること</h2>
+    <div class="mt-4 grid gap-4 md:grid-cols-2">
+      <div>
+        <h3 class="text-base font-semibold mt-0 mb-2">30秒で描く面白さ</h3>
+        <p class="text-sm leading-7 text-slate-600 dark:text-slate-300">時間が短いので、線のきれいさよりも「何を描いたか」が伝わる工夫が大事になります。細かく描き込む日も、思い切って形だけで表す日も、短時間ならではの違いが出ます。</p>
+      </div>
+      <div>
+        <h3 class="text-base font-semibold mt-0 mb-2">月替わりのお題</h3>
+        <p class="text-sm leading-7 text-slate-600 dark:text-slate-300">お題は月ごとに変わります。同じ月の参加作品はランキングで比べられ、月が変わった後もアーカイブから過去のお題と上位作品を見られます。</p>
+      </div>
+      <div>
+        <h3 class="text-base font-semibold mt-0 mb-2">ランキングとアーカイブ</h3>
+        <p class="text-sm leading-7 text-slate-600 dark:text-slate-300">ランキングでは、その月のお題で上位に入った作品を確認できます。アーカイブは月別に整理しているので、過去にどんなお題が出たか、どんな表現が高く評価されたかを見返せます。</p>
+      </div>
+      <div>
+        <h3 class="text-base font-semibold mt-0 mb-2">短い時間で遊べる</h3>
+        <p class="text-sm leading-7 text-slate-600 dark:text-slate-300">1回のプレイは30秒なので、少しだけ遊びたいときや、子どもと一緒に画面を見ながら描いてみる時間にも向いています。絵の練習というより、気軽な発想ゲームとして遊べます。</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="panel-muted mt-8 p-5 md:p-6">
+    <h2 class="text-xl font-semibold mt-0">よくある質問</h2>
+    <div class="mt-4 space-y-4">
+      <div>
+        <h3 class="text-base font-semibold mt-0 mb-2">Q. 絵が上手くないと楽しめませんか？</h3>
+        <p class="text-sm leading-7 text-slate-600 dark:text-slate-300">上手さだけを競うゲームではありません。30秒でお題の特徴を伝える遊びなので、シンプルな線や思いつきの表現でも楽しめます。</p>
+      </div>
+      <div>
+        <h3 class="text-base font-semibold mt-0 mb-2">Q. 採点は何を見ていますか？</h3>
+        <p class="text-sm leading-7 text-slate-600 dark:text-slate-300">AIが、お題らしさや特徴の伝わりやすさをもとに点数、講評、改善のヒントを返します。厳密な美術評価ではなく、ゲームとしての採点です。</p>
+      </div>
+      <div>
+        <h3 class="text-base font-semibold mt-0 mb-2">Q. 投稿した画像はどこで使われますか？</h3>
+        <p class="text-sm leading-7 text-slate-600 dark:text-slate-300">投稿した画像、点数、講評、表示名は、採点結果、ランキング、月別アーカイブの表示に使われます。詳しい扱いはプライバシーポリシーにまとめています。</p>
+      </div>
+    </div>
   </section>
 </Layout>
