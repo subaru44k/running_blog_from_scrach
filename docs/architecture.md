@@ -3,6 +3,7 @@
 このリポジトリは、Astro 静的サイト（公開サイト）、管理用ツール群、Fitbit連携のLambda群、PDF圧縮サービス（Docker/Lambda）で構成されます。公開サイトは静的配信、ツールはAPIと外部サービス連携を前提としています。
 運用上のガードレール（同時実行・TTL・サイズ上限・CORSなど）は `docs/ops-parameters.md` に集約しています。
 フロントの検証用には、ブログ記事生成を省略する `ASTRO_BUILD_NO_POSTS=1` のクイックビルドを利用できます。ブログ記事一覧は `astro-blog/src/lib/blog-index.ts` に集約し、ビルド中に同じ content collection を何度も組み立てないようにしています。出力互換性の確認には `.dist-baseline` と `dist` を `npm run compare:dist --prefix astro-blog` で比較します。
+Astroサイトの本番デプロイは CodeBuild から S3 + CloudFront へ行います。CodeBuild は Node.js 20 runtime と npm cache を使い、月次サマリーは `{YYYY-MM}-summary.md` の安定slugで生成します。S3同期は `--size-only --only-show-errors --no-progress` を使い、静的生成時のmtime差だけで全成果物を再アップロードしない方針です。
 
 ## 全体像
 
@@ -75,7 +76,7 @@ flowchart LR
 - Contact は X を唯一の公開連絡先とし、不具合報告、削除依頼、プライバシー、広告 Cookie 関連問い合わせを受け付けることを明示する。
 - UI文言は日本語に統一し、信頼性/透明性の説明（about/contact/privacy）を明示。
 - ランニング記事のうち `練習(弱)` `練習(中)` `練習(デフォルト)` は、個別記事ページを `noindex,follow` にする。
-- 月次サマリー記事（slug に `-summary-` を含むもの）も個別記事ページを `noindex,follow` にする。
+- 月次サマリー記事（slug に `-summary-` を含むもの、または `-summary` で終わるもの）も個別記事ページを `noindex,follow` にする。
 - 上記3カテゴリの記事は sitemap から除外する。
 - 月次サマリー記事も sitemap から除外する。
 - ただし `/blog/` や `/archive/` などの一覧ページには残し、人向けの導線は維持する。

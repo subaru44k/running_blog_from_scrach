@@ -26,10 +26,17 @@ Astroで生成する静的サイト本体。ブログ、PDF圧縮、ペース計
 - 外部API:
   - `PUBLIC_PDF_API_BASE` の `/sign-upload` と `/compress`
   - `PUBLIC_DRAW_API_BASE` の `/api/draw/*`（prompt/upload-url/submit/leaderboard/submission）
+- CodeBuild:
+  - Node.js 20 runtime を buildspec の `runtime-versions` で指定する
+  - npm cache は `/root/.npm/**/*`
+  - 月次サマリーは `admin-app/scripts/generate-monthly-summary.js --force` で `{YYYY-MM}-summary.md` に安定生成する
+  - S3同期は `aws s3 sync ... --delete --size-only --only-show-errors --no-progress`
+  - buildspec は npm install、summary、Astro build、sanity、S3 sync、CloudFront invalidation request の所要秒数をログ出力する
 
 ## 404/SEOポリシー
 - 404ページは `/404.html` を返す（CloudFrontのカスタムエラー応答によりHTTP 404）。
 - 404は `canonical` を出さず、`noindex,follow`。
+- 月次サマリー記事は `*-summary-*` と `*-summary` の両方を noindex / sitemap 除外対象として扱う。
 
 ## ローカル実行（分かる範囲）
 - 依存インストール: `npm ci --prefix astro-blog`

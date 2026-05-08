@@ -5,8 +5,9 @@ export const prerender = true;
 export async function GET() {
   const site = import.meta.env.SITE?.replace(/\/?$/, '/') || 'https://subaru-is-running.com/';
   const excludedCategories = new Set(['練習(弱)', '練習(中)', '練習(デフォルト)']);
+  const isSummaryPost = (slug: string) => slug.includes('-summary-') || slug.endsWith('-summary');
   const posts = (await getSortedPublishedBlogPosts()).filter(
-    (post) => !excludedCategories.has(post.data.category) && !post.slug.includes('-summary-')
+    (post) => !excludedCategories.has(post.data.category) && !isSummaryPost(post.slug)
   );
 
   const latestPostDate = posts[0]?.data.date ?? new Date();

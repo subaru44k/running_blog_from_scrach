@@ -202,7 +202,7 @@ function makeSummaryMd(month, stats) {
   const title = `${month} 練習サマリー`;
   const dateStr = `${month}-01T12:00:00.000Z`;
   const author = 'subaru44k';
-  const entryHash = Math.random().toString(16).slice(2, 10);
+  const entryHash = `${month}-summary`;
   const best = Math.min(...stats.pacesSecPerKm);
   const med = median(stats.pacesSecPerKm);
   const avg = stats.pacesSecPerKm.reduce((a, b) => a + b, 0) / (stats.pacesSecPerKm.length || 1);
@@ -285,6 +285,9 @@ function main() {
   }
 
   let created = 0;
+  let updated = 0;
+  let unchanged = 0;
+  let deletedLegacy = 0;
   for (const [month, arr] of byMonth) {
     // 走行回数は投稿数に合わせる
     const monthPosts = allPostsByMonth.get(month) || [];
@@ -323,23 +326,45 @@ function main() {
       }
     }
     if (!perPost.length) continue;
-    // Avoid duplicating if a summary for this month already exists (unless --force)
-    const existing = fs.readdirSync(BLOG_DIR).filter((f) => f.startsWith(`${month}-summary-`) && f.endsWith('.md'));
-    if (existing.length && !FORCE) continue;
-    if (existing.length && FORCE) {
-      for (const f of existing) {
-        try { fs.unlinkSync(path.join(BLOG_DIR, f)); } catch (_) {}
+    const md = makeSummaryMd(month, { runs, posts: perPost, totalKm, totalSec, pacesSecPerKm });
+    const filename = `${month}-summary.md`;
+    const outPath = path.join(BLOG_DIR, filename);
+    const legacy = fs.readdirSync(BLOG_DIR).filter((f) => f.startsWith(`${month}-summary-`) && f.endsWith('.md'));
+
+    if (legacy.length && !FORCE) {
+      console.log('Skipped', filename, `(legacy summary exists: ${legacy.join(', ')})`);
+      unchanged++;
+      continue;
+    }
+
+    if (legacy.length && FORCE) {
+      for (const f of legacy) {
+        try {
+          fs.unlinkSync(path.join(BLOG_DIR, f));
+          deletedLegacy++;
+          console.log('Deleted legacy', f);
+        } catch (_) {}
       }
     }
-    const md = makeSummaryMd(month, { runs, posts: perPost, totalKm, totalSec, pacesSecPerKm });
-    const entryHash = Math.random().toString(16).slice(2, 10);
-    const filename = `${month}-summary-${entryHash}.md`;
-    const outPath = path.join(BLOG_DIR, filename);
+
+    if (fs.existsSync(outPath)) {
+      const current = fs.readFileSync(outPath, 'utf8');
+      if (current === md) {
+        unchanged++;
+        console.log('Unchanged', filename);
+        continue;
+      }
+      fs.writeFileSync(outPath, md, 'utf8');
+      updated++;
+      console.log('Updated', filename);
+      continue;
+    }
+
     fs.writeFileSync(outPath, md, 'utf8');
     created++;
     console.log('Created', filename);
   }
-  console.log(`Done. Created ${created} summary file(s).`);
+  console.log(`Done. Created ${created}, updated ${updated}, unchanged ${unchanged}, deleted legacy ${deletedLegacy} summary file(s).`);
 }
 
 if (require.main === module) main();

@@ -19,7 +19,8 @@ if (!post) {
 }
 const { Content } = await post.render();
 const noIndexCategories = new Set(['練習(弱)', '練習(中)', '練習(デフォルト)']);
-const shouldNoIndex = noIndexCategories.has(post.data.category) || slug.includes('-summary-');
+const isSummaryPost = slug.includes('-summary-') || slug.endsWith('-summary');
+const shouldNoIndex = noIndexCategories.has(post.data.category) || isSummaryPost;
 const pad = (n: number) => String(n).padStart(2, '0');
 const formattedDateTime = `${post.data.date.getFullYear()}-${pad(post.data.date.getMonth() + 1)}-${pad(post.data.date.getDate())} ${pad(post.data.date.getHours())}:${pad(post.data.date.getMinutes())}`;
 

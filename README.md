@@ -77,10 +77,11 @@ AWS CLI の標準プロファイル（`codex-prod`）と実行主体も `docs/aw
   - `DISTRIBUTION_ID` (CloudFront distribution ID)
   - `PUBLIC_PDF_API_BASE` (e.g., `https://xxxx.execute-api.ap-northeast-1.amazonaws.com/`)
 - The buildspec:
-  - Ensures Node 20, installs deps
-  - Runs summary generator (admin-app)
+  - Uses the CodeBuild Node 20 runtime and npm cache, then installs deps
+  - Runs summary generator (admin-app) with stable `{YYYY-MM}-summary.md` slugs
   - Builds Astro site and runs sanity tests
-  - Syncs `dist/` to S3 and invalidates CloudFront
+  - Syncs `dist/` to S3 with size-only comparison and invalidates CloudFront
+  - Logs `[timing]` lines for install, summary, build, sanity, S3 sync, and invalidation request steps
 
 ## Services: PDF Compression
 

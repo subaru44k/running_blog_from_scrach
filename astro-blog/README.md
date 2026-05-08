@@ -89,12 +89,14 @@ This site is static (no SSR) and deploys to S3 + CloudFront from CodeBuild. Curr
 - CodeBuild environment variables (set in the project):
   - `BUCKET` (required): S3 hosting bucket name (private, behind CloudFront)
   - `DISTRIBUTION_ID` (required): CloudFront distribution ID
-  - `NODE_VERSION` (optional): defaults to `20`
+  - `PUBLIC_PDF_API_BASE` (required): PDF API Gateway base URL
 
 CodeBuild does the following:
-- `npm ci` and `npm run build` in this folder
-- `aws s3 sync dist s3://$BUCKET --delete`
+- uses the Node.js 20 runtime and npm cache
+- runs `npm ci`, stable monthly summary generation, `npm run build`, and sanity checks
+- `aws s3 sync dist s3://$BUCKET --delete --size-only --only-show-errors --no-progress`
 - `aws cloudfront create-invalidation --distribution-id $DISTRIBUTION_ID --paths '/*'`
+- emits `[timing]` log lines for install, summary, build, sanity, S3 sync, and invalidation request steps
 
 Minimum IAM for the CodeBuild role (replace with your bucket and distribution ARNs):
 

@@ -12,6 +12,29 @@ repo:
       build:
         buildspec: astro-blog/buildspec.yml
         output_dir: astro-blog/dist
+        codebuild:
+          runtime: Node.js 20 via buildspec runtime-versions
+          cache_paths:
+            - /root/.npm/**/*
+          deploy:
+            target: S3 + CloudFront
+            sync_command: aws s3 sync astro-blog/dist s3://$BUCKET --delete --size-only --only-show-errors --no-progress
+            invalidation: aws cloudfront create-invalidation --paths /*
+            timing_logs:
+              - npm ci astro-blog
+              - npm ci admin-app
+              - monthly summaries
+              - Astro build
+              - sanity check
+              - S3 sync
+              - CloudFront invalidation request
+        generated_monthly_summaries:
+          script: admin-app/scripts/generate-monthly-summary.js
+          filename_pattern: "{YYYY-MM}-summary.md"
+          behavior:
+            - stable summary slugs avoid random monthly summary URLs on each deploy
+            - force mode deletes legacy "{YYYY-MM}-summary-*.md" files
+            - existing stable summary files are rewritten only when content changes
         blog_index:
           module: astro-blog/src/lib/blog-index.ts
           responsibility:
@@ -172,12 +195,14 @@ site:
       - 練習(デフォルト)
     article_noindex_slug_contains:
       - -summary-
+      - -summary
     sitemap_excludes_article_categories:
       - 練習(弱)
       - 練習(中)
       - 練習(デフォルト)
     sitemap_excludes_article_slug_contains:
       - -summary-
+      - -summary
 
 features:
   pdf_compress:
@@ -275,7 +300,7 @@ features:
       - category 練習(弱) article pages are noindex,follow
       - category 練習(中) article pages are noindex,follow
       - category 練習(デフォルト) article pages are noindex,follow
-      - monthly summary article pages (`*-summary-*`) are noindex,follow
+      - monthly summary article pages (`*-summary-*` and `*-summary`) are noindex,follow
       - those categories are excluded from sitemap.xml
       - summary article pages are excluded from sitemap.xml
       - blog and archive listing pages continue to link to those articles for human navigation
