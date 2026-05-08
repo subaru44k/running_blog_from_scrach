@@ -146,6 +146,12 @@ site:
   seo:
     adsense:
       client: ca-pub-7941378059940304
+      verification:
+        head_meta:
+          name: google-adsense-account
+          content: ca-pub-7941378059940304
+        script:
+          src: "https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7941378059940304"
       content_presentation:
         - top page links to the drawing game and mini games as primary site content
         - about page explains tools, games, and running logs consistently with the live navigation

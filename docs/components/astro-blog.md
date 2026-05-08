@@ -15,7 +15,7 @@ Astroで生成する静的サイト本体。ブログ、PDF圧縮、ペース計
   - `games/dressup-next.astro`: PNG レイヤー版おしゃれゲームの公開ルート。各部位約20種類の画像プレビュー付きアイテム選択、部位内ページ送り、チャットさんの選択演出、完成後の編集UI非表示を提供し、sitemap と games Service Worker キャッシュ対象に含める
   - `contact.astro`, `privacy.astro`, `about.astro`, `404.astro`
   - `sitemap.xml.ts`: サイトマップ生成
-- `astro-blog/src/layouts/Layout.astro`: 共通レイアウト/SEO
+- `astro-blog/src/layouts/Layout.astro`: 共通レイアウト/SEO。AdSense script と `google-adsense-account` メタタグを共通 `<head>` に出す
 - `astro-blog/src/components/games/RelatedGames.astro`: 個別ミニゲームページの「ほかのゲーム」共通サイドバー。公開済みミニゲームと `/draw/` を統一表示し、現在ページはリンクではなく選択状態で表示する
 - `astro-blog/src/content/config.ts`: ブログコンテンツ設定
 - `astro-blog/buildspec.yml`: CodeBuild用ビルド/デプロイ
@@ -38,5 +38,6 @@ Astroで生成する静的サイト本体。ブログ、PDF圧縮、ペース計
 
 ## 変更時の注意点
 - Layout で canonical / robots の出力条件を崩さない。
+- AdSense の publisher ID、所有確認メタタグ、`ads.txt` の値を変更する場合は `docs/architecture.yaml` と ADR も更新する。
 - `/blog` などの非正規URLは 404 方針に合わせる。
 - `sitemap.xml.ts` のルートは正規URLに合わせて更新する。
