@@ -11,6 +11,7 @@ version: 0.2
 env:
   variables:
     APP_DIR: "astro-blog"
+    SITE_URL: "https://subaru-is-running.com"
 
 cache:
   paths:
@@ -77,7 +78,7 @@ phases:
           echo Uploading versioned Astro assets before HTML
           aws s3 sync "$APP_DIR/dist/_astro" "s3://$BUCKET/_astro" --size-only --only-show-errors --no-progress
           echo Syncing HTML and public files without deleting versioned Astro assets
-          aws s3 sync "$APP_DIR/dist" "s3://$BUCKET" --delete --exclude '_astro/*' --size-only --only-show-errors --no-progress
+          aws s3 sync "$APP_DIR/dist" "s3://$BUCKET" --delete --exclude '_astro/*' --only-show-errors --no-progress
           end=$(date +%s)
           echo "[timing] S3 sync: $((end - start))s"
 
@@ -87,6 +88,12 @@ phases:
           aws cloudfront wait invalidation-completed --distribution-id "$DISTRIBUTION_ID" --id "$INVALIDATION_ID"
           end=$(date +%s)
           echo "[timing] CloudFront invalidation completed: $((end - start))s"
+
+          expected_draw_asset=$(grep -o 'component-url="/_astro/DrawResult\.[^"]*\.js"' "$APP_DIR/dist/draw/result/index.html" | head -n 1 | cut -d '"' -f 2)
+          live_result_html=$(curl --fail --silent --show-error "$SITE_URL/draw/result/?deploy=$CODEBUILD_BUILD_NUMBER")
+          echo "$live_result_html" | grep -F "component-url=\"$expected_draw_asset\"" >/dev/null
+          curl --fail --silent --show-error --output /dev/null "$SITE_URL$expected_draw_asset"
+          echo "Production draw result references live asset $expected_draw_asset"
         else
           echo "No build output found at $APP_DIR/dist. Skipping deploy."
         fi

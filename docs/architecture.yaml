@@ -20,8 +20,9 @@ repo:
             target: S3 + CloudFront
             sync_strategy:
               - upload dist/_astro before HTML and retain older hashed assets
-              - sync remaining files with --delete while excluding _astro/*
+              - sync remaining files with --delete while excluding _astro/* and compare content/mtime rather than size only
             invalidation: create /* invalidation and wait until it completes
+            smoke_check: production draw result HTML must reference the current build asset and that asset must return HTTP 200
             timing_logs:
               - npm ci astro-blog
               - npm ci admin-app

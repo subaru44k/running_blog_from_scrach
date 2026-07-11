@@ -14,8 +14,8 @@
 - CodeBuild は Node.js 20 runtime と npm cache を使う。
 - 月次サマリーは安定slug（`{YYYY-MM}-summary.md`）で生成し、legacy のランダムhash summaryは force 実行時に削除される。
 - `dist/_astro` はHTMLより先に同期し、キャッシュ済みHTMLとの互換性のため旧ハッシュ付きassetを削除しない。
-- その他の成果物は `_astro/*` を除外し、`--delete --size-only` で同期する。
-- CloudFrontの全パス無効化は完了まで待機し、完了後に各ページが参照するJS/CSSがHTTP 200であることを確認する。
+- その他の成果物は `_astro/*` を除外し、`--delete` で同期する。同一サイズの変更済みHTMLを取りこぼすため `--size-only` は使わない。
+- CloudFrontの全パス無効化は完了まで待機し、本番結果ページが今回生成したDrawResult assetを参照して、そのassetがHTTP 200であることを自動確認する。
 
 ### 注意
 - デプロイ実行はAWSコンソールまたはAWS MCP経由で行う

@@ -30,8 +30,9 @@ Astroで生成する静的サイト本体。ブログ、PDF圧縮、ペース計
   - Node.js 20 runtime を buildspec の `runtime-versions` で指定する
   - npm cache は `/root/.npm/**/*`
   - 月次サマリーは `admin-app/scripts/generate-monthly-summary.js --force` で `{YYYY-MM}-summary.md` に安定生成する
-  - `dist/_astro` を先に同期して旧ハッシュ付きassetを保持し、その後に `_astro/*` を除外した残りを `--delete --size-only` で同期する
+  - `dist/_astro` を先に同期して旧ハッシュ付きassetを保持し、その後に `_astro/*` を除外した残りを `--delete` で同期する（HTMLには `--size-only` を使わない）
   - CloudFront全パス無効化は完了まで待機する
+  - 本番結果ページが今回生成したDrawResult assetを参照し、そのassetがHTTP 200になることをデプロイ後に確認する
   - buildspec は npm install、summary、Astro build、sanity、S3 sync、CloudFront invalidation完了の所要秒数をログ出力する
 
 ## 404/SEOポリシー
