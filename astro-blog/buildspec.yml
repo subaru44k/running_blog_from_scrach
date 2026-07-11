@@ -4,6 +4,7 @@ version: 0.2
 # Required environment variables (configure in CodeBuild project):
 # - BUCKET: S3 bucket name for hosting (e.g., subaru-is-running-site)
 # - DISTRIBUTION_ID: CloudFront distribution ID (e.g., E123ABC456DEF)
+# - PUBLIC_DRAW_API_BASE: Draw API Gateway base URL
 # Optional environment variables:
 # - APP_DIR: path to app within the repo (default: astro-blog)
 
@@ -41,7 +42,13 @@ phases:
           echo "ERROR: PUBLIC_PDF_API_BASE is required (set in CodeBuild Environment variables)" >&2
           exit 1
         fi
+      - |
+        if [ -z "$PUBLIC_DRAW_API_BASE" ]; then
+          echo "ERROR: PUBLIC_DRAW_API_BASE is required (set in CodeBuild Environment variables)" >&2
+          exit 1
+        fi
       - echo "Using PUBLIC_PDF_API_BASE=$PUBLIC_PDF_API_BASE"
+      - echo "PUBLIC_DRAW_API_BASE is configured"
       - |
         start=$(date +%s)
         echo "Generating monthly summaries in $APP_DIR - stable slugs"
@@ -67,16 +74,19 @@ phases:
       - |
         if [ -d "$APP_DIR/dist" ]; then
           start=$(date +%s)
-          echo Syncing $APP_DIR/dist to s3://$BUCKET
-          aws s3 sync "$APP_DIR/dist" "s3://$BUCKET" --delete --size-only --only-show-errors --no-progress
+          echo Uploading versioned Astro assets before HTML
+          aws s3 sync "$APP_DIR/dist/_astro" "s3://$BUCKET/_astro" --size-only --only-show-errors --no-progress
+          echo Syncing HTML and public files without deleting versioned Astro assets
+          aws s3 sync "$APP_DIR/dist" "s3://$BUCKET" --delete --exclude '_astro/*' --size-only --only-show-errors --no-progress
           end=$(date +%s)
           echo "[timing] S3 sync: $((end - start))s"
 
           start=$(date +%s)
           echo Invalidating CloudFront distribution $DISTRIBUTION_ID
-          aws cloudfront create-invalidation --distribution-id $DISTRIBUTION_ID --paths '/*'
+          INVALIDATION_ID=$(aws cloudfront create-invalidation --distribution-id "$DISTRIBUTION_ID" --paths '/*' --query 'Invalidation.Id' --output text)
+          aws cloudfront wait invalidation-completed --distribution-id "$DISTRIBUTION_ID" --id "$INVALIDATION_ID"
           end=$(date +%s)
-          echo "[timing] CloudFront invalidation request: $((end - start))s"
+          echo "[timing] CloudFront invalidation completed: $((end - start))s"
         else
           echo "No build output found at $APP_DIR/dist. Skipping deploy."
         fi

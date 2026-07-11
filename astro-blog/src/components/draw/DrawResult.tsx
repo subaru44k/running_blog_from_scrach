@@ -9,6 +9,7 @@ type ResultState = {
   result?: SubmitResult;
   leaderboard?: LeaderboardResponse;
   error?: string;
+  leaderboardError?: string;
 };
 
 type JudgeState = 'idle' | 'judging_primary' | 'primary_done' | 'error';
@@ -46,17 +47,15 @@ export default function DrawResult() {
   const [firstReview, setFirstReview] = useState<FirstReviewResult | null>(null);
   const [flashMine, setFlashMine] = useState(false);
   const [primarySlow, setPrimarySlow] = useState(false);
+  const [storageReady, setStorageReady] = useState(false);
+  const [promptError, setPromptError] = useState<string | null>(null);
 
   const mineRowRef = useRef<HTMLDivElement | null>(null);
   const leaderboardRef = useRef<HTMLDivElement | null>(null);
-  const primaryTimerRef = useRef<number | null>(null);
   const slowTextRef = useRef<number | null>(null);
-  const timeoutRef = useRef<number | null>(null);
 
   const clearPrimaryTimers = () => {
-    if (primaryTimerRef.current) clearTimeout(primaryTimerRef.current);
     if (slowTextRef.current) clearTimeout(slowTextRef.current);
-    if (timeoutRef.current) clearTimeout(timeoutRef.current);
   };
 
   const loadSavedResult = () => {
@@ -106,6 +105,7 @@ export default function DrawResult() {
     setNickname(sessionStorage.getItem('drawNickname') || '');
     setSubmissionId(localStorage.getItem('drawSubmissionId') || '');
     setImageKey(localStorage.getItem('drawImageKey') || '');
+    setStorageReady(true);
     const storedPrompt = getPromptFromStorage();
     if (storedPrompt && (!promptIdFromQuery || storedPrompt.promptId === promptIdFromQuery)) {
       setPrompt(storedPrompt);
@@ -117,7 +117,14 @@ export default function DrawResult() {
         setPromptId(value.promptId);
         sessionStorage.setItem('drawPrompt', JSON.stringify(value));
       })
-      .catch(() => setPrompt(null));
+      .catch(() => {
+        const savedPromptText = localStorage.getItem('drawPromptText');
+        if (savedPromptText) {
+          setPrompt({ promptId: promptIdFromQuery, promptText: savedPromptText, dateJst: '' });
+        } else {
+          setPromptError('お題を取得できませんでした。');
+        }
+      });
   }, []);
 
   const buildSubmitResultFromDetail = (detail: SubmissionDetail): SubmitResult => ({
@@ -143,43 +150,41 @@ export default function DrawResult() {
     setFirstReview(null);
 
     slowTextRef.current = window.setTimeout(() => setPrimarySlow(true), 2500);
-    timeoutRef.current = window.setTimeout(() => {
-      setState({ error: '採点に失敗しました。時間をおいて再試行してください。' });
-      setJudgeState('error');
-    }, 10000);
-
-    const isSlow = Math.random() < 0.1;
-    const delay = isSlow
-      ? 4000 + Math.floor(Math.random() * 3001)
-      : 800 + Math.floor(Math.random() * 1701);
-
-    primaryTimerRef.current = window.setTimeout(async () => {
-      try {
-        const detail = await getSubmissionDetail(promptId, submissionId);
-        const result = buildSubmitResultFromDetail(detail);
-        const leaderboard = await getLeaderboard(promptId, 20);
-        setFirstReview(buildFirstReview(result));
-        setState({ result, leaderboard });
-        setJudgeState('primary_done');
-        localStorage.setItem('drawResult', JSON.stringify(result));
-        localStorage.setItem('drawResultVersion', RESULT_VERSION);
-        localStorage.setItem('drawSubmissionId', result.submissionId);
-        localStorage.setItem('drawPromptText', prompt?.promptText || '');
-        localStorage.setItem('drawScore', String(result.score));
-        setSubmissionId(result.submissionId);
-      } catch (err: any) {
-        const message = err instanceof ApiError && err.status === 429
-          ? 'アクセスが集中しています。時間をおいて再試行してください。'
-          : err?.message || '採点に失敗しました。';
-        setState({ error: message });
-        setJudgeState('error');
-      } finally {
-        clearPrimaryTimers();
+    try {
+      const detail = await getSubmissionDetail(promptId, submissionId);
+      const result = buildSubmitResultFromDetail(detail);
+      if (!prompt) {
+        setPrompt({ promptId: detail.promptId, promptText: detail.promptText, dateJst: '' });
+        setPromptError(null);
       }
-    }, delay);
+      setFirstReview(buildFirstReview(result));
+      setState({ result });
+      setJudgeState('primary_done');
+      localStorage.setItem('drawResult', JSON.stringify(result));
+      localStorage.setItem('drawResultVersion', RESULT_VERSION);
+      localStorage.setItem('drawSubmissionId', result.submissionId);
+      localStorage.setItem('drawPromptText', detail.promptText || prompt?.promptText || '');
+      localStorage.setItem('drawScore', String(result.score));
+      setSubmissionId(result.submissionId);
+      try {
+        const leaderboard = await getLeaderboard(promptId, 20);
+        setState({ result, leaderboard });
+      } catch (err: any) {
+        setState({ result, leaderboardError: err?.message || 'ランキングの取得に失敗しました。' });
+      }
+    } catch (err: any) {
+      const message = err instanceof ApiError && err.status === 429
+        ? 'アクセスが集中しています。時間をおいて再試行してください。'
+        : err?.message || '採点に失敗しました。';
+      setState({ error: message });
+      setJudgeState('error');
+    } finally {
+      clearPrimaryTimers();
+    }
   };
 
   useEffect(() => {
+    if (!storageReady) return;
     if (!imageDataUrl) {
       setState({ error: '絵が見つかりませんでした。もう一度挑戦してください。' });
       setJudgeState('error');
@@ -190,16 +195,18 @@ export default function DrawResult() {
     if (saved) {
       setFirstReview(buildFirstReview(saved));
       setState({ result: saved });
+      setJudgeState('primary_done');
+      setDisplayScore(saved.score);
       getLeaderboard(promptId, 20).then((leaderboard) => {
         setState({ result: saved, leaderboard });
-        setJudgeState('primary_done');
-        setDisplayScore(saved.score);
+      }).catch((err: any) => {
+        setState({ result: saved, leaderboardError: err?.message || 'ランキングの取得に失敗しました。' });
       });
       return;
     }
     loadResult();
     return () => clearPrimaryTimers();
-  }, [imageDataUrl, promptId, prompt?.promptText, submissionId, nickname]);
+  }, [imageDataUrl, promptId, submissionId, storageReady]);
 
   useEffect(() => {
     if (state.result) {
@@ -344,7 +351,8 @@ export default function DrawResult() {
     <div className="space-y-6">
       <div className="rounded-lg border bg-gray-50 p-4">
         <div className="text-xs text-gray-500">今日のお題</div>
-        <div className="text-lg font-semibold">{prompt?.promptText || '読み込み中…'}</div>
+        <div className="text-lg font-semibold">{prompt?.promptText || (promptError ? '取得できませんでした' : '読み込み中…')}</div>
+        {promptError && <div className="mt-1 text-xs text-red-600">{promptError}</div>}
       </div>
 
       {judgeState === 'judging_primary' && (
@@ -468,6 +476,26 @@ export default function DrawResult() {
               mineRef={mineRowRef}
               flashMine={flashMine}
             />
+          </div>
+        ) : state.leaderboardError ? (
+          <div className="rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">
+            <div>{state.leaderboardError}</div>
+            <button
+              type="button"
+              className="mt-2 rounded-md bg-red-600 px-3 py-2 text-white"
+              onClick={async () => {
+                if (!promptId) return;
+                setState((prev) => ({ ...prev, leaderboardError: undefined }));
+                try {
+                  const leaderboard = await getLeaderboard(promptId, 20);
+                  setState((prev) => ({ ...prev, leaderboard }));
+                } catch (err: any) {
+                  setState((prev) => ({ ...prev, leaderboardError: err?.message || 'ランキングの取得に失敗しました。' }));
+                }
+              }}
+            >
+              ランキングを再読み込み
+            </button>
           </div>
         ) : (
           <div className="text-sm text-gray-500">読み込み中…</div>

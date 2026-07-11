@@ -18,16 +18,18 @@ repo:
             - /root/.npm/**/*
           deploy:
             target: S3 + CloudFront
-            sync_command: aws s3 sync astro-blog/dist s3://$BUCKET --delete --size-only --only-show-errors --no-progress
-            invalidation: aws cloudfront create-invalidation --paths /*
+            sync_strategy:
+              - upload dist/_astro before HTML and retain older hashed assets
+              - sync remaining files with --delete while excluding _astro/*
+            invalidation: create /* invalidation and wait until it completes
             timing_logs:
               - npm ci astro-blog
               - npm ci admin-app
               - monthly summaries
               - Astro build
               - sanity check
-              - S3 sync
-              - CloudFront invalidation request
+              - asset-first S3 sync
+              - CloudFront invalidation completion
         generated_monthly_summaries:
           script: admin-app/scripts/generate-monthly-summary.js
           filename_pattern: "{YYYY-MM}-summary.md"
@@ -241,6 +243,8 @@ features:
       - API Gateway + Lambda backend for prompt/upload-url/submit/leaderboard/submission
       - GET /api/draw/prompt provides server-authoritative monthly prompt
       - frontend uses PUBLIC_DRAW_API_BASE to call /api/draw/*
+      - frontend API requests use finite timeouts and expose retryable errors instead of indefinite loading states
+      - draw result renders a saved score independently from prompt and leaderboard availability
       - Lambda handlers are bundled as CommonJS (.cjs) for Node 20 runtime compatibility
       - "`npm run build --prefix backend/draw` rebuilds both `dist/*.cjs` and deployable `artifacts/*.zip`"
       - prompt switches monthly (JST) with fixed sequence; 2026-02 is index 0 (熊)

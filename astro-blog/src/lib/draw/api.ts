@@ -18,6 +18,21 @@ class ApiError extends Error {
   }
 }
 
+const fetchWithTimeout = async (input: RequestInfo, init: RequestInit = {}, timeoutMs = 15000) => {
+  const controller = new AbortController();
+  const timer = window.setTimeout(() => controller.abort(), timeoutMs);
+  try {
+    return await fetch(input, { ...init, signal: controller.signal });
+  } catch (err: any) {
+    if (err?.name === 'AbortError') {
+      throw new ApiError('通信がタイムアウトしました。時間をおいて再試行してください。');
+    }
+    throw err;
+  } finally {
+    window.clearTimeout(timer);
+  }
+};
+
 const buildUrl = (path: string) => `${apiBase}${path}`;
 
 const parseJson = async (res: Response) => {
@@ -31,7 +46,7 @@ const parseJson = async (res: Response) => {
 };
 
 const requestJson = async <T>(input: RequestInfo, init?: RequestInit): Promise<T> => {
-  const res = await fetch(input, init);
+  const res = await fetchWithTimeout(input, init);
   if (!res.ok) {
     const body = await parseJson(res);
     const msg = body?.error || body?.message || res.statusText || 'request failed';
@@ -60,11 +75,11 @@ export async function getPrompt(month?: string): Promise<PromptInfo> {
 }
 
 export async function putToS3(putUrl: string, blob: Blob, contentType: string) {
-  const res = await fetch(putUrl, {
+  const res = await fetchWithTimeout(putUrl, {
     method: 'PUT',
     headers: { 'Content-Type': contentType },
     body: blob,
-  });
+  }, 30000);
   if (!res.ok) {
     throw new ApiError(`アップロードに失敗しました (${res.status})`, res.status);
   }

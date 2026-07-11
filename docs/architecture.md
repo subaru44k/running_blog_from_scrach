@@ -3,7 +3,7 @@
 このリポジトリは、Astro 静的サイト（公開サイト）、管理用ツール群、Fitbit連携のLambda群、PDF圧縮サービス（Docker/Lambda）で構成されます。公開サイトは静的配信、ツールはAPIと外部サービス連携を前提としています。
 運用上のガードレール（同時実行・TTL・サイズ上限・CORSなど）は `docs/ops-parameters.md` に集約しています。
 フロントの検証用には、ブログ記事生成を省略する `ASTRO_BUILD_NO_POSTS=1` のクイックビルドを利用できます。ブログ記事一覧は `astro-blog/src/lib/blog-index.ts` に集約し、ビルド中に同じ content collection を何度も組み立てないようにしています。出力互換性の確認には `.dist-baseline` と `dist` を `npm run compare:dist --prefix astro-blog` で比較します。
-Astroサイトの本番デプロイは CodeBuild から S3 + CloudFront へ行います。CodeBuild は Node.js 20 runtime と npm cache を使い、月次サマリーは `{YYYY-MM}-summary.md` の安定slugで生成します。S3同期は `--size-only --only-show-errors --no-progress` を使い、静的生成時のmtime差だけで全成果物を再アップロードしない方針です。
+Astroサイトの本番デプロイは CodeBuild から S3 + CloudFront へ行います。CodeBuild は Node.js 20 runtime と npm cache を使い、月次サマリーは `{YYYY-MM}-summary.md` の安定slugで生成します。HTMLとハッシュ付きJS/CSSの世代ずれを防ぐため、`dist/_astro` を先にアップロードして旧世代も保持し、その後に `_astro/*` を除外した残りの成果物を `--delete --size-only` で同期します。CloudFrontの全パス無効化は完了まで待機します。
 
 ## 全体像
 
@@ -87,6 +87,7 @@ flowchart LR
 - `/draw/` → `/draw/play/` → `/draw/result/` の3ページ構成。
 - 画像アップロード・採点・ランキングは **API Gateway + Lambda** のバックエンドで提供。
 - フロントは `PUBLIC_DRAW_API_BASE` を用いて `/api/draw/*` を呼び出す。
+- フロントのAPI通信にはタイムアウトを設け、結果画面は保存済み採点結果をお題・ランキングの取得成否から独立して表示する。部分的な取得失敗は無期限の読み込み表示にせず、エラーと再試行導線を表示する。
 - お題は `GET /api/draw/prompt` でサーバーが月次決定（JST、`2026-02` を基準月として36題を順送り）。
 - 画像は S3 にアップロードし、閲覧は CloudFront 署名URL（900秒）で返す。
 - 一次審査の表示は「点数 + 4文の講評 + tips + breakdown」で完結する。
