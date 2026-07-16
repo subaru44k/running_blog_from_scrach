@@ -12,7 +12,7 @@ Astroで生成する静的サイト本体。ブログ、PDF圧縮、ペース計
   - `pdf-compress.astro`: PDF圧縮UI（署名→圧縮API）
   - `draw/index.astro`, `draw/play.astro`, `draw/result.astro`: 30秒お絵描き採点ゲーム（`/api/draw/*` と連携）
   - `draw/archive.astro`: 2026-02以降の月別ランキングTop20一覧（`/api/draw/prompt` + `/api/draw/leaderboard` + 詳細モーダル用 `/api/draw/submission`）
-  - `games/dressup-next.astro`: PNG レイヤー版おしゃれゲームの公開ルート。各部位約20種類の画像プレビュー付きアイテム選択、部位内ページ送り、チャットさんの選択演出、完成後の編集UI非表示を提供し、sitemap と games Service Worker キャッシュ対象に含める
+  - `games/dressup-next.astro`: PNG レイヤー版おしゃれゲームの公開ルート。プレイヤーとチャットさんで共有するベースモデル選択、モデル共通補正と必要なパーツだけの個別補正による既存衣装アセット再利用、各部位約20種類の画像プレビュー付きアイテム選択、部位内ページ送り、チャットさんの選択演出、完成後の編集UI非表示を提供し、sitemap と games Service Worker キャッシュ対象に含める
   - `contact.astro`, `privacy.astro`, `about.astro`, `404.astro`
   - `sitemap.xml.ts`: サイトマップ生成
 - `astro-blog/src/layouts/Layout.astro`: 共通レイアウト/SEO。AdSense script と `google-adsense-account` メタタグを共通 `<head>` に出す
