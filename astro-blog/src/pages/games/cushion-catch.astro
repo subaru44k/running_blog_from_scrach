@@ -1,0 +1,873 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import RelatedGames from '../../components/games/RelatedGames.astro';
+
+const pageTitle = 'クッションゲーム｜ミニゲーム';
+const metaDescription = 'わんちゃんを動かして、わるいひとが投げたクッションをワンバウンド後にキャッチする30秒の子ども向けゲームです。';
+---
+
+<Layout
+  pageTitle={pageTitle}
+  metaDescription={metaDescription}
+  noSidebar={true}
+  pageHeading="クッションゲーム"
+  pageLead="わるいひとがクッションを投げるよ。落ちる場所へ先回りして、ワンバウンドしたらキャッチしよう。"
+>
+  <section class="grid gap-6 lg:grid-cols-[minmax(0,1fr)_18rem] lg:items-start">
+    <article class="card p-5 md:p-6">
+      <div class="cc-shell">
+        <div class="cc-top">
+          <div>
+            <p class="cc-kicker">MINI GAME</p>
+            <h2 class="cc-title">クッションゲーム</h2>
+          </div>
+          <div class="cc-score" id="scoreText">スコア: 0</div>
+        </div>
+
+        <div class="cc-status" id="statusText">むずかしさをえらんで、スタートしよう</div>
+
+        <div class="cc-settings">
+          <div class="cc-field">
+            <label for="difficultySelect">むずかしさ</label>
+            <select id="difficultySelect" aria-label="むずかしさ">
+              <option value="easy" selected>やさしい</option>
+              <option value="normal">ふつう</option>
+              <option value="hard">むずかしい</option>
+            </select>
+          </div>
+          <button class="cc-btn cc-btn-primary" id="startBtn" type="button">スタート</button>
+          <button class="cc-btn" id="soundBtn" type="button" aria-pressed="false">おと ON</button>
+          <button class="cc-btn" id="widePlayBtn" type="button" aria-pressed="false">大きくあそぶ</button>
+        </div>
+
+        <div class="cc-meta" aria-live="polite">
+          <div class="cc-chip"><span>のこり</span><strong id="timeText">30</strong></div>
+          <div class="cc-chip"><span>キャッチ</span><strong id="catchText">0</strong></div>
+          <div class="cc-chip"><span>れんぞく</span><strong id="streakText">0</strong></div>
+          <div class="cc-chip"><span>ベスト</span><strong id="bestText">0</strong></div>
+        </div>
+
+        <div class="cc-stage-wrap">
+          <canvas id="cushionGame" width="960" height="540" aria-label="クッションゲーム。左右に移動し、ワンバウンド後にキャッチします。"></canvas>
+          <div class="cc-result" id="resultPanel" hidden>
+            <div class="cc-result-card">
+              <p class="cc-result-kicker">おしまい</p>
+              <h3 id="resultTitle">よくできました</h3>
+              <p id="resultBody">スコア 0</p>
+              <p class="cc-new-best" id="newBestText" hidden>ベストスコア！</p>
+              <button class="cc-btn cc-btn-primary" id="retryBtn" type="button">もういちど</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="cc-controls" aria-label="ゲーム操作">
+          <button class="cc-move-btn" id="leftBtn" type="button" aria-label="ひだりへ移動">←</button>
+          <button class="cc-catch-btn" id="catchBtn" type="button">キャッチ！</button>
+          <button class="cc-move-btn" id="rightBtn" type="button" aria-label="みぎへ移動">→</button>
+        </div>
+
+        <p class="cc-hint">スマホ・タブレット: 落ちる場所をタップして移動し、ワンバウンドしたらもう一度ゲーム画面をタップ。パソコンでは左右キーとスペースでも遊べます。</p>
+
+        <div class="cc-help mt-5 grid gap-4 md:grid-cols-2">
+          <div class="rounded-2xl border border-slate-200/80 bg-white/70 p-4 dark:border-slate-700/80 dark:bg-slate-900/60">
+            <h3 class="mt-0 text-base font-semibold">遊び方</h3>
+            <p class="mt-2 text-sm leading-7 text-slate-600 dark:text-slate-300">丸いマークがクッションの落ちる場所です。タップでわんちゃんを先に動かし、床で一度はねたクッションが近くに来たら、もう一度ゲーム画面をタップします。</p>
+          </div>
+          <div class="rounded-2xl border border-slate-200/80 bg-white/70 p-4 dark:border-slate-700/80 dark:bg-slate-900/60">
+            <h3 class="mt-0 text-base font-semibold">ふわふわタイム</h3>
+            <p class="mt-2 text-sm leading-7 text-slate-600 dark:text-slate-300">3回続けてキャッチすると、4秒間のふわふわタイム。クッションが大きくなり、もらえる点が2倍になります。</p>
+          </div>
+        </div>
+      </div>
+    </article>
+
+    <RelatedGames currentHref="/games/cushion-catch/" />
+  </section>
+
+  <style>
+    :global(body.cc-wide-play-lock) { overflow:hidden; touch-action:none; overscroll-behavior:none; }
+    .cc-shell { min-width:0; color:rgb(15 23 42); overscroll-behavior:contain; }
+    .cc-top { display:flex; justify-content:space-between; align-items:flex-start; gap:1rem; margin-bottom:1rem; }
+    .cc-kicker { margin:0; font-size:.72rem; letter-spacing:.24em; font-weight:700; color:rgb(100 116 139); }
+    .cc-title { margin:.35rem 0 0; font-size:1.65rem; }
+    .cc-score { border:1px solid rgba(148,163,184,.35); border-radius:999px; background:rgba(255,255,255,.88); padding:.65rem 1rem; font-weight:900; white-space:nowrap; }
+    .cc-status { margin-bottom:1rem; border:1px solid rgba(148,163,184,.28); border-radius:1rem; background:linear-gradient(135deg,rgba(254,242,242,.94),rgba(254,249,195,.88)); padding:.95rem 1rem; font-weight:900; }
+    .cc-settings { display:grid; grid-template-columns:minmax(0,1fr) auto auto auto; gap:.65rem; margin-bottom:1rem; }
+    .cc-field { display:grid; min-width:0; gap:.35rem; }
+    .cc-field label { color:rgb(71 85 105); font-size:.86rem; font-weight:800; }
+    .cc-field select,.cc-btn { min-width:0; border:1px solid rgba(51,65,85,.22); border-radius:1rem; background:rgba(255,255,255,.94); color:rgb(15 23 42); padding:.8rem 1rem; font-weight:800; }
+    .cc-field select { width:100%; }
+    .cc-btn { cursor:pointer; transition:transform .15s ease,background-color .15s ease; }
+    .cc-btn:hover { transform:translateY(-1px); background:white; }
+    .cc-btn-primary { border-color:rgb(15 23 42); background:rgb(15 23 42); color:white; }
+    .cc-btn-primary:hover { background:rgb(30 41 59); }
+    .cc-meta { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:.65rem; margin-bottom:1rem; }
+    .cc-chip { display:grid; gap:.2rem; border:1px solid rgba(148,163,184,.35); border-radius:1rem; background:rgba(255,255,255,.84); padding:.7rem .8rem; }
+    .cc-chip span { color:rgb(100 116 139); font-size:.72rem; font-weight:800; }
+    .cc-chip strong { font-size:1.12rem; line-height:1.1; }
+    .cc-stage-wrap { position:relative; overflow:hidden; border:1px solid rgba(51,65,85,.18); border-radius:1.25rem; background:#fef3c7; box-shadow:inset 0 1px 0 rgba(255,255,255,.8); }
+    #cushionGame { display:block; width:100%; height:auto; aspect-ratio:16 / 9; touch-action:none; user-select:none; }
+    .cc-result { position:absolute; inset:0; display:grid; place-items:center; padding:1rem; background:rgba(15,23,42,.4); }
+    .cc-result[hidden] { display:none; }
+    .cc-result-card { width:min(90%,24rem); border-radius:1.25rem; background:rgba(255,255,255,.96); padding:1.35rem; text-align:center; box-shadow:0 18px 45px rgba(15,23,42,.25); }
+    .cc-result-card h3 { margin:.2rem 0 .5rem; font-size:1.7rem; }
+    .cc-result-card p { margin:.45rem 0 1rem; color:rgb(71 85 105); font-weight:800; }
+    .cc-result-kicker { margin:0; color:rgb(100 116 139); font-size:.75rem; letter-spacing:.22em; }
+    .cc-result-card .cc-new-best { color:#d97706; font-size:1.08rem; }
+    .cc-controls { display:grid; grid-template-columns:1fr minmax(8.5rem,1.5fr) 1fr; gap:.75rem; margin-top:.85rem; touch-action:none; }
+    .cc-move-btn,.cc-catch-btn { min-height:3.6rem; border:1px solid rgba(51,65,85,.22); border-radius:1rem; font-weight:900; cursor:pointer; user-select:none; touch-action:none; }
+    .cc-move-btn { background:#e0f2fe; color:#075985; font-size:1.65rem; }
+    .cc-catch-btn { background:linear-gradient(135deg,#fb7185,#f59e0b); color:white; font-size:1.08rem; box-shadow:0 8px 20px rgba(244,63,94,.22); }
+    .cc-move-btn.is-active,.cc-catch-btn:active { transform:translateY(2px) scale(.98); }
+    .cc-hint { margin-top:.85rem; color:rgb(71 85 105); font-size:.92rem; line-height:1.7; }
+    .cc-shell.is-wide-play,.cc-shell:fullscreen { position:fixed; inset:0; z-index:9999; display:grid; grid-template-rows:auto auto auto minmax(0,1fr) auto; gap:.4rem; width:100vw; height:100dvh; overflow:hidden; padding:calc(.45rem + env(safe-area-inset-top)) calc(.55rem + env(safe-area-inset-right)) calc(.45rem + env(safe-area-inset-bottom)) calc(.55rem + env(safe-area-inset-left)); background:linear-gradient(180deg,#fff7ed,#fdf2f8); color:rgb(15 23 42); }
+    .cc-shell.is-wide-play .cc-top,.cc-shell:fullscreen .cc-top { align-items:center; margin:0; }
+    .cc-shell.is-wide-play .cc-kicker,.cc-shell.is-wide-play .cc-title,.cc-shell.is-wide-play .cc-hint,.cc-shell.is-wide-play .cc-help,.cc-shell:fullscreen .cc-kicker,.cc-shell:fullscreen .cc-title,.cc-shell:fullscreen .cc-hint,.cc-shell:fullscreen .cc-help { display:none; }
+    .cc-shell.is-wide-play .cc-status,.cc-shell:fullscreen .cc-status { margin:0; padding:.45rem .7rem; font-size:.88rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+    .cc-shell.is-wide-play .cc-settings,.cc-shell:fullscreen .cc-settings { grid-template-columns:minmax(7rem,1fr) auto auto auto; align-items:end; gap:.4rem; margin:0; }
+    .cc-shell.is-wide-play .cc-field label,.cc-shell:fullscreen .cc-field label { display:none; }
+    .cc-shell.is-wide-play .cc-field select,.cc-shell.is-wide-play .cc-btn,.cc-shell:fullscreen .cc-field select,.cc-shell:fullscreen .cc-btn { min-height:2.2rem; padding:.4rem .6rem; border-radius:.75rem; font-size:.82rem; }
+    .cc-shell.is-wide-play .cc-meta,.cc-shell:fullscreen .cc-meta { position:absolute; top:calc(.45rem + env(safe-area-inset-top)); right:calc(.55rem + env(safe-area-inset-right)); z-index:2; display:flex; gap:.25rem; margin:0; pointer-events:none; }
+    .cc-shell.is-wide-play .cc-chip,.cc-shell:fullscreen .cc-chip { min-width:3.15rem; gap:0; padding:.3rem .4rem; border-radius:.7rem; background:rgba(255,255,255,.92); }
+    .cc-shell.is-wide-play .cc-chip span,.cc-shell:fullscreen .cc-chip span { font-size:.54rem; }
+    .cc-shell.is-wide-play .cc-chip strong,.cc-shell:fullscreen .cc-chip strong { font-size:.82rem; }
+    .cc-shell.is-wide-play .cc-stage-wrap,.cc-shell:fullscreen .cc-stage-wrap { align-self:center; justify-self:center; width:min(100%,calc((100dvh - 10.2rem - env(safe-area-inset-top) - env(safe-area-inset-bottom))*16/9)); max-height:100%; border-radius:.8rem; }
+    .cc-shell.is-wide-play #cushionGame,.cc-shell:fullscreen #cushionGame { max-height:calc(100dvh - 10.2rem - env(safe-area-inset-top) - env(safe-area-inset-bottom)); object-fit:contain; }
+    .cc-shell.is-wide-play .cc-controls,.cc-shell:fullscreen .cc-controls { justify-self:center; width:min(38rem,100%); margin:0; }
+    .cc-shell.is-wide-play .cc-move-btn,.cc-shell.is-wide-play .cc-catch-btn,.cc-shell:fullscreen .cc-move-btn,.cc-shell:fullscreen .cc-catch-btn { min-height:2.7rem; }
+    @media (max-width:640px) {
+      .cc-top { align-items:stretch; flex-direction:column; }
+      .cc-settings { grid-template-columns:1fr 1fr; }
+      .cc-meta { gap:.4rem; }
+      .cc-chip { padding:.58rem .45rem; }
+      .cc-chip strong { font-size:.96rem; }
+    }
+    @media (max-height:500px) and (orientation:landscape) {
+      .cc-shell.is-wide-play,.cc-shell:fullscreen { display:block; }
+      .cc-shell.is-wide-play .cc-top,.cc-shell.is-wide-play .cc-status,.cc-shell.is-wide-play .cc-settings,.cc-shell.is-wide-play .cc-meta,.cc-shell:fullscreen .cc-top,.cc-shell:fullscreen .cc-status,.cc-shell:fullscreen .cc-settings,.cc-shell:fullscreen .cc-meta { position:absolute; z-index:3; }
+      .cc-shell.is-wide-play .cc-top,.cc-shell:fullscreen .cc-top { top:calc(.4rem + env(safe-area-inset-top)); left:calc(.5rem + env(safe-area-inset-left)); }
+      .cc-shell.is-wide-play .cc-status,.cc-shell:fullscreen .cc-status { display:none; }
+      .cc-shell.is-wide-play .cc-settings,.cc-shell:fullscreen .cc-settings { left:50%; bottom:calc(3.6rem + env(safe-area-inset-bottom)); width:min(35rem,calc(100vw - 1rem)); transform:translateX(-50%); padding:.3rem; border-radius:.8rem; background:rgba(255,255,255,.82); }
+      .cc-shell.is-wide-play .cc-meta,.cc-shell:fullscreen .cc-meta { top:calc(.4rem + env(safe-area-inset-top)); right:calc(.5rem + env(safe-area-inset-right)); }
+      .cc-shell.is-wide-play .cc-stage-wrap,.cc-shell:fullscreen .cc-stage-wrap { position:absolute; top:50%; left:50%; width:min(100%,calc((100dvh - .8rem)*16/9)); max-height:calc(100dvh - .8rem); transform:translate(-50%,-50%); }
+      .cc-shell.is-wide-play #cushionGame,.cc-shell:fullscreen #cushionGame { max-height:calc(100dvh - .8rem); }
+      .cc-shell.is-wide-play .cc-controls,.cc-shell:fullscreen .cc-controls { position:absolute; z-index:4; bottom:calc(.35rem + env(safe-area-inset-bottom)); left:50%; width:min(31rem,calc(100vw - 1rem)); transform:translateX(-50%); }
+    }
+    @media (pointer:coarse) {
+      .cc-controls,
+      .cc-shell.is-wide-play .cc-controls,
+      .cc-shell:fullscreen .cc-controls { display:none; }
+      .cc-shell.is-wide-play,
+      .cc-shell:fullscreen { grid-template-rows:auto auto auto minmax(0,1fr); }
+      .cc-shell.is-wide-play .cc-stage-wrap,
+      .cc-shell:fullscreen .cc-stage-wrap { width:min(100%,calc((100dvh - 7rem - env(safe-area-inset-top) - env(safe-area-inset-bottom))*16/9)); }
+      .cc-shell.is-wide-play #cushionGame,
+      .cc-shell:fullscreen #cushionGame { max-height:calc(100dvh - 7rem - env(safe-area-inset-top) - env(safe-area-inset-bottom)); }
+    }
+    @media (pointer:coarse) and (max-height:500px) and (orientation:landscape) {
+      .cc-shell.is-wide-play .cc-settings,
+      .cc-shell:fullscreen .cc-settings { bottom:calc(.45rem + env(safe-area-inset-bottom)); }
+      .cc-shell.is-wide-play .cc-stage-wrap,
+      .cc-shell:fullscreen .cc-stage-wrap,
+      .cc-shell.is-wide-play #cushionGame,
+      .cc-shell:fullscreen #cushionGame { max-height:calc(100dvh - .8rem); }
+    }
+  </style>
+
+  <script type="module">
+    import { createGamepadController } from '/scripts/games/gamepad.js';
+    import { createGameInputLock } from '/scripts/games/keyboard-lock.js';
+
+    const ASSETS = {
+      dogSpriteSheet: '/images/games/balloon-catch-gpt-image-2/dog-sprite-sheet-original-prompt.png',
+      troublemaker: '/images/games/cushion-catch/troublemaker.png',
+      normal: '/images/games/cushion-catch/cushion-normal.png',
+      sparkle: '/images/games/cushion-catch/cushion-sparkle.png',
+      background: '/images/games/cushion-catch/room-background.png',
+    };
+    const DIFFICULTIES = {
+      easy: { label:'やさしい', spawnMs:2100, flightMs:1650, maxCushions:1, catchRadius:155, speed:430, targetMinX:150, targetMaxX:740, floorGraceMs:900 },
+      normal: { label:'ふつう', spawnMs:1350, flightMs:1000, maxCushions:2, catchRadius:80, speed:365, targetMinX:105, targetMaxX:790, floorGraceMs:0 },
+      hard: { label:'むずかしい', spawnMs:1000, flightMs:820, maxCushions:3, catchRadius:68, speed:405, targetMinX:105, targetMaxX:790, floorGraceMs:0 },
+    };
+    const FLOOR_Y = 474;
+    const PLAY_MIN_X = 48;
+    const PLAY_MAX_X = 865;
+    const DOG_DRAW_H = 170;
+    const DOG_HIT_TOP = FLOOR_Y - 145;
+    const THROW_X = 790;
+    const THROW_Y = 228;
+    const GAME_MS = 30000;
+    const FEVER_MS = 4000;
+    const BEST_KEY = 'cushion-catch-best-v1';
+    const SOUND_KEY = 'cushion-catch-sound-v1';
+    const DOG_FRAME_BOXES = [
+      { x:12,y:370,w:164,h:230,footY:586 }, { x:182,y:370,w:162,h:230,footY:586 },
+      { x:352,y:370,w:190,h:230,footY:585 }, { x:540,y:370,w:180,h:230,footY:585 },
+      { x:720,y:370,w:174,h:230,footY:586 }, { x:894,y:370,w:180,h:230,footY:583 },
+      { x:1072,y:370,w:156,h:230,footY:585 }, { x:1228,y:370,w:138,h:230,footY:560 },
+      { x:1375,y:370,w:161,h:230,footY:586 },
+    ];
+    const DOG_FRAMES = { idle:[0,1], running:[2,3,4,5], catching:[6,7,8] };
+
+    const canvas = document.getElementById('cushionGame');
+    const ctx = canvas.getContext('2d');
+    const shell = document.querySelector('.cc-shell');
+    const scoreText = document.getElementById('scoreText');
+    const statusText = document.getElementById('statusText');
+    const timeText = document.getElementById('timeText');
+    const catchText = document.getElementById('catchText');
+    const streakText = document.getElementById('streakText');
+    const bestText = document.getElementById('bestText');
+    const difficultySelect = document.getElementById('difficultySelect');
+    const startBtn = document.getElementById('startBtn');
+    const soundBtn = document.getElementById('soundBtn');
+    const widePlayBtn = document.getElementById('widePlayBtn');
+    const retryBtn = document.getElementById('retryBtn');
+    const catchBtn = document.getElementById('catchBtn');
+    const leftBtn = document.getElementById('leftBtn');
+    const rightBtn = document.getElementById('rightBtn');
+    const resultPanel = document.getElementById('resultPanel');
+    const resultTitle = document.getElementById('resultTitle');
+    const resultBody = document.getElementById('resultBody');
+    const newBestText = document.getElementById('newBestText');
+
+    const images = {};
+    let phase = 'title';
+    let difficulty = 'easy';
+    let player = { x:420, targetX:420, direction:0, lastCatchAt:-1000 };
+    let cushions = [];
+    let score = 0;
+    let caughtCount = 0;
+    let streak = 0;
+    let maxStreak = 0;
+    let comboProgress = 0;
+    let feverUntil = 0;
+    let catchUntil = 0;
+    let lastSpawnAt = 0;
+    let startedAt = 0;
+    let lastFrameAt = 0;
+    let messageUntil = 0;
+    let rafId = 0;
+    let cushionId = 1;
+    let keyboardDirection = 0;
+    let touchDirection = 0;
+    let touchCatchPointerId = null;
+    let gamepadDirection = 0;
+    let gamepadDirectionUntil = 0;
+    let stopGamepad = null;
+    let widePlayActive = false;
+    let soundEnabled = true;
+    let audioContext = null;
+    let bestScores = { easy:0, normal:0, hard:0 };
+
+    function clamp(value,min,max) { return Math.max(min,Math.min(max,value)); }
+    function lerp(start,end,amount) { return start+(end-start)*amount; }
+    function randomBetween(min,max) { return min+Math.random()*(max-min); }
+    function isFever(now=performance.now()) { return phase==='playing' && now<feverUntil; }
+
+    function readStorage() {
+      try {
+        const savedBest = JSON.parse(localStorage.getItem(BEST_KEY) || '{}');
+        bestScores = {
+          easy:Number(savedBest.easy)||0,
+          normal:Number(savedBest.normal)||0,
+          hard:Number(savedBest.hard)||0,
+        };
+        soundEnabled = localStorage.getItem(SOUND_KEY) !== 'off';
+      } catch {
+        bestScores = { easy:0,normal:0,hard:0 };
+        soundEnabled = true;
+      }
+    }
+
+    function saveSound() {
+      try { localStorage.setItem(SOUND_KEY,soundEnabled?'on':'off'); } catch {}
+    }
+
+    function saveBest() {
+      try { localStorage.setItem(BEST_KEY,JSON.stringify(bestScores)); } catch {}
+    }
+
+    function ensureAudio() {
+      if (!soundEnabled) return null;
+      if (!audioContext) {
+        const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+        if (AudioContextClass) audioContext = new AudioContextClass();
+      }
+      if (audioContext?.state==='suspended') void audioContext.resume();
+      return audioContext;
+    }
+
+    function tone(frequency,duration=.08,type='sine',delay=0,volume=.08) {
+      const audio = ensureAudio();
+      if (!audio) return;
+      const start = audio.currentTime+delay;
+      const oscillator = audio.createOscillator();
+      const gain = audio.createGain();
+      oscillator.type = type;
+      oscillator.frequency.setValueAtTime(frequency,start);
+      gain.gain.setValueAtTime(0.0001,start);
+      gain.gain.exponentialRampToValueAtTime(volume,start+.01);
+      gain.gain.exponentialRampToValueAtTime(0.0001,start+duration);
+      oscillator.connect(gain).connect(audio.destination);
+      oscillator.start(start);
+      oscillator.stop(start+duration+.02);
+    }
+
+    function sound(kind) {
+      if (!soundEnabled) return;
+      if (kind==='throw') tone(270,.07,'sine',0,.035);
+      if (kind==='bounce') tone(170,.09,'triangle',0,.06);
+      if (kind==='catch') { tone(520,.08,'sine',0,.07); tone(720,.1,'sine',.07,.06); }
+      if (kind==='fever') { tone(520,.1,'sine',0,.07); tone(660,.1,'sine',.1,.07); tone(880,.14,'sine',.2,.07); }
+      if (kind==='finish') { tone(440,.12,'triangle',0,.06); tone(330,.18,'triangle',.12,.05); }
+    }
+
+    function updateSoundButton() {
+      soundBtn.textContent = soundEnabled?'おと ON':'おと OFF';
+      soundBtn.setAttribute('aria-pressed',soundEnabled?'false':'true');
+    }
+
+    function loadImage(src) {
+      return new Promise((resolve) => {
+        const image = new Image();
+        image.onload = () => resolve(image);
+        image.onerror = () => resolve(null);
+        image.src = src;
+      });
+    }
+
+    async function preloadAssets() {
+      await Promise.all(Object.entries(ASSETS).map(async ([key,src]) => { images[key] = await loadImage(src); }));
+      draw(performance.now());
+    }
+
+    function setStatus(text,durationMs=0) {
+      statusText.textContent = text;
+      messageUntil = durationMs?performance.now()+durationMs:0;
+    }
+
+    function currentBest() { return bestScores[difficulty] || 0; }
+
+    function updateHud(now=performance.now()) {
+      const remaining = phase==='playing'?Math.max(0,Math.ceil((GAME_MS-(now-startedAt))/1000)):phase==='finished'?0:30;
+      scoreText.textContent = 'スコア: '+score;
+      timeText.textContent = String(remaining);
+      catchText.textContent = String(caughtCount);
+      streakText.textContent = String(streak);
+      bestText.textContent = String(currentBest());
+    }
+
+    function resetGame() {
+      difficulty = difficultySelect.value;
+      player = { x:420,targetX:420,direction:0,lastCatchAt:-1000 };
+      cushions = [];
+      score = 0;
+      caughtCount = 0;
+      streak = 0;
+      maxStreak = 0;
+      comboProgress = 0;
+      feverUntil = 0;
+      catchUntil = 0;
+      lastSpawnAt = 0;
+      cushionId = 1;
+      resultPanel.hidden = true;
+      newBestText.hidden = true;
+      updateHud();
+    }
+
+    function startGame() {
+      ensureAudio();
+      resetGame();
+      phase = 'playing';
+      startedAt = performance.now();
+      lastFrameAt = startedAt;
+      difficultySelect.disabled = true;
+      startBtn.textContent = 'さいしょから';
+      setStatus(DIFFICULTIES[difficulty].label+'モード。ワンバウンドしたらキャッチ！');
+      ensureGamepadController();
+      startLoop();
+    }
+
+    function finishGame() {
+      phase = 'finished';
+      cushions = [];
+      stopLoop();
+      difficultySelect.disabled = false;
+      const oldBest = currentBest();
+      const isNewBest = score>oldBest;
+      if (isNewBest) {
+        bestScores[difficulty] = score;
+        saveBest();
+      }
+      updateHud();
+      resultTitle.textContent = score>=22?'クッションマスター！':score>=10?'すごいキャッチ！':'またやってみよう';
+      resultBody.textContent = 'スコア '+score+'、キャッチ '+caughtCount+'こ、さいだい '+maxStreak+'れんぞく';
+      newBestText.hidden = !isNewBest;
+      resultPanel.hidden = false;
+      setStatus('30びょう おしまい');
+      sound('finish');
+      draw(performance.now());
+    }
+
+    function spawnCushion(now) {
+      const settings = DIFFICULTIES[difficulty];
+      if (cushions.length>=settings.maxCushions) return;
+      let targetX = randomBetween(settings.targetMinX,settings.targetMaxX);
+      for (let attempt=0;attempt<5;attempt+=1) {
+        if (!cushions.some((item)=>Math.abs(item.targetX-targetX)<120)) break;
+        targetX = randomBetween(settings.targetMinX,settings.targetMaxX);
+      }
+      cushions.push({
+        id:cushionId,
+        kind:Math.random()<.15?'sparkle':'normal',
+        phase:'flight',
+        bornAt:now,
+        phaseAt:now,
+        x:THROW_X,
+        y:THROW_Y,
+        targetX,
+        rotation:0,
+        arcHeight:randomBetween(150,210),
+        reboundVelocity:randomBetween(355,395),
+        drift:randomBetween(-34,34),
+      });
+      cushionId += 1;
+      lastSpawnAt = now;
+      sound('throw');
+    }
+
+    function markMiss() {
+      streak = 0;
+      comboProgress = 0;
+      if (performance.now()>messageUntil) setStatus('おちちゃった。つぎをねらおう',650);
+    }
+
+    function updateCushions(now) {
+      const settings = DIFFICULTIES[difficulty];
+      const next = [];
+      for (const cushion of cushions) {
+        if (cushion.phase==='flight') {
+          const t = clamp((now-cushion.bornAt)/settings.flightMs,0,1);
+          cushion.x = lerp(THROW_X,cushion.targetX,t);
+          cushion.y = lerp(THROW_Y,FLOOR_Y,t)-Math.sin(Math.PI*t)*cushion.arcHeight;
+          cushion.rotation = t*Math.PI*1.25;
+          if (t>=1) {
+            cushion.phase = 'rebound';
+            cushion.phaseAt = now;
+            cushion.x = cushion.targetX;
+            cushion.y = FLOOR_Y;
+            sound('bounce');
+          }
+        } else if (cushion.phase==='rebound') {
+          const elapsed = (now-cushion.phaseAt)/1000;
+          const height = cushion.reboundVelocity*elapsed-.5*720*elapsed*elapsed;
+          cushion.x = cushion.targetX+cushion.drift*elapsed;
+          cushion.y = FLOOR_Y-Math.max(0,height);
+          cushion.rotation += .045;
+          if (height<=0 && elapsed>.15) {
+            if (settings.floorGraceMs>0) {
+              cushion.phase = 'resting';
+              cushion.phaseAt = now;
+              cushion.y = FLOOR_Y;
+            } else {
+              markMiss();
+              continue;
+            }
+          }
+        } else {
+          cushion.y = FLOOR_Y;
+          if (now-cushion.phaseAt>=settings.floorGraceMs) {
+            markMiss();
+            continue;
+          }
+        }
+        next.push(cushion);
+      }
+      cushions = next;
+    }
+
+    function isCushionCatchable(cushion,now=performance.now()) {
+      if (cushion.phase!=='rebound' && cushion.phase!=='resting') return false;
+      const settings = DIFFICULTIES[difficulty];
+      const radius = settings.catchRadius+(isFever(now)?18:0);
+      return Math.abs(cushion.x-player.x)<=radius && cushion.y>=DOG_HIT_TOP-30 && cushion.y<=FLOOR_Y+8;
+    }
+
+    function getCatchableCushionIds(now=performance.now()) {
+      return cushions.filter((cushion)=>isCushionCatchable(cushion,now)).map((cushion)=>cushion.id);
+    }
+
+    function attemptCatch() {
+      const now = performance.now();
+      if (phase!=='playing') {
+        startGame();
+        return;
+      }
+      catchUntil = now+310;
+      player.lastCatchAt = now;
+      const caught = getCatchableCushionIds(now);
+      if (!caught.length) {
+        if (cushions.some((item)=>item.phase==='flight')) setStatus('ワンバウンドしてから！',500);
+        draw(now);
+        return;
+      }
+      const caughtIds = new Set(caught);
+      for (const cushion of cushions) {
+        if (!caughtIds.has(cushion.id)) continue;
+        const base = cushion.kind==='sparkle'?3:1;
+        score += base*(isFever(now)?2:1);
+        caughtCount += 1;
+        streak += 1;
+        maxStreak = Math.max(maxStreak,streak);
+        comboProgress += 1;
+      }
+      cushions = cushions.filter((item)=>!caughtIds.has(item.id));
+      if (comboProgress>=3) {
+        comboProgress = 0;
+        feverUntil = now+FEVER_MS;
+        setStatus('ふわふわタイム！ とくてん2ばい！',1100);
+        sound('fever');
+      } else {
+        setStatus(caught.length>1?'ダブルキャッチ！':streak+'れんぞく！',650);
+        sound('catch');
+      }
+      updateHud(now);
+    }
+
+    function updatePlayer(dt,now) {
+      if (gamepadDirectionUntil<now) gamepadDirection = 0;
+      const direction = keyboardDirection || touchDirection || gamepadDirection;
+      const settings = DIFFICULTIES[difficulty];
+      if (direction) {
+        player.x += direction*settings.speed*dt;
+        player.targetX = player.x;
+      } else {
+        player.x += (player.targetX-player.x)*Math.min(1,dt*8);
+      }
+      player.x = clamp(player.x,PLAY_MIN_X,PLAY_MAX_X);
+      player.targetX = clamp(player.targetX,PLAY_MIN_X,PLAY_MAX_X);
+      player.direction = direction || Math.sign(player.targetX-player.x);
+    }
+
+    function step(now) {
+      if (phase!=='playing') {
+        stopLoop();
+        draw(now);
+        return;
+      }
+      const dt = Math.min(.04,(now-lastFrameAt)/1000 || 0);
+      lastFrameAt = now;
+      if (now-startedAt>=GAME_MS) {
+        finishGame();
+        return;
+      }
+      updatePlayer(dt,now);
+      const settings = DIFFICULTIES[difficulty];
+      if (!lastSpawnAt || now-lastSpawnAt>=settings.spawnMs) spawnCushion(now);
+      updateCushions(now);
+      updateHud(now);
+      if (!messageUntil || now>messageUntil) {
+        messageUntil = 0;
+        if (getCatchableCushionIds(now).length) setStatus('いま！ ゲーム画面をタップ！');
+        else if (isFever(now)) setStatus('ふわふわタイム！ とくてん2ばい！');
+        else setStatus(settings.label+'モード。あと'+(3-comboProgress)+'こで ふわふわタイム');
+      }
+      draw(now);
+      rafId = requestAnimationFrame(step);
+    }
+
+    function startLoop() {
+      if (rafId) return;
+      lastFrameAt = performance.now();
+      rafId = requestAnimationFrame(step);
+    }
+
+    function stopLoop() {
+      if (!rafId) return;
+      cancelAnimationFrame(rafId);
+      rafId = 0;
+    }
+
+    function drawCover(image,x,y,width,height) {
+      if (!image) {
+        const gradient = ctx.createLinearGradient(0,0,0,height);
+        gradient.addColorStop(0,'#dff7ef');
+        gradient.addColorStop(1,'#fde6c8');
+        ctx.fillStyle = gradient;
+        ctx.fillRect(x,y,width,height);
+        return;
+      }
+      const scale = Math.max(width/image.width,height/image.height);
+      const sw = width/scale;
+      const sh = height/scale;
+      ctx.drawImage(image,(image.width-sw)/2,(image.height-sh)/2,sw,sh,x,y,width,height);
+    }
+
+    function drawTroublemaker(now) {
+      const bounce = phase==='playing' && now-lastSpawnAt<180?-7:0;
+      if (images.troublemaker) {
+        ctx.drawImage(images.troublemaker,710,105+bounce,205,205);
+      } else {
+        ctx.fillStyle = '#f9a8d4';
+        ctx.beginPath();
+        ctx.arc(810,210+bounce,58,0,Math.PI*2);
+        ctx.fill();
+      }
+    }
+
+    function currentDogFrame(now) {
+      if (now<catchUntil || now-player.lastCatchAt<300) return DOG_FRAMES.catching[Math.floor(now/110)%DOG_FRAMES.catching.length];
+      if (phase==='playing' && (Math.abs(player.direction)>0 || Math.abs(player.targetX-player.x)>5)) return DOG_FRAMES.running[Math.floor(now/105)%DOG_FRAMES.running.length];
+      return DOG_FRAMES.idle[Math.floor(now/420)%DOG_FRAMES.idle.length];
+    }
+
+    function drawDog(now) {
+      const image = images.dogSpriteSheet;
+      if (!image) {
+        ctx.fillStyle = '#fff7df';
+        ctx.beginPath();
+        ctx.ellipse(player.x,FLOOR_Y-50,48,38,0,0,Math.PI*2);
+        ctx.fill();
+        return;
+      }
+      const box = DOG_FRAME_BOXES[currentDogFrame(now)] || DOG_FRAME_BOXES[0];
+      const scale = DOG_DRAW_H/box.h;
+      const dw = box.w*scale;
+      const dy = FLOOR_Y-(box.footY-box.y)*scale;
+      ctx.drawImage(image,box.x,box.y,box.w,box.h,player.x-dw/2,dy,dw,DOG_DRAW_H);
+    }
+
+    function drawLandingMarker(cushion,now) {
+      if (cushion.phase!=='flight') return;
+      const pulse = 1+Math.sin(now/130)*.08;
+      ctx.save();
+      ctx.translate(cushion.targetX,FLOOR_Y+4);
+      ctx.scale(pulse,1);
+      ctx.fillStyle = 'rgba(251,113,133,.2)';
+      ctx.strokeStyle = 'rgba(225,29,72,.8)';
+      ctx.lineWidth = 4;
+      ctx.setLineDash([9,7]);
+      ctx.beginPath();
+      ctx.ellipse(0,0,54,15,0,0,Math.PI*2);
+      ctx.fill();
+      ctx.stroke();
+      ctx.restore();
+    }
+
+    function drawCushion(cushion,now) {
+      const image = cushion.kind==='sparkle'?images.sparkle:images.normal;
+      const feverScale = isFever(now)?1.2:1;
+      const pulse = cushion.kind==='sparkle'?1+Math.sin(now/140)*.06:1;
+      const size = (cushion.kind==='sparkle'?100:90)*feverScale*pulse;
+      const isReady = isCushionCatchable(cushion,now);
+      ctx.save();
+      ctx.translate(cushion.x,cushion.y-size*.2);
+      if (isReady) {
+        const readyPulse = 1+Math.sin(now/95)*.1;
+        ctx.strokeStyle = 'rgba(14,165,233,.92)';
+        ctx.fillStyle = 'rgba(255,255,255,.92)';
+        ctx.lineWidth = 6;
+        ctx.beginPath();
+        ctx.ellipse(0,0,size*.66*readyPulse,size*.55*readyPulse,0,0,Math.PI*2);
+        ctx.fill();
+        ctx.stroke();
+        ctx.fillStyle = '#0369a1';
+        ctx.font = '900 20px system-ui,sans-serif';
+        ctx.textAlign = 'center';
+        ctx.fillText('タップ！',0,-size*.7);
+      }
+      ctx.rotate(cushion.rotation);
+      if (image) ctx.drawImage(image,-size/2,-size/2,size,size);
+      else {
+        ctx.fillStyle = cushion.kind==='sparkle'?'#fcd34d':'#f9a8d4';
+        ctx.beginPath();
+        ctx.roundRect(-size/2,-size*.36,size,size*.72,18);
+        ctx.fill();
+      }
+      ctx.restore();
+    }
+
+    function drawFever(now) {
+      if (!isFever(now)) return;
+      const remaining = Math.max(0,(feverUntil-now)/1000);
+      ctx.save();
+      ctx.fillStyle = 'rgba(253,224,71,.12)';
+      ctx.fillRect(0,0,canvas.width,canvas.height);
+      ctx.fillStyle = '#b45309';
+      ctx.font = '900 24px system-ui,sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillText('ふわふわタイム '+remaining.toFixed(1),canvas.width/2,42);
+      for (let index=0;index<8;index+=1) {
+        const x = (index*137+now*.08)%canvas.width;
+        const y = 75+(index%3)*55+Math.sin(now/220+index)*12;
+        ctx.fillStyle = index%2?'rgba(251,191,36,.65)':'rgba(244,114,182,.6)';
+        ctx.beginPath();
+        ctx.arc(x,y,4+(index%3),0,Math.PI*2);
+        ctx.fill();
+      }
+      ctx.restore();
+    }
+
+    function draw(now) {
+      ctx.clearRect(0,0,canvas.width,canvas.height);
+      drawCover(images.background,0,0,canvas.width,canvas.height);
+      ctx.fillStyle = 'rgba(255,255,255,.22)';
+      ctx.fillRect(0,FLOOR_Y-15,canvas.width,canvas.height-FLOOR_Y+15);
+      for (const cushion of cushions) drawLandingMarker(cushion,now);
+      drawTroublemaker(now);
+      for (const cushion of cushions) drawCushion(cushion,now);
+      drawDog(now);
+      drawFever(now);
+      if (phase==='title') {
+        ctx.fillStyle = 'rgba(255,255,255,.74)';
+        ctx.fillRect(0,0,canvas.width,canvas.height);
+        ctx.fillStyle = '#334155';
+        ctx.textAlign = 'center';
+        ctx.font = '900 34px system-ui,sans-serif';
+        ctx.fillText('スタートで はじめよう',canvas.width/2,238);
+        ctx.font = '800 22px system-ui,sans-serif';
+        ctx.fillText('ワンバウンドしたら キャッチ！',canvas.width/2,280);
+      }
+    }
+
+    function canvasX(event) {
+      const rect = canvas.getBoundingClientRect();
+      return ((event.clientX-rect.left)/rect.width)*canvas.width;
+    }
+
+    function moveToPointer(event) {
+      if (phase==='title') startGame();
+      player.targetX = clamp(canvasX(event),PLAY_MIN_X,PLAY_MAX_X);
+    }
+
+    function clearTouchDirection() {
+      touchDirection = 0;
+      leftBtn.classList.remove('is-active');
+      rightBtn.classList.remove('is-active');
+    }
+
+    function updateWidePlayButton() {
+      widePlayBtn.textContent = widePlayActive?'もどる':'大きくあそぶ';
+      widePlayBtn.setAttribute('aria-pressed',widePlayActive?'true':'false');
+    }
+
+    async function enterWidePlay() {
+      widePlayActive = true;
+      shell.classList.add('is-wide-play');
+      document.body.classList.add('cc-wide-play-lock');
+      updateWidePlayButton();
+      draw(performance.now());
+      try { if (!document.fullscreenElement && shell.requestFullscreen) await shell.requestFullscreen(); } catch {}
+      try { await screen.orientation?.lock?.('landscape'); } catch {}
+    }
+
+    async function exitWidePlay({skipNativeExit=false}={}) {
+      widePlayActive = false;
+      shell.classList.remove('is-wide-play');
+      document.body.classList.remove('cc-wide-play-lock');
+      updateWidePlayButton();
+      try { screen.orientation?.unlock?.(); } catch {}
+      if (!skipNativeExit && document.fullscreenElement===shell) {
+        try { await document.exitFullscreen(); } catch {}
+      }
+      draw(performance.now());
+    }
+
+    function ensureGamepadController() {
+      if (stopGamepad) return;
+      stopGamepad = createGamepadController({
+        onDirection:(direction)=>{
+          if (direction==='left') gamepadDirection = -1;
+          else if (direction==='right') gamepadDirection = 1;
+          else return;
+          gamepadDirectionUntil = performance.now()+150;
+        },
+        onPrimary:attemptCatch,
+        directionRepeatMs:60,
+      });
+    }
+
+    startBtn.addEventListener('click',startGame);
+    retryBtn.addEventListener('click',startGame);
+    catchBtn.addEventListener('click',attemptCatch);
+    soundBtn.addEventListener('click',()=>{
+      soundEnabled = !soundEnabled;
+      saveSound();
+      updateSoundButton();
+      if (soundEnabled) { ensureAudio(); sound('catch'); }
+    });
+    widePlayBtn.addEventListener('click',()=>{ if (widePlayActive) void exitWidePlay(); else void enterWidePlay(); });
+    difficultySelect.addEventListener('change',()=>{
+      difficulty = difficultySelect.value;
+      setStatus(DIFFICULTIES[difficulty].label+'モードであそぶよ');
+      updateHud();
+      draw(performance.now());
+    });
+
+    canvas.addEventListener('pointerdown',(event)=>{
+      canvas.setPointerCapture?.(event.pointerId);
+      const isTouchPointer = event.pointerType==='touch' || event.pointerType==='pen';
+      if (isTouchPointer && phase==='playing' && getCatchableCushionIds().length) {
+        touchCatchPointerId = event.pointerId;
+        attemptCatch();
+        return;
+      }
+      touchCatchPointerId = null;
+      moveToPointer(event);
+    });
+    canvas.addEventListener('pointermove',(event)=>{
+      if (event.pointerId!==touchCatchPointerId && event.buttons) moveToPointer(event);
+    });
+    canvas.addEventListener('pointerup',(event)=>{
+      if (event.pointerId===touchCatchPointerId) touchCatchPointerId = null;
+    });
+    canvas.addEventListener('pointercancel',(event)=>{
+      if (event.pointerId===touchCatchPointerId) touchCatchPointerId = null;
+    });
+
+    for (const [button,direction] of [[leftBtn,-1],[rightBtn,1]]) {
+      button.addEventListener('pointerdown',(event)=>{
+        event.preventDefault();
+        button.setPointerCapture?.(event.pointerId);
+        touchDirection = direction;
+        button.classList.add('is-active');
+        if (phase!=='playing') startGame();
+      });
+      button.addEventListener('pointerup',clearTouchDirection);
+      button.addEventListener('pointercancel',clearTouchDirection);
+      button.addEventListener('lostpointercapture',clearTouchDirection);
+    }
+
+    const stopKeyboardLock = createGameInputLock({
+      keys:['ArrowLeft','ArrowRight','a','d',' '],
+      onKey:(key,event)=>{
+        if (key==='arrowleft' || key==='a') keyboardDirection = -1;
+        if (key==='arrowright' || key==='d') keyboardDirection = 1;
+        if (key===' ' && !event.repeat) attemptCatch();
+      },
+    });
+    window.addEventListener('keyup',(event)=>{
+      const key = event.key.toLowerCase();
+      if ((key==='arrowleft'||key==='a') && keyboardDirection===-1) keyboardDirection = 0;
+      if ((key==='arrowright'||key==='d') && keyboardDirection===1) keyboardDirection = 0;
+    },{capture:true});
+    document.addEventListener('fullscreenchange',()=>{
+      if (widePlayActive && document.fullscreenElement!==shell) void exitWidePlay({skipNativeExit:true});
+    });
+    window.addEventListener('gamepadconnected',ensureGamepadController);
+    window.addEventListener('pagehide',()=>{
+      if (widePlayActive) void exitWidePlay({skipNativeExit:true});
+      stopGamepad?.();
+      stopKeyboardLock();
+      stopLoop();
+      audioContext?.close?.();
+    },{once:true});
+
+    readStorage();
+    updateSoundButton();
+    resetGame();
+    preloadAssets();
+  </script>
+</Layout>
