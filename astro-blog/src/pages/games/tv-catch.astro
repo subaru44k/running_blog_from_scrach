@@ -1,0 +1,531 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import RelatedGames from '../../components/games/RelatedGames.astro';
+
+const pageTitle = 'テレビゲーム｜ミニゲーム';
+const metaDescription = 'わんちゃんを左右に動かして、わるいひとが棚から跳ね落とすテレビをキャッチする30秒の子ども向けゲームです。';
+---
+
+<Layout
+  pageTitle={pageTitle}
+  metaDescription={metaDescription}
+  noSidebar={true}
+  pageHeading="テレビゲーム"
+  pageLead="わるいひとが棚のテレビに近づいて、ぽんっと跳ね落とすよ。わんちゃんを動かして、床に落ちる前にキャッチしよう。"
+>
+  <section class="grid gap-6 lg:grid-cols-[minmax(0,1fr)_18rem] lg:items-start">
+    <article class="card p-5 md:p-6">
+      <div class="tv-shell">
+        <div class="tv-top">
+          <div>
+            <p class="tv-kicker">MINI GAME</p>
+            <h2 class="tv-title">テレビゲーム</h2>
+          </div>
+          <div class="tv-score" id="scoreText">スコア: 0</div>
+        </div>
+
+        <div class="tv-status" id="statusText" aria-live="polite">むずかしさをえらんで、スタートしよう</div>
+
+        <div class="tv-settings">
+          <div class="tv-field">
+            <label for="difficultySelect">むずかしさ</label>
+            <select id="difficultySelect" aria-label="むずかしさ">
+              <option value="slow">おそい</option>
+              <option value="normal" selected>ふつう</option>
+              <option value="fast">はやい</option>
+            </select>
+          </div>
+          <button class="tv-btn tv-btn-primary" id="startBtn" type="button">スタート</button>
+          <button class="tv-btn" id="widePlayBtn" type="button" aria-pressed="false">大きくあそぶ</button>
+        </div>
+
+        <div class="tv-meta">
+          <div class="tv-chip"><span>のこり</span><strong id="timeText">30</strong></div>
+          <div class="tv-chip"><span>キャッチ</span><strong id="catchText">0</strong></div>
+          <div class="tv-chip"><span>そうさ</span><strong id="controlText">タッチOK</strong></div>
+        </div>
+
+        <div class="tv-stage-wrap">
+          <canvas id="tvGame" width="960" height="540" aria-label="テレビゲーム。犬を左右に動かして、落ちてくるテレビをキャッチします。"></canvas>
+          <div class="tv-result" id="resultPanel" hidden>
+            <div class="tv-result-card">
+              <p class="tv-result-kicker">おしまい</p>
+              <h3 id="resultTitle">よくできました</h3>
+              <p id="resultBody">スコア 0</p>
+              <button class="tv-btn tv-btn-primary" id="retryBtn" type="button">もういちど</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="tv-controls" aria-label="犬を左右に動かす">
+          <button class="tv-move-btn" data-direction="left" type="button">← ひだり</button>
+          <button class="tv-move-btn" data-direction="right" type="button">みぎ →</button>
+        </div>
+        <p class="tv-hint">操作: 画面タップ・ドラッグ、←→ / A・Dキー、ゲームパッドの左スティック・十字キー</p>
+
+        <div class="tv-help mt-5 grid gap-4 md:grid-cols-2">
+          <div class="rounded-2xl border border-slate-200/80 bg-white/70 p-4 dark:border-slate-700/80 dark:bg-slate-900/60">
+            <h3 class="mt-0 text-base font-semibold">遊び方</h3>
+            <p class="mt-2 text-sm leading-7 text-slate-600 dark:text-slate-300">わるいひとがテレビにぶつかると、テレビがぽんっと跳ねます。落ちる場所へわんちゃんを動かすと、自動でキャッチできます。</p>
+          </div>
+          <div class="rounded-2xl border border-slate-200/80 bg-white/70 p-4 dark:border-slate-700/80 dark:bg-slate-900/60">
+            <h3 class="mt-0 text-base font-semibold">落としてもだいじょうぶ</h3>
+            <p class="mt-2 text-sm leading-7 text-slate-600 dark:text-slate-300">取り逃しても減点はありません。テレビは床でやわらかく跳ねて、すぐ次のチャレンジが始まります。</p>
+          </div>
+        </div>
+      </div>
+    </article>
+
+    <RelatedGames currentHref="/games/tv-catch/" />
+  </section>
+
+  <style>
+    :global(body.tv-wide-play-lock) { overflow:hidden; touch-action:none; overscroll-behavior:none; }
+    .tv-shell { color:rgb(15 23 42); overscroll-behavior:contain; }
+    .tv-top { display:flex; justify-content:space-between; align-items:flex-start; gap:1rem; margin-bottom:1rem; }
+    .tv-kicker { margin:0; color:rgb(100 116 139); font-size:.72rem; font-weight:800; letter-spacing:.24em; }
+    .tv-title { margin:.35rem 0 0; font-size:1.65rem; }
+    .tv-score { border:1px solid rgba(148,163,184,.35); border-radius:999px; background:rgba(255,255,255,.88); padding:.65rem 1rem; font-weight:900; white-space:nowrap; }
+    .tv-status { margin-bottom:1rem; border:1px solid rgba(148,163,184,.28); border-radius:1rem; background:linear-gradient(135deg,rgba(254,249,195,.9),rgba(237,233,254,.9)); padding:.95rem 1rem; font-weight:900; }
+    .tv-settings { display:grid; grid-template-columns:minmax(0,1fr) auto auto; gap:.75rem; margin-bottom:1rem; }
+    .tv-field { display:grid; gap:.35rem; }
+    .tv-field label { color:rgb(71 85 105); font-size:.86rem; font-weight:800; }
+    .tv-field select,.tv-btn { border:1px solid rgba(51,65,85,.22); border-radius:1rem; background:rgba(255,255,255,.94); color:rgb(15 23 42); padding:.8rem 1rem; font-weight:900; }
+    .tv-btn { cursor:pointer; transition:transform .15s ease,background-color .15s ease; }
+    .tv-btn:hover { transform:translateY(-1px); background:white; }
+    .tv-btn-primary { border-color:rgb(15 23 42); background:rgb(15 23 42); color:white; }
+    .tv-btn-primary:hover { background:rgb(30 41 59); }
+    .tv-meta { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:.75rem; margin-bottom:1rem; }
+    .tv-chip { display:grid; gap:.2rem; border:1px solid rgba(148,163,184,.35); border-radius:1rem; background:rgba(255,255,255,.82); padding:.75rem .9rem; }
+    .tv-chip span { color:rgb(100 116 139); font-size:.75rem; font-weight:800; }
+    .tv-chip strong { font-size:1.2rem; line-height:1.1; }
+    .tv-stage-wrap { position:relative; overflow:hidden; border:1px solid rgba(51,65,85,.18); border-radius:1.25rem; background:linear-gradient(180deg,#e5f7f4,#fff1d9); box-shadow:inset 0 1px 0 rgba(255,255,255,.8); }
+    #tvGame { display:block; width:100%; height:auto; aspect-ratio:16 / 9; touch-action:none; user-select:none; }
+    .tv-result { position:absolute; inset:0; display:grid; place-items:center; background:rgba(15,23,42,.38); padding:1rem; }
+    .tv-result[hidden] { display:none; }
+    .tv-result-card { width:min(90%,24rem); border-radius:1.25rem; background:rgba(255,255,255,.96); padding:1.4rem; text-align:center; box-shadow:0 18px 45px rgba(15,23,42,.25); }
+    .tv-result-card h3 { margin:.2rem 0 .5rem; font-size:1.7rem; }
+    .tv-result-kicker { margin:0; color:rgb(124 58 237); font-size:.74rem; font-weight:900; letter-spacing:.2em; }
+    .tv-controls { display:grid; grid-template-columns:1fr 1fr; gap:.75rem; margin-top:1rem; }
+    .tv-move-btn { min-height:3.5rem; border:1px solid rgba(51,65,85,.22); border-radius:1rem; background:rgba(255,255,255,.94); color:rgb(15 23 42); font-weight:900; cursor:pointer; touch-action:none; user-select:none; }
+    .tv-move-btn:active { background:rgb(224 242 254); transform:translateY(1px); }
+    .tv-hint { margin:.8rem 0 0; color:rgb(100 116 139); font-size:.82rem; line-height:1.7; }
+
+    .tv-shell.is-wide-play,.tv-shell:fullscreen { position:fixed; inset:0; z-index:9999; display:grid; grid-template-rows:auto auto auto minmax(0,1fr) auto; gap:.4rem; width:100vw; height:100dvh; overflow:hidden; padding:calc(.45rem + env(safe-area-inset-top)) calc(.55rem + env(safe-area-inset-right)) calc(.45rem + env(safe-area-inset-bottom)) calc(.55rem + env(safe-area-inset-left)); background:linear-gradient(180deg,#fff7ed,#eefdf8); color:rgb(15 23 42); }
+    .tv-shell.is-wide-play .tv-top,.tv-shell:fullscreen .tv-top { align-items:center; margin:0; }
+    .tv-shell.is-wide-play .tv-kicker,.tv-shell.is-wide-play .tv-title,.tv-shell.is-wide-play .tv-hint,.tv-shell.is-wide-play .tv-help,.tv-shell:fullscreen .tv-kicker,.tv-shell:fullscreen .tv-title,.tv-shell:fullscreen .tv-hint,.tv-shell:fullscreen .tv-help { display:none; }
+    .tv-shell.is-wide-play .tv-status,.tv-shell:fullscreen .tv-status { margin:0; padding:.45rem .7rem; font-size:.88rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+    .tv-shell.is-wide-play .tv-settings,.tv-shell:fullscreen .tv-settings { grid-template-columns:minmax(7rem,1fr) auto auto; align-items:end; gap:.4rem; margin:0; }
+    .tv-shell.is-wide-play .tv-field label,.tv-shell:fullscreen .tv-field label { display:none; }
+    .tv-shell.is-wide-play .tv-field select,.tv-shell.is-wide-play .tv-btn,.tv-shell:fullscreen .tv-field select,.tv-shell:fullscreen .tv-btn { min-height:2.2rem; padding:.4rem .6rem; border-radius:.75rem; font-size:.82rem; }
+    .tv-shell.is-wide-play .tv-meta,.tv-shell:fullscreen .tv-meta { position:absolute; top:calc(.45rem + env(safe-area-inset-top)); right:calc(.55rem + env(safe-area-inset-right)); z-index:2; display:flex; gap:.25rem; margin:0; pointer-events:none; }
+    .tv-shell.is-wide-play .tv-chip,.tv-shell:fullscreen .tv-chip { min-width:3.15rem; gap:0; padding:.3rem .4rem; border-radius:.7rem; background:rgba(255,255,255,.92); }
+    .tv-shell.is-wide-play .tv-chip span,.tv-shell:fullscreen .tv-chip span { font-size:.54rem; }
+    .tv-shell.is-wide-play .tv-chip strong,.tv-shell:fullscreen .tv-chip strong { font-size:.82rem; }
+    .tv-shell.is-wide-play .tv-stage-wrap,.tv-shell:fullscreen .tv-stage-wrap { align-self:center; justify-self:center; width:min(100%,calc((100dvh - 10rem)*16/9)); max-height:100%; border-radius:.8rem; }
+    .tv-shell.is-wide-play #tvGame,.tv-shell:fullscreen #tvGame { max-height:calc(100dvh - 10rem); object-fit:contain; }
+    .tv-shell.is-wide-play .tv-controls,.tv-shell:fullscreen .tv-controls { justify-self:center; width:min(38rem,100%); margin:0; }
+
+    @media (max-width:640px) {
+      .tv-top { display:grid; }
+      .tv-score { justify-self:start; }
+      .tv-settings { grid-template-columns:1fr; }
+      .tv-meta { gap:.45rem; }
+      .tv-chip { padding:.6rem; }
+      .tv-chip strong { font-size:1rem; }
+    }
+    @media (pointer:fine) and (min-width:768px) { .tv-controls { width:min(32rem,100%); margin-inline:auto; } }
+    @media (max-height:500px) and (orientation:landscape) {
+      .tv-shell.is-wide-play,.tv-shell:fullscreen { display:block; }
+      .tv-shell.is-wide-play .tv-top,.tv-shell.is-wide-play .tv-status,.tv-shell.is-wide-play .tv-settings,.tv-shell.is-wide-play .tv-meta,.tv-shell:fullscreen .tv-top,.tv-shell:fullscreen .tv-status,.tv-shell:fullscreen .tv-settings,.tv-shell:fullscreen .tv-meta { position:absolute; z-index:3; }
+      .tv-shell.is-wide-play .tv-top,.tv-shell:fullscreen .tv-top { top:calc(.4rem + env(safe-area-inset-top)); left:calc(.5rem + env(safe-area-inset-left)); }
+      .tv-shell.is-wide-play .tv-status,.tv-shell:fullscreen .tv-status { display:none; }
+      .tv-shell.is-wide-play .tv-settings,.tv-shell:fullscreen .tv-settings { left:50%; bottom:calc(3.5rem + env(safe-area-inset-bottom)); width:min(35rem,calc(100vw - 1rem)); transform:translateX(-50%); padding:.3rem; border-radius:.8rem; background:rgba(255,255,255,.82); }
+      .tv-shell.is-wide-play .tv-meta,.tv-shell:fullscreen .tv-meta { top:calc(.4rem + env(safe-area-inset-top)); right:calc(.5rem + env(safe-area-inset-right)); }
+      .tv-shell.is-wide-play .tv-stage-wrap,.tv-shell:fullscreen .tv-stage-wrap { position:absolute; top:50%; left:50%; width:min(100%,calc((100dvh - .8rem)*16/9)); max-height:calc(100dvh - .8rem); transform:translate(-50%,-50%); }
+      .tv-shell.is-wide-play #tvGame,.tv-shell:fullscreen #tvGame { max-height:calc(100dvh - .8rem); }
+      .tv-shell.is-wide-play .tv-controls,.tv-shell:fullscreen .tv-controls { position:absolute; z-index:4; bottom:calc(.35rem + env(safe-area-inset-bottom)); left:50%; width:min(31rem,calc(100vw - 1rem)); transform:translateX(-50%); }
+    }
+  </style>
+
+  <script type="module">
+    import { createGamepadController } from '/scripts/games/gamepad.js';
+    import { createGameInputLock } from '/scripts/games/keyboard-lock.js';
+
+    const ASSETS = {
+      dog: '/images/games/balloon-catch-gpt-image-2/dog-sprite-sheet-original-prompt.png',
+      troublemaker: '/images/games/tv-catch/troublemaker-walking.png',
+      television: '/images/games/tv-catch/television.png',
+      background: '/images/games/tv-catch/room-with-shelf.png',
+    };
+    const DIFFICULTIES = {
+      slow: { label:'おそい', approachMs:1500, flightMs:1900, dogSpeed:400 },
+      normal: { label:'ふつう', approachMs:1000, flightMs:1500, dogSpeed:390 },
+      fast: { label:'はやい', approachMs:700, flightMs:1150, dogSpeed:420 },
+    };
+    const GAME_MS = 30000;
+    const PLAY_MIN_X = 60;
+    const PLAY_MAX_X = 900;
+    const DOG_FOOT_Y = 500;
+    const DOG_DRAW_H = 185;
+    const DOG_HIT_W = 120;
+    const DOG_HIT_H = 118;
+    const TV_SHELF_X = 810;
+    const TV_SHELF_Y = 250;
+    const TV_FLOOR_Y = 430;
+    const TV_SIZE = 132;
+    const TROUBLE_START_X = 525;
+    const TROUBLE_CONTACT_X = 725;
+    const MISS_BOUNCE_MS = 620;
+    const NEXT_ROUND_MS = 360;
+    const DOG_FRAME_BOXES = [
+      { x:12,y:370,w:164,h:230,footY:586 }, { x:182,y:370,w:162,h:230,footY:586 },
+      { x:352,y:370,w:190,h:230,footY:585 }, { x:540,y:370,w:180,h:230,footY:585 },
+      { x:720,y:370,w:174,h:230,footY:586 }, { x:894,y:370,w:180,h:230,footY:583 },
+      { x:1072,y:370,w:156,h:230,footY:585 }, { x:1228,y:370,w:138,h:230,footY:560 },
+      { x:1375,y:370,w:161,h:230,footY:586 },
+    ];
+    const DOG_FRAMES = { idle:[0,1], running:[2,3,4,5], catching:[6,7,8] };
+
+    const canvas = document.getElementById('tvGame');
+    const ctx = canvas.getContext('2d');
+    const scoreText = document.getElementById('scoreText');
+    const statusText = document.getElementById('statusText');
+    const timeText = document.getElementById('timeText');
+    const catchText = document.getElementById('catchText');
+    const controlText = document.getElementById('controlText');
+    const difficultySelect = document.getElementById('difficultySelect');
+    const startBtn = document.getElementById('startBtn');
+    const widePlayBtn = document.getElementById('widePlayBtn');
+    const retryBtn = document.getElementById('retryBtn');
+    const resultPanel = document.getElementById('resultPanel');
+    const resultTitle = document.getElementById('resultTitle');
+    const resultBody = document.getElementById('resultBody');
+    const shell = document.querySelector('.tv-shell');
+    const moveButtons = Array.from(document.querySelectorAll('.tv-move-btn'));
+
+    const images = {};
+    let phase = 'title';
+    let difficulty = 'normal';
+    let player = { x:480,targetX:480,direction:0,lastCatchAt:-1000 };
+    let round = null;
+    let nextRoundAt = 0;
+    let score = 0;
+    let caughtCount = 0;
+    let startedAt = 0;
+    let lastFrameAt = 0;
+    let messageUntil = 0;
+    let rafId = 0;
+    let pointerActive = false;
+    let keyboardDirection = 0;
+    let touchDirection = 0;
+    let gamepadDirection = 0;
+    let gamepadDirectionUntil = 0;
+    let stopGamepad = null;
+    let widePlayActive = false;
+
+    const clamp = (value,min,max) => Math.max(min,Math.min(max,value));
+    const lerp = (start,end,t) => start+(end-start)*t;
+    const easeOut = (t) => 1-Math.pow(1-t,3);
+    const randomBetween = (min,max) => min+Math.random()*(max-min);
+
+    function loadImage(src) {
+      return new Promise((resolve) => {
+        const image = new Image();
+        image.onload = () => resolve(image);
+        image.onerror = () => resolve(null);
+        image.src = src;
+      });
+    }
+    async function preloadAssets() {
+      await Promise.all(Object.entries(ASSETS).map(async ([key,src]) => { images[key] = await loadImage(src); }));
+      draw(performance.now());
+    }
+    function setStatus(text,durationMs=0) {
+      statusText.textContent = text;
+      messageUntil = durationMs ? performance.now()+durationMs : 0;
+    }
+    function updateHud(now=performance.now()) {
+      const elapsed = phase==='playing' ? now-startedAt : 0;
+      const remaining = phase==='playing' ? Math.max(0,Math.ceil((GAME_MS-elapsed)/1000)) : phase==='finished' ? 0 : 30;
+      scoreText.textContent = `スコア: ${score}`;
+      timeText.textContent = String(remaining);
+      catchText.textContent = String(caughtCount);
+    }
+    function updateControlText() {
+      const hasGamepad = Array.from(navigator.getGamepads?.() ?? []).some(Boolean);
+      controlText.textContent = hasGamepad ? 'パッドOK' : 'タッチOK';
+    }
+    function resetGame() {
+      difficulty = difficultySelect.value;
+      player = { x:480,targetX:480,direction:0,lastCatchAt:-1000 };
+      round = null;
+      nextRoundAt = 0;
+      score = 0;
+      caughtCount = 0;
+      resultPanel.hidden = true;
+      updateHud();
+    }
+    function startRound(now) {
+      round = { state:'approach',stateStartedAt:now,targetX:randomBetween(135,825),x:TV_SHELF_X,y:TV_SHELF_Y,rotation:0 };
+    }
+    function startGame() {
+      resetGame();
+      phase = 'playing';
+      startedAt = performance.now();
+      lastFrameAt = startedAt;
+      startRound(startedAt);
+      setStatus(`${DIFFICULTIES[difficulty].label}モード。テレビをキャッチしよう`);
+      startBtn.textContent = 'さいしょから';
+      ensureGamepadController();
+      startLoop();
+    }
+    function finishGame() {
+      phase = 'finished';
+      round = null;
+      stopLoop();
+      updateHud();
+      resultTitle.textContent = score>=12 ? 'テレビキャッチ名人！' : score>=6 ? 'すごいキャッチ！' : 'またやってみよう';
+      resultBody.textContent = `スコア ${score}、キャッチ ${caughtCount}こ`;
+      resultPanel.hidden = false;
+      setStatus('30びょう おしまい');
+      draw(performance.now());
+    }
+    function isCaught(tv) {
+      if (!round || round.state!=='flight') return false;
+      const half = TV_SIZE*.32;
+      return Math.abs(tv.x-player.x)<=DOG_HIT_W/2+half && tv.y+half>=DOG_FOOT_Y-DOG_HIT_H && tv.y-half<=DOG_FOOT_Y;
+    }
+    function updateRound(now) {
+      if (!round) {
+        if (now>=nextRoundAt) startRound(now);
+        return;
+      }
+      const settings = DIFFICULTIES[difficulty];
+      if (round.state==='approach') {
+        const progress = clamp((now-round.stateStartedAt)/settings.approachMs,0,1);
+        if (progress>=1) {
+          round.state = 'flight';
+          round.stateStartedAt = now;
+          setStatus('テレビが はねた！',600);
+        }
+        return;
+      }
+      if (round.state==='flight') {
+        const t = clamp((now-round.stateStartedAt)/settings.flightMs,0,1);
+        const arc = Math.sin(Math.PI*t);
+        round.x = lerp(TV_SHELF_X,round.targetX,easeOut(t));
+        round.y = lerp(TV_SHELF_Y,TV_FLOOR_Y,t)-arc*175;
+        round.rotation = Math.sin(t*Math.PI*2)*.16;
+        if (isCaught(round)) {
+          score += 1;
+          caughtCount += 1;
+          player.lastCatchAt = now;
+          round = null;
+          nextRoundAt = now+NEXT_ROUND_MS;
+          setStatus('ナイスキャッチ！',700);
+        } else if (t>=1) {
+          round.state = 'miss';
+          round.stateStartedAt = now;
+          round.x = round.targetX;
+          round.y = TV_FLOOR_Y;
+          round.rotation = 0;
+          setStatus('ぽよん。つぎをねらおう',700);
+        }
+        return;
+      }
+      const missT = clamp((now-round.stateStartedAt)/MISS_BOUNCE_MS,0,1);
+      round.y = TV_FLOOR_Y-Math.abs(Math.sin(missT*Math.PI*2))*28*(1-missT);
+      round.rotation = Math.sin(missT*Math.PI*2)*.07;
+      if (missT>=1) {
+        round = null;
+        nextRoundAt = now+NEXT_ROUND_MS;
+      }
+    }
+    function updatePlayer(dt,now) {
+      if (gamepadDirectionUntil<now) gamepadDirection = 0;
+      const direction = keyboardDirection || touchDirection || gamepadDirection;
+      if (direction) {
+        player.x += direction*DIFFICULTIES[difficulty].dogSpeed*dt;
+        player.targetX = player.x;
+      } else {
+        player.x += (player.targetX-player.x)*Math.min(1,dt*8);
+      }
+      player.x = clamp(player.x,PLAY_MIN_X,PLAY_MAX_X);
+      player.direction = direction || Math.sign(player.targetX-player.x);
+    }
+    function step(now) {
+      if (phase!=='playing') { stopLoop(); draw(now); return; }
+      const dt = Math.min(.04,(now-lastFrameAt)/1000 || 0);
+      lastFrameAt = now;
+      if (now-startedAt>=GAME_MS) finishGame();
+      else {
+        updatePlayer(dt,now);
+        updateRound(now);
+        updateHud(now);
+        if (messageUntil && now>messageUntil) setStatus(`${DIFFICULTIES[difficulty].label}モード。テレビをキャッチしよう`);
+      }
+      draw(now);
+      if (phase==='playing') rafId = requestAnimationFrame(step);
+    }
+    function startLoop() { if (!rafId) { lastFrameAt = performance.now(); rafId = requestAnimationFrame(step); } }
+    function stopLoop() { if (rafId) { cancelAnimationFrame(rafId); rafId = 0; } }
+
+    function drawCover(image) {
+      if (!image) {
+        const gradient = ctx.createLinearGradient(0,0,0,canvas.height);
+        gradient.addColorStop(0,'#dff7f1'); gradient.addColorStop(1,'#ffe9c9');
+        ctx.fillStyle = gradient; ctx.fillRect(0,0,canvas.width,canvas.height); return;
+      }
+      const scale = Math.max(canvas.width/image.width,canvas.height/image.height);
+      const sw = canvas.width/scale;
+      const sh = canvas.height/scale;
+      ctx.drawImage(image,(image.width-sw)/2,(image.height-sh)/2,sw,sh,0,0,canvas.width,canvas.height);
+    }
+    function drawTroublemaker(now) {
+      let x = TROUBLE_START_X;
+      if (round?.state==='approach') {
+        const progress = clamp((now-round.stateStartedAt)/DIFFICULTIES[difficulty].approachMs,0,1);
+        x = lerp(TROUBLE_START_X,TROUBLE_CONTACT_X,progress);
+      } else if (round) x = TROUBLE_CONTACT_X;
+      const bob = round?.state==='approach' ? Math.sin(now/90)*3 : 0;
+      if (images.troublemaker) ctx.drawImage(images.troublemaker,x-105,253+bob,210,210);
+      else {
+        ctx.fillStyle = '#f8b4c5'; ctx.beginPath(); ctx.arc(x,350+bob,55,0,Math.PI*2); ctx.fill();
+        ctx.fillStyle = '#312e81'; ctx.fillRect(x-43,330+bob,86,18);
+      }
+    }
+    function currentDogFrame(now) {
+      if (now-player.lastCatchAt<300) return DOG_FRAMES.catching[Math.floor(now/120)%DOG_FRAMES.catching.length];
+      if (phase==='playing' && (Math.abs(player.direction)>0 || Math.abs(player.targetX-player.x)>5)) return DOG_FRAMES.running[Math.floor(now/110)%DOG_FRAMES.running.length];
+      return DOG_FRAMES.idle[Math.floor(now/420)%DOG_FRAMES.idle.length];
+    }
+    function drawDog(now) {
+      const image = images.dog;
+      if (!image) {
+        ctx.fillStyle = '#fff7df'; ctx.beginPath(); ctx.ellipse(player.x,DOG_FOOT_Y-48,50,37,0,0,Math.PI*2); ctx.fill();
+        ctx.fillStyle = '#d8a06f'; ctx.beginPath(); ctx.ellipse(player.x-35,DOG_FOOT_Y-60,16,23,.4,0,Math.PI*2); ctx.ellipse(player.x+35,DOG_FOOT_Y-60,16,23,-.4,0,Math.PI*2); ctx.fill(); return;
+      }
+      const box = DOG_FRAME_BOXES[currentDogFrame(now)] ?? DOG_FRAME_BOXES[0];
+      const scale = DOG_DRAW_H/box.h;
+      const dw = box.w*scale;
+      const dy = DOG_FOOT_Y-(box.footY-box.y)*scale;
+      ctx.drawImage(image,box.x,box.y,box.w,box.h,player.x-dw/2,dy,dw,DOG_DRAW_H);
+    }
+    function drawTelevision() {
+      if (!round && phase!=='title') return;
+      let x = round?.x ?? TV_SHELF_X;
+      let y = round?.y ?? TV_SHELF_Y;
+      if (!round || round.state==='approach') { x = TV_SHELF_X; y = TV_SHELF_Y; }
+      ctx.save();
+      ctx.translate(x,y);
+      ctx.rotate(round?.rotation || 0);
+      if (images.television) ctx.drawImage(images.television,-TV_SIZE/2,-TV_SIZE/2,TV_SIZE,TV_SIZE);
+      else {
+        ctx.fillStyle = '#fef3c7'; ctx.strokeStyle = '#a78bfa'; ctx.lineWidth = 7; ctx.beginPath(); ctx.roundRect(-48,-40,96,78,15); ctx.fill(); ctx.stroke();
+        ctx.fillStyle = '#1e3a5f'; ctx.beginPath(); ctx.roundRect(-36,-29,72,48,10); ctx.fill();
+      }
+      ctx.restore();
+    }
+    function draw(now) {
+      ctx.clearRect(0,0,canvas.width,canvas.height);
+      drawCover(images.background);
+      drawTroublemaker(now);
+      drawTelevision();
+      drawDog(now);
+      if (phase==='title') {
+        ctx.fillStyle = 'rgba(255,255,255,.72)'; ctx.fillRect(0,0,canvas.width,canvas.height);
+        ctx.fillStyle = '#334155'; ctx.textAlign = 'center'; ctx.font = '800 34px system-ui,sans-serif'; ctx.fillText('スタートで はじめよう',canvas.width/2,244);
+        ctx.font = '800 22px system-ui,sans-serif'; ctx.fillText('おちるテレビを わんちゃんでキャッチ！',canvas.width/2,284);
+      }
+    }
+
+    function canvasX(event) {
+      const rect = canvas.getBoundingClientRect();
+      return ((event.clientX-rect.left)/rect.width)*canvas.width;
+    }
+    function moveToPointer(event) {
+      player.targetX = clamp(canvasX(event),PLAY_MIN_X,PLAY_MAX_X);
+      if (phase==='title') startGame();
+    }
+    function clearTouchDirection() { touchDirection = 0; }
+    function ensureGamepadController() {
+      if (stopGamepad) return;
+      stopGamepad = createGamepadController({
+        onDirection:(direction) => {
+          if (direction==='left') gamepadDirection = -1;
+          else if (direction==='right') gamepadDirection = 1;
+          else return;
+          gamepadDirectionUntil = performance.now()+150;
+        },
+        onPrimary:() => { if (phase!=='playing') startGame(); },
+        directionRepeatMs:60,
+      });
+    }
+    function updateWidePlayButton() {
+      widePlayBtn.textContent = widePlayActive ? 'もどる' : '大きくあそぶ';
+      widePlayBtn.setAttribute('aria-pressed',widePlayActive ? 'true' : 'false');
+    }
+    async function enterWidePlay() {
+      widePlayActive = true; shell.classList.add('is-wide-play'); document.body.classList.add('tv-wide-play-lock'); updateWidePlayButton(); draw(performance.now());
+      try { if (!document.fullscreenElement && shell.requestFullscreen) await shell.requestFullscreen(); } catch {}
+      try { await screen.orientation?.lock?.('landscape'); } catch {}
+    }
+    async function exitWidePlay({skipNativeExit=false}={}) {
+      widePlayActive = false; shell.classList.remove('is-wide-play'); document.body.classList.remove('tv-wide-play-lock'); updateWidePlayButton(); draw(performance.now());
+      try { screen.orientation?.unlock?.(); } catch {}
+      if (!skipNativeExit && document.fullscreenElement===shell) { try { await document.exitFullscreen(); } catch {} }
+    }
+
+    startBtn.addEventListener('click',startGame);
+    retryBtn.addEventListener('click',startGame);
+    widePlayBtn.addEventListener('click',() => { if (widePlayActive) void exitWidePlay(); else void enterWidePlay(); });
+    difficultySelect.addEventListener('change',(event) => {
+      difficulty = event.target.value;
+      if (phase!=='playing') { setStatus(`${DIFFICULTIES[difficulty].label}モードであそぶよ`); draw(performance.now()); }
+    });
+    canvas.addEventListener('pointerdown',(event) => {
+      pointerActive = true;
+      try { canvas.setPointerCapture?.(event.pointerId); } catch {}
+      moveToPointer(event);
+    });
+    canvas.addEventListener('pointermove',(event) => { if (pointerActive) moveToPointer(event); });
+    canvas.addEventListener('pointerup',() => { pointerActive = false; });
+    canvas.addEventListener('pointercancel',() => { pointerActive = false; });
+    for (const button of moveButtons) {
+      button.addEventListener('pointerdown',(event) => {
+        event.preventDefault();
+        touchDirection = button.dataset.direction==='left' ? -1 : 1;
+        try { button.setPointerCapture?.(event.pointerId); } catch {}
+      });
+      button.addEventListener('pointerup',clearTouchDirection);
+      button.addEventListener('pointercancel',clearTouchDirection);
+      button.addEventListener('lostpointercapture',clearTouchDirection);
+    }
+    const stopKeyboardLock = createGameInputLock({
+      keys:['ArrowLeft','ArrowRight','a','d',' '],
+      onKey:(key) => {
+        if (key==='arrowleft' || key==='a') keyboardDirection = -1;
+        if (key==='arrowright' || key==='d') keyboardDirection = 1;
+        if (key===' ' && phase!=='playing') startGame();
+      },
+    });
+    window.addEventListener('keyup',(event) => {
+      const key = event.key.toLowerCase();
+      if ((key==='arrowleft' || key==='a') && keyboardDirection===-1) keyboardDirection = 0;
+      if ((key==='arrowright' || key==='d') && keyboardDirection===1) keyboardDirection = 0;
+    },{capture:true});
+    window.addEventListener('gamepadconnected',() => { updateControlText(); ensureGamepadController(); });
+    window.addEventListener('gamepaddisconnected',() => { updateControlText(); gamepadDirection = 0; gamepadDirectionUntil = 0; });
+    document.addEventListener('fullscreenchange',() => { if (widePlayActive && document.fullscreenElement!==shell) void exitWidePlay({skipNativeExit:true}); });
+    window.addEventListener('pagehide',() => {
+      if (widePlayActive) void exitWidePlay({skipNativeExit:true});
+      stopGamepad?.(); stopKeyboardLock(); stopLoop();
+    },{once:true});
+
+    resetGame();
+    updateControlText();
+    ensureGamepadController();
+    preloadAssets();
+  </script>
+</Layout>

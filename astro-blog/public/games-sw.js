@@ -1,8 +1,9 @@
-const CACHE_VERSION = 'games-offline-v14';
+const CACHE_VERSION = 'games-offline-v15';
 const OFFLINE_ROUTES = [
   '/games/',
   '/games/balloon-catch/',
   '/games/cushion-catch/',
+  '/games/tv-catch/',
   '/games/dressup/',
   '/games/dressup-next/',
   '/games/match-quiz/',
