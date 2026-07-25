@@ -125,6 +125,7 @@ Codex/MCP の実行時にコピペしやすいことを優先しています。
 | Artifacts | `NO_ARTIFACTS` |
 | 環境変数（キーのみ） | `BUCKET`, `DISTRIBUTION_ID`, `PUBLIC_PDF_API_BASE` |
 | Service Role | `arn:aws:iam::470447451992:role/service-role/codebuild-builddeploy-subaru-is-running-site-service-role` |
+| CloudFront権限 | distribution `EMED5317DC581` に対する `cloudfront:CreateInvalidation`, `cloudfront:GetInvalidation` |
 | Logs | `/aws/codebuild/builddeploy-subaru-is-running-site`（us-east-1） |
 
 ### CodePipeline

@@ -84,8 +84,14 @@ phases:
 
           start=$(date +%s)
           echo Invalidating CloudFront distribution $DISTRIBUTION_ID
-          INVALIDATION_ID=$(aws cloudfront create-invalidation --distribution-id "$DISTRIBUTION_ID" --paths '/*' --query 'Invalidation.Id' --output text)
-          aws cloudfront wait invalidation-completed --distribution-id "$DISTRIBUTION_ID" --id "$INVALIDATION_ID"
+          if ! INVALIDATION_ID=$(aws cloudfront create-invalidation --distribution-id "$DISTRIBUTION_ID" --paths '/*' --query 'Invalidation.Id' --output text); then
+            echo "ERROR: Failed to create CloudFront invalidation" >&2
+            exit 1
+          fi
+          if ! aws cloudfront wait invalidation-completed --distribution-id "$DISTRIBUTION_ID" --id "$INVALIDATION_ID"; then
+            echo "ERROR: Failed while waiting for CloudFront invalidation $INVALIDATION_ID" >&2
+            exit 1
+          fi
           end=$(date +%s)
           echo "[timing] CloudFront invalidation completed: $((end - start))s"
 
