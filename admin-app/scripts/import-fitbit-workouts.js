@@ -14,6 +14,7 @@ const crypto = require('crypto');
 const { S3Client, GetObjectCommand } = require('@aws-sdk/client-s3');
 const { buildOffsetDateTime, earliestTime } = require('../lib/blog-date');
 const { saveFitbitTokens } = require('../lib/fitbit-token-store');
+const { formatWorkoutSummary } = require('../lib/fitbit-workout-format');
 
 const BLOG_DIR = path.resolve(__dirname, '../../astro-blog/src/content/blog');
 const ENV_PATH = path.resolve(__dirname, '../.env');
@@ -662,12 +663,6 @@ function formatDuration(ms) {
   return parts.join(' ');
 }
 
-function formatDurationMinutes(ms) {
-  if (!Number.isFinite(ms) || ms <= 0) return null;
-  const minutes = Math.round(ms / 60000);
-  return minutes > 0 ? `${minutes}分` : null;
-}
-
 function ensureBlogDir() {
   if (!fs.existsSync(BLOG_DIR)) {
     throw new Error(`Blog content directory not found: ${BLOG_DIR}`);
@@ -731,15 +726,12 @@ async function renderActivityMarkdown(dateStr, payload, tokens) {
   }
   const lines = [];
   for (const activity of filtered) {
-    const durationLabel = formatDurationMinutes(activity.duration);
-    lines.push(`${durationLabel || '運動'}ジョグ`);
-    lines.push('');
+    lines.push(formatWorkoutSummary(activity.duration, activity.distance));
     const splits = await getRunSplits(tokens, activity, dateStr);
     if (splits.length) {
+      lines.push('');
       const splitLines = formatSplitLines(splits);
       lines.push(...splitLines);
-    } else {
-      lines.push('スプリットなし');
     }
     lines.push('');
   }

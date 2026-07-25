@@ -97,6 +97,9 @@ midnight timestamp. `FITBIT_IMPORT_TZ_OFFSET` supplies the stored numeric offset
 
 Activities will include 1 km splits when Fitbit laps are present or when
 distance time series data is available (fallback uses TCX trackpoints if provided).
+Each workout summary includes Fitbit's total distance with two decimal places,
+for example `31分ジョグ(6.01km)`. When splits are unavailable, no placeholder
+line is written.
 
 Note: The TCX endpoint requires the `location` scope in addition to `activity`.
 If your access token was created without `location`, reauthorize the Fitbit app

@@ -11,6 +11,7 @@ Fitbitの運動ログをブログ記事の下書きとして自動生成した�
 - 管理スクリプトがS3からトークンを読み取り、Fitbit APIを呼び出す
 - Fitbitのtoken refresh結果は、記事生成のdry-run時もS3に保存する
 - 生成結果はAstroのcontentディレクトリへMarkdownとして保存
+- Workout本文にはFitbitの日次活動データにある総距離を表示し、取得できないスプリットのplaceholderは出力しない
 
 ## Consequences
 - トークン管理はS3の運用に依存

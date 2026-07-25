@@ -185,6 +185,7 @@ AWS CLI の標準プロファイル（`codex-prod`）と実行主体も `docs/aw
 - Treats Fitbit Activity ID `91060` as a run even when the API labels it `Workout`
 - Stops a range import after five consecutive dates without a matching activity
 - Stops immediately when Fitbit returns a rate-limit response
+- Formats each workout with total distance (for example `31分ジョグ(6.01km)`) and omits a split placeholder when splits are unavailable
 - Requires AWS credentials + Fitbit client secrets to refresh tokens
 - CLI usage:
   - `node scripts/import-fitbit-workouts.js` imports yesterday by default

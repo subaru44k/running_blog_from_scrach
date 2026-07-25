@@ -7,6 +7,4 @@ status: "publish"
 allowComments: false
 entryHash: "8c60ed5b7ae3dcfc280bdd9b059000826496cc29"
 ---
-43分ジョグ
-
-スプリットなし
+43分ジョグ(9.28km)

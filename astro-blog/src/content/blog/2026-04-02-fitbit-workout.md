@@ -7,7 +7,7 @@ status: "publish"
 allowComments: false
 entryHash: "c57b86d59b57184dd926e27783e4857b93cce1fd"
 ---
-31分ジョグ
+31分ジョグ(6.11km)
 
 4'55"→4'55"→4'55"→4'55"→4'55"
 →4'55"→0'39"(6.1km)

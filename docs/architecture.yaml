@@ -245,6 +245,11 @@ features:
     draft_generation:
       script: admin-app/scripts/import-fitbit-workouts.js
       dry_run_policy: "Markdown記事は書き出さないが、OAuth tokenの更新は永続化する"
+      content_format:
+        workout_summary: "丸めた分数ジョグ(総距離km)。例: 31分ジョグ(6.01km)"
+        distance_precision: "Fitbit daily activity payload の distance を小数第2位へ丸める"
+        missing_distance: "距離が取得できない場合は括弧を省略する"
+        missing_splits: "スプリットが取得できない場合は補足行を出力しない"
       datetime_policy:
         source: "Fitbit daily activity payload の startTime"
         multiple_runs: "同日の対象ランのうち最も早い開始時刻を記事日時にする"
