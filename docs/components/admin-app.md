@@ -12,6 +12,9 @@
 ## 入出力
 - 入力: `.env` の設定値、Fitbit API、S3 上の token.json
 - 出力: `astro-blog/src/content/blog/*.md`
+- 通常記事の `date` は管理UIで入力したJST日時を `+09:00` 付きISO 8601で保存する。編集保存時も元の時刻を保持する。
+- Fitbit記事の `date` は対象ランの最も早い `startTime` を使う。有効な開始時刻がない日は記事を生成しない。
+- 月次サマリーは走行時刻を持たないため、公開記事では日付だけを表示する。
 
 ## ローカル実行（分かる範囲）
 - 依存インストール: `npm ci --prefix admin-app`

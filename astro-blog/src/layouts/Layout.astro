@@ -2,6 +2,7 @@
 import '../styles/global.css';
 // Layout.astro: site metadata for SEO and sidebar post navigation
 import { buildCalendarMap, getSortedPublishedBlogPosts, toSidebarItem } from '../lib/blog-index';
+import { formatBlogDate, getBlogDateParts } from '../lib/blog-date';
 const { site, url } = Astro;
 const {
   noSidebar = false,
@@ -57,10 +58,11 @@ const postsByDate = buildCalendarMap(posts);
 // Note: we no longer inline the calendar map to reduce page size.
 
 // Years available for selection
-const years = Array.from(new Set(posts.map((p) => p.data.date.getFullYear()))).sort((a, b) => a - b);
+const years = Array.from(new Set(posts.map((p) => Number(p.slug.slice(0, 4))))).sort((a, b) => a - b);
 const now = new Date();
-const currentYear = now.getFullYear();
-const currentMonth = now.getMonth();
+const currentDate = getBlogDateParts(now);
+const currentYear = currentDate.year;
+const currentMonth = currentDate.month - 1;
 
 // Determine initial calendar view: prefer selected post's month, else latest post, else current
 let initialYear = currentYear;
@@ -479,7 +481,7 @@ const initialMonthRows = buildInitialMonth(initialYear, initialMonth);
           title.textContent = item.title;
           const date = document.createElement('small');
           date.className = 'text-xs text-gray-500';
-          date.textContent = new Date(item.date).toDateString();
+          date.textContent = item.dateLabel;
           a.appendChild(title);
           a.appendChild(date);
           li.appendChild(a);
@@ -558,7 +560,7 @@ const initialMonthRows = buildInitialMonth(initialYear, initialMonth);
 								<li data-category={item.data.category}>
 									<a href={`/${item.slug}/`} class={`block rounded-xl px-3 py-2.5 transition ${item.slug === url.pathname.slice(1, -1) ? 'bg-white shadow-soft ring-1 ring-slate-200 dark:bg-slate-800 dark:ring-slate-700 font-semibold' : 'hover:bg-white/80 dark:hover:bg-slate-800/80'}`}>
 										<span class="line-clamp-1">{item.data.title}</span>
-										<small class="text-xs text-gray-500">{item.data.date.toDateString()}</small>
+										<small class="text-xs text-gray-500">{formatBlogDate(item.data.date)}</small>
 									</a>
 								</li>
 							))}

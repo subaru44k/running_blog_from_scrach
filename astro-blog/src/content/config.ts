@@ -1,9 +1,10 @@
 import { z, defineCollection } from 'astro:content';
+import { normalizeBlogDateInput } from '../lib/blog-date';
 
 const blog = defineCollection({
   schema: z.object({
     title: z.string(),
-    date: z.coerce.date(),
+    date: z.preprocess(normalizeBlogDateInput, z.coerce.date()),
     author: z.string(),
     category: z.string(),
     status: z.string(),

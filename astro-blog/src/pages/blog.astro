@@ -1,6 +1,7 @@
 ---
 import Layout from '../layouts/Layout.astro';
 import { getSortedPublishedBlogPosts, imageForCategory } from '../lib/blog-index';
+import { formatBlogDate } from '../lib/blog-date';
 
 // Load published posts and take the latest 6
 const posts = await getSortedPublishedBlogPosts();
@@ -31,7 +32,7 @@ function excerpt(html: string, max = 220) {
         <div class="p-6 flex flex-col">
           <div class="flex items-center gap-3 text-xs text-slate-500 mb-3">
             <span class="badge">{post.data.category}</span>
-            <time datetime={post.data.date.toISOString()}>{post.data.date.toDateString()}</time>
+            <time datetime={post.data.date.toISOString()}>{formatBlogDate(post.data.date)}</time>
           </div>
           <h2 class="text-xl font-semibold mb-3 mt-0">
             <a class="no-underline" href={`/${post.slug}/`}>{post.data.title}</a>

@@ -14,6 +14,12 @@
 const fs = require('fs');
 const path = require('path');
 const matter = require('gray-matter');
+const {
+  JST_OFFSET_MINUTES,
+  buildOffsetDateTime,
+  dateTimeParts,
+  parseBlogDate,
+} = require('../lib/blog-date');
 
 const BLOG_DIR = path.resolve(__dirname, '../../astro-blog/src/content/blog');
 
@@ -33,9 +39,8 @@ function ymdFromSlug(slug) {
 }
 
 function monthKey(d) {
-  const y = d.getFullYear();
-  const m = (d.getMonth() + 1).toString().padStart(2, '0');
-  return `${y}-${m}`;
+  const parts = dateTimeParts(d);
+  return parts ? parts.date.slice(0, 7) : '';
 }
 
 function parseTimesFromLine(line) {
@@ -73,7 +78,9 @@ function analyzePost(file, data, body) {
   // - { date, slug, sequences: [{ times, distKm }, ...] } when split lines are present
   // - { date, slug, overall: { distKm, sec } } when only overall distance/time can be inferred
   const slug = file.replace(/\.md$/, '');
-  const date = data.date ? new Date(data.date) : (ymdFromSlug(slug) ? new Date(ymdFromSlug(slug)) : null);
+  const date = data.date
+    ? parseBlogDate(data.date)
+    : (ymdFromSlug(slug) ? parseBlogDate(`${ymdFromSlug(slug)}T00:00:00+09:00`) : null);
   if (!date) return null;
   if (data.category === 'サマリー') return null; // skip generated summaries
   // Find lines containing '→' as indicator for split sequences
@@ -200,7 +207,7 @@ function formatPace(secPerKm) {
 function makeSummaryMd(month, stats) {
   // stats: { runs, posts: [{slug, date, distanceKm, timeSec, bestPace}], totalKm, totalSec, pacesSecPerKm[] }
   const title = `${month} 練習サマリー`;
-  const dateStr = `${month}-01T12:00:00.000Z`;
+  const dateStr = buildOffsetDateTime(`${month}-01`, '00:00:00', JST_OFFSET_MINUTES);
   const author = 'subaru44k';
   const entryHash = `${month}-summary`;
   const best = Math.min(...stats.pacesSecPerKm);
@@ -226,7 +233,7 @@ function makeSummaryMd(month, stats) {
     .sort((a, b) => a.bestPace - b.bestPace)
     .slice(0, 5);
   for (const p of top) {
-    const d = p.date.toISOString().slice(0,10);
+    const d = dateTimeParts(p.date).date;
     const linkText = `${d} ${p.title}`.trim();
     lines.push(`- [${linkText}](/${p.slug}/): ${formatPace(p.bestPace)} (${p.distanceKm.toFixed(1)}km)`);
   }
@@ -236,7 +243,7 @@ function makeSummaryMd(month, stats) {
 
   const frontmatter = {
     title,
-    date: new Date(dateStr),
+    date: dateStr,
     author,
     category: 'サマリー',
     status: 'publish',
@@ -257,7 +264,9 @@ function main() {
       const { data } = parseFrontmatter(fp);
       if (!data || data.category === 'サマリー') continue;
       if (data.status && data.status !== 'publish') continue;
-      const d = data.date ? new Date(data.date) : (ymdFromSlug(file) ? new Date(ymdFromSlug(file)) : null);
+      const d = data.date
+        ? parseBlogDate(data.date)
+        : (ymdFromSlug(file) ? parseBlogDate(`${ymdFromSlug(file)}T00:00:00+09:00`) : null);
       if (!d) continue;
       const key = monthKey(d);
       (allPostsByMonth.get(key) || allPostsByMonth.set(key, []).get(key)).push({ slug: file.replace(/\.md$/, ''), date: d });

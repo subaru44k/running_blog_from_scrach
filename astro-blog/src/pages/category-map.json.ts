@@ -8,7 +8,7 @@ export const GET: APIRoute = async () => {
 
   const map: Record<
     string,
-    { slug: string; title: string; date: string; category: string }[]
+    { slug: string; title: string; date: string; dateLabel: string; category: string }[]
   > = {};
 
   for (const post of posts) {

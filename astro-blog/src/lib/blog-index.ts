@@ -1,5 +1,6 @@
 import { getCollection, type CollectionEntry } from 'astro:content';
 import { filterPostsForBuild } from './build-filter';
+import { formatBlogDate, getBlogDateParts } from './blog-date';
 
 export type BlogPost = CollectionEntry<'blog'>;
 export type CalendarEntry = { s: string; c: number };
@@ -7,6 +8,7 @@ export type SidebarItem = {
   slug: string;
   title: string;
   date: string;
+  dateLabel: string;
   category: string;
 };
 
@@ -38,6 +40,7 @@ export function toSidebarItem(post: BlogPost): SidebarItem {
     slug: post.slug,
     title: post.data.title,
     date: post.data.date.toISOString(),
+    dateLabel: formatBlogDate(post.data.date),
     category: post.data.category,
   };
 }
@@ -63,8 +66,8 @@ export async function getCalendarMonths() {
   const posts = await getPublishedBlogPosts();
   const months = new Set<string>();
   for (const post of posts) {
-    const date = post.data.date;
-    months.add(`${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`);
+    const date = getBlogDateParts(post.data.date);
+    months.add(`${date.year}-${String(date.month).padStart(2, '0')}`);
   }
   return Array.from(months);
 }
@@ -73,8 +76,8 @@ export async function getMonthCalendarMap(year: number, month: number) {
   const posts = await getPublishedBlogPosts();
   return buildCalendarMap(
     posts.filter((post) => {
-      const date = post.data.date;
-      return date.getFullYear() === year && date.getMonth() + 1 === month;
+      const date = getBlogDateParts(post.data.date);
+      return date.year === year && date.month === month;
     })
   );
 }
@@ -82,9 +85,9 @@ export async function getMonthCalendarMap(year: number, month: number) {
 export function groupPostsByYearMonth(posts: BlogPost[]) {
   const grouped: Record<string, Record<string, BlogPost[]>> = {};
   for (const post of posts) {
-    const date = post.data.date;
-    const year = String(date.getFullYear());
-    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const date = getBlogDateParts(post.data.date);
+    const year = String(date.year);
+    const month = String(date.month).padStart(2, '0');
     grouped[year] ||= {};
     grouped[year][month] ||= [];
     grouped[year][month].push(post);

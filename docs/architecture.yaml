@@ -91,6 +91,11 @@ repo:
     admin_app:
       purpose: "管理UIとスクリプトによるブログ編集/生成"
       entry: admin-app/server.js
+      blog_datetime:
+        timezone: Asia/Tokyo
+        storage: "offset付きISO 8601（+09:00）"
+        manual_posts: "管理UIで日付と時刻を必須入力し、既存記事の時刻も編集時に保持する"
+        summaries: "走行開始時刻を持たない月次サマリーは記事ページで日付のみ表示する"
       scripts:
         - admin-app/scripts/import-fitbit-workouts.js
         - admin-app/scripts/generate-monthly-summary.js
@@ -238,6 +243,11 @@ features:
       token_storage: S3 token.json
     draft_generation:
       script: admin-app/scripts/import-fitbit-workouts.js
+      datetime_policy:
+        source: "Fitbit daily activity payload の startTime"
+        multiple_runs: "同日の対象ランのうち最も早い開始時刻を記事日時にする"
+        missing_start_time: "有効な開始時刻がない場合は記事を書き出さず警告する"
+        timezone: "FITBIT_IMPORT_TZ_OFFSET（既定540分/JST）をISO 8601オフセットとして保存する"
     storage: TODO
   draw_backend:
     routes:

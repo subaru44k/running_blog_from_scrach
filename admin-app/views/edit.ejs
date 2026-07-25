@@ -14,8 +14,12 @@
         <input type="text" id="title" name="title" value="<%= data.title || '' %>" required />
       </div>
       <div>
-        <label for="date">Date (YYYY-MM-DD):</label>
+        <label for="date">Date (JST):</label>
         <input type="date" id="date" name="date" value="<%= data.dateInput || '' %>" required />
+      </div>
+      <div>
+        <label for="time">Time (JST):</label>
+        <input type="time" id="time" name="time" value="<%= data.timeInput || '' %>" step="1" required />
       </div>
       <div>
         <label for="author">Author:</label>

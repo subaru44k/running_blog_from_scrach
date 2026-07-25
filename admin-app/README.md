@@ -14,7 +14,7 @@ By default, it connects to the `astro-blog/src/content/blog` folder next door. M
 
 Features
 - Lists posts with title, date, status, category, and filename.
-- Create/edit posts with structured frontmatter fields (title, date, author, category, status, allowComments) and a Markdown body.
+- Create/edit posts with structured frontmatter fields (title, date and JST time, author, category, status, allowComments) and a Markdown body.
 - Auto-generates filenames like `YYYY-MM-DD-my-title-<hash>.md` for new posts.
 - Preview Markdown rendering without saving.
 
@@ -28,6 +28,8 @@ Filename rules
 
 Edit defaults
 - In the edit form, when a post is missing these fields, the UI defaults to: Title → `練習`, Status → `publish`, Allow Comments → checked.
+- New posts default to the current JST date and time. Editing preserves the stored
+  time, and saved frontmatter uses an ISO 8601 timestamp with the `+09:00` offset.
 
 ## Fitbit Workout Import
 
@@ -80,6 +82,12 @@ refresh token back to S3. Generated posts are created under
 `astro-blog/src/content/blog` with filenames like
 `YYYY-MM-DD-fitbit-workout.md` and default to draft status so you can review and
 edit before publishing.
+
+The generated frontmatter timestamp uses the earliest valid `startTime` among the
+running activities for that date. If no running activity has a valid start time,
+the importer warns and skips the Markdown file instead of recording a guessed
+midnight timestamp. `FITBIT_IMPORT_TZ_OFFSET` supplies the stored numeric offset
+(default `540`, or `+09:00`).
 
 Activities will include 1 km splits when Fitbit laps are present or when
 distance time series data is available (fallback uses TCX trackpoints if provided).

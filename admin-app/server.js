@@ -4,9 +4,14 @@ const fs = require('fs');
 const express = require('express');
 const bodyParser = require('body-parser');
 const matter = require('gray-matter');
-const dayjs = require('dayjs');
 const slugify = require('slugify');
 const { marked } = require('marked');
+const {
+  JST_OFFSET_MINUTES,
+  buildOffsetDateTime,
+  dateTimeParts,
+  parseBlogDate,
+} = require('./lib/blog-date');
 // Ensure preview converts single newlines to <br>
 try { marked.setOptions({ breaks: true }); } catch (_) {}
 
@@ -47,7 +52,7 @@ app.get('/', (req, res) => {
         return {
           file: f,
           title: data.title || f,
-          date: data.date ? new Date(data.date) : null,
+          date: data.date ? parseBlogDate(data.date) : null,
           status: data.status || 'draft',
           category: data.category || '',
         };
@@ -61,11 +66,13 @@ app.get('/', (req, res) => {
 
 // Show 'new post' form
 app.get('/new', (req, res) => {
-  const today = dayjs().format('YYYY-MM-DD');
+  const now = dateTimeParts(new Date());
+  const today = now.date;
   const defaults = {
     title: '練習',
     date: today,
     dateInput: today,
+    timeInput: now.time,
     author: 'subaru44k',
     category: CATEGORIES[0],
     status: 'publish',
@@ -76,8 +83,12 @@ app.get('/new', (req, res) => {
 
 // Create new post
 app.post('/new', (req, res) => {
-  const { title, date, author, category, status, allowComments, body } = req.body;
-  const ymd = dayjs(date || new Date()).format('YYYY-MM-DD');
+  const { title, date, time, author, category, status, allowComments, body } = req.body;
+  const isoDateTime = buildOffsetDateTime(date, time, JST_OFFSET_MINUTES);
+  if (!isoDateTime) {
+    return res.status(400).send('Invalid date or time. Use a valid JST date and time.');
+  }
+  const ymd = date;
 
   // Create a slug from title. Prefer ASCII slugify; if it becomes empty (e.g., Japanese-only),
   // fall back to a Unicode-preserving slug that keeps letters/numbers and dashes.
@@ -104,7 +115,7 @@ app.post('/new', (req, res) => {
   const categoryValue = CATEGORIES.includes(category) ? category : CATEGORIES[0];
   const data = {
     title: title || 'Untitled',
-    date: new Date(ymd),
+    date: isoDateTime,
     author: author || 'subaru44k',
     category: categoryValue,
     status: status || 'draft',
@@ -136,26 +147,32 @@ app.get('/edit/:filename', (req, res) => {
   } else {
     data.allowComments = Boolean(data.allowComments);
   }
-  data.dateInput = data.date ? dayjs(data.date).format('YYYY-MM-DD') : '';
+  const storedDateTime = data.date ? dateTimeParts(data.date) : null;
+  data.dateInput = storedDateTime?.date || '';
+  data.timeInput = storedDateTime?.time || '';
   res.render('edit', { file: fn, data, body, categories: CATEGORIES });
 });
 
 // Save edit
 app.post('/edit/:filename', (req, res) => {
   const fn = req.params.filename;
-  const { title, date, author, category, status, allowComments, body } = req.body;
+  const { title, date, time, author, category, status, allowComments, body } = req.body;
   const target = path.join(BLOG_DIR, fn);
   if (!fn.endsWith('.md') || !fs.existsSync(target)) {
     return res.status(404).send('Post not found');
   }
   const { data: current } = readPost(target);
   const categoryValue2 = CATEGORIES.includes(category) ? category : (current.category && CATEGORIES.includes(current.category) ? current.category : CATEGORIES[0]);
-  // Normalize new date for frontmatter and filename
-  const newYmd = dayjs(date || current.date).format('YYYY-MM-DD');
+  const isoDateTime = buildOffsetDateTime(date, time, JST_OFFSET_MINUTES);
+  if (!isoDateTime) {
+    return res.status(400).send('Invalid date or time. Use a valid JST date and time.');
+  }
+  const newYmd = date;
+  const { dateInput: _dateInput, timeInput: _timeInput, ...persistedCurrent } = current;
   const data = {
-    ...current,
+    ...persistedCurrent,
     title: title || current.title,
-    date: new Date(newYmd),
+    date: isoDateTime,
     author: author ?? current.author,
     category: categoryValue2,
     status: status ?? current.status,

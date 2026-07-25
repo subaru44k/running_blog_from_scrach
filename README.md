@@ -181,9 +181,10 @@ AWS CLI の標準プロファイル（`codex-prod`）と実行主体も `docs/aw
 ### Admin Import Script (`admin-app/scripts/import-fitbit-workouts.js`)
 
 - Fetches daily activities via Fitbit Web API and writes Markdown drafts into `astro-blog/src/content/blog/`
+- Stores the earliest valid running activity `startTime` as the article timestamp; days without a valid run start time are skipped
 - Requires AWS credentials + Fitbit client secrets to refresh tokens
 - CLI usage:
   - `node scripts/import-fitbit-workouts.js` imports yesterday by default
   - `--date YYYY-MM-DD` or `--days N` customise the range
   - `FITBIT_IMPORT_DRY_RUN=true` to preview without writing files
-- Frontmatter defaults can be tuned with `FITBIT_DEFAULT_*` env vars; timezone offset defaults to JST (`540` minutes)
+- Frontmatter defaults can be tuned with `FITBIT_DEFAULT_*` env vars; timestamps use an explicit offset that defaults to JST (`540` minutes)

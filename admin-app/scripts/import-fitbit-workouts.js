@@ -12,7 +12,7 @@ const fs = require('fs');
 const path = require('path');
 const crypto = require('crypto');
 const { S3Client, GetObjectCommand, PutObjectCommand } = require('@aws-sdk/client-s3');
-const dayjs = require('dayjs');
+const { buildOffsetDateTime, earliestTime } = require('../lib/blog-date');
 
 const BLOG_DIR = path.resolve(__dirname, '../../astro-blog/src/content/blog');
 const ENV_PATH = path.resolve(__dirname, '../.env');
@@ -671,18 +671,6 @@ function formatDurationMinutes(ms) {
   return minutes > 0 ? `${minutes}分` : null;
 }
 
-function formatTime(timeStr, dateStr, offsetMinutes) {
-  if (!timeStr) return '—';
-  // Fitbit startTime is HH:MM. Combine with date and apply offset.
-  const [hour, minute] = timeStr.split(':').map((v) => parseInt(v, 10));
-  const base = new Date(`${dateStr}T${timeStr}:00Z`);
-  if (!Number.isFinite(hour) || !Number.isFinite(minute) || Number.isNaN(base.getTime())) {
-    return timeStr;
-  }
-  const adjusted = new Date(base.getTime() + offsetMinutes * 60000);
-  return adjusted.toISOString().slice(11, 16);
-}
-
 function ensureBlogDir() {
   if (!fs.existsSync(BLOG_DIR)) {
     throw new Error(`Blog content directory not found: ${BLOG_DIR}`);
@@ -699,13 +687,11 @@ function buildSlug(dateStr, base = 'fitbit') {
   return slug;
 }
 
-function buildFrontmatter({ title, dateStr, entryHash }) {
-  const offset = CONFIG.timezoneOffsetMinutes;
-  const sign = offset >= 0 ? '+' : '-';
-  const absOffset = Math.abs(offset);
-  const hours = String(Math.floor(absOffset / 60)).padStart(2, '0');
-  const minutes = String(absOffset % 60).padStart(2, '0');
-  const isoDate = `${dateStr}T00:00:00${sign}${hours}:${minutes}`;
+function buildFrontmatter({ title, dateStr, startTime, entryHash }) {
+  const isoDate = buildOffsetDateTime(dateStr, startTime, CONFIG.timezoneOffsetMinutes);
+  if (!isoDate) {
+    throw new Error(`Invalid Fitbit activity date/time: ${dateStr} ${startTime}`);
+  }
   return [
     '---',
     `title: "${title}"`,
@@ -742,6 +728,10 @@ async function renderActivityMarkdown(dateStr, payload, tokens) {
   if (!filtered.length) {
     return { content: `No logged activities on ${dateStr}.`, empty: true };
   }
+  const startTime = earliestTime(filtered.map((activity) => activity.startTime));
+  if (!startTime) {
+    return { content: '', empty: false, startTime: null };
+  }
   const lines = [];
   for (const activity of filtered) {
     const durationLabel = formatDurationMinutes(activity.duration);
@@ -757,7 +747,7 @@ async function renderActivityMarkdown(dateStr, payload, tokens) {
     lines.push('');
   }
 
-  return { content: lines.join('\n'), empty: false };
+  return { content: lines.join('\n'), empty: false, startTime };
 }
 
 function writeMarkdown(slug, content) {
@@ -789,15 +779,21 @@ async function main() {
         // Keep local token copy fresh for next iterations
         tokens = await ensureAccessToken(tokens);
       }
-      const { content, empty } = await renderActivityMarkdown(dateStr, data, tokens);
+      const { content, empty, startTime } = await renderActivityMarkdown(dateStr, data, tokens);
       if (empty) {
         console.log(`No Fitbit activities found for ${dateStr}.`);
+        continue;
+      }
+      if (!startTime) {
+        console.warn(`No valid Fitbit startTime found for running activities on ${dateStr}; skipping Markdown.`);
         continue;
       }
       const slug = buildSlug(dateStr, 'fitbit-workout');
       const title = '練習';
       const entryHash = crypto.createHash('sha1').update(`${dateStr}-${slug}-${data.summary?.steps || ''}`).digest('hex');
-      const markdown = buildFrontmatter({ title, dateStr, entryHash }) + content + '\n';
+      const storedDateTime = buildOffsetDateTime(dateStr, startTime, CONFIG.timezoneOffsetMinutes);
+      console.log(`Using earliest run start time: ${storedDateTime}`);
+      const markdown = buildFrontmatter({ title, dateStr, startTime, entryHash }) + content + '\n';
       writeMarkdown(slug, markdown);
     } catch (err) {
       console.error(`Failed to import ${dateStr}:`, err.message || err);

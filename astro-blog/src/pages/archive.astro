@@ -1,6 +1,7 @@
 ---
 import Layout from '../layouts/Layout.astro';
 import { getSortedPublishedBlogPosts, groupPostsByYearMonth } from '../lib/blog-index';
+import { formatBlogDate } from '../lib/blog-date';
 
 const posts = await getSortedPublishedBlogPosts();
 
@@ -45,7 +46,7 @@ const categories = Array.from(new Set(posts.map((p) => p.data.category))).sort()
                 {grouped[year][month].map((p) => (
                   <li data-archive-item data-category={p.data.category}>
                     <a href={`/${p.slug}/`} class="group flex flex-wrap items-start gap-x-3 gap-y-1 rounded-xl px-3 py-2 no-underline transition hover:bg-white/80 dark:hover:bg-slate-900/80">
-                      <span class="shrink-0 text-sm text-slate-500">{p.data.date.toISOString().slice(0,10)}</span>
+                      <span class="shrink-0 text-sm text-slate-500">{formatBlogDate(p.data.date)}</span>
                       <span class="min-w-0 flex-1 text-slate-800 dark:text-slate-100 group-hover:text-slate-950 dark:group-hover:text-white">
                         {p.data.title}
                       </span>
