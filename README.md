@@ -182,6 +182,9 @@ AWS CLI の標準プロファイル（`codex-prod`）と実行主体も `docs/aw
 
 - Fetches daily activities via Fitbit Web API and writes Markdown drafts into `astro-blog/src/content/blog/`
 - Stores the earliest valid running activity `startTime` as the article timestamp; days without a valid run start time are skipped
+- Treats Fitbit Activity ID `91060` as a run even when the API labels it `Workout`
+- Stops a range import after five consecutive dates without a matching activity
+- Stops immediately when Fitbit returns a rate-limit response
 - Requires AWS credentials + Fitbit client secrets to refresh tokens
 - CLI usage:
   - `node scripts/import-fitbit-workouts.js` imports yesterday by default

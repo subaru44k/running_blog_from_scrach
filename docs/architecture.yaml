@@ -248,6 +248,13 @@ features:
         multiple_runs: "同日の対象ランのうち最も早い開始時刻を記事日時にする"
         missing_start_time: "有効な開始時刻がない場合は記事を書き出さず警告する"
         timezone: "FITBIT_IMPORT_TZ_OFFSET（既定540分/JST）をISO 8601オフセットとして保存する"
+      run_detection:
+        default_activity_names: "Structured Workout, Run, Treadmill run, Trail run, Incline run"
+        default_activity_ids:
+          - 91060
+        note: "FitbitがランをWorkoutとして返す場合もActivity ID 91060で対象にする"
+        consecutive_empty_stop: "対象Activityが5日連続で見つからない場合は異常として取込を停止する"
+        rate_limit_stop: "Fitbit APIが429またはRESOURCE_EXHAUSTEDを返した場合は日付範囲の取込を停止する"
     storage: TODO
   draw_backend:
     routes:

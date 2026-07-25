@@ -48,11 +48,12 @@ const CONFIG = {
   status: process.env.FITBIT_DEFAULT_STATUS || 'draft',
   dryRun: /^(1|true)$/i.test(process.env.FITBIT_IMPORT_DRY_RUN || 'false'),
   splitDebug: /^(1|true)$/i.test(process.env.FITBIT_SPLIT_DEBUG || 'false'),
+  maxConsecutiveEmptyDays: Math.max(1, parseInt(process.env.FITBIT_MAX_CONSECUTIVE_EMPTY_DAYS || '5', 10) || 5),
   runActivityNames: (process.env.FITBIT_RUN_ACTIVITY_NAMES || 'Structured Workout,Run,Treadmill run,Trail run,Incline run')
     .split(',')
     .map((v) => v.trim())
     .filter(Boolean),
-  runActivityIds: (process.env.FITBIT_RUN_ACTIVITY_IDS || '')
+  runActivityIds: (process.env.FITBIT_RUN_ACTIVITY_IDS || '91060')
     .split(',')
     .map((v) => Number(v.trim()))
     .filter((v) => Number.isFinite(v)),
@@ -770,6 +771,7 @@ async function main() {
   const dates = parseCliArgs();
   const initialTokens = await loadTokens();
   let tokens = await ensureAccessToken(initialTokens);
+  let consecutiveEmptyDays = 0;
 
   for (const dateStr of dates) {
     console.log(`\nProcessing ${dateStr}...`);
@@ -781,9 +783,17 @@ async function main() {
       }
       const { content, empty, startTime } = await renderActivityMarkdown(dateStr, data, tokens);
       if (empty) {
+        consecutiveEmptyDays += 1;
         console.log(`No Fitbit activities found for ${dateStr}.`);
+        if (consecutiveEmptyDays >= CONFIG.maxConsecutiveEmptyDays) {
+          console.warn(
+            `Stopping import after ${consecutiveEmptyDays} consecutive days without matching Fitbit activities.`
+          );
+          break;
+        }
         continue;
       }
+      consecutiveEmptyDays = 0;
       if (!startTime) {
         console.warn(`No valid Fitbit startTime found for running activities on ${dateStr}; skipping Markdown.`);
         continue;
@@ -793,10 +803,15 @@ async function main() {
       const entryHash = crypto.createHash('sha1').update(`${dateStr}-${slug}-${data.summary?.steps || ''}`).digest('hex');
       const storedDateTime = buildOffsetDateTime(dateStr, startTime, CONFIG.timezoneOffsetMinutes);
       console.log(`Using earliest run start time: ${storedDateTime}`);
-      const markdown = buildFrontmatter({ title, dateStr, startTime, entryHash }) + content + '\n';
+      const markdown = buildFrontmatter({ title, dateStr, startTime, entryHash }) + content.trimEnd() + '\n';
       writeMarkdown(slug, markdown);
     } catch (err) {
-      console.error(`Failed to import ${dateStr}:`, err.message || err);
+      const message = String(err?.message || err);
+      console.error(`Failed to import ${dateStr}:`, message);
+      if (/\b429\b|rate limit|RESOURCE_EXHAUSTED/i.test(message)) {
+        console.warn('Stopping import because the Fitbit rate limit was reached.');
+        break;
+      }
     }
   }
 

@@ -76,6 +76,11 @@ Markdown posts. Requirements:
    - `FITBIT_DEFAULT_CATEGORY`, `FITBIT_DEFAULT_AUTHOR`, and `FITBIT_DEFAULT_STATUS`
      customise the generated frontmatter
    - `FITBIT_SPLIT_DEBUG=true` to log why 1 km splits could not be computed
+   - `FITBIT_MAX_CONSECUTIVE_EMPTY_DAYS` stops a range import after this many
+     consecutive dates without a matching activity (default `5`)
+
+Range imports also stop immediately when Fitbit returns HTTP `429` /
+`RESOURCE_EXHAUSTED`; rerun from the failed date after the quota resets.
 
 The script refreshes the Fitbit access token when needed and persists the updated
 refresh token back to S3. Generated posts are created under
@@ -98,6 +103,8 @@ with that scope and rerun the importer.
 
 The importer limits output to running activities by fetching the activity type
 catalog (`GET /1/activities.json`) and filtering for names that contain \"Run\".
+Activity ID `91060` is also included by default because Fitbit may return these
+runs with the generic name `Workout`.
 You can override the run detection by setting:
 
 - `FITBIT_RUN_ACTIVITY_NAMES` (comma-separated names, e.g. `Structured Workout,Run`)
