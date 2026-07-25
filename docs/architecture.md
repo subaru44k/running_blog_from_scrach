@@ -142,8 +142,11 @@ sequenceDiagram
   CB->>S3: 保存（token.json）
   Admin->>S3: token 読み込み
   Admin->>Fitbit: 活動データ取得
+  Admin->>S3: refreshされたtokenを保存（dry-runを含む）
   Admin->>Admin: Markdown生成（Astro content）
 ```
+
+Fitbitはrefresh時にrefresh tokenもローテーションするため、管理スクリプトは記事生成のdry-run中でも更新されたtokenをS3へ保存する。dry-runが抑止するのはMarkdown記事の書き込みであり、認証情報の更新は抑止しない。
 
 ブログ記事の日時は公開サイトの基準タイムゾーンである `Asia/Tokyo` として扱い、管理UIと新規生成スクリプトは `+09:00` 付きISO 8601をfrontmatterの `date` に保存する。管理UIは日付と時刻を必須入力とし、既存記事を編集しても保存済み時刻を日付だけへ丸めない。
 

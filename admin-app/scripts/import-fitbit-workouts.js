@@ -11,8 +11,9 @@
 const fs = require('fs');
 const path = require('path');
 const crypto = require('crypto');
-const { S3Client, GetObjectCommand, PutObjectCommand } = require('@aws-sdk/client-s3');
+const { S3Client, GetObjectCommand } = require('@aws-sdk/client-s3');
 const { buildOffsetDateTime, earliestTime } = require('../lib/blog-date');
+const { saveFitbitTokens } = require('../lib/fitbit-token-store');
 
 const BLOG_DIR = path.resolve(__dirname, '../../astro-blog/src/content/blog');
 const ENV_PATH = path.resolve(__dirname, '../.env');
@@ -109,21 +110,16 @@ async function loadTokens() {
 }
 
 async function saveTokens(tokens) {
-  const payload = {
-    ...tokens,
-    saved_at: new Date().toISOString(),
-  };
+  const payload = await saveFitbitTokens({
+    s3,
+    bucket: CONFIG.bucket,
+    key: CONFIG.key,
+    tokens,
+    serverSideEncryption: process.env.TOKEN_S3_SSE,
+  });
   if (CONFIG.dryRun) {
-    console.log('[dry-run] Skipping token persistence');
-    return payload;
+    console.log('[dry-run] Persisted refreshed Fitbit tokens to S3');
   }
-  await s3.send(new PutObjectCommand({
-    Bucket: CONFIG.bucket,
-    Key: CONFIG.key,
-    Body: JSON.stringify(payload, null, 2),
-    ContentType: 'application/json',
-    ServerSideEncryption: process.env.TOKEN_S3_SSE || undefined,
-  }));
   return payload;
 }
 

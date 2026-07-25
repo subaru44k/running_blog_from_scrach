@@ -9,6 +9,7 @@ Fitbitの運動ログをブログ記事の下書きとして自動生成した�
 ## Decision
 - OAuthコールバックはLambdaで処理し、トークンをS3に保存
 - 管理スクリプトがS3からトークンを読み取り、Fitbit APIを呼び出す
+- Fitbitのtoken refresh結果は、記事生成のdry-run時もS3に保存する
 - 生成結果はAstroのcontentディレクトリへMarkdownとして保存
 
 ## Consequences

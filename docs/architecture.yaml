@@ -241,8 +241,10 @@ features:
     oauth:
       callback_lambda: fitbit-callback
       token_storage: S3 token.json
+      refresh_persistence: "Fitbitがrefresh時にtokenをローテーションするため、記事生成のdry-run時も更新tokenはS3へ保存する"
     draft_generation:
       script: admin-app/scripts/import-fitbit-workouts.js
+      dry_run_policy: "Markdown記事は書き出さないが、OAuth tokenの更新は永続化する"
       datetime_policy:
         source: "Fitbit daily activity payload の startTime"
         multiple_runs: "同日の対象ランのうち最も早い開始時刻を記事日時にする"

@@ -68,7 +68,8 @@ Markdown posts. Requirements:
    - `--date YYYY-MM-DD` import a specific date (can be repeated)
    - `--days N` import the last `N` days (defaults to 1 → today)
    - `--from YYYY-MM-DD --to YYYY-MM-DD` import a date range (inclusive)
-   - Set `FITBIT_IMPORT_DRY_RUN=true` to skip writing files
+   - Set `FITBIT_IMPORT_DRY_RUN=true` to skip writing Markdown files. Refreshed
+     OAuth tokens are still persisted to S3 because Fitbit rotates refresh tokens.
    - Adjust `FITBIT_IMPORT_TZ_OFFSET` (minutes, default `540` for JST) if you want
      timestamps rendered in a different timezone
    - `FITBIT_DISTANCE_RESOLUTION` to control intraday distance sampling when
@@ -83,8 +84,8 @@ Range imports also stop immediately when Fitbit returns HTTP `429` /
 `RESOURCE_EXHAUSTED`; rerun from the failed date after the quota resets.
 
 The script refreshes the Fitbit access token when needed and persists the updated
-refresh token back to S3. Generated posts are created under
-`astro-blog/src/content/blog` with filenames like
+refresh token back to S3, including during a content dry run. Generated posts are
+created under `astro-blog/src/content/blog` with filenames like
 `YYYY-MM-DD-fitbit-workout.md` and default to draft status so you can review and
 edit before publishing.
 

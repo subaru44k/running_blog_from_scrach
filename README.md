@@ -189,5 +189,5 @@ AWS CLI の標準プロファイル（`codex-prod`）と実行主体も `docs/aw
 - CLI usage:
   - `node scripts/import-fitbit-workouts.js` imports yesterday by default
   - `--date YYYY-MM-DD` or `--days N` customise the range
-  - `FITBIT_IMPORT_DRY_RUN=true` to preview without writing files
+  - `FITBIT_IMPORT_DRY_RUN=true` to preview without writing Markdown files; refreshed OAuth tokens are still saved to S3
 - Frontmatter defaults can be tuned with `FITBIT_DEFAULT_*` env vars; timestamps use an explicit offset that defaults to JST (`540` minutes)
