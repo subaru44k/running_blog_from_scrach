@@ -142,6 +142,8 @@ export const handler = async (event: any) => {
     let primaryProvider: string | null = null;
     let primaryModelId: string | null = null;
     let primaryInputTokens: number | null = null;
+    let primaryCachedInputTokens: number | null = null;
+    let primaryCacheWriteTokens: number | null = null;
     let primaryOutputTokens: number | null = null;
     let primaryTotalTokens: number | null = null;
     let primaryLatencyMs: number | null = null;
@@ -167,7 +169,7 @@ export const handler = async (event: any) => {
         const ai = await invokeOpenAIJson<any>(
           PRIMARY_MODEL_ID,
           primarySystemPrompt,
-          buildPrimaryUser(String(resolvedPromptText || promptText || 'お題不明'), imageBase64).map((part) =>
+          buildPrimaryUser(String(resolvedPromptText || promptText || 'お題不明'), imageBase64).map((part: any) =>
             part.type === 'text'
               ? { type: 'input_text', text: part.text }
               : { type: 'input_image', image_url: `data:${part.source.media_type};base64,${part.source.data}` }
@@ -177,9 +179,11 @@ export const handler = async (event: any) => {
         primaryProvider = PRIMARY_PROVIDER;
         primaryModelId = ai.modelId;
         primaryInputTokens = ai.usage.inputTokens;
+        primaryCachedInputTokens = ai.usage.cachedInputTokens;
+        primaryCacheWriteTokens = ai.usage.cacheWriteTokens;
         primaryOutputTokens = ai.usage.outputTokens;
         primaryTotalTokens = ai.usage.totalTokens;
-        primaryEstimatedCostUsd = estimateOpenAiUsd(primaryInputTokens, primaryOutputTokens, ai.modelId);
+        primaryEstimatedCostUsd = estimateOpenAiUsd(ai.usage, ai.modelId);
         const normalized = normalizePrimary(ai.data);
         scored = { ...scored, ...normalized };
         primaryRubric = normalized.rubric;
@@ -236,6 +240,8 @@ export const handler = async (event: any) => {
         primaryProvider,
         primaryModelId,
         primaryInputTokens,
+        primaryCachedInputTokens,
+        primaryCacheWriteTokens,
         primaryOutputTokens,
         primaryTotalTokens,
         primaryLatencyMs,

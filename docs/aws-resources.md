@@ -232,7 +232,7 @@ Cost Explorer での基本フィルタ:
 | --- | --- | --- |
 | `draw-prompt-prod` | `ap-northeast-1` | 月次お題取得（JST） |
 | `draw-upload-url-prod` | `ap-northeast-1` | 画像アップロード用署名URL発行 |
-| `draw-submit-prod` | `ap-northeast-1` | 一次採点（OpenAI GPT-5 mini / ink gate / token cost保存） |
+| `draw-submit-prod` | `ap-northeast-1` | 一次採点（OpenAI GPT-5.6 Luna / ink gate / token cost保存） |
 | `draw-submission-prod` | `ap-northeast-1` | 投稿詳細取得（archive 詳細モーダル用） |
 | `draw-leaderboard-prod` | `ap-northeast-1` | ランキング取得 |
 | `draw-monthly-cleanup-prod` | `ap-northeast-1` | 前月Top20以外の画像削除 |

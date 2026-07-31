@@ -1,4 +1,4 @@
-# 一次採点プロンプト（OpenAI GPT-5 mini / reasoning.effort=minimal）
+# 一次採点プロンプト（OpenAI GPT-5.6 Luna / reasoning.effort=none）
 
 目的: 画像とお題から一次採点（rubric/短評/チップ）をJSONで返し、最終スコアはサーバ側で算出する。
 

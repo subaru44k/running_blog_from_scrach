@@ -3,6 +3,8 @@ import { getSecretString } from './secrets';
 
 export type OpenAiUsage = {
   inputTokens: number | null;
+  cachedInputTokens: number | null;
+  cacheWriteTokens: number | null;
   outputTokens: number | null;
   totalTokens: number | null;
 };
@@ -51,6 +53,12 @@ export const invokeOpenAIJson = async <T>(
   system: string,
   inputParts: OpenAiInputPart[],
 ): Promise<OpenAiJsonResult<T>> => {
+  const supportedEfforts = modelId === 'gpt-5.6-luna'
+    ? ['none', 'low', 'medium', 'high', 'xhigh', 'max']
+    : ['minimal', 'low', 'medium', 'high'];
+  if (!supportedEfforts.includes(OPENAI_REASONING_EFFORT)) {
+    throw new Error(`Unsupported reasoning effort ${OPENAI_REASONING_EFFORT} for ${modelId}`);
+  }
   const apiKey = await getSecretString(OPENAI_API_KEY_SECRET_ID);
   const response = await fetch('https://api.openai.com/v1/responses', {
     method: 'POST',
@@ -60,7 +68,34 @@ export const invokeOpenAIJson = async <T>(
     },
     body: JSON.stringify({
       model: modelId,
-      ...(OPENAI_REASONING_EFFORT ? { reasoning: { effort: OPENAI_REASONING_EFFORT } } : {}),
+      reasoning: { effort: OPENAI_REASONING_EFFORT },
+      text: {
+        format: {
+          type: 'json_schema',
+          name: 'draw_primary_review',
+          strict: true,
+          schema: {
+            type: 'object',
+            additionalProperties: false,
+            required: ['rubric', 'review', 'tips'],
+            properties: {
+              rubric: {
+                type: 'object',
+                additionalProperties: false,
+                required: ['promptMatch', 'composition', 'shapeClarity', 'lineStability', 'creativity', 'completeness'],
+                properties: Object.fromEntries(['promptMatch', 'composition', 'shapeClarity', 'lineStability', 'creativity', 'completeness'].map((key) => [key, { type: 'integer', minimum: 0, maximum: 10 }])),
+              },
+              review: {
+                type: 'object',
+                additionalProperties: false,
+                required: ['summary', 'goodPoint', 'improvement', 'nextStep'],
+                properties: Object.fromEntries(['summary', 'goodPoint', 'improvement', 'nextStep'].map((key) => [key, { type: 'string' }])),
+              },
+              tips: { type: 'array', items: { type: 'string' }, minItems: 2, maxItems: 3 },
+            },
+          },
+        },
+      },
       input: [
         {
           role: 'system',
@@ -76,13 +111,15 @@ export const invokeOpenAIJson = async <T>(
   if (!response.ok) {
     throw new Error(`OpenAI ${response.status}: ${await response.text()}`);
   }
-  const payload = await response.json();
+  const payload: any = await response.json();
   const text = getOutputText(payload);
   return {
     data: parseJsonText<T>(text),
     modelId: payload?.model || modelId,
     usage: {
       inputTokens: payload?.usage?.input_tokens ?? null,
+      cachedInputTokens: payload?.usage?.input_tokens_details?.cached_tokens ?? null,
+      cacheWriteTokens: payload?.usage?.input_tokens_details?.cache_write_tokens ?? null,
       outputTokens: payload?.usage?.output_tokens ?? null,
       totalTokens: payload?.usage?.total_tokens ?? null,
     },

@@ -39,6 +39,10 @@ const PROMPT_TEXT = process.env.MODEL_COMPARE_PROMPT
 const OPENAI_API_KEY = process.env.OPENAI_API_KEY || '';
 const OPENAI_REASONING_EFFORT = process.env.OPENAI_REASONING_EFFORT || '';
 const OPENAI_TIMEOUT_MS = Number(process.env.OPENAI_TIMEOUT_MS || 90000);
+const OPENAI_PRICING_USD_PER_MILLION = {
+  'gpt-5-mini': { input: 0.25, cachedInput: 0.025, cacheWrite: 0.3125, output: 2.0, source: 'https://developers.openai.com/api/docs/models/gpt-5-mini' },
+  'gpt-5.6-luna': { input: 0.20, cachedInput: 0.02, cacheWrite: 0.25, output: 1.20, source: 'https://developers.openai.com/api/docs/models/gpt-5.6-luna' },
+};
 const GEMINI_API_KEY = process.env.GOOGLE_API_KEY || process.env.GEMINI_API_KEY || process.env.GOOGLE_GENERATIVE_AI_API_KEY || '';
 const OPENAI_MODELS = String(process.env.OPENAI_MODELS || 'gpt-4.1-mini,gpt-5-mini,gpt-5-nano')
   .split(',')
@@ -352,6 +356,7 @@ const invokeGemini = async (imageBase64) => {
 
 const openAiProviders = OPENAI_MODELS.map((modelId) => ({
   key: modelId.replace(/\./g, '').replace(/-/g, ''),
+  modelId,
   label: OPENAI_REASONING_EFFORT ? `${modelId} (${OPENAI_REASONING_EFFORT})` : modelId,
   enabled: Boolean(OPENAI_API_KEY),
   invoke: (imageBase64) => invokeOpenAI(modelId, imageBase64, OPENAI_REASONING_EFFORT),
@@ -376,6 +381,22 @@ const summarizeDurations = (values) => {
     minMs: Math.min(...values),
     maxMs: Math.max(...values),
   };
+};
+
+const estimateOpenAiUsd = (modelId, usage = {}) => {
+  const pricing = OPENAI_PRICING_USD_PER_MILLION[modelId];
+  if (!pricing) return null;
+  const inputTokens = Number(usage.input_tokens || 0);
+  const cachedInputTokens = Number(usage.input_tokens_details?.cached_tokens || 0);
+  const cacheWriteTokens = Number(usage.input_tokens_details?.cache_write_tokens || 0);
+  const uncachedInputTokens = Math.max(0, inputTokens - cachedInputTokens - cacheWriteTokens);
+  const outputTokens = Number(usage.output_tokens || 0);
+  return Number((
+    (uncachedInputTokens / 1_000_000) * pricing.input +
+    (cachedInputTokens / 1_000_000) * pricing.cachedInput +
+    (cacheWriteTokens / 1_000_000) * pricing.cacheWrite +
+    (outputTokens / 1_000_000) * pricing.output
+  ).toFixed(8));
 };
 
 const findPreviousJsonReport = () => {
@@ -557,6 +578,7 @@ const main = async () => {
           rubric,
           review: ai.data?.review || null,
           usage: ai.usage || {},
+          estimatedCostUsd: estimateOpenAiUsd(provider.modelId, ai.usage || {}),
           elapsedMs,
         });
       }
@@ -593,6 +615,7 @@ const main = async () => {
     durations,
     runDiffs,
     providerErrors,
+    pricing: OPENAI_PRICING_USD_PER_MILLION,
     previousReport: previousReportName,
   };
   writeFileSync(JSON_OUTPUT_PATH, JSON.stringify(payload, null, 2));
