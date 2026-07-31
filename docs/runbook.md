@@ -8,7 +8,7 @@
 ## Draw AIコスト増加時の対処
 - inkRatio gate の閾値を上げる
 - DrawSubmissions の `primaryInputTokens` / `primaryOutputTokens` / `primaryEstimatedCostUsd` を集計し、増加区間を特定する
-- `primaryProvider=openai` と `primaryModelId=gpt-4.1-mini` が意図通り保存されているか確認する
+- `primaryProvider=openai` と `primaryModelId=gpt-5.6-luna` が意図通り保存されているか確認する
 
 ## 期限切れ/削除（TTL）
 - DrawSubmissions: expiresAt により自動削除

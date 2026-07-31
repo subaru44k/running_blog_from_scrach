@@ -32,7 +32,7 @@
    - S3 PUT 署名URL発行
 3. **画像PUT**: ブラウザから S3 へ直接PUT
 4. **submit**: `POST /api/draw/submit`（`promptText` は任意）
-   - 画像取得 → inkRatio gate → 一次採点（OpenAI GPT-5 mini, `reasoning.effort=minimal`、失敗時はスタブ）
+   - 画像取得 → inkRatio gate → 一次採点（OpenAI GPT-5.6 Luna, `reasoning.effort=none`、失敗時はスタブ）
    - 一次採点はAIに6項目rubric（0-10）を生成させ、最終scoreはサーバー側で算出
    - AI には `review.summary / goodPoint / improvement / nextStep` の4フィールドを返させ、サーバー側で `oneLiner` に結合する
    - `oneLiner` は旧二次講評に近い役割を持つ4文の講評として返す
@@ -73,7 +73,7 @@
 - `oneLiner` は OpenAI の `review.summary / goodPoint / improvement / nextStep` をサーバ側で結合した 4 文講評を保存する
 - 互換用に `secondaryStatus=skipped`, `enrichedComment=null`, `secondaryAttempts=0` を保持することがある
 - AI usage attrs:
-  - primaryProvider, primaryModelId, primaryInputTokens, primaryOutputTokens, primaryTotalTokens, primaryLatencyMs, primaryEstimatedCostUsd
+  - primaryProvider, primaryModelId, primaryInputTokens, primaryCachedInputTokens, primaryCacheWriteTokens, primaryOutputTokens, primaryTotalTokens, primaryLatencyMs, primaryEstimatedCostUsd
   - tokenRecordedAt, aiFallbackUsed
 - TTL: expiresAt
 - 通常投稿は `SUBMISSION_TTL_DAYS`（既定45日）保持し、月次cleanupで確定Top20のみ `ARCHIVE_TTL_DAYS`（既定3650日）へ延長する
@@ -107,8 +107,8 @@
 - CF_KEY_PAIR_ID
 - CF_PRIVATE_KEY_SECRET_ID
 - PRIMARY_PROVIDER=openai
-- PRIMARY_MODEL_ID（一次採点: GPT-5 mini）
-- OPENAI_REASONING_EFFORT（既定: `minimal`）
+- PRIMARY_MODEL_ID（一次採点: `gpt-5.6-luna`）
+- OPENAI_REASONING_EFFORT（既定: `none`。Lunaでは `minimal` 非対応）
 - OPENAI_API_KEY_SECRET_ID（OpenAI key を入れた Secrets Manager secret）
 - IMAGE_TTL_SECONDS=900
 - SUBMISSION_TTL_DAYS=45
@@ -123,6 +123,8 @@
 - API Gateway に Lambda を統合
 - Secrets Manager に CloudFront 秘密鍵と OpenAI API key を保存
 - EventBridge `cron` で `draw-monthly-cleanup-prod` を毎月実行（前月を自動整理）
+- 一次採点モデルを変更する場合は、先に `npm run snapshot-month-scores --prefix backend/draw -- YYYY-MM ...` でDynamoDBの対象月をバックアップし、再採点後に必要なら `npm run restore-month-scores --prefix backend/draw -- <snapshot.json>` で復元する
+- 既存投稿の再採点は `npm run rewrite-month-scores --prefix backend/draw -- YYYY-MM ...` を使い、全対象月の失敗件数が0であることを確認してから完了とする
 
 > 注意: S3 CORS は手動設定済み（GET/PUT/HEAD）。必要に応じて更新すること。
 
@@ -162,8 +164,14 @@ curl "https://<api>/api/draw/leaderboard?month=2026-02&limit=20"
 - 既存データの再計算は `backend/draw/scripts/rewrite-month-scores.mjs` を使う
 
 ## コスト計算用メモ
-- 各投稿で一次の `input/output/total tokens` と `primaryEstimatedCostUsd` を `DrawSubmissions` に保存する。
+- 各投稿で一次の `input/cached-input/cache-write/output/total tokens` と `primaryEstimatedCostUsd` を `DrawSubmissions` に保存する。GPT-5.6 Lunaの現行価格は入力 `$0.20`、キャッシュ入力 `$0.02`、キャッシュ書き込み `$0.25`、出力 `$1.20` / 1M tokens とする。
 - OpenAI の利用分は AWS Cost Explorer では直接見えないため、DynamoDB 側の usage 集計を一次ソースにする。
+
+## 2026-07-31 GPT-5.6 Luna切替
+- 2026-02の既存投稿20件を同じrubricで比較し、`gpt-5.6-luna` / `reasoning.effort=none` を一次採点の本番候補として選定した。
+- Luna / none は GPT-5 mini / minimal と比べ、比較実行では平均レイテンシ約2.86秒、推定費用約$0.01944/20件だった。
+- 本番切替では `PRIMARY_MODEL_ID=gpt-5.6-luna` と `OPENAI_REASONING_EFFORT=none` を同時に設定する。Lunaは `minimal` 非対応。
+- 比較レポート: `backend/draw/artifacts/model-compare-2026-02-2026-07-31-report.md`
 
 ## 一次採点モデル比較メモ（2026-03-13）
 - 比較対象:

@@ -25,9 +25,9 @@ const loadLocalEnv = (path) => {
 
 loadLocalEnv(resolve(process.cwd(), '.env.local'));
 
-const MODEL_ID = process.env.PRIMARY_MODEL_ID || 'gpt-5-mini';
+const MODEL_ID = process.env.PRIMARY_MODEL_ID || 'gpt-5.6-luna';
 const OPENAI_API_KEY = process.env.OPENAI_API_KEY || '';
-const OPENAI_REASONING_EFFORT = process.env.OPENAI_REASONING_EFFORT || 'minimal';
+const OPENAI_REASONING_EFFORT = process.env.OPENAI_REASONING_EFFORT || 'none';
 
 const months = process.argv.slice(2);
 const targetMonths = months.length > 0 ? months : ['2026-02', '2026-03'];
@@ -92,14 +92,19 @@ const toInt = (v, fallback = 0) => {
 
 const clampScore = (v) => Math.max(0, Math.min(100, toInt(v)));
 const clampRubric = (v) => Math.max(0, Math.min(10, toInt(v, 5)));
-const estimateOpenAiUsd = (inputTokens, outputTokens, modelId = 'gpt-4.1-mini') => {
+const estimateOpenAiUsd = (usage, modelId = 'gpt-4.1-mini') => {
   const pricing = {
-    'gpt-4.1-mini': { input: 0.4, output: 1.6 },
-    'gpt-5-mini': { input: 0.25, output: 2.0 },
-    'gpt-5-nano': { input: 0.05, output: 0.4 },
-    'gpt-5.4-nano': { input: 0.2, output: 1.25 },
-  }[modelId] || { input: 0.4, output: 1.6 };
-  return Number((((Math.max(0, inputTokens || 0) / 1_000_000) * pricing.input) + ((Math.max(0, outputTokens || 0) / 1_000_000) * pricing.output)).toFixed(8));
+    'gpt-4.1-mini': { input: 0.4, cachedInput: 0.1, cacheWrite: 0.5, output: 1.6 },
+    'gpt-5-mini': { input: 0.25, cachedInput: 0.025, cacheWrite: 0.3125, output: 2.0 },
+    'gpt-5-nano': { input: 0.05, cachedInput: 0.005, cacheWrite: 0.0625, output: 0.4 },
+    'gpt-5.4-nano': { input: 0.2, cachedInput: 0.02, cacheWrite: 0.25, output: 1.25 },
+    'gpt-5.6-luna': { input: 0.2, cachedInput: 0.02, cacheWrite: 0.25, output: 1.2 },
+  }[modelId] || { input: 0.4, cachedInput: 0.1, cacheWrite: 0.5, output: 1.6 };
+  const input = Math.max(0, usage.inputTokens || 0);
+  const cachedInput = Math.min(input, Math.max(0, usage.cachedInputTokens || 0));
+  const cacheWrite = Math.min(input - cachedInput, Math.max(0, usage.cacheWriteTokens || 0));
+  const uncachedInput = Math.max(0, input - cachedInput - cacheWrite);
+  return Number(((uncachedInput / 1_000_000) * pricing.input + (cachedInput / 1_000_000) * pricing.cachedInput + (cacheWrite / 1_000_000) * pricing.cacheWrite + (Math.max(0, usage.outputTokens || 0) / 1_000_000) * pricing.output).toFixed(8));
 };
 
 const normalizeRubric = (input) => {
@@ -359,7 +364,7 @@ const invokePrimary = async (promptText, imageBase64) => {
     },
     body: JSON.stringify({
       model: MODEL_ID,
-      ...(OPENAI_REASONING_EFFORT ? { reasoning: { effort: OPENAI_REASONING_EFFORT } } : {}),
+      reasoning: { effort: OPENAI_REASONING_EFFORT },
       input: [
         { role: 'system', content: [{ type: 'input_text', text: primarySystemPrompt }] },
         {
@@ -383,6 +388,8 @@ const invokePrimary = async (promptText, imageBase64) => {
     data: json,
     usage: {
       inputTokens: toInt(usage.input_tokens),
+      cachedInputTokens: toInt(usage.input_tokens_details?.cached_tokens),
+      cacheWriteTokens: toInt(usage.input_tokens_details?.cache_write_tokens),
       outputTokens: toInt(usage.output_tokens),
       totalTokens: toInt(usage.total_tokens ?? toInt(usage.input_tokens) + toInt(usage.output_tokens)),
     },
@@ -416,6 +423,8 @@ const updateItem = async ({ promptId, submissionId, score, breakdown, oneLiner, 
     '#pr': 'primaryRubric',
     '#pm': 'primaryModelId',
     '#pit': 'primaryInputTokens',
+    '#pcit': 'primaryCachedInputTokens',
+    '#pcwt': 'primaryCacheWriteTokens',
     '#pot': 'primaryOutputTokens',
     '#ptt': 'primaryTotalTokens',
     '#pl': 'primaryLatencyMs',
@@ -438,10 +447,12 @@ const updateItem = async ({ promptId, submissionId, score, breakdown, oneLiner, 
     ':rubric': primaryRubric,
     ':modelId': MODEL_ID,
     ':inputTokens': primaryUsage.inputTokens,
+    ':cachedInputTokens': primaryUsage.cachedInputTokens,
+    ':cacheWriteTokens': primaryUsage.cacheWriteTokens,
     ':outputTokens': primaryUsage.outputTokens,
     ':totalTokens': primaryUsage.totalTokens,
     ':latency': primaryLatencyMs,
-    ':costUsd': estimateOpenAiUsd(primaryUsage.inputTokens, primaryUsage.outputTokens, MODEL_ID),
+    ':costUsd': estimateOpenAiUsd(primaryUsage, MODEL_ID),
     ':provider': 'openai',
     ':recordedAt': new Date().toISOString(),
     ':fallback': aiFallbackUsed,
@@ -451,7 +462,7 @@ const updateItem = async ({ promptId, submissionId, score, breakdown, oneLiner, 
     ':secondaryAttempts': 0,
   };
 
-  let updateExpression = 'SET #s=:score, #b=:breakdown, #o=:oneLiner, #t=:tips, #g=:gsi1pk, #pr=:rubric, #pm=:modelId, #pit=:inputTokens, #pot=:outputTokens, #ptt=:totalTokens, #pl=:latency, #pc=:costUsd, #pp=:provider, #tr=:recordedAt, #af=:fallback, #ssk=:scoreSortKey, #ir=:isRanked, #ss=:secondaryStatus, #sa=:secondaryAttempts';
+  let updateExpression = 'SET #s=:score, #b=:breakdown, #o=:oneLiner, #t=:tips, #g=:gsi1pk, #pr=:rubric, #pm=:modelId, #pit=:inputTokens, #pcit=:cachedInputTokens, #pcwt=:cacheWriteTokens, #pot=:outputTokens, #ptt=:totalTokens, #pl=:latency, #pc=:costUsd, #pp=:provider, #tr=:recordedAt, #af=:fallback, #ssk=:scoreSortKey, #ir=:isRanked, #ss=:secondaryStatus, #sa=:secondaryAttempts';
   if (isRanked) {
     names['#rk'] = 'rank';
     values[':rank'] = rank;
@@ -499,7 +510,13 @@ const runMonth = async (month) => {
     let tips = [];
     let primaryRubric = null;
     let aiFallbackUsed = false;
-    let primaryUsage = { inputTokens: 0, outputTokens: 0, totalTokens: 0 };
+    let primaryUsage = {
+      inputTokens: Number(item.primaryInputTokens || 0),
+      cachedInputTokens: Number(item.primaryCachedInputTokens || 0),
+      cacheWriteTokens: Number(item.primaryCacheWriteTokens || 0),
+      outputTokens: Number(item.primaryOutputTokens || 0),
+      totalTokens: Number(item.primaryTotalTokens || 0),
+    };
     let primaryLatencyMs = 0;
 
     try {
@@ -510,6 +527,9 @@ const runMonth = async (month) => {
         breakdown = { likeness: 0, composition: 0, originality: 0 };
         oneLiner = '線がほとんど見えないため、採点をスキップしました。';
         tips = [];
+        primaryRubric = null;
+        primaryUsage = { inputTokens: 0, cachedInputTokens: 0, cacheWriteTokens: 0, outputTokens: 0, totalTokens: 0 };
+        primaryLatencyMs = 0;
         aiFallbackUsed = true;
       } else {
         const ai = await invokePrimary(String(item.promptText || 'お題不明'), imageBuffer.toString('base64'));
