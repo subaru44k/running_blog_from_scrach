@@ -281,6 +281,7 @@ features:
       - "`npm run build --prefix backend/draw` rebuilds both `dist/*.cjs` and deployable `artifacts/*.zip`"
       - prompt switches monthly (JST) with fixed sequence; 2026-02 is index 0 (熊)
       - image upload via S3 signed PUT
+      - S3 request checksum calculation and response checksum validation use WHEN_REQUIRED
       - CloudFront signed URL for image viewing (900s)
       - primary review displays score, a fuller 4-sentence review comment assembled server-side from summary/goodPoint/improvement/nextStep fields, tips, and derived breakdown without secondary follow-up
       - share card generated in browser

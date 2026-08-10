@@ -1,6 +1,6 @@
 import { SecretsManagerClient, GetSecretValueCommand } from '@aws-sdk/client-secrets-manager';
 import { getSignedUrl as signUrl } from '@aws-sdk/cloudfront-signer';
-import { CF_PRIVATE_KEY_SECRET_ID, CF_KEY_PAIR_ID, CLOUDFRONT_DOMAIN, IMAGE_TTL_SECONDS } from './env';
+import { CF_PRIVATE_KEY_SECRET_ID, CF_KEY_PAIR_ID, CLOUDFRONT_DOMAIN, IMAGE_TTL_SECONDS } from './env.js';
 
 const secrets = new SecretsManagerClient({});
 let cachedPrivateKey: string | null = null;

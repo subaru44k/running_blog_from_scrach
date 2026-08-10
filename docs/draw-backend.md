@@ -31,6 +31,7 @@
    - submissionId(ULID) 生成（promptId はサーバー決定）
    - S3 PUT 署名URL発行
 3. **画像PUT**: ブラウザから S3 へ直接PUT
+   - AWS SDK のリクエストチェックサム計算とレスポンスチェックサム検証は `WHEN_REQUIRED`（必須時のみ）
 4. **submit**: `POST /api/draw/submit`（`promptText` は任意）
    - 画像取得 → inkRatio gate → 一次採点（OpenAI GPT-5.6 Luna, `reasoning.effort=none`、失敗時はスタブ）
    - 一次採点はAIに6項目rubric（0-10）を生成させ、最終scoreはサーバー側で算出

@@ -1,3 +1,5 @@
+import type { ClaudeContent } from '../types.js';
+
 export const primarySystemPrompt = `あなたは30秒お絵描きゲームの一次採点担当です。
 返答は必ず日本語で作成してください。
 英語・ローマ字・英単語は一切使わないでください。
@@ -8,7 +10,7 @@ export const primarySystemPrompt = `あなたは30秒お絵描きゲームの一
 export const secondarySystemPrompt = `あなたは30秒お絵描きゲームの二次講評担当です。
 丁寧で前向きな日本語で、短く実用的な講評を返してください。`;
 
-export const buildPrimaryUser = (promptText: string, imageBase64: string) => ([
+export const buildPrimaryUser = (promptText: string, imageBase64: string): ClaudeContent[] => ([
   {
     type: 'text',
     text: `お題: ${promptText || 'お題不明'}\n画像を評価して、次のJSONスキーマで返してください。\n` +
@@ -54,7 +56,7 @@ export const buildSecondaryUser = (params: {
   breakdown: { likeness: number; composition: number; originality: number };
   oneLiner: string;
   tips: string[];
-}) => ([
+}): ClaudeContent[] => ([
   {
     type: 'text',
     text: `お題: ${params.promptText || 'お題不明'}\n` +

@@ -5,7 +5,7 @@ import {
   S3Client,
   type ObjectIdentifier,
 } from '@aws-sdk/client-s3';
-import { ddb } from '../lib/ddb';
+import { ddb } from '../lib/ddb.js';
 
 const requireEnv = (key: string) => {
   const value = process.env[key];

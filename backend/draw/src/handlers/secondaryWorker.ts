@@ -1,9 +1,9 @@
 import { GetCommand, UpdateCommand } from '@aws-sdk/lib-dynamodb';
-import { ddb } from '../lib/ddb';
-import { DRAW_BUCKET, DRAW_TABLE, SECONDARY_MODEL_ID } from '../lib/env';
-import { getObjectBuffer } from '../lib/s3';
-import { invokeClaudeText } from '../lib/bedrock';
-import { buildSecondaryUser, secondarySystemPrompt } from '../lib/aiPrompts';
+import { ddb } from '../lib/ddb.js';
+import { DRAW_BUCKET, DRAW_TABLE, SECONDARY_MODEL_ID } from '../lib/env.js';
+import { getObjectBuffer } from '../lib/s3.js';
+import { invokeClaudeText } from '../lib/bedrock.js';
+import { buildSecondaryUser, secondarySystemPrompt } from '../lib/aiPrompts.js';
 
 const enrichStub = (score: number) => {
   if (score >= 90) return '輪郭の勢いがあり、見る流れが自然です。余白の使い方を少し揃えるとさらに締まります。';

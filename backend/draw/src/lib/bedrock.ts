@@ -1,4 +1,5 @@
 import { BedrockRuntimeClient, InvokeModelCommand } from '@aws-sdk/client-bedrock-runtime';
+import type { ClaudeContent } from '../types.js';
 
 const client = new BedrockRuntimeClient({});
 
@@ -33,10 +34,6 @@ const extractText = (payload: any) => {
   }
   return '';
 };
-
-type ClaudeContent =
-  | { type: 'text'; text: string }
-  | { type: 'image'; source: { type: 'base64'; media_type: 'image/png'; data: string } };
 
 export type BedrockUsage = {
   inputTokens: number;
