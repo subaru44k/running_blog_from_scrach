@@ -1,6 +1,6 @@
 import { UpdateCommand } from '@aws-sdk/lib-dynamodb';
-import { ddb } from './ddb';
-import { RATE_LIMIT_TABLE, RATE_LIMIT_WINDOW_SECONDS } from './env';
+import { ddb } from './ddb.js';
+import { RATE_LIMIT_TABLE, RATE_LIMIT_WINDOW_SECONDS } from './env.js';
 
 export const rateLimit = async (key: string, limit: number) => {
   const now = Math.floor(Date.now() / 1000);

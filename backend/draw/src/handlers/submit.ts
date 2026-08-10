@@ -1,17 +1,17 @@
 import { PutCommand, QueryCommand } from '@aws-sdk/lib-dynamodb';
-import { json, options, parseJson } from '../lib/http';
-import { rateLimit } from '../lib/rateLimit';
-import { getObjectBuffer } from '../lib/s3';
-import { computeInkRatio, isInkGateFail } from '../lib/inkGate';
-import { scoreStub } from '../lib/scoreStub';
-import { ddb } from '../lib/ddb';
-import { DRAW_BUCKET, DRAW_TABLE, OPENAI_API_KEY_SECRET_ID, PRIMARY_MODEL_ID, PRIMARY_PROVIDER, RATE_LIMIT_SUBMIT, SUBMISSION_TTL_DAYS } from '../lib/env';
-import { getClientIp } from '../lib/ip';
-import type { SubmitResult } from '../types';
-import { buildPrimaryUser, primarySystemPrompt } from '../lib/aiPrompts';
-import { resolveDrawPrompt } from '../lib/prompt';
-import { invokeOpenAIJson } from '../lib/openai';
-import { estimateOpenAiUsd } from '../lib/pricing';
+import { json, options, parseJson } from '../lib/http.js';
+import { rateLimit } from '../lib/rateLimit.js';
+import { getObjectBuffer } from '../lib/s3.js';
+import { computeInkRatio, isInkGateFail } from '../lib/inkGate.js';
+import { scoreStub } from '../lib/scoreStub.js';
+import { ddb } from '../lib/ddb.js';
+import { DRAW_BUCKET, DRAW_TABLE, OPENAI_API_KEY_SECRET_ID, PRIMARY_MODEL_ID, PRIMARY_PROVIDER, RATE_LIMIT_SUBMIT, SUBMISSION_TTL_DAYS } from '../lib/env.js';
+import { getClientIp } from '../lib/ip.js';
+import type { SubmitResult } from '../types.js';
+import { buildPrimaryUser, primarySystemPrompt } from '../lib/aiPrompts.js';
+import { resolveDrawPrompt } from '../lib/prompt.js';
+import { invokeOpenAIJson } from '../lib/openai.js';
+import { estimateOpenAiUsd } from '../lib/pricing.js';
 
 const gateResult = (submissionId: string): SubmitResult => ({
   submissionId,

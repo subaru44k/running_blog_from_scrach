@@ -1,5 +1,5 @@
-import { OPENAI_API_KEY_SECRET_ID, OPENAI_REASONING_EFFORT } from './env';
-import { getSecretString } from './secrets';
+import { OPENAI_API_KEY_SECRET_ID, OPENAI_REASONING_EFFORT } from './env.js';
+import { getSecretString } from './secrets.js';
 
 export type OpenAiUsage = {
   inputTokens: number | null;

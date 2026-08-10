@@ -4,6 +4,10 @@ export type ScoreBreakdown = {
   originality: number;
 };
 
+export type ClaudeContent =
+  | { type: 'text'; text: string }
+  | { type: 'image'; source: { type: 'base64'; media_type: 'image/png'; data: string } };
+
 export type SubmitResult = {
   submissionId: string;
   score: number;

@@ -1,10 +1,10 @@
-import { json, options, parseJson } from '../lib/http';
-import { rateLimit } from '../lib/rateLimit';
-import { createPutUrl } from '../lib/s3';
-import { DRAW_BUCKET, IMAGE_TTL_SECONDS, RATE_LIMIT_UPLOAD } from '../lib/env';
-import { generateUlid } from '../lib/ulid';
-import { getClientIp } from '../lib/ip';
-import { resolveDrawPrompt } from '../lib/prompt';
+import { json, options, parseJson } from '../lib/http.js';
+import { rateLimit } from '../lib/rateLimit.js';
+import { createPutUrl } from '../lib/s3.js';
+import { DRAW_BUCKET, IMAGE_TTL_SECONDS, RATE_LIMIT_UPLOAD } from '../lib/env.js';
+import { generateUlid } from '../lib/ulid.js';
+import { getClientIp } from '../lib/ip.js';
+import { resolveDrawPrompt } from '../lib/prompt.js';
 
 export const handler = async (event: any) => {
   const origin = event?.headers?.origin || event?.headers?.Origin;

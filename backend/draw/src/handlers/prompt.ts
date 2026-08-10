@@ -1,5 +1,5 @@
-import { json, options } from '../lib/http';
-import { resolveDrawPrompt } from '../lib/prompt';
+import { json, options } from '../lib/http.js';
+import { resolveDrawPrompt } from '../lib/prompt.js';
 
 export const handler = async (event: any) => {
   const origin = event?.headers?.origin || event?.headers?.Origin;
@@ -16,4 +16,3 @@ export const handler = async (event: any) => {
     return json(500, { error: err?.message || 'failed' }, origin);
   }
 };
-

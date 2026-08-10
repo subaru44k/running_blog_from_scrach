@@ -1,10 +1,10 @@
 import { QueryCommand } from '@aws-sdk/lib-dynamodb';
-import { ddb } from '../lib/ddb';
-import { DRAW_TABLE } from '../lib/env';
-import { buildSignedUrl } from '../lib/cfSign';
-import { json, options } from '../lib/http';
-import type { LeaderboardResponse } from '../types';
-import { resolveDrawPrompt } from '../lib/prompt';
+import { ddb } from '../lib/ddb.js';
+import { DRAW_TABLE } from '../lib/env.js';
+import { buildSignedUrl } from '../lib/cfSign.js';
+import { json, options } from '../lib/http.js';
+import type { LeaderboardResponse } from '../types.js';
+import { resolveDrawPrompt } from '../lib/prompt.js';
 
 export const handler = async (event: any) => {
   const origin = event?.headers?.origin || event?.headers?.Origin;

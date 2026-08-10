@@ -1,4 +1,4 @@
-import type { ScoreBreakdown } from '../types';
+import type { ScoreBreakdown } from '../types.js';
 
 export const scoreStub = () => {
   const score = 60 + Math.floor(Math.random() * 36);

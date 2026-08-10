@@ -1,10 +1,10 @@
 import { GetCommand } from '@aws-sdk/lib-dynamodb';
-import { ddb } from '../lib/ddb';
-import { DRAW_TABLE } from '../lib/env';
-import { buildSignedUrl } from '../lib/cfSign';
-import { json, options } from '../lib/http';
-import type { SubmissionDetailResponse } from '../types';
-import { resolveDrawPrompt } from '../lib/prompt';
+import { ddb } from '../lib/ddb.js';
+import { DRAW_TABLE } from '../lib/env.js';
+import { buildSignedUrl } from '../lib/cfSign.js';
+import { json, options } from '../lib/http.js';
+import type { SubmissionDetailResponse } from '../types.js';
+import { resolveDrawPrompt } from '../lib/prompt.js';
 
 const clampScore = (value: any) => {
   const numeric = Number(value);
