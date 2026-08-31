@@ -11,5 +11,6 @@
 - `draw-judge-secondary.md`: 廃止済み二次講評のメモ
 - `balloon-catch-asset-generation.md`: ふうせんゲーム素材生成
 - `cushion-catch-asset-generation.md`: クッションゲーム素材生成
+- `window-catch-asset-generation.md`: まどゲーム素材生成
 - `dressup-asset-generation.md`: おしゃれゲーム素材生成
 - `dressup-next-gpt-image-2-validation.md`: おしゃれゲーム PNG 化の gpt-image-2 再検証メモ
