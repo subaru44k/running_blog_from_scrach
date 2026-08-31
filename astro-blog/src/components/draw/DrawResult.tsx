@@ -4,6 +4,7 @@ import type { LeaderboardResponse, PromptInfo, SubmissionDetail, SubmitResult } 
 import ResultCard from './ResultCard';
 import Leaderboard from './Leaderboard';
 import { buildShareCard, downloadDataUrl } from '../../lib/draw/shareCard';
+import { getSavedReviewMode, type ReviewMode } from '../../lib/draw/reviewMode';
 
 type ResultState = {
   result?: SubmitResult;
@@ -21,7 +22,7 @@ type FirstReviewResult = {
   breakdown?: SubmitResult['breakdown'];
 };
 
-const RESULT_VERSION = 'v4-openai-primary-only';
+const RESULT_VERSION = 'v5-child-review';
 
 const getPromptFromStorage = () => {
   try {
@@ -49,6 +50,7 @@ export default function DrawResult() {
   const [primarySlow, setPrimarySlow] = useState(false);
   const [storageReady, setStorageReady] = useState(false);
   const [promptError, setPromptError] = useState<string | null>(null);
+  const [reviewMode, setReviewMode] = useState<ReviewMode>('standard');
 
   const mineRowRef = useRef<HTMLDivElement | null>(null);
   const leaderboardRef = useRef<HTMLDivElement | null>(null);
@@ -74,14 +76,21 @@ export default function DrawResult() {
   };
 
   const buildFirstReview = (result: SubmitResult): FirstReviewResult => {
-    const fallbackComment = '勢いがあって気持ちいいです。';
-    const shortComment = result.oneLiner?.trim() || fallbackComment;
-    const tips = (result.tips || []).map((tip) => tip.trim()).filter(Boolean);
-    const fallbackTips = result.score >= 85
-      ? ['勢い', 'まとまり', '表情']
-      : result.score >= 70
-        ? ['雰囲気', '素直さ', '丁寧さ']
-        : ['丁寧さ', 'のびのび', '伸びしろ'];
+    const childMode = reviewMode === 'child';
+    const fallbackComment = childMode
+      ? 'げんきな えだね。つぎも のびのび かいてみよう。'
+      : '勢いがあって気持ちいいです。';
+    const sourceComment = childMode ? result.childOneLiner : result.oneLiner;
+    const sourceTips = childMode ? result.childTips : result.tips;
+    const shortComment = sourceComment?.trim() || fallbackComment;
+    const tips = (sourceTips || []).map((tip) => tip.trim()).filter(Boolean);
+    const fallbackTips = childMode
+      ? ['のびのび', 'おおきな かたち', 'たのしい せん']
+      : result.score >= 85
+        ? ['勢い', 'まとまり', '表情']
+        : result.score >= 70
+          ? ['雰囲気', '素直さ', '丁寧さ']
+          : ['丁寧さ', 'のびのび', '伸びしろ'];
     return {
       score: result.score,
       shortComment,
@@ -91,6 +100,7 @@ export default function DrawResult() {
   };
 
   useEffect(() => {
+    setReviewMode(getSavedReviewMode());
     const storedImage = sessionStorage.getItem('drawImage');
     if (storedImage) {
       setImageDataUrl(storedImage);
@@ -133,6 +143,8 @@ export default function DrawResult() {
     breakdown: detail.breakdown,
     oneLiner: detail.oneLiner,
     tips: detail.tips,
+    childOneLiner: detail.childOneLiner,
+    childTips: detail.childTips,
     isRanked: typeof detail.rank === 'number' && detail.rank > 0 && detail.rank <= 20,
     rank: detail.rank,
   });
@@ -206,7 +218,7 @@ export default function DrawResult() {
     }
     loadResult();
     return () => clearPrimaryTimers();
-  }, [imageDataUrl, promptId, submissionId, storageReady]);
+  }, [imageDataUrl, promptId, submissionId, storageReady, reviewMode]);
 
   useEffect(() => {
     if (state.result) {
@@ -257,7 +269,7 @@ export default function DrawResult() {
         promptText: prompt.promptText,
         score: state.result.score,
         nickname: nickname || '匿名',
-        oneLiner: state.result.oneLiner,
+        oneLiner: firstReview?.shortComment || state.result.oneLiner,
         imageDataUrl,
       });
       downloadDataUrl(dataUrl, 'draw-score.png');
@@ -309,13 +321,13 @@ export default function DrawResult() {
   const rankMessage = state.result ? (() => {
     if (state.result.isRanked) {
       return {
-        title: '🎉 ランキング入り！',
-        sub: '今日の上位20作品に入りました',
+        title: reviewMode === 'child' ? '🎉 らんきんぐに はいったよ！' : '🎉 ランキング入り！',
+        sub: reviewMode === 'child' ? 'きょうの うえから にじゅっこの えに はいったよ' : '今日の上位20作品に入りました',
       };
     }
     return {
-      title: '今回はランク外（Top20）',
-      sub: 'もう一度チャレンジしてみよう！',
+      title: reviewMode === 'child' ? 'こんかいは らんくの そとだったよ' : '今回はランク外（Top20）',
+      sub: reviewMode === 'child' ? 'もういちど かいてみよう！' : 'もう一度チャレンジしてみよう！',
     };
   })() : null;
 
@@ -383,6 +395,9 @@ export default function DrawResult() {
 
       {state.result && imageDataUrl && judgeState === 'primary_done' && firstReview && (
         <div className="space-y-4">
+          <div className="text-sm font-medium text-blue-700 dark:text-blue-300">
+            {reviewMode === 'child' ? 'こどもむけの ことばで ひょうじしています' : 'おとなむけの言葉で表示しています'}
+          </div>
           <div className="rounded-lg border bg-white p-4">
             <label className="block text-sm font-medium text-gray-700">表示名（任意）</label>
             <input
@@ -402,6 +417,7 @@ export default function DrawResult() {
             shortComment={firstReview.shortComment}
             tips={firstReview.tips}
             breakdown={firstReview.breakdown}
+            childMode={reviewMode === 'child'}
           />
 
           {rankMessage && (

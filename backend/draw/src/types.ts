@@ -14,6 +14,8 @@ export type SubmitResult = {
   breakdown: ScoreBreakdown;
   oneLiner: string;
   tips: string[];
+  childOneLiner: string;
+  childTips: string[];
   isRanked: boolean;
   rank?: number;
 };
@@ -41,6 +43,8 @@ export type SubmissionDetailResponse = {
   breakdown: ScoreBreakdown;
   oneLiner: string;
   tips: string[];
+  childOneLiner: string;
+  childTips: string[];
   imageDataUrl: string;
 };
 

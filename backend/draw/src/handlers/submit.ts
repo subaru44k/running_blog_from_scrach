@@ -19,6 +19,8 @@ const gateResult = (submissionId: string): SubmitResult => ({
   breakdown: { likeness: 0, composition: 0, originality: 0 },
   oneLiner: '線がほとんど見えないため、採点をスキップしました。',
   tips: [],
+  childOneLiner: 'せんが ほとんど みえなかったので、てんすうは つけなかったよ。',
+  childTips: [],
   isRanked: false,
 });
 
@@ -93,6 +95,18 @@ const toLegacyBreakdown = (rubric: PrimaryRubric) => ({
   originality: clampScore((rubric.creativity * 0.7 + rubric.lineStability * 0.3) * 10),
 });
 
+const CHILD_TEXT_PATTERN = /^[\u3040-\u309f\u3000 、。！？・\s]+$/u;
+
+const normalizeChildText = (value: unknown, fallback: string) => {
+  const text = String(value || '').trim();
+  return text && CHILD_TEXT_PATTERN.test(text) ? text : fallback;
+};
+
+const normalizeChildTip = (value: unknown) => {
+  const text = normalizeChildText(value, '');
+  return text && text.length <= 16 && !/[。！？]/u.test(text) ? text : '';
+};
+
 const normalizePrimary = (input: any) => {
   const rubric = normalizeRubric(input);
   const breakdown = toLegacyBreakdown(rubric);
@@ -107,7 +121,29 @@ const normalizePrimary = (input: any) => {
   const oneLiner = (reviewParts.length > 0 ? reviewParts.join(' ') : fallbackOneLiner).slice(0, 220);
   const tipsRaw = Array.isArray(input?.tips) ? input.tips : [];
   const tips = tipsRaw.map((t: unknown) => String(t).trim()).filter(Boolean).slice(0, 3);
-  return { score, breakdown, oneLiner, tips, rubric };
+  const childReviewParts = [
+    input?.childReview?.summary,
+    input?.childReview?.goodPoint,
+    input?.childReview?.improvement,
+    input?.childReview?.nextStep,
+  ].map((part) => normalizeChildText(part, '')).filter(Boolean);
+  const childOneLiner = childReviewParts.length === 4
+    ? childReviewParts.join(' ').slice(0, 220)
+    : 'えの かたちが よく みえるね。げんきな せんが すてきだよ。つぎは もっと おおきく かくと、もっと わかりやすくなるよ。たのしく かいてみよう。';
+  const childTipsRaw = Array.isArray(input?.childTips) ? input.childTips : [];
+  const childTips = childTipsRaw
+    .map((tip: unknown) => normalizeChildTip(tip))
+    .filter(Boolean)
+    .slice(0, 3);
+  return {
+    score,
+    breakdown,
+    oneLiner,
+    tips,
+    childOneLiner,
+    childTips: childTips.length >= 2 ? childTips : ['おおきな かたち', 'げんきな せん'],
+    rubric,
+  };
 };
 
 export const handler = async (event: any) => {
@@ -197,6 +233,8 @@ export const handler = async (event: any) => {
         breakdown: scored.breakdown,
         oneLiner: scored.oneLiner,
         tips: scored.tips,
+        childOneLiner: scored.childOneLiner,
+        childTips: scored.childTips,
         isRanked: false,
       };
 
@@ -232,6 +270,9 @@ export const handler = async (event: any) => {
         breakdown: result.breakdown,
         oneLiner: result.oneLiner,
         tips: result.tips,
+        childOneLiner: result.childOneLiner,
+        childTips: result.childTips,
+        childReviewVersion: 'v1-four-sentence',
         isRanked: result.isRanked,
         rank: result.rank,
         secondaryStatus,

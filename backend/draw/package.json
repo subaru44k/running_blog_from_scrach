@@ -9,6 +9,7 @@
     "snapshot-month-scores": "node ./scripts/snapshot-month-scores.mjs",
     "restore-month-scores": "node ./scripts/restore-month-scores.mjs",
     "rewrite-month-scores": "node ./scripts/rewrite-month-scores.mjs",
+    "backfill-child-reviews": "node ./scripts/backfill-child-reviews.mjs",
     "generate-dressup-assets": "node ./scripts/generate-dressup-assets.mjs",
     "generate-dressup-assets-b": "node ./scripts/generate-dressup-assets-b.mjs",
     "generate-dressup-asset-layers-b": "node ./scripts/generate-dressup-asset-layers-b.mjs",

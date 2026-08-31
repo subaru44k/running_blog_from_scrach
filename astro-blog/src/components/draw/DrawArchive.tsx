@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { getLeaderboard, getPrompt, getSubmissionDetail } from '../../lib/draw/api';
 import type { LeaderboardItem, SubmissionDetail } from '../../lib/draw/types';
+import { getSavedReviewMode, saveReviewMode, type ReviewMode } from '../../lib/draw/reviewMode';
 
 type MonthEntry = {
   month: string;
@@ -48,7 +49,17 @@ export default function DrawArchive() {
   const [detail, setDetail] = useState<SubmissionDetail | null>(null);
   const [detailLoading, setDetailLoading] = useState(false);
   const [detailError, setDetailError] = useState<string | undefined>();
+  const [reviewMode, setReviewMode] = useState<ReviewMode>('standard');
   const months = useMemo(() => monthRange(START_MONTH, currentMonthJst()), []);
+
+  useEffect(() => {
+    setReviewMode(getSavedReviewMode());
+  }, []);
+
+  const updateReviewMode = (mode: ReviewMode) => {
+    setReviewMode(mode);
+    saveReviewMode(mode);
+  };
 
   useEffect(() => {
     let mounted = true;
@@ -152,6 +163,25 @@ export default function DrawArchive() {
       <p className="text-sm text-gray-600 dark:text-gray-300">
         2026年2月以降の月次ランキング上位20件を表示します。気になる作品はカードを押すと詳しく見られます。
       </p>
+      <fieldset className="card p-4">
+        <legend className="px-1 text-sm font-semibold text-slate-800 dark:text-slate-100">こうひょうの ひょうじ</legend>
+        <div className="mt-2 flex flex-wrap gap-2">
+          {([
+            { value: 'child' as const, label: 'こどもむけ' },
+            { value: 'standard' as const, label: 'おとなむけ' },
+          ]).map((option) => (
+            <button
+              key={option.value}
+              type="button"
+              aria-pressed={reviewMode === option.value}
+              className={`rounded-full px-4 py-2 text-sm font-semibold ${reviewMode === option.value ? 'bg-blue-600 text-white' : 'border border-slate-300 text-slate-700 dark:border-slate-600 dark:text-slate-200'}`}
+              onClick={() => updateReviewMode(option.value)}
+            >
+              {option.label}
+            </button>
+          ))}
+        </div>
+      </fieldset>
       {months.map((month) => {
         const entry = entries[month];
         return (
@@ -229,14 +259,16 @@ export default function DrawArchive() {
             <div className="mb-4 flex items-start justify-between gap-4">
               <div>
                 <div className="text-xs font-semibold uppercase tracking-[0.24em] text-blue-700 dark:text-blue-300">
-                  月別ランキング詳細
+                  {reviewMode === 'child' ? 'らんきんぐの くわしい けっか' : '月別ランキング詳細'}
                 </div>
                 <h3 id="archive-submission-title" className="mt-1 text-xl font-semibold text-slate-900 dark:text-slate-50">
-                  {detail?.rank ? `${detail.rank}位の作品` : '作品の詳細'}
+                  {detail?.rank
+                    ? `${detail.rank}${reviewMode === 'child' ? 'ばんの え' : '位の作品'}`
+                    : reviewMode === 'child' ? 'えの くわしい けっか' : '作品の詳細'}
                 </h3>
                 {detail?.promptText && (
                   <p className="mt-2 text-sm text-slate-600 dark:text-slate-300">
-                    お題: <span className="font-medium">{detail.promptText}</span>
+                    {reviewMode === 'child' ? 'おだい' : 'お題'}: <span className="font-medium">{detail.promptText}</span>
                   </p>
                 )}
               </div>
@@ -245,7 +277,7 @@ export default function DrawArchive() {
                 className="rounded-full border border-slate-300/90 px-3 py-1 text-sm text-slate-600 transition hover:bg-slate-100 dark:border-slate-600 dark:text-slate-200 dark:hover:bg-slate-800"
                 onClick={() => setSelected(null)}
               >
-                閉じる
+                {reviewMode === 'child' ? 'とじる' : '閉じる'}
               </button>
             </div>
 
@@ -284,7 +316,7 @@ export default function DrawArchive() {
                   </div>
                   <div className="flex items-center gap-2 text-sm text-slate-500 dark:text-slate-400">
                     <span className="inline-block h-4 w-4 animate-spin rounded-full border-2 border-slate-300 border-t-blue-500 dark:border-slate-700 dark:border-t-blue-400" />
-                    詳細を読み込み中…
+                    {reviewMode === 'child' ? 'くわしい けっかを よんでいます…' : '詳細を読み込み中…'}
                   </div>
                 </div>
               </div>
@@ -301,7 +333,7 @@ export default function DrawArchive() {
                     />
                   </div>
                   <div className="rounded-2xl border border-slate-200/80 bg-slate-50/90 p-3 text-sm text-slate-600 dark:border-slate-700/80 dark:bg-slate-900/80 dark:text-slate-300">
-                    <div className="font-medium text-slate-900 dark:text-slate-50">{detail.score}点</div>
+                    <div className="font-medium text-slate-900 dark:text-slate-50">{detail.score}{reviewMode === 'child' ? 'てん' : '点'}</div>
                     {detail.createdAt && (
                       <div className="mt-1 text-xs">投稿: {formatCreatedAt(detail.createdAt)}</div>
                     )}
@@ -310,14 +342,18 @@ export default function DrawArchive() {
 
                 <div className="space-y-5">
                   <div>
-                    <div className="text-sm leading-7 text-slate-700 dark:text-slate-200">{detail.oneLiner}</div>
+                    <div className="text-sm leading-7 text-slate-700 dark:text-slate-200">
+                      {reviewMode === 'child'
+                        ? detail.childOneLiner || 'げんきな えだね。つぎも のびのび かいてみよう。'
+                        : detail.oneLiner}
+                    </div>
                   </div>
 
                   <div className="space-y-2">
                     {[
-                      { label: '伝わりやすさ', value: detail.breakdown.likeness },
+                      { label: reviewMode === 'child' ? 'わかりやすさ' : '伝わりやすさ', value: detail.breakdown.likeness },
                       { label: 'まとまり', value: detail.breakdown.composition },
-                      { label: '工夫', value: detail.breakdown.originality },
+                      { label: reviewMode === 'child' ? 'くふう' : '工夫', value: detail.breakdown.originality },
                     ].map((item) => (
                       <div key={item.label} className="space-y-1">
                         <div className="flex justify-between text-xs text-slate-500 dark:text-slate-400">
@@ -334,9 +370,9 @@ export default function DrawArchive() {
                     ))}
                   </div>
 
-                  {detail.tips.length > 0 && (
+                  {(reviewMode === 'child' ? detail.childTips : detail.tips).length > 0 && (
                     <div className="flex flex-wrap gap-2">
-                      {detail.tips.map((tip) => (
+                      {(reviewMode === 'child' ? detail.childTips : detail.tips).map((tip) => (
                         <span
                           key={tip}
                           className="rounded-full bg-blue-50 px-3 py-1 text-xs font-medium text-blue-700 dark:bg-slate-800 dark:text-blue-200"

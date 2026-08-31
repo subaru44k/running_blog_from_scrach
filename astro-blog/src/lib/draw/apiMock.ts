@@ -54,6 +54,10 @@ export async function submitDrawing(params: {
       '表情',
       '発想',
     ],
+    childOneLiner: score >= 80
+      ? 'かたちが よく わかって、げんきな えだね。つぎも のびのび かいてみよう。'
+      : 'せんが よく みえて、たのしい えだね。つぎは もっと おおきく かいてみよう。',
+    childTips: ['のびのび', 'おおきな かたち', 'たのしい せん'],
     isRanked,
     rank,
   };

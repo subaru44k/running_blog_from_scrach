@@ -14,6 +14,7 @@ type Props = {
     originality: number;
   };
   imageDataUrl: string;
+  childMode?: boolean;
 };
 
 export default function ResultCard({
@@ -26,13 +27,14 @@ export default function ResultCard({
   tips = [],
   breakdown,
   imageDataUrl,
+  childMode = false,
 }: Props) {
   const [commentVisible, setCommentVisible] = useState(true);
   const [expandComment, setExpandComment] = useState(false);
   const commentText = showRichComment && richComment ? richComment : shortComment;
   const showToggle = commentText.length > 100;
 
-  const titleLabel = score >= 95
+  const standardTitleLabel = score >= 95
     ? 'キマった！'
     : score >= 80
       ? 'かなり上手い！'
@@ -41,6 +43,16 @@ export default function ResultCard({
         : score >= 40
           ? '伝わる！'
           : '伸びしろ！';
+  const childTitleLabel = score >= 95
+    ? 'すごい！'
+    : score >= 80
+      ? 'とっても じょうず！'
+      : score >= 60
+        ? 'いい かんじ！'
+        : score >= 40
+          ? 'よく わかるよ！'
+          : 'つぎも かいてみよう！';
+  const titleLabel = childMode ? childTitleLabel : standardTitleLabel;
 
   useEffect(() => {
     setCommentVisible(false);
@@ -59,7 +71,7 @@ export default function ResultCard({
       </div>
       <div className="space-y-3">
         <div className="flex flex-wrap items-baseline gap-2">
-          <div className="text-3xl font-bold text-gray-900">{score}点</div>
+          <div className="text-3xl font-bold text-gray-900">{score}{childMode ? 'てん' : '点'}</div>
           {phaseLabel && (
             <span className="text-xs text-gray-500">{phaseLabel}</span>
           )}
@@ -87,16 +99,16 @@ export default function ResultCard({
               className="text-xs text-blue-600 hover:underline"
               onClick={() => setExpandComment((prev) => !prev)}
             >
-              {expandComment ? '閉じる' : 'もっと見る'}
+              {childMode ? (expandComment ? 'とじる' : 'もっと みる') : (expandComment ? '閉じる' : 'もっと見る')}
             </button>
           )}
         </div>
         {breakdown && (
           <div className="space-y-2 pt-2">
             {[
-              { label: '伝わりやすさ', value: breakdown.likeness },
+              { label: childMode ? 'わかりやすさ' : '伝わりやすさ', value: breakdown.likeness },
               { label: 'まとまり', value: breakdown.composition },
-              { label: '工夫', value: breakdown.originality },
+              { label: childMode ? 'くふう' : '工夫', value: breakdown.originality },
             ].map((item) => (
               <div key={item.label} className="space-y-1">
                 <div className="flex justify-between text-xs text-gray-500">

@@ -11,5 +11,9 @@ export const scoreStub = () => {
     ? '形の捉え方が良く、勢いが伝わります。'
     : '輪郭が安定していて見やすいです。';
   const tips = ['勢い', 'まとまり', '表情', '発想'].slice(0, 2 + (score % 2));
-  return { score, breakdown, oneLiner, tips };
+  const childOneLiner = score >= 80
+    ? 'かたちが よく わかって、げんきな えだね。つぎも のびのび かいてみよう。'
+    : 'せんが よく みえて、たのしい えだね。つぎは もっと おおきく かいてみよう。';
+  const childTips = ['のびのび', 'おおきな かたち', 'たのしい せん'];
+  return { score, breakdown, oneLiner, tips, childOneLiner, childTips };
 };

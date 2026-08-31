@@ -77,7 +77,7 @@ export const invokeOpenAIJson = async <T>(
           schema: {
             type: 'object',
             additionalProperties: false,
-            required: ['rubric', 'review', 'tips'],
+            required: ['rubric', 'review', 'tips', 'childReview', 'childTips'],
             properties: {
               rubric: {
                 type: 'object',
@@ -92,6 +92,13 @@ export const invokeOpenAIJson = async <T>(
                 properties: Object.fromEntries(['summary', 'goodPoint', 'improvement', 'nextStep'].map((key) => [key, { type: 'string' }])),
               },
               tips: { type: 'array', items: { type: 'string' }, minItems: 2, maxItems: 3 },
+              childReview: {
+                type: 'object',
+                additionalProperties: false,
+                required: ['summary', 'goodPoint', 'improvement', 'nextStep'],
+                properties: Object.fromEntries(['summary', 'goodPoint', 'improvement', 'nextStep'].map((key) => [key, { type: 'string' }])),
+              },
+              childTips: { type: 'array', items: { type: 'string' }, minItems: 2, maxItems: 3 },
             },
           },
         },

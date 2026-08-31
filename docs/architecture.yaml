@@ -284,6 +284,9 @@ features:
       - S3 request checksum calculation and response checksum validation use WHEN_REQUIRED
       - CloudFront signed URL for image viewing (900s)
       - primary review displays score, a fuller 4-sentence review comment assembled server-side from summary/goodPoint/improvement/nextStep fields, tips, and derived breakdown without secondary follow-up
+      - draw review presentation has standard and child modes; both use the same stored rubric, score, breakdown, and ranking, while child mode displays only a hiragana, preschool-friendly review and tips
+      - the selected review presentation mode is stored in the browser and applies consistently to new result pages and archive detail modals
+      - new submissions store both standard and child review variants from the same primary scoring response; archived Top20 submissions created before rollout are backfilled once so archive reads never trigger AI generation
       - share card generated in browser
       - submit/upload APIs resolve promptId and promptText server-side from month rules
       - primary scoring uses OpenAI GPT-5.6 Luna (`gpt-5.6-luna`) with reasoning.effort=none (fallback to stub); existing submissions are re-scored with the same model before rollout completion

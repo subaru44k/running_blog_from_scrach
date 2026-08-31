@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { getPrompt } from '../../lib/draw/api';
 import type { PromptInfo } from '../../lib/draw/types';
+import { getSavedReviewMode, saveReviewMode, type ReviewMode } from '../../lib/draw/reviewMode';
 
 type State = {
   loading: boolean;
@@ -10,8 +11,10 @@ type State = {
 
 export default function DrawStart() {
   const [state, setState] = useState<State>({ loading: true });
+  const [reviewMode, setReviewMode] = useState<ReviewMode>('standard');
 
   useEffect(() => {
+    setReviewMode(getSavedReviewMode());
     let mounted = true;
     const month = new URLSearchParams(window.location.search).get('month') || undefined;
     getPrompt(month)
@@ -29,6 +32,7 @@ export default function DrawStart() {
 
   const start = () => {
     if (!state.prompt) return;
+    saveReviewMode(reviewMode);
     const params = new URLSearchParams({ promptId: state.prompt.promptId });
     const month = new URLSearchParams(window.location.search).get('month');
     if (month) params.set('month', month);
@@ -49,6 +53,31 @@ export default function DrawStart() {
             })()}
           </div>
           <div className="text-xl font-semibold">{state.prompt.promptText}</div>
+          <fieldset className="rounded-lg border border-gray-200 bg-white p-3 dark:border-gray-700 dark:bg-slate-900">
+            <legend className="px-1 text-sm font-semibold text-gray-800 dark:text-gray-100">けっかの ことば</legend>
+            <div className="mt-2 grid gap-2 sm:grid-cols-2">
+              {([
+                { value: 'child' as const, title: 'こどもむけ', body: 'ひらがなだけで、やさしく せつめいします' },
+                { value: 'standard' as const, title: 'おとなむけ', body: 'くわしい ことばで せつめいします' },
+              ]).map((option) => (
+                <label
+                  key={option.value}
+                  className={`cursor-pointer rounded-lg border p-3 ${reviewMode === option.value ? 'border-blue-500 bg-blue-50 dark:bg-blue-950/30' : 'border-gray-200 dark:border-gray-700'}`}
+                >
+                  <input
+                    type="radio"
+                    name="reviewMode"
+                    value={option.value}
+                    checked={reviewMode === option.value}
+                    onChange={() => setReviewMode(option.value)}
+                    className="mr-2"
+                  />
+                  <span className="font-semibold">{option.title}</span>
+                  <span className="mt-1 block pl-6 text-xs text-gray-600 dark:text-gray-300">{option.body}</span>
+                </label>
+              ))}
+            </div>
+          </fieldset>
           <button className="px-4 py-2 rounded-md bg-blue-600 text-white" onClick={start}>
             スタート
           </button>

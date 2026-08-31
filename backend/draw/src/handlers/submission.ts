@@ -50,6 +50,8 @@ export const handler = async (event: any) => {
       },
       oneLiner: String(item.oneLiner || ''),
       tips: Array.isArray(item.tips) ? item.tips.map((tip: any) => String(tip)) : [],
+      childOneLiner: String(item.childOneLiner || ''),
+      childTips: Array.isArray(item.childTips) ? item.childTips.map((tip: any) => String(tip)) : [],
       imageDataUrl: await buildSignedUrl(String(item.imageKey)),
     };
 

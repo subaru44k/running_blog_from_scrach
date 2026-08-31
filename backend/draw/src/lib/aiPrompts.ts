@@ -15,7 +15,8 @@ export const buildPrimaryUser = (promptText: string, imageBase64: string): Claud
     type: 'text',
     text: `お題: ${promptText || 'お題不明'}\n画像を評価して、次のJSONスキーマで返してください。\n` +
       `{"rubric":{"promptMatch":0-10,"composition":0-10,"shapeClarity":0-10,"lineStability":0-10,"creativity":0-10,"completeness":0-10},` +
-      `"review":{"summary":"全体の印象を1文","goodPoint":"良い点を1文","improvement":"改善点を1文","nextStep":"次の一手を1文"},"tips":["短い名詞句を2-3個"]}\n` +
+      `"review":{"summary":"全体の印象を1文","goodPoint":"良い点を1文","improvement":"改善点を1文","nextStep":"次の一手を1文"},"tips":["短い名詞句を2-3個"],` +
+      `"childReview":{"summary":"4歳向けの全体の印象を1文","goodPoint":"4歳向けの良い点を1文","improvement":"4歳向けの工夫を1文","nextStep":"4歳向けの次の一手を1文"},"childTips":["4歳向けの短い語句を2-3個"]}\n` +
       `採点基準を固定する。0-2は成立していない、3-4はかなり弱い、5-6は普通に伝わる、7は普通より明らかに良い、8はかなり珍しい、9はごく少数の強い作品、10は例外的な作品のみ。` +
       `rubricは必ず1点刻みの整数で評価すること。` +
       `各項目は自然に評価し、同じ値が複数あってもよい。` +
@@ -41,7 +42,12 @@ export const buildPrimaryUser = (promptText: string, imageBase64: string): Claud
       `「かわいらしい」「たのしい」「いい感じ」など、やわらかい日本語を自然に使ってよい。` +
       `人格否定や断定的な否定語は使わないこと。` +
       `tipsは日本語のみで出力し、英語表現は使わないこと。` +
-      `tipsは体言止めの短い語句にすること。`,
+      `tipsは体言止めの短い語句にすること。` +
+      `childReviewはreviewと同じ絵の内容を、4歳の子どもが自分で読めることばに言い換えること。` +
+      `childReviewの4項目はすべて必須で、ひらがなだけの短い1文ずつにすること。漢字、カタカナ、英字、数字は一切使わないこと。` +
+      `childReviewでは難しい美術用語を避け、「かたち」「せん」「おおきさ」「ばしょ」など日常的なことばを使うこと。` +
+      `childReviewでも、よいところを先に伝え、直す指示ではなく「こうすると もっと たのしくなるよ」のように前向きに伝えること。` +
+      `childTipsはひらがなだけの短い語句にすること。漢字、カタカナ、英字、数字は一切使わないこと。`,
   },
   {
     type: 'image',
