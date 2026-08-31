@@ -172,6 +172,7 @@ const metaDescription = 'ぞうさんを左右に動かして、雲に乗った�
     const WINDOW_W = 76;
     const WINDOW_H = 92;
     const MISS_BOUNCE_MS = 620;
+    const RIDER_DEPART_MS = 520;
     const NEXT_ROUND_MS = 420;
     const WINDOW_ANCHORS = [
       { x:190,y:142 }, { x:380,y:142 }, { x:580,y:142 }, { x:770,y:142 },
@@ -305,6 +306,11 @@ const metaDescription = 'ぞうさんを左右に動かして、雲に乗った�
         && fallingWindow.y+WINDOW_H/2>=ELEPHANT_FOOT_Y-ELEPHANT_HIT_H
         && fallingWindow.y-WINDOW_H/2<=ELEPHANT_FOOT_Y;
     }
+    function beginRiderDeparture(now) {
+      round.state = 'departing';
+      round.stateStartedAt = now;
+      round.riderDepartX = round.riderFacing===1 ? 1090 : -130;
+    }
     function updateRound(now) {
       if (!round) {
         if (now>=nextRoundAt) startRound(now);
@@ -340,8 +346,7 @@ const metaDescription = 'ぞうさんを左右に動かして、雲に乗った�
           score += 1;
           caughtCount += 1;
           player.lastCatchAt = now;
-          round = null;
-          nextRoundAt = now+NEXT_ROUND_MS;
+          beginRiderDeparture(now);
           setStatus('ナイスキャッチ！',700);
         } else if (t>=1) {
           round.state = 'miss';
@@ -352,10 +357,15 @@ const metaDescription = 'ぞうさんを左右に動かして、雲に乗った�
         }
         return;
       }
-      const missT = clamp((now-round.stateStartedAt)/MISS_BOUNCE_MS,0,1);
-      round.y = WINDOW_FLOOR_Y-Math.abs(Math.sin(missT*Math.PI*2))*28*(1-missT);
-      round.rotation = Math.sin(missT*Math.PI*2)*.07;
-      if (missT>=1) {
+      if (round.state==='miss') {
+        const missT = clamp((now-round.stateStartedAt)/MISS_BOUNCE_MS,0,1);
+        round.y = WINDOW_FLOOR_Y-Math.abs(Math.sin(missT*Math.PI*2))*28*(1-missT);
+        round.rotation = Math.sin(missT*Math.PI*2)*.07;
+        if (missT>=1) beginRiderDeparture(now);
+        return;
+      }
+      const departT = clamp((now-round.stateStartedAt)/RIDER_DEPART_MS,0,1);
+      if (departT>=1) {
         round = null;
         nextRoundAt = now+NEXT_ROUND_MS;
       }
@@ -423,7 +433,7 @@ const metaDescription = 'ぞうさんを左右に動かして、雲に乗った�
       ctx.fillStyle = '#9cc774'; ctx.fillRect(0,445,canvas.width,95);
       ctx.fillStyle = '#7caf5b'; ctx.fillRect(0,445,canvas.width,13);
       for (let index=0; index<WINDOW_ANCHORS.length; index++) {
-        if (round?.anchorIndex===index && round.state!=='approach') continue;
+        if (round?.anchorIndex===index && ['shaking','falling','miss'].includes(round.state)) continue;
         const anchor = WINDOW_ANCHORS[index];
         drawWindowAt(anchor.x,anchor.y);
         ctx.fillStyle = index%2 ? '#ef8fa3' : '#7cc58a';
@@ -441,10 +451,14 @@ const metaDescription = 'ぞうさんを左右に動かして、雲に乗った�
       if (round.state==='approach') {
         const progress = clamp((now-round.stateStartedAt)/DIFFICULTIES[difficulty].approachMs,0,1);
         x = lerp(round.riderFromX,round.riderContactX,easeInOut(progress));
+      } else if (round.state==='departing') {
+        const progress = clamp((now-round.stateStartedAt)/RIDER_DEPART_MS,0,1);
+        x = lerp(round.riderContactX,round.riderDepartX,easeInOut(progress));
       }
       return { x,y:anchor.y-93+Math.sin(now/130)*3,facing:round.riderFacing };
     }
     function drawTroublemaker(now) {
+      if (!round && phase!=='title') return;
       const rider = riderPosition(now);
       ctx.save(); ctx.translate(rider.x,rider.y); ctx.scale(rider.facing,1);
       if (images.troublemaker) ctx.drawImage(images.troublemaker,-110,-72,220,147);
@@ -475,7 +489,7 @@ const metaDescription = 'ぞうさんを左右に動かして、雲に乗った�
       ctx.restore();
     }
     function drawActiveWindow(now) {
-      if (!round || round.state==='approach') return;
+      if (!round || !['shaking','falling','miss'].includes(round.state)) return;
       const alpha = round.state==='miss' ? 1-clamp((now-round.stateStartedAt)/MISS_BOUNCE_MS,0,1)*.45 : 1;
       drawWindowAt(round.x,round.y,round.rotation,alpha);
     }
