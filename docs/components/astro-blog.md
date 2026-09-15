@@ -14,6 +14,7 @@ Astroで生成する静的サイト本体。ブログ、PDF圧縮、ペース計
   - `draw/archive.astro`: 2026-02以降の月別ランキングTop20一覧（`/api/draw/prompt` + `/api/draw/leaderboard` + 詳細モーダル用 `/api/draw/submission`）
   - `games/dressup-next.astro`: PNG レイヤー版おしゃれゲームの公開ルート。プレイヤーとチャットさんで共有するベースモデル選択、モデル共通補正と必要なパーツだけの個別補正による既存衣装アセット再利用、各部位約20種類の画像プレビュー付きアイテム選択、部位内ページ送り、チャットさんの選択演出、完成後の編集UI非表示を提供し、sitemap と games Service Worker キャッシュ対象に含める
   - `games/tv-catch.astro`: 30秒で犬を左右に動かし、わるいひとが棚から跳ね落とすテレビを自動キャッチする静的ミニゲーム。3難易度、タッチ・キーボード・ゲームパッド操作、「大きくあそぶ」に対応する
+  - `games/reversi.astro`: チャットさん対戦／2人対戦の静的リバーシ。合法手がない側は自動パス、両者の連続パスで終了し、パス後のAI手番でも遅延予約を失わない
   - `contact.astro`, `privacy.astro`, `about.astro`, `404.astro`
   - `sitemap.xml.ts`: サイトマップ生成
 - `astro-blog/src/layouts/Layout.astro`: 共通レイアウト/SEO。AdSense script と `google-adsense-account` メタタグを共通 `<head>` に出す

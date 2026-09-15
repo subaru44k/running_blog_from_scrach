@@ -340,7 +340,7 @@ features:
       - /games/balloon-catch/, /games/cushion-catch/, /games/tv-catch/, /games/window-catch/, /games/maze/, and /games/snake/ accept Gamepad API input in addition to keyboard and touch controls, with Android Chrome as the primary target environment
       - /games/balloon-catch/, /games/cushion-catch/, /games/tv-catch/, /games/window-catch/, /games/maze/, and /games/snake/ treat directional input as game-priority while the page is open, preventing page scroll and browser focus navigation from arrow-key-like controller input
       - gamepad support maps D-pad and left stick to movement, uses a primary button for restart/start or manual catch in cushion-catch, and a secondary button for pause in snake
-      - reversi provides AI play and local two-player mode, with localStorage used only for settings persistence
+      - reversi provides AI play and local two-player mode, with localStorage used only for settings persistence; a player with no legal move passes automatically, two consecutive passes end the game, and delayed AI moves are consumed before advancing the turn so a pass-triggered follow-up AI turn cannot lose its reservation
       - a dedicated Service Worker quietly enables offline use for /games/ and /games/* after those routes are visited once online
       - offline caching is limited to the mini-game hub, individual mini-game pages, and their same-origin static assets
   blog:

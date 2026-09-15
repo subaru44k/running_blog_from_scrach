@@ -13,6 +13,7 @@
     "gen:summary": "node ../admin-app/scripts/generate-monthly-summary.js",
     "build:with-summary": "npm run gen:summary && npm run build",
     "preview": "astro preview",
+    "test:reversi": "node --test scripts/reversi-ai.test.mjs",
     "astro": "astro"
   },
   "dependencies": {

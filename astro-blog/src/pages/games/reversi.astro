@@ -265,7 +265,9 @@ const metaDescription = 'チャットさんとの対戦や2人対戦で遊べる
     }
   </style>
 
-  <script is:inline>
+  <script>
+    import { consumePlannedAiMove } from '../../lib/games/reversi-ai.js';
+
     const STORAGE_KEY = 'games.reversi.settings.v1';
     const BLACK = 1;
     const WHITE = -1;
@@ -767,9 +769,7 @@ const metaDescription = 'チャットさんとの対戦や2人対戦で遊べる
       window.clearTimeout(state.aiTimer);
       state.aiTimer = window.setTimeout(() => {
         setThinking(false);
-        if (state.gameOver) return;
-        applyTurn(state.aiMovePlanned.index, WHITE);
-        state.aiMovePlanned = null;
+        consumePlannedAiMove(state, (index) => applyTurn(index, WHITE));
       }, wait);
     }
 
