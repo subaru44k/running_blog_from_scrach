@@ -1,6 +1,7 @@
-const CACHE_VERSION = 'games-offline-v17';
+const CACHE_VERSION = 'games-offline-v21';
 const OFFLINE_ROUTES = [
   '/games/',
+  '/games/music/',
   '/games/balloon-catch/',
   '/games/cushion-catch/',
   '/games/tv-catch/',

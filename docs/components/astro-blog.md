@@ -15,6 +15,8 @@ Astroで生成する静的サイト本体。ブログ、PDF圧縮、ペース計
   - `games/dressup-next.astro`: PNG レイヤー版おしゃれゲームの公開ルート。プレイヤーとチャットさんで共有するベースモデル選択、モデル共通補正と必要なパーツだけの個別補正による既存衣装アセット再利用、各部位約20種類の画像プレビュー付きアイテム選択、部位内ページ送り、チャットさんの選択演出、完成後の編集UI非表示を提供し、sitemap と games Service Worker キャッシュ対象に含める
   - `games/tv-catch.astro`: 30秒で犬を左右に動かし、わるいひとが棚から跳ね落とすテレビを自動キャッチする静的ミニゲーム。3難易度、タッチ・キーボード・ゲームパッド操作、「大きくあそぶ」に対応する
   - `games/reversi.astro`: チャットさん対戦／2人対戦の静的リバーシ。合法手がない側は自動パス、両者の連続パスで終了し、パス後のAI手番でも遅延予約を失わない
+  - `games/music.astro`: 4モードの音楽ミニゲーム。共通 React UI、SVG 譜面、Web Audio 合成音、UI から独立した音楽・判定ロジックを利用する
+    - SMuFL Bravura の音部記号と四分休符の SVG 輪郭を使い、ト音記号の G4 線とヘ音記号の F3 線を合わせる。リズムは開始ボタン、4拍の初回カウント、最初の小節の2拍分の休符、各小節の冒頭1拍の休符、各小節間2拍の譜面プレビューを持つ。小節の組み合わせは毎回生成し、開始後は固定する
   - `contact.astro`, `privacy.astro`, `about.astro`, `404.astro`
   - `sitemap.xml.ts`: サイトマップ生成
 - `astro-blog/src/layouts/Layout.astro`: 共通レイアウト/SEO。AdSense script と `google-adsense-account` メタタグを共通 `<head>` に出す

@@ -80,6 +80,7 @@ repo:
           - /games/maze/
           - /games/tic-tac-toe/
           - /games/reversi/
+          - /games/music/
           - /running-pace/
           - /pdf-compress/
           - /contact/
@@ -167,6 +168,7 @@ site:
       - /games/maze/
       - /games/tic-tac-toe/
       - /games/reversi/
+      - /games/music/
       - /running-pace/
       - /pdf-compress/
       - /contact/
@@ -320,10 +322,11 @@ features:
       - /games/maze/
       - /games/tic-tac-toe/
       - /games/reversi/
+      - /games/music/
     behavior:
       - /games/ is the hub page for lightweight browser games
       - global nav links separately to /draw/ and /games/ to keep draw as a first-class feature
-      - /games/ includes the draw game as the featured card and links to thirteen lighter mini-games
+      - /games/ includes the draw game as the featured card and links to fourteen lighter mini-games
       - balloon-catch, cushion-catch, tv-catch, window-catch, snake, maze, tic-tac-toe, reversi, janken, clock, dressup, dressup-next, and match-quiz are shipped as static Astro pages with client-side logic and no backend dependency
       - individual mini-game pages render their related-game sidebar from a shared component so public game links, including /games/dressup-next/ and /draw/, stay consistent across pages; the current page remains visible as a non-link item
       - /games/balloon-catch/ is a 30-second balloon catching game where the player moves a dog horizontally to catch balloons thrown by a CPU character, offers おそい/ふつう/はやい difficulty settings, uses only pre-generated game assets, draws the dog from the selected sprite sheet rather than separate dog pose images, and provides a wide play mode that uses the Fullscreen API when available with a CSS overlay fallback
@@ -336,6 +339,11 @@ features:
       - /games/dressup-next/ is a public PNG-layer dress-up game that keeps /games/dressup/ unchanged, offers selectable base models shared by the player and Chat-san, reuses the same clothing/accessory assets with per-model and exceptional per-item fit transforms, offers about twenty image-preview choices per clothing/accessory slot with in-slot previous/next pagination, hides editing hotspots after completion, lets Chat-san visibly choose parts in fixed order, and is included in sitemap.xml and the games service worker caches
       - /games/janken/ provides Chat-san mode and local 1v1 mode, uses one-round matches, waits briefly before Chat-san reveals a hand, and uses sequential hidden input for local two-player play
       - /games/clock/ asks the player to match a target time by dragging the analog clock hands directly, carries the hour forward or backward when the minute hand crosses 12, offers やさしい/ふつう/むずかしい difficulty levels (whole hours / half hours / 5-minute steps), and checks correctness only when the player presses the answer button
+      - /games/music/ is a static, browser-only four-mode music game for reading a single note on treble or bass staff, tapping 4/4 rhythms including rests, recognizing one heard pitch, and repeating short melodies; the four modes share a twelve-semitone-capable keyboard and synthesized Web Audio engine, show white keys by default, and finish after ten questions or bars without account or server persistence
+      - music pitch identity (MIDI/pitch class/octave) is separate from staff notation (letter/accidental), notation uses small SVG drawings, and rhythm input is judged against a monotonic performance clock with configurable timing windows
+      - music staff clefs and quarter rests use small local SVG outlines extracted from SMuFL Bravura, with the G and F clefs anchored to the G4 second line for treble and F3 fourth line for bass
+      - rhythm play waits for an explicit start action, shows a four-beat count-in before the first bar, starts the first 4/4 bar with two quarter rests and two quarter notes, and gives a two-beat notation preview between bars; every bar begins with a quarter rest, and each ten-bar run selects varied 4/4 patterns before play so the preview, timing judgment, and displayed notation stay in sync
+      - synthesized pitches use MIDI 60 as C4 and MIDI 69 as A4 at 440 Hz with twelve-tone equal temperament
       - /games/snake/ offers three speed modes (おそい / ふつう / はやい), defaults to ふつう on each visit, and applies the selected speed when the player presses start/restart
       - /games/balloon-catch/, /games/cushion-catch/, /games/tv-catch/, /games/window-catch/, /games/maze/, and /games/snake/ accept Gamepad API input in addition to keyboard and touch controls, with Android Chrome as the primary target environment
       - /games/balloon-catch/, /games/cushion-catch/, /games/tv-catch/, /games/window-catch/, /games/maze/, and /games/snake/ treat directional input as game-priority while the page is open, preventing page scroll and browser focus navigation from arrow-key-like controller input

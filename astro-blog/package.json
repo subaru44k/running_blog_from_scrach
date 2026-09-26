@@ -14,6 +14,7 @@
     "build:with-summary": "npm run gen:summary && npm run build",
     "preview": "astro preview",
     "test:reversi": "node --test scripts/reversi-ai.test.mjs",
+    "test:music": "node --test scripts/music-game.test.mjs",
     "astro": "astro"
   },
   "dependencies": {
