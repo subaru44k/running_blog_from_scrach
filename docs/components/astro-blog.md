@@ -14,7 +14,9 @@ Astroで生成する静的サイト本体。ブログ、PDF圧縮、ペース計
     - 描画UIは初期ペンに加えて色選択、白消しゴム、1手戻す操作を持ち、白背景PNGを送る
   - `draw/archive.astro`: 2026-02から前月までの確定済み月別ランキングTop20一覧（`/api/draw/prompt` + `/api/draw/leaderboard` + 詳細モーダル用 `/api/draw/submission`）。当月は表示しない
     - Top20画像をレスポンシブなギャラリーで表示し、作品詳細は選択時だけ取得する
-  - `games/dressup-next.astro`: PNG レイヤー版おしゃれゲームの公開ルート。プレイヤーとチャットさんで共有するベースモデル選択、モデル共通補正と必要なパーツだけの個別補正による既存衣装アセット再利用、各部位約20種類の画像プレビュー付きアイテム選択、部位内ページ送り、チャットさんの選択演出、完成後の編集UI非表示を提供し、sitemap と games Service Worker キャッシュ対象に含める
+  - `games/dressup-next.astro`: PNG レイヤー版おしゃれゲームの公開ルート。プレイヤーとチャットさんで共有するベースモデル選択、独立した `src/lib/games/dressup-next-models.json` による位置補正管理（頭・首元・腰・左右の足首を変形原点にし、部位共通補正とアイテムの部分補正を合成）と既存衣装アセット再利用、各部位約20種類の画像プレビュー付きアイテム選択、部位内ページ送り、チャットさんの選択演出、完成後の編集UI非表示を提供し、sitemap と games Service Worker キャッシュ対象に含める
+    - 位置補正の `x` / `y` / `originX` / `originY` は共通の 1024×1536 キャンバスに対する百分率。原点まわりで `scaleX` / `scaleY` を適用してから平行移動する。`fit.layers` を部位の既定値、`fit.items[slot][itemId]` を部分上書きとし、靴は `leftShoe` / `rightShoe` を個別指定できる
+    - アセット作成スクリプトはアイテムカタログだけを再構築し、モデル選択・位置補正の manifest を上書きしない。補正変更時は全5部位のアイテムを3モデルで目視確認し、`node --test backend/draw/scripts/dressup-next-fit.test.mjs` で共通キャンバス・部分上書き・全60足のつま先被覆を検証する。ゲームの HTML / script 変更時は cache-first の `public/games-sw.js` のバージョンも更新する
   - `games/tv-catch.astro`: 30秒で犬を左右に動かし、わるいひとが棚から跳ね落とすテレビを自動キャッチする静的ミニゲーム。3難易度、タッチ・キーボード・ゲームパッド操作、「大きくあそぶ」に対応する
   - `games/reversi.astro`: チャットさん対戦／2人対戦の静的リバーシ。合法手がない側は自動パス、両者の連続パスで終了し、パス後のAI手番でも遅延予約を失わない
   - `games/music.astro`: 4モードの音楽ミニゲーム。共通 React UI、SVG 譜面、Web Audio 合成音、UI から独立した音楽・判定ロジックを利用する

@@ -1,7 +1,6 @@
 ---
 import Layout from '../../layouts/Layout.astro';
 import RelatedGames from '../../components/games/RelatedGames.astro';
-import catalogData from '../../lib/games/dressup-next-catalog.json';
 
 const pageTitle = 'おしゃれゲーム ネクスト｜ミニゲーム';
 const metaDescription = 'PNGレイヤー素材を重ねて、おひめさま風のコーデを作る新しいきせかえゲームです。';
@@ -306,7 +305,7 @@ const metaDescription = 'PNGレイヤー素材を重ねて、おひめさま風�
 
     .dn-layer {
       transform: translate(var(--layer-x, 0), var(--layer-y, 0)) scaleX(var(--layer-scale-x, 1)) scaleY(var(--layer-scale-y, 1));
-      transform-origin: center center;
+      transform-origin: var(--layer-origin-x, 50%) var(--layer-origin-y, 50%);
     }
 
     .dn-hotspots {
@@ -556,13 +555,15 @@ const metaDescription = 'PNGレイヤー素材を重ねて、おひめさま風�
     }
   </style>
 
-  <script define:vars={{ catalogData }}>
+  <script>
+    import catalogData from '../../lib/games/dressup-next-catalog.json';
+    import models from '../../lib/games/dressup-next-models.json';
+    import { fitStyle, layerFitFor } from '../../lib/games/dressup-next-fit.mjs';
     const ASSET_BASE = catalogData.assetBase;
     const slotOrder = catalogData.slots;
     const slotLabels = catalogData.slotLabels;
     const catalog = catalogData.catalog;
     const themes = catalogData.themes;
-    const models = catalogData.models || [{ id: 'default', label: 'ショート', src: 'model-base.png', fit: { body: { x: '0%', y: '0%', scaleX: 1, scaleY: 1 }, layers: {} } }];
     const PAGE_SIZE = 8;
     const defaults = Object.fromEntries(slotOrder.map((slot) => [slot, 'none']));
     const state = {
@@ -603,19 +604,6 @@ const metaDescription = 'PNGレイヤー素材を重ねて、おひめさま風�
 
     const optionFor = (slot, id) => catalog[slot].find((item) => item.id === id) || catalog[slot][0];
     const modelFor = (id) => models.find((model) => model.id === id) || models[0];
-    const fitStyle = (fit = {}) => {
-      const x = fit.x || '0%';
-      const y = fit.y || '0%';
-      const scale = Number.isFinite(Number(fit.scale)) ? Number(fit.scale) : 1;
-      const scaleX = Number.isFinite(Number(fit.scaleX)) ? Number(fit.scaleX) : scale;
-      const scaleY = Number.isFinite(Number(fit.scaleY)) ? Number(fit.scaleY) : scale;
-      return `--layer-x:${x};--layer-y:${y};--layer-scale-x:${scaleX};--layer-scale-y:${scaleY}`;
-    };
-    const layerFitFor = (model, slot, itemId, layerKey) =>
-      model.fit?.items?.[slot]?.[itemId]?.[layerKey] ||
-      model.fit?.items?.[slot]?.[itemId] ||
-      model.fit?.layers?.[layerKey] ||
-      {};
     const imageTag = (src, alt, className = 'dn-layer', fit = {}) =>
       `<img class="${className}" src="${ASSET_BASE}${src}" alt="${alt}" loading="eager" decoding="async" style="${fitStyle(fit)}" />`;
     const modelTag = (model) => {
