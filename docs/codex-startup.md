@@ -17,7 +17,8 @@
 ## 主要サブシステム
 - `astro-blog/`: Astro v5 の公開静的サイト。ブログ、`/pdf-compress/`、`/draw/`、`/games/`、`/running-pace/` などを提供する。
 - `backend/draw/`: 30秒お絵描き採点ゲームの API Gateway + Lambda バックエンド。S3、DynamoDB、CloudFront 署名 URL、Secrets Manager、OpenAI と連携する。
-- `admin-app/`: Express/EJS のローカル管理 UI と、月次サマリー生成・Fitbit 取込スクリプト。
+- `admin-app/`: Express/EJS のローカル管理 UI と、月次サマリー生成・Garmin優先/Fitbitフォールバックの記事取込。共通入口は `scripts/import-workouts.js`、旧 `import-fitbit-workouts.js` も同じ処理を呼ぶ。
+- `admin-app/scripts/garmin.sh`: Garminのローカル認証・ランニング詳細取得CLI。初回認証はユーザーのTTYで行い、tokenと取得物は `~/.garminconnect/` に保存する。記事生成は行わない。手順は `docs/runbooks/garmin-local.md`。
 - `pdf-compress-service/`: Ghostscript 入り Lambda コンテナ。S3 の `uploads/` から PDF を読み、`outputs/` と `previews/` に書く。
 - `lambdas/sign-upload-v3/`: PDF 用の S3 presigned POST を発行する Lambda。
 - `lambdas/fitbit-callback/`: Fitbit OAuth callback を受け、token payload を S3 に保存する Lambda。

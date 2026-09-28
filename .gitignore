@@ -1,6 +1,11 @@
 # Node modules
 node_modules/
 
+# Local Garmin Python runtime and private exports
+admin-app/.venv-garmin/
+__pycache__/
+.garminconnect/
+
 # Astro build output
 astro-blog/dist/
 astro-blog/.dist-baseline/

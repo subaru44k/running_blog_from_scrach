@@ -31,85 +31,85 @@ Edit defaults
 - New posts default to the current JST date and time. Editing preserves the stored
   time, and saved frontmatter uses an ISO 8601 timestamp with the `+09:00` offset.
 
-## Fitbit Workout Import
+## Garmin / Fitbit Workout Import
 
-The script `scripts/import-fitbit-workouts.js` turns Fitbit activity logs into draft
-Markdown posts. Requirements:
+`node scripts/import-workouts.js` は、日ごとにGarminを先に確認して既存形式のブログ下書きを生成します。
+従来の `node scripts/import-fitbit-workouts.js` も同じ処理へ委譲するため、既存の呼び出し方法を継続できます。
 
-1. Complete the Fitbit OAuth flow using the `fitbit-callback` Lambda so tokens are stored in S3.
-2. Export the following environment variables before running the script (or place them in `admin-app/.env`):
+### 取得元
 
-   ```bash
-   export TOKEN_S3_BUCKET=your-secrets-bucket
-   export TOKEN_S3_KEY=fitbit/token.json      # optional
-   export FITBIT_CLIENT_ID=...                # from Fitbit application settings
-   export FITBIT_CLIENT_SECRET=...
-   export AWS_REGION=ap-northeast-1           # or your region
-   ```
+- 既定の `--source auto`: Garminの30秒以上のランがある日はGarminのみを使い、Fitbitは呼びません。
+- Garmin検索に成功して対象ランがない日だけFitbitへ切り替えます。
+- 同日に両機器で別のランを記録しても、Garminがある日はその日のFitbitをすべて除外します。
+- `--source garmin` / `--source fitbit` で取得元を限定できます。
+- Garminの認証・通信・アクセス制限・不正データは「ランなし」と扱わず、範囲処理を停止して失敗終了します。
+- Fitbitの日次取得失敗やアクセス制限も停止します。対象ランが5日連続でない場合も失敗終了します。
 
-   Example `.env`:
+### 認証と準備
 
-   ```bash
-   TOKEN_S3_BUCKET=your-secrets-bucket
-   TOKEN_S3_KEY=fitbit/token.json
-   FITBIT_CLIENT_ID=...
-   FITBIT_CLIENT_SECRET=...
-   AWS_REGION=ap-northeast-1
-   ```
+GarminにはPython 3.12以上、`admin-app/.venv-garmin` の固定依存、ローカルtokenが必要です。
+セットアップと初回認証は [Garmin手順](../docs/runbooks/garmin-local.md) を参照してください。
+`--source fitbit` を使う場合はGarminの環境・認証は不要です。
 
-3. Run the script (defaults to import yesterday’s activities):
+Fitbitを使用する日だけ、AWS認証と以下の `admin-app/.env` 設定が必要です。
+Garminだけの日はS3 tokenの読み込みやFitbit tokenのrefreshを行いません。
 
-   ```bash
-   node scripts/import-fitbit-workouts.js
-   ```
+```dotenv
+TOKEN_S3_BUCKET=your-secrets-bucket
+TOKEN_S3_KEY=fitbit/token.json
+FITBIT_CLIENT_ID=your-client-id
+FITBIT_CLIENT_SECRET=your-client-secret
+AWS_REGION=ap-northeast-1
+```
 
-   Options:
+Fitbit tokenは既存の `fitbit-callback` LambdaのOAuthフローでS3に保存します。
+AWS標準プロファイルは `codex-prod` です。
 
-   - `--date YYYY-MM-DD` import a specific date (can be repeated)
-   - `--days N` import the last `N` days (defaults to 1 → today)
-   - `--from YYYY-MM-DD --to YYYY-MM-DD` import a date range (inclusive)
-   - Set `FITBIT_IMPORT_DRY_RUN=true` to skip writing Markdown files. Refreshed
-     OAuth tokens are still persisted to S3 because Fitbit rotates refresh tokens.
-   - Adjust `FITBIT_IMPORT_TZ_OFFSET` (minutes, default `540` for JST) if you want
-     timestamps rendered in a different timezone
-   - `FITBIT_DISTANCE_RESOLUTION` to control intraday distance sampling when
-     computing run splits (`1sec` by default; use `1min` if you hit API limits)
-   - `FITBIT_DEFAULT_CATEGORY`, `FITBIT_DEFAULT_AUTHOR`, and `FITBIT_DEFAULT_STATUS`
-     customise the generated frontmatter
-   - `FITBIT_SPLIT_DEBUG=true` to log why 1 km splits could not be computed
-   - `FITBIT_MAX_CONSECUTIVE_EMPTY_DAYS` stops a range import after this many
-     consecutive dates without a matching activity (default `5`)
+### 実行例（リポジトリルート）
 
-Range imports also stop immediately when Fitbit returns HTTP `429` /
-`RESOURCE_EXHAUSTED`; rerun from the failed date after the quota resets.
+```sh
+# 1日を確認（記事は書かずMarkdownを表示）
+AWS_PROFILE=codex-prod node admin-app/scripts/import-workouts.js --date 2026-09-28 --dry-run
 
-The script refreshes the Fitbit access token when needed and persists the updated
-refresh token back to S3, including during a content dry run. Generated posts are
-created under `astro-blog/src/content/blog` with filenames like
-`YYYY-MM-DD-fitbit-workout.md` and default to draft status so you can review and
-edit before publishing.
+# 両端を含む期間を確認
+AWS_PROFILE=codex-prod node admin-app/scripts/import-workouts.js --from 2026-09-27 --to 2026-09-28 --dry-run
 
-The generated frontmatter timestamp uses the earliest valid `startTime` among the
-running activities for that date. If no running activity has a valid start time,
-the importer warns and skips the Markdown file instead of recording a guessed
-midnight timestamp. `FITBIT_IMPORT_TZ_OFFSET` supplies the stored numeric offset
-(default `540`, or `+09:00`).
+# 期間を実際に取り込む
+AWS_PROFILE=codex-prod node admin-app/scripts/import-workouts.js --from 2026-09-27 --to 2026-09-28
 
-Activities will include 1 km splits when Fitbit laps are present or when
-distance time series data is available (fallback uses TCX trackpoints if provided).
-Each workout summary includes Fitbit's total distance with two decimal places,
-for example `31分ジョグ(6.01km)`. When splits are unavailable, no placeholder
-line is written.
+# Fitbitだけを使う
+AWS_PROFILE=codex-prod node admin-app/scripts/import-workouts.js --source fitbit --date 2026-09-27 --dry-run
+```
 
-Note: The TCX endpoint requires the `location` scope in addition to `activity`.
-If your access token was created without `location`, reauthorize the Fitbit app
-with that scope and rerun the importer.
+- `--date YYYY-MM-DD`: 複数指定可能。同じ日付は1回だけ処理します。
+- `--from YYYY-MM-DD --to YYYY-MM-DD`: 両端を含む期間。両オプションを一緒に指定します。
+- `--days N`: 基準タイムゾーンの今日から直近N日。日付指定なしの既定は今日1日です。
+- `--dry-run` または `FITBIT_IMPORT_DRY_RUN=true`: 記事を書き込まずMarkdownを表示します。使用ソースのtoken refreshは永続化します。
+- `--help`: オプション一覧。
 
-The importer limits output to running activities by fetching the activity type
-catalog (`GET /1/activities.json`) and filtering for names that contain \"Run\".
-Activity ID `91060` is also included by default because Fitbit may return these
-runs with the generic name `Workout`.
-You can override the run detection by setting:
+### 記事フォーマットと重複防止
 
-- `FITBIT_RUN_ACTIVITY_NAMES` (comma-separated names, e.g. `Structured Workout,Run`)
-- `FITBIT_RUN_ACTIVITY_IDS` (comma-separated IDs)
+既存frontmatterと `31分ジョグ(7.20km)` の本文、スプリットの矢印と5区間ごとの折り返しを維持します。
+心拍・GPS・パワーなどの新しい本文項目は追加しません。Garminの秒・mはms・kmへ変換します。
+Garminは記録済み1kmラップと最終端数を表示し、距離が1kmに揃わないラップは推測で分割せず省略します。
+ラップ詳細404もスプリットを省略します。Fitbitも総距離だけのTCX lapから架空の1kmスプリットを作りません。
+距離がない場合は括弧を省略し、スプリットがない場合は補足行を追加しません。
+
+記事日時は採用ソースの最も早い有効なラン開始時刻です。Garminは `startTimeGMT` から基準オフセットへ変換し、
+Fitbitは従来どおり日次ログの `startTime` を使います。有効な開始時刻がない日は記事を書かず警告します。
+
+両ソースとも `astro-blog/src/content/blog/YYYY-MM-DD-fitbit-workout.md` に保存し、既存URLを維持します。
+同日の取込記事がある場合はAPI取得前にスキップします。過去の番号付き記事も対象です。
+編集済み記事の上書きや、再実行による番号付き重複記事は作成しません。
+
+### 従来の環境変数
+
+Garminにも従来の `FITBIT_DEFAULT_CATEGORY` / `FITBIT_DEFAULT_AUTHOR` / `FITBIT_DEFAULT_STATUS`
+（既定draft）と `FITBIT_IMPORT_TZ_OFFSET`（既定540分/JST）を適用します。
+`FITBIT_MAX_CONSECUTIVE_EMPTY_DAYS`（既定5）は両ソースの対象ランがない日数に適用します。
+
+Fitbitの判定はRun系活動名・活動カタログに加え、既定Activity ID `91060` を含みます。
+`FITBIT_RUN_ACTIVITY_NAMES` / `FITBIT_RUN_ACTIVITY_IDS` で変更できます。
+`FITBIT_DISTANCE_RESOLUTION`（既定1sec）と `FITBIT_SPLIT_DEBUG` はFitbitの詳細取得に使用します。
+TCXの取得には `activity` に加えて `location` スコープが必要です。
+64bit `logId` は文字列のまま詳細URLへ渡します。

@@ -26,6 +26,9 @@ flowchart LR
     TokenS3[Token S3]
   end
 
+  GarminAPI[Garmin Connect]
+  GarminLocal[Python CLI / local tokens]
+
   subgraph PDF[PDF圧縮]
     Sign[sign-upload-v3 Lambda]
     Compress["pdf-compress-service<br/>Lambda/Docker + Ghostscript"]
@@ -39,6 +42,7 @@ flowchart LR
   Callback --> TokenS3
   Scripts --> TokenS3
   Scripts --> FitbitAPI
+  Scripts --> GarminLocal --> GarminAPI
 ```
 
 ## URL設計と404方針
@@ -149,8 +153,10 @@ sequenceDiagram
   Fitbit-->>CB: redirect (code)
   CB->>Fitbit: token exchange
   CB->>S3: 保存（token.json）
-  Admin->>S3: token 読み込み
-  Admin->>Fitbit: 活動データ取得
+  Admin->>Admin: 日ごとにGarminを先に確認
+  Note over Admin: Garminに対象ランがある日はFitbitを呼ばない
+  Admin->>S3: Garminに対象ランがない日だけtoken読み込み
+  Admin->>Fitbit: 対象日の活動データ取得
   Admin->>S3: refreshされたtokenを保存（dry-runを含む）
   Admin->>Admin: Markdown生成（Astro content）
 ```
@@ -168,3 +174,26 @@ Fitbit記事の各Workoutは、日次活動データの総距離を小数第2位
 日付範囲の連続取込では、対象Activityが5日連続で見つからない場合は同期不良や判定漏れの可能性があるため、その時点で処理を停止する。閾値は `FITBIT_MAX_CONSECUTIVE_EMPTY_DAYS` で変更できる。
 
 Fitbit APIがHTTP 429または `RESOURCE_EXHAUSTED` を返した場合も、後続日付への無駄な再試行を避けるため、その時点で日付範囲の取込を停止する。
+
+### Garmin / Fitbit両対応の記事取込
+
+`admin-app/scripts/import-workouts.js` が共通入口となり、従来の `import-fitbit-workouts.js` も同じ処理へ委譲する。日付指定・期間指定は維持し、既定日付は基準タイムゾーンの今日、重複日付は1回だけ処理する。既定の `--source auto` は日単位でGarminを先に検索し、30秒以上の対象ランが1件でもあればその日のFitbitは取得しない。GarminとFitbitの両方で同日に別のランを記録した場合も、その日はGarminのみを採用する。Garmin検索が成功して対象ラン0件の日だけFitbitを取得する。`--source garmin` / `--source fitbit` で明示的に限定できる。
+
+Garminの認証切れ・通信失敗・rate limit・不正データを「ランなし」と扱わない。その日の記事は生成せず、後続日の処理も停止して非0終了する。Fitbitの設定確認とS3 token読み込み・refreshはFitbitの取得が必要になった時だけ行い、Garminだけの日にはAWSやFitbit認証を必要としない。Fitbit取得エラーも範囲取込を停止して非0終了する。対象ランが5日連続でない場合の停止も非0終了とする。
+
+記事のfrontmatter、分数ジョグ(距離km)、スプリットの矢印・5区間ごとの折り返し・最終累積距離ラベルは維持し、心拍・GPS・パワーなどの本文項目は追加しない。Garminの秒・メートルはms・kmへ変換し、開始時刻は `startTimeGMT` から基準オフセットへ変換する。記録された1kmラップと最終端数を表示するが、1kmに揃わないラップは推測で分割せず省略し、ラップ詳細404もスプリットを省略する。
+
+両ソースとも従来の `YYYY-MM-DD-fitbit-workout.md` を使い、URLと既存記事を維持する。同日の既存取込記事（番号付きの過去ファイルも含む）がある場合はAPI取得前にスキップし、上書きや番号付き再生成をしない。`--dry-run` または従来の環境変数で記事書き込みを抑止し、確認用Markdownを表示する。使用ソースのtoken refreshはdry-runでも永続化する。
+
+Fitbitの64bit `logId` は文字列として保持して詳細取得URLへ渡す。TCXに総時間・総距離のlapしかない場合、それを均等割りして架空の1kmスプリットを生成しない。記録済み1kmラップまたは距離サンプルがある場合だけスプリットを出力する。
+Fitbit詳細取得の401/429/5xxも停止対象とし、403/404等の未提供・スコープ不足ではスプリットを省略できる。
+
+## Garmin詳細データのローカル取得
+
+`admin-app/scripts/garmin.sh` / `garmin.py` は、非公式の `python-garminconnect` 0.3.16を使い、個人アカウントから指定日のランニング詳細を取得するCLIである。Python 3.12以上と、固定依存をインストールした `admin-app/.venv-garmin` を使用する。Garmin側の変更で動かなくなる可能性がある。
+
+初回認証はユーザー自身がTTYでメールアドレス、非表示のパスワード、必要なら非表示のMFAコードを入力する。パスワードは保存せず、認証tokenを `~/.garminconnect/garmin_tokens.json` に保存する。取得コマンドは保存済みtokenだけを使い、認証が必要な場合は入力待ちに切り替えず終了する。tokenの自動更新も同じ場所へ永続化する。
+
+指定日はGarminのローカル日付として検索する。summary・splits・details JSON、元のFITを含むZIP、TCXを `~/.garminconnect/activities/{YYYY-MM-DD}/` に保存し、結果と部分失敗を `manifest.json` に記録する。保存ディレクトリは0700、ファイルは0600とし、秘密値やAPIエラー本文をログへ出さない。認証エラー・rate limitは取得処理を停止する。
+
+`import-data --date` はラン・ラップの必要項目だけをJSONでstdoutへ返し、詳細ZIP/TCXは保存しない。Python CLIはGarminの活動変更・削除・アップロード、AWS・公開サイト・Astro記事への書き込みを行わない。Node importerが記事生成と日単位の重複排除を担当する。詳細の有無は実データで確認し、未取得の値やスプリットを推測しない。準備・認証・取得手順は `docs/runbooks/garmin-local.md` を参照。

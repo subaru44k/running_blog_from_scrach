@@ -8,6 +8,7 @@
 - `docs/codex-startup.md`: Codex起動時に最初に読むプロジェクト概要
 - `docs/components/*.md`: コンポーネント別の詳細
 - `docs/runbooks/*.md`: 検証・デプロイ手順
+  - `docs/runbooks/garmin-local.md`: Garminの初回ローカル認証・詳細取得とGarmin / Fitbit両対応の記事取込
 - `docs/prompts/*.md`: Codex CLI 用のプロンプト集
 - `docs/adr/*.md`: 設計判断（ADR）
 

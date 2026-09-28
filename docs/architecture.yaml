@@ -103,8 +103,11 @@ repo:
         manual_posts: "管理UIで日付と時刻を必須入力し、既存記事の時刻も編集時に保持する"
         summaries: "走行開始時刻を持たない月次サマリーは記事ページで日付のみ表示する"
       scripts:
+        - admin-app/scripts/import-workouts.js
         - admin-app/scripts/import-fitbit-workouts.js
         - admin-app/scripts/generate-monthly-summary.js
+        - admin-app/scripts/garmin.sh
+        - admin-app/scripts/garmin.py
     lambdas:
       fitbit_callback:
         path: lambdas/fitbit-callback
@@ -251,7 +254,8 @@ features:
       token_storage: S3 token.json
       refresh_persistence: "Fitbitがrefresh時にtokenをローテーションするため、記事生成のdry-run時も更新tokenはS3へ保存する"
     draft_generation:
-      script: admin-app/scripts/import-fitbit-workouts.js
+      script: admin-app/scripts/import-workouts.js
+      compatibility_entry: "admin-app/scripts/import-fitbit-workouts.jsも同じ両対応処理へ委譲する"
       dry_run_policy: "Markdown記事は書き出さないが、OAuth tokenの更新は永続化する"
       content_format:
         workout_summary: "丸めた分数ジョグ(総距離km)。例: 31分ジョグ(6.01km)"
@@ -271,6 +275,46 @@ features:
         consecutive_empty_stop: "対象Activityが5日連続で見つからない場合は異常として取込を停止する"
         rate_limit_stop: "Fitbit APIが429またはRESOURCE_EXHAUSTEDを返した場合は日付範囲の取込を停止する"
     storage: TODO
+  workout_import:
+    entry: admin-app/scripts/import-workouts.js
+    date_selection: "--date（複数指定可）、--from/--to（両端含む）、--days。既定は基準タイムゾーンの今日。重複日付は1回だけ処理する"
+    source_policy:
+      default: "auto: 日単位でGarminの30秒以上のランニングを先に取得。存在する日はFitbitを呼ばずGarminのみで記事生成する"
+      fallback: "Garmin検索が成功し対象ランが0件の日だけFitbitを取得する。同日両方で走った場合もGarminのみを採用する"
+      overrides: "--source auto|garmin|fitbit。fitbit指定はGarmin環境・認証を必要としない"
+      failures: "Garmin認証・通信・rate limit・不正データはデータなしと区別し、その日を生成せず範囲取込を停止して非0終了する"
+      fitbit_initialization: "Fitbit token/S3設定はFitbit取得が必要になった時だけ確認・読み込み・refreshする"
+    output:
+      format: "既存frontmatterと分数ジョグ(距離km)、スプリット矢印形式を維持。心拍・GPS・パワーの新規本文項目は追加しない"
+      filename: "両ソースともYYYY-MM-DD-fitbit-workout.mdを維持し、既存URLを変更しない"
+      existing_posts: "同日の既存取込記事（番号付きの過去ファイルも含む）がある場合はAPI取得前にスキップ。上書きや番号付き再生成はしない"
+      datetime: "選択ソースの最も早いラン開始時刻。Garmin startTimeGMTをFITBIT_IMPORT_TZ_OFFSET（既定JST）へ変換する"
+      garmin_units: "duration秒をms、distanceメートルをkmへ変換する"
+      garmin_splits: "記録済み1kmラップと最終端数を表示。1kmに揃わないラップは推測で分割せずスプリットを省略する。ラップ詳細の404も省略する"
+      dry_run: "--dry-runまたはFITBIT_IMPORT_DRY_RUN=true。記事を書かずMarkdownを表示するが、使用ソースのtoken refreshは永続化する"
+      empty_days: "両ソースの対象ランが5日連続でない場合は範囲取込を停止し非0終了。閾値はFITBIT_MAX_CONSECUTIVE_EMPTY_DAYS"
+      errors: "Fitbitの日次取得失敗と詳細取得401/429/5xxは範囲取込を停止して非0終了する。詳細403/404等の未提供・スコープ不足はスプリットを省略できる"
+      fitbit_precision: "64bit logIdを文字列で保持して詳細URLに使用する。TCXの総距離だけのlapを均等割りして1kmスプリットを生成しない"
+  garmin:
+    purpose: "個人アカウントの詳細取得CLIと、両対応記事取込へラン・ラップを渡すJSONインターフェース"
+    integration: "非公式python-garminconnect 0.3.16を使用。Garmin側の変更で利用できなくなる可能性がある"
+    runtime: "Python 3.12以上。uvでadmin-app/.venv-garminを作成し、requirements-garmin.txtの固定依存をインストールする"
+    entry: admin-app/scripts/garmin.sh
+    authentication:
+      login: "ユーザー自身がTTYでメールアドレス・非表示のパスワード・必要時に非表示のMFAコードを入力する"
+      token_storage: "~/.garminconnect/garmin_tokens.json（directory 0700 / file 0600）"
+      persistence: "初回ログインと以後のtoken refreshはローカル保存。パスワードは保存しない"
+      fetch: "保存済みtokenのみ使用。未認証・認証切れはエラー終了し、ログイン入力に切り替えない"
+    data_flow:
+      - "指定日（Garminのローカル日付）のrunning activitiesを検索"
+      - "各活動のsummary・splits・details JSON、元のFITを含むZIP、TCXを取得"
+      - "~/.garminconnect/activities/{YYYY-MM-DD}/に保存（directory 0700 / files 0600）"
+      - "manifest.jsonに結果・部分失敗を記録。認証エラー・rate limitでは停止する"
+      - "import-data --dateはラン・ラップの必要項目だけをJSONでstdoutへ返す。詳細ZIP/TCXの保存は行わない"
+    boundaries:
+      - "Garminの活動変更・削除・アップロードAPIは呼ばない。OAuth token更新は行う"
+      - "Python CLI自体はAWS・公開サイト・Astro記事へ書き込まない。記事生成と日単位の重複排除はNode importerが担う"
+      - "詳細の有無は実データで確認する。取得不能の値やスプリットを推測で生成しない"
   draw_backend:
     routes:
       - /draw/

@@ -172,7 +172,12 @@ AWS CLI の標準プロファイル（`codex-prod`）と実行主体も `docs/aw
 - For heavy usage, consider S3 multipart uploads from the browser and tighter Lambda memory tuning
 
 
-## Services: Fitbit Workout Import
+## Services: Garmin / Fitbit Workout Import
+
+Garminのランニング詳細は `admin-app/scripts/garmin.sh` のローカルCLIで取得を検証できます。
+初回認証をユーザーのターミナルで行い、token・取得物は `~/.garminconnect/` に保存します。
+元のFITを含むZIP、TCX、summary・splits・details JSONを取得し、ブログ記事は生成しません。
+Python 3.12以上と固定依存を使う準備手順は [Garmin local runbook](docs/runbooks/garmin-local.md) を参照。
 
 ### Fitbit OAuth Callback (`lambdas/fitbit-callback`)
 
@@ -181,17 +186,20 @@ AWS CLI の標準プロファイル（`codex-prod`）と実行主体も `docs/aw
 - Optional `EXPECTED_STATE` and `SUCCESS_REDIRECT_URL` env vars protect the flow and improve UX
 - Deploy via `lambdas/fitbit-callback/cloudformation.yaml` to provision Lambda, IAM role, and API Gateway in one stack
 
-### Admin Import Script (`admin-app/scripts/import-fitbit-workouts.js`)
+### Admin Import Script (`admin-app/scripts/import-workouts.js`)
 
-- Fetches daily activities via Fitbit Web API and writes Markdown drafts into `astro-blog/src/content/blog/`
-- Stores the earliest valid running activity `startTime` as the article timestamp; days without a valid run start time are skipped
-- Treats Fitbit Activity ID `91060` as a run even when the API labels it `Workout`
-- Stops a range import after five consecutive dates without a matching activity
-- Stops immediately when Fitbit returns a rate-limit response
-- Formats each workout with total distance (for example `31分ジョグ(6.01km)`) and omits a split placeholder when splits are unavailable
-- Requires AWS credentials + Fitbit client secrets to refresh tokens
-- CLI usage:
-  - `node scripts/import-fitbit-workouts.js` imports yesterday by default
-  - `--date YYYY-MM-DD` or `--days N` customise the range
-  - `FITBIT_IMPORT_DRY_RUN=true` to preview without writing Markdown files; refreshed OAuth tokens are still saved to S3
-- Frontmatter defaults can be tuned with `FITBIT_DEFAULT_*` env vars; timestamps use an explicit offset that defaults to JST (`540` minutes)
+- Imports Garmin running activities first, using Fitbit only on successfully queried days without a Garmin run.
+- `--source auto|garmin|fitbit` selects the source policy; `auto` is the default.
+- The existing `import-fitbit-workouts.js` command delegates to this same importer.
+- Garmin uses local tokens and Python 3.12+; Fitbit S3 tokens and AWS credentials are loaded only when Fitbit is needed.
+- Preserves frontmatter, `31分ジョグ(7.20km)`, arrow-separated splits, and `YYYY-MM-DD-fitbit-workout.md` URLs.
+- Skips existing daily imported posts, including legacy numbered files, before calling either API; does not overwrite edited posts or generate duplicates.
+- Uses the earliest valid start time; Garmin UTC start times are converted to the configured offset (default JST).
+- Stops on provider errors or five consecutive days without a matching run, with a nonzero exit status.
+- CLI usage from the repository root:
+  - `AWS_PROFILE=codex-prod node admin-app/scripts/import-workouts.js --date 2026-09-28 --dry-run`
+  - `--from YYYY-MM-DD --to YYYY-MM-DD` selects an inclusive range.
+  - `--days N` selects today and the preceding N-1 days; the default is today.
+  - `--dry-run` or `FITBIT_IMPORT_DRY_RUN=true` prints Markdown without writing posts; token refresh still persists.
+- Existing `FITBIT_DEFAULT_*` and `FITBIT_IMPORT_TZ_OFFSET` settings apply to both sources.
+- See [admin import documentation](admin-app/README.md) and [Garmin local runbook](docs/runbooks/garmin-local.md).
