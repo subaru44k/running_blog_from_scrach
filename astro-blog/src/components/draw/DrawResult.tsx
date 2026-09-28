@@ -69,7 +69,7 @@ export default function DrawResult() {
       const parsed = JSON.parse(raw) as SubmitResult;
       const savedSubmissionId = localStorage.getItem('drawSubmissionId');
       if (!parsed?.submissionId || !savedSubmissionId || parsed.submissionId !== savedSubmissionId) return null;
-      return parsed;
+      return { ...parsed, rankingEligible: parsed.rankingEligible !== false };
     } catch {
       return null;
     }
@@ -130,7 +130,7 @@ export default function DrawResult() {
       .catch(() => {
         const savedPromptText = localStorage.getItem('drawPromptText');
         if (savedPromptText) {
-          setPrompt({ promptId: promptIdFromQuery, promptText: savedPromptText, dateJst: '' });
+          setPrompt({ promptId: promptIdFromQuery, promptText: savedPromptText, dateJst: '', rankingEligible: true });
         } else {
           setPromptError('お題を取得できませんでした。');
         }
@@ -145,7 +145,8 @@ export default function DrawResult() {
     tips: detail.tips,
     childOneLiner: detail.childOneLiner,
     childTips: detail.childTips,
-    isRanked: typeof detail.rank === 'number' && detail.rank > 0 && detail.rank <= 20,
+    rankingEligible: detail.rankingEligible !== false,
+    isRanked: detail.rankingEligible !== false && typeof detail.rank === 'number' && detail.rank > 0 && detail.rank <= 20,
     rank: detail.rank,
   });
 
@@ -166,7 +167,12 @@ export default function DrawResult() {
       const detail = await getSubmissionDetail(promptId, submissionId);
       const result = buildSubmitResultFromDetail(detail);
       if (!prompt) {
-        setPrompt({ promptId: detail.promptId, promptText: detail.promptText, dateJst: '' });
+        setPrompt({
+          promptId: detail.promptId,
+          promptText: detail.promptText,
+          dateJst: '',
+          rankingEligible: detail.rankingEligible !== false,
+        });
         setPromptError(null);
       }
       setFirstReview(buildFirstReview(result));
@@ -178,6 +184,7 @@ export default function DrawResult() {
       localStorage.setItem('drawPromptText', detail.promptText || prompt?.promptText || '');
       localStorage.setItem('drawScore', String(result.score));
       setSubmissionId(result.submissionId);
+      if (!result.rankingEligible) return;
       try {
         const leaderboard = await getLeaderboard(promptId, 20);
         setState({ result, leaderboard });
@@ -209,6 +216,7 @@ export default function DrawResult() {
       setState({ result: saved });
       setJudgeState('primary_done');
       setDisplayScore(saved.score);
+      if (!saved.rankingEligible) return;
       getLeaderboard(promptId, 20).then((leaderboard) => {
         setState({ result: saved, leaderboard });
       }).catch((err: any) => {
@@ -319,6 +327,12 @@ export default function DrawResult() {
     : 'https://twitter.com/intent/tweet';
 
   const rankMessage = state.result ? (() => {
+    if (!state.result.rankingEligible) {
+      return {
+        title: reviewMode === 'child' ? 'れんしゅうの きろくだよ' : '練習記録です',
+        sub: reviewMode === 'child' ? 'むかしの おだいなので、らんきんぐには はいらないよ' : '過去月のお題のため、ランキング対象外です',
+      };
+    }
     if (state.result.isRanked) {
       return {
         title: reviewMode === 'child' ? '🎉 らんきんぐに はいったよ！' : '🎉 ランキング入り！',
@@ -326,8 +340,8 @@ export default function DrawResult() {
       };
     }
     return {
-      title: reviewMode === 'child' ? 'こんかいは らんくの そとだったよ' : '今回はランク外（Top20）',
-      sub: reviewMode === 'child' ? 'もういちど かいてみよう！' : 'もう一度チャレンジしてみよう！',
+      title: reviewMode === 'child' ? 'えが できたよ！' : '一枚できあがり！',
+      sub: reviewMode === 'child' ? 'ちがう いろでも かいてみよう！' : '今回はTop20の外。違う描き方でもう一度挑戦してみよう。',
     };
   })() : null;
 
@@ -356,14 +370,17 @@ export default function DrawResult() {
     localStorage.removeItem('drawImageKey');
     sessionStorage.removeItem('drawNickname');
     const params = new URLSearchParams({ promptId });
+    const month = promptId.replace(/^prompt-/, '');
+    if (/^\d{4}-\d{2}$/.test(month)) params.set('month', month);
     window.location.href = `/draw/play?${params.toString()}`;
   };
 
   return (
     <div className="space-y-6">
-      <div className="rounded-lg border bg-gray-50 p-4">
-        <div className="text-xs text-gray-500">今日のお題</div>
-        <div className="text-lg font-semibold">{prompt?.promptText || (promptError ? '取得できませんでした' : '読み込み中…')}</div>
+      <div className="draw-prompt-card rounded-[1.75rem] p-5">
+        <div className="mb-2 text-sm font-bold text-slate-900 dark:text-white">{reviewMode === 'child' ? '30びょうの けっか' : '30秒チャレンジの結果'}</div>
+        <div className="text-xs font-bold tracking-wider text-rose-700 dark:text-rose-300">{reviewMode === 'child' ? (prompt?.rankingEligible === false ? 'れんしゅうの おだい' : 'こんかいの おだい') : (prompt?.rankingEligible === false ? '練習のお題' : '今回のお題')}</div>
+        <div className="mt-2 text-xl font-bold text-slate-900 dark:text-white">{prompt?.promptText || (promptError ? '取得できませんでした' : '読み込み中…')}</div>
         {promptError && <div className="mt-1 text-xs text-red-600">{promptError}</div>}
       </div>
 
@@ -373,7 +390,7 @@ export default function DrawResult() {
             <div>採点中…</div>
             <div className="mt-1">{primarySlow ? '少し丁寧に見ています（自動で表示されます）' : 'あなたの絵を分析しています'}</div>
           </div>
-          <div className="rounded-lg border bg-white p-4">
+          <div className="rounded-2xl border border-slate-200 bg-white/80 p-4 dark:border-slate-700 dark:bg-slate-900/80">
             <div className="h-8 w-24 rounded bg-gray-200 animate-pulse" />
             <div className="mt-3 h-4 w-2/3 rounded bg-gray-200 animate-pulse" />
           </div>
@@ -398,19 +415,6 @@ export default function DrawResult() {
           <div className="text-sm font-medium text-blue-700 dark:text-blue-300">
             {reviewMode === 'child' ? 'こどもむけの ことばで ひょうじしています' : 'おとなむけの言葉で表示しています'}
           </div>
-          <div className="rounded-lg border bg-white p-4">
-            <label className="block text-sm font-medium text-gray-700">表示名（任意）</label>
-            <input
-              type="text"
-              value={nickname}
-              maxLength={20}
-              className="mt-2 w-full rounded border px-3 py-2"
-              placeholder="匿名"
-              onChange={(e) => updateName(e.target.value.replace(/\n/g, ''))}
-            />
-            <div className="mt-1 text-xs text-gray-500">入力しなければ匿名のまま表示されます</div>
-          </div>
-
           <ResultCard
             imageDataUrl={imageDataUrl}
             score={displayScore}
@@ -421,9 +425,9 @@ export default function DrawResult() {
           />
 
           {rankMessage && (
-            <div className="rounded-lg border bg-gray-50 p-4">
+            <div className="rounded-2xl border border-teal-200 bg-teal-50 p-4 dark:border-teal-900 dark:bg-teal-950/30">
               <div className="text-lg font-semibold">{rankMessage.title}</div>
-              {rankMessage.sub && <div className="text-sm text-gray-600">{rankMessage.sub}</div>}
+              {rankMessage.sub && <div className="text-sm text-slate-600 dark:text-slate-300">{rankMessage.sub}</div>}
               {hasMine && (
                 <button
                   type="button"
@@ -440,12 +444,38 @@ export default function DrawResult() {
             </div>
           )}
 
+          <div className="flex flex-wrap items-center gap-3 rounded-2xl bg-rose-50 p-4 dark:bg-rose-950/20">
+            <div className="min-w-0 flex-1">
+              <div className="font-bold text-slate-900 dark:text-white">{reviewMode === 'child' ? 'もう いちまい かいてみる？' : 'もう一枚、描いてみる？'}</div>
+              <div className="text-xs text-slate-600 dark:text-slate-300">{reviewMode === 'child' ? 'いろを かえても たのしいよ。' : '色や描き方を変えると、また違う作品に。'}</div>
+            </div>
+            <button
+              type="button"
+              className="rounded-full bg-rose-500 px-5 py-2.5 text-sm font-bold text-white transition hover:bg-rose-600"
+              onClick={reloadToPlay}
+            >
+              {reviewMode === 'child' ? 'もういちど かく →' : '同じお題でもう一度 →'}
+            </button>
+            <a href="/draw/archive/" className="text-sm font-semibold text-teal-700 hover:underline dark:text-teal-300">{reviewMode === 'child' ? 'みんなの えを みる' : 'みんなの作品を見る'}</a>
+          </div>
+          <div className="rounded-2xl border border-slate-200 bg-white/80 p-4 dark:border-slate-700 dark:bg-slate-900/80">
+            <label className="block text-sm font-medium text-slate-700 dark:text-slate-200">{reviewMode === 'child' ? 'なまえ（いれなくても いいよ）' : '表示名（任意）'}</label>
+            <input
+              type="text"
+              value={nickname}
+              maxLength={20}
+              className="mt-2 w-full rounded border border-slate-300 bg-white px-3 py-2 text-slate-900 dark:border-slate-600"
+              placeholder="匿名"
+              onChange={(e) => updateName(e.target.value.replace(/\n/g, ''))}
+            />
+            <div className="mt-1 text-xs text-slate-500 dark:text-slate-400">{reviewMode === 'child' ? 'いれないと ひみつの なまえになるよ' : '入力しなければ匿名のまま表示されます'}</div>
+          </div>
           <div className="flex flex-wrap items-center gap-3">
             <button
               type="button"
               className="ml-auto rounded-md bg-gray-900 px-4 py-2 text-white"
               onClick={handleShare}
-              disabled={sharing || judgeState === 'judging_primary'}
+              disabled={sharing}
             >
               {sharing ? '共有画像を生成中…' : '共有画像を保存'}
             </button>
@@ -463,8 +493,14 @@ export default function DrawResult() {
       )}
 
       <div className="space-y-2">
+        {state.result?.rankingEligible === false ? (
+          <div className="rounded-lg border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900 dark:border-amber-800 dark:bg-amber-950/30 dark:text-amber-100">
+            この作品は練習として採点しました。過去月のお題への投稿はランキングに入りません。
+          </div>
+        ) : (
+          <>
         <div className="text-lg font-semibold">今日のランキング Top20</div>
-        {state.result && hasMine && (
+        {state.result && state.result.rankingEligible && hasMine && (
           <div className="flex items-center gap-3 rounded-lg border bg-blue-50 p-3">
             <div className="text-sm font-semibold">あなたは {mineRank ?? state.result.rank} 位です</div>
             <span className="rounded-full bg-blue-600 px-2 py-1 text-xs font-semibold text-white">TOP20</span>
@@ -477,7 +513,7 @@ export default function DrawResult() {
             </button>
           </div>
         )}
-        {state.result && !hasMine && (
+        {state.result && state.result.rankingEligible && !hasMine && (
           <div className="rounded-lg border bg-gray-50 p-3 text-sm text-gray-700">
             <div className="font-semibold">あなたの記録</div>
             <div className="mt-1">{displayName}・{state.result.score}点</div>
@@ -516,18 +552,10 @@ export default function DrawResult() {
         ) : (
           <div className="text-sm text-gray-500">読み込み中…</div>
         )}
+          </>
+        )}
       </div>
 
-      <div className="pt-2">
-        <button
-          type="button"
-          className="w-full rounded-md bg-blue-600 px-5 py-3 text-white md:w-auto"
-          onClick={reloadToPlay}
-          disabled={judgeState === 'judging_primary'}
-        >
-          もう一度描く（今日のお題）
-        </button>
-      </div>
     </div>
   );
 }

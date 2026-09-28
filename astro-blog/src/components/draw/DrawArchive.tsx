@@ -37,20 +37,22 @@ const monthRange = (startMonth: string, endMonth: string) => {
   return months.reverse();
 };
 
-const currentMonthJst = () => {
+const previousMonthJst = () => {
   const now = new Date();
   const jst = new Date(now.getTime() + 9 * 60 * 60 * 1000);
+  jst.setUTCDate(1);
+  jst.setUTCMonth(jst.getUTCMonth() - 1);
   return toMonthKey(jst);
 };
 
 export default function DrawArchive() {
   const [entries, setEntries] = useState<Record<string, MonthEntry>>({});
-  const [selected, setSelected] = useState<{ promptId: string; submissionId: string } | null>(null);
+  const [selected, setSelected] = useState<{ promptId: string; submissionId: string; rank: number } | null>(null);
   const [detail, setDetail] = useState<SubmissionDetail | null>(null);
   const [detailLoading, setDetailLoading] = useState(false);
   const [detailError, setDetailError] = useState<string | undefined>();
   const [reviewMode, setReviewMode] = useState<ReviewMode>('standard');
-  const months = useMemo(() => monthRange(START_MONTH, currentMonthJst()), []);
+  const months = useMemo(() => monthRange(START_MONTH, previousMonthJst()), []);
 
   useEffect(() => {
     setReviewMode(getSavedReviewMode());
@@ -159,12 +161,17 @@ export default function DrawArchive() {
   };
 
   return (
-    <div className="space-y-4">
-      <p className="text-sm text-gray-600 dark:text-gray-300">
-        2026年2月以降の月次ランキング上位20件を表示します。気になる作品はカードを押すと詳しく見られます。
-      </p>
-      <fieldset className="card p-4">
-        <legend className="px-1 text-sm font-semibold text-slate-800 dark:text-slate-100">こうひょうの ひょうじ</legend>
+    <div className="space-y-6">
+      <div className="draw-prompt-card rounded-[1.75rem] p-5 sm:p-6">
+        <div className="text-xs font-bold tracking-[0.16em] text-rose-700 dark:text-rose-300">みんなの30秒アート</div>
+        <h1 className="mb-0 mt-2 text-2xl font-bold text-slate-900 dark:text-white sm:text-3xl">みんなの作品ギャラリー</h1>
+        <p className="mt-1 text-sm font-semibold text-slate-700 dark:text-slate-200">同じお題でも、絵はこんなに違う。</p>
+        <p className="mt-2 text-sm text-slate-600 dark:text-slate-300">
+          2026年2月から前月までの確定済み月次ランキング上位20件です。作品を選ぶと、絵と講評を詳しく見られます。
+        </p>
+      </div>
+      <fieldset className="rounded-2xl border border-slate-200 bg-white/80 p-4 dark:border-slate-700 dark:bg-slate-900/70">
+        <legend className="px-1 text-sm font-semibold text-slate-800 dark:text-slate-100">{reviewMode === 'child' ? 'こうひょうの ひょうじ' : '講評の表示'}</legend>
         <div className="mt-2 flex flex-wrap gap-2">
           {([
             { value: 'child' as const, label: 'こどもむけ' },
@@ -174,7 +181,7 @@ export default function DrawArchive() {
               key={option.value}
               type="button"
               aria-pressed={reviewMode === option.value}
-              className={`rounded-full px-4 py-2 text-sm font-semibold ${reviewMode === option.value ? 'bg-blue-600 text-white' : 'border border-slate-300 text-slate-700 dark:border-slate-600 dark:text-slate-200'}`}
+              className={`rounded-full px-4 py-2 text-sm font-semibold transition ${reviewMode === option.value ? 'bg-teal-600 text-white' : 'border border-slate-300 text-slate-700 hover:border-teal-400 dark:border-slate-600 dark:text-slate-200'}`}
               onClick={() => updateReviewMode(option.value)}
             >
               {option.label}
@@ -184,15 +191,25 @@ export default function DrawArchive() {
       </fieldset>
       {months.map((month) => {
         const entry = entries[month];
+        const [year, monthNumber] = month.split('-');
         return (
-          <section key={month} className="card p-4 md:p-5">
-            <div className="mb-3 flex items-center justify-between gap-3">
-              <h2 className="text-lg font-semibold">{month} のTop20</h2>
+          <section key={month} className="draw-album rounded-[1.75rem] p-4 sm:p-6">
+            <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+              <div className="flex items-center gap-3">
+                <div className="rounded-2xl bg-rose-500 px-3 py-2 text-center text-white shadow-sm">
+                  <div className="text-[10px] font-bold tracking-wider">{year}</div>
+                  <div className="text-xl font-black leading-none">{Number(monthNumber)}月</div>
+                </div>
+                <div>
+                  <div className="text-xs font-bold tracking-wider text-teal-700 dark:text-teal-300">MONTHLY GALLERY</div>
+                  <h2 className="m-0 text-lg font-bold text-slate-900 dark:text-white">この月の作品 Top20</h2>
+                </div>
+              </div>
               <a
                 href={`/draw/?month=${month}`}
-                className="text-xs text-blue-700 hover:underline dark:text-blue-300"
+                className="rounded-full border border-teal-200 bg-white px-4 py-2 text-xs font-bold text-teal-700 no-underline transition hover:bg-teal-50 dark:border-teal-900 dark:bg-slate-900 dark:text-teal-300"
               >
-                この月のお題で遊ぶ
+                このお題で描いてみる →
               </a>
             </div>
 
@@ -201,37 +218,39 @@ export default function DrawArchive() {
             ) : entry.error ? (
               <p className="text-sm text-red-600">{entry.error}</p>
             ) : (
-              <div className="space-y-3">
-                <p className="text-sm text-gray-600 dark:text-gray-300">
-                  お題: <span className="font-medium">{entry.promptText}</span>
+              <div className="space-y-4">
+                <p className="rounded-xl bg-white/70 px-4 py-3 text-sm text-slate-600 dark:bg-slate-900/70 dark:text-slate-300">
+                  お題：<span className="font-bold text-slate-900 dark:text-white">{entry.promptText}</span>
                 </p>
                 {entry.items.length === 0 ? (
                   <p className="text-sm text-gray-500">投稿データがありません。</p>
                 ) : (
-                  <ol className="space-y-2">
+                  <ol className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
                     {entry.items.map((item) => (
                       <li key={`${month}-${item.submissionId}`}>
                         <button
                           type="button"
-                          className="flex w-full items-center gap-3 rounded-md border border-gray-200 p-2 text-left transition hover:border-blue-300 hover:bg-blue-50/60 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:border-gray-700 dark:hover:border-blue-400 dark:hover:bg-slate-800/80"
-                          onClick={() => setSelected({ promptId: entry.promptId, submissionId: item.submissionId })}
+                          className="draw-gallery-card group h-full w-full rounded-2xl p-2 text-left transition hover:-translate-y-1 hover:shadow-lg focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-500"
+                          onClick={() => setSelected({ promptId: entry.promptId, submissionId: item.submissionId, rank: item.rank })}
                         >
-                          <div className="w-9 shrink-0 text-sm font-semibold text-gray-700 dark:text-gray-200">
-                            {item.rank}位
+                          <div className="relative overflow-hidden rounded-xl bg-white">
+                            <img
+                              src={item.imageDataUrl}
+                              alt={`${item.rank}位の作品`}
+                              className="aspect-square w-full object-contain transition group-hover:scale-[1.03]"
+                              loading="lazy"
+                              decoding="async"
+                            />
+                            <span className={`absolute left-2 top-2 rounded-full px-2.5 py-1 text-xs font-black shadow-sm ${item.rank === 1 ? 'bg-amber-300 text-amber-950' : item.rank === 2 ? 'bg-slate-200 text-slate-800' : item.rank === 3 ? 'bg-orange-200 text-orange-950' : 'bg-white/95 text-slate-700'}`}>
+                              {item.rank}{reviewMode === 'child' ? 'ばん' : '位'}
+                            </span>
                           </div>
-                          <img
-                            src={item.imageDataUrl}
-                            alt={`${item.rank}位の作品`}
-                            className="h-12 w-12 shrink-0 rounded border border-gray-200 object-cover dark:border-gray-700"
-                            loading="lazy"
-                          />
-                          <div className="min-w-0 flex-1">
-                            <div className="truncate text-sm font-medium text-gray-800 dark:text-gray-100">
+                          <div className="flex min-w-0 items-center justify-between gap-1 px-1 pt-2">
+                            <div className="min-w-0 truncate text-sm font-semibold text-slate-800 dark:text-slate-100">
                               {item.nickname || '匿名'}
                             </div>
-                            <div className="text-xs text-gray-600 dark:text-gray-300">{item.score}点</div>
+                            <div className="shrink-0 text-xs font-bold text-rose-600 dark:text-rose-300">{item.score}点</div>
                           </div>
-                          <div className="shrink-0 text-xs text-blue-700 dark:text-blue-300">詳細</div>
                         </button>
                       </li>
                     ))}
@@ -247,7 +266,7 @@ export default function DrawArchive() {
         <div
           className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/55 p-4 transition-opacity duration-200 animate-in fade-in"
           onClick={() => setSelected(null)}
-          aria-hidden="true"
+          role="presentation"
         >
           <div
             className="card max-h-[85vh] w-full max-w-3xl overflow-y-auto p-5 md:p-6 transition duration-200 animate-in fade-in zoom-in-95 slide-in-from-bottom-3"
@@ -262,8 +281,8 @@ export default function DrawArchive() {
                   {reviewMode === 'child' ? 'らんきんぐの くわしい けっか' : '月別ランキング詳細'}
                 </div>
                 <h3 id="archive-submission-title" className="mt-1 text-xl font-semibold text-slate-900 dark:text-slate-50">
-                  {detail?.rank
-                    ? `${detail.rank}${reviewMode === 'child' ? 'ばんの え' : '位の作品'}`
+                  {(detail?.rank ?? selected?.rank)
+                    ? `${detail?.rank ?? selected?.rank}${reviewMode === 'child' ? 'ばんの え' : '位の作品'}`
                     : reviewMode === 'child' ? 'えの くわしい けっか' : '作品の詳細'}
                 </h3>
                 {detail?.promptText && (
@@ -328,7 +347,7 @@ export default function DrawArchive() {
                   <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white p-3 dark:border-slate-700 dark:bg-slate-900">
                     <img
                       src={detail.imageDataUrl}
-                      alt={`${detail.rank ?? ''}位の作品`}
+                      alt={`${detail.rank ?? selected?.rank ?? ''}位の作品`}
                       className="h-auto w-full rounded-xl object-cover"
                     />
                   </div>

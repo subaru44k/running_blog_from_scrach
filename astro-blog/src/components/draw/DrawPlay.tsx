@@ -17,6 +17,7 @@ export default function DrawPlay() {
   const [prompt, setPrompt] = useState<{ promptId: string; promptText: string } | null>(null);
   const [finished, setFinished] = useState(false);
   const [imageDataUrl, setImageDataUrl] = useState<string | null>(null);
+  const [timeUp, setTimeUp] = useState(false);
   const [status, setStatus] = useState<'idle' | 'uploading' | 'submitting' | 'redirecting' | 'error'>('idle');
   const [error, setError] = useState<string | null>(null);
   const [isSlow, setIsSlow] = useState(false);
@@ -106,26 +107,27 @@ export default function DrawPlay() {
   const canvasKey = useMemo(() => prompt?.promptId || 'draw', [prompt?.promptId]);
 
   return (
-    <div className="space-y-6">
-      <div className="rounded-lg border bg-gray-50 p-4">
-        <div className="text-xs text-gray-500">今日のお題</div>
-        <div className="text-lg font-semibold">{prompt?.promptText || '読み込み中…'}</div>
-      </div>
-
-      <div className="flex items-center justify-between">
-        <div>
-          <div className="text-xs text-gray-500">残り時間</div>
-          <Timer seconds={30} running={!finished} onComplete={() => finish(imageDataUrl || undefined)} />
+    <div className="mx-auto max-w-3xl space-y-5">
+      <div className="text-center text-xs font-bold tracking-[0.2em] text-rose-700 dark:text-rose-300">30秒お絵かきチャレンジ</div>
+      <div className="draw-prompt-card flex flex-wrap items-center justify-between gap-4 rounded-[1.75rem] p-5 sm:p-6">
+        <div className="min-w-0 flex-1">
+          <div className="text-xs font-bold tracking-[0.16em] text-rose-700 dark:text-rose-300">いまのお題</div>
+          <div className="mt-2 text-xl font-bold leading-snug text-slate-900 dark:text-white sm:text-2xl">{prompt?.promptText || '読み込み中…'}</div>
+        </div>
+        <div className="rounded-2xl bg-white/85 px-3 py-3 shadow-sm dark:bg-slate-900/80 sm:px-4">
+          <div className="mb-1 text-xs font-semibold text-slate-600 dark:text-slate-300">のこり時間</div>
+          <Timer seconds={30} running={!!prompt && !finished} onComplete={() => setTimeUp(true)} />
         </div>
       </div>
 
       <CanvasDraw
         key={canvasKey}
         disabled={finished}
+        timeUp={timeUp}
         onFinish={onFinish}
         onSnapshot={(dataUrl) => setImageDataUrl(dataUrl)}
       />
-      <div className="text-xs text-gray-500">※ 30秒で自動終了します。</div>
+      <p className="text-center text-xs text-slate-500 dark:text-slate-400">好きな色をタップして描こう。30秒たつと自動で採点に進みます。</p>
       {status !== 'idle' && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/45 px-4">
           <div className="w-full max-w-md rounded-xl bg-white p-5 shadow-xl dark:bg-gray-900">

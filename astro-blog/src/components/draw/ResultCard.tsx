@@ -65,17 +65,18 @@ export default function ResultCard({
   }, [commentText]);
 
   return (
-    <div className="grid gap-6 md:grid-cols-[260px,1fr]">
-      <div className="rounded-lg border bg-white p-3">
-        <img src={imageDataUrl} alt="あなたの絵" className="w-full h-auto" />
+    <div className="draw-result-card grid gap-6 rounded-[1.75rem] p-4 sm:p-6 md:grid-cols-[minmax(0,260px),1fr]">
+      <div className="rounded-2xl border border-rose-100 bg-white p-3 shadow-sm dark:border-slate-700">
+        <img src={imageDataUrl} alt="あなたの絵" className="aspect-square w-full rounded-xl bg-white object-contain" />
       </div>
-      <div className="space-y-3">
+      <div className="space-y-3 self-center">
+        <div className="text-xs font-bold tracking-[0.16em] text-rose-700 dark:text-rose-300">{childMode ? 'あなたの え' : 'あなたの作品'}</div>
         <div className="flex flex-wrap items-baseline gap-2">
-          <div className="text-3xl font-bold text-gray-900">{score}{childMode ? 'てん' : '点'}</div>
+          <div className="text-5xl font-black tracking-tight text-slate-900 dark:text-white">{score}<span className="ml-1 text-lg font-bold">{childMode ? 'てん' : '点'}</span></div>
           {phaseLabel && (
             <span className="text-xs text-gray-500">{phaseLabel}</span>
           )}
-          <span className="text-xs rounded-full bg-amber-100 px-2 py-1 text-amber-700">
+          <span className="rounded-full bg-amber-100 px-3 py-1 text-xs font-bold text-amber-800">
             {titleLabel}
           </span>
         </div>
@@ -87,7 +88,7 @@ export default function ResultCard({
         )}
         <div className="space-y-2">
           <div
-            className={`text-sm text-gray-600 transition-opacity duration-200 ${
+            className={`text-sm leading-7 text-slate-700 transition-opacity duration-200 dark:text-slate-200 ${
               commentVisible ? 'opacity-100' : 'opacity-0'
             } ${!expandComment ? 'line-clamp-3' : ''}`}
           >
@@ -115,9 +116,9 @@ export default function ResultCard({
                   <span>{item.label}</span>
                   <span>{Math.max(0, Math.min(100, item.value))}</span>
                 </div>
-                <div className="h-2 rounded-full bg-gray-100">
+                <div className="h-2 rounded-full bg-white/80 dark:bg-slate-700">
                   <div
-                    className="h-2 rounded-full bg-blue-500"
+                    className="h-2 rounded-full bg-teal-500"
                     style={{ width: `${Math.max(0, Math.min(100, item.value))}%` }}
                   />
                 </div>

@@ -74,6 +74,49 @@
   .panel-muted {
     @apply rounded-2xl border border-white/70 bg-white/70 dark:border-slate-800/70 dark:bg-slate-900/60 backdrop-blur;
   }
+  .draw-hero {
+    background-color: #fffdf9;
+    background-image: radial-gradient(#e9e4df 0.8px, transparent 0.8px), radial-gradient(circle at 98% 2%, rgba(251, 146, 153, 0.22), transparent 37%);
+    background-size: 22px 22px, auto;
+    box-shadow: 0 20px 60px rgba(130, 70, 75, 0.10);
+    @apply ring-1 ring-rose-100;
+  }
+  .draw-prompt-card {
+    background: linear-gradient(125deg, #fff1e9 0%, #fff8e9 54%, #eaf9f3 100%);
+    @apply border border-rose-100;
+  }
+  .draw-canvas-frame {
+    background: linear-gradient(135deg, #fbd8cf, #fce9bd 47%, #bce9dd);
+    box-shadow: 0 14px 35px rgba(112, 80, 75, 0.14);
+  }
+  .draw-album {
+    background: linear-gradient(150deg, #fffefb, #fff8f4);
+    box-shadow: 0 12px 36px rgba(77, 66, 59, 0.08);
+    @apply border border-rose-100;
+  }
+  .draw-gallery-card {
+    background: #ffffff;
+    box-shadow: 0 3px 14px rgba(77, 66, 59, 0.08);
+    @apply border border-rose-100;
+  }
+  .draw-result-card {
+    background: linear-gradient(135deg, #fff2e9, #f2fbf8);
+    @apply border border-rose-100;
+  }
+  .draw-step {
+    @apply flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-rose-500 text-xs font-bold text-white;
+  }
+  .dark .draw-hero,
+  .dark .draw-album,
+  .dark .draw-gallery-card {
+    background: #172033;
+    @apply border-slate-700 ring-slate-700;
+  }
+  .dark .draw-prompt-card,
+  .dark .draw-result-card {
+    background: linear-gradient(125deg, #372633, #263c44);
+    @apply border-slate-700;
+  }
   .hero-media {
     @apply relative overflow-hidden bg-white/60 dark:bg-slate-900/70;
   }

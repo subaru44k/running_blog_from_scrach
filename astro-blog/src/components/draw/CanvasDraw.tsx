@@ -4,16 +4,29 @@ type CanvasDrawProps = {
   width?: number;
   height?: number;
   disabled?: boolean;
+  timeUp?: boolean;
   onFinish?: (dataUrl: string) => void;
   onSnapshot?: (dataUrl: string) => void;
 };
 
-export default function CanvasDraw({ width = 360, height = 360, disabled, onFinish, onSnapshot }: CanvasDrawProps) {
+const COLORS = [
+  { name: 'くろ', value: '#263247' },
+  { name: 'あか', value: '#e75b68' },
+  { name: 'オレンジ', value: '#e99a35' },
+  { name: 'みどり', value: '#269b84' },
+  { name: 'あお', value: '#3986dd' },
+  { name: 'むらさき', value: '#9168ce' },
+] as const;
+
+export default function CanvasDraw({ width = 360, height = 360, disabled, timeUp, onFinish, onSnapshot }: CanvasDrawProps) {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
-  const [tool, setTool] = useState<'pen' | 'eraser'>('pen');
+  const previousImageRef = useRef<ImageData | null>(null);
   const drawing = useRef(false);
   const lastPoint = useRef<{ x: number; y: number } | null>(null);
   const snapshotRef = useRef(onSnapshot);
+  const [color, setColor] = useState<string>(COLORS[0].value);
+  const [tool, setTool] = useState<'pen' | 'eraser'>('pen');
+  const [canUndo, setCanUndo] = useState(false);
 
   useEffect(() => {
     snapshotRef.current = onSnapshot;
@@ -24,151 +37,170 @@ export default function CanvasDraw({ width = 360, height = 360, disabled, onFini
     if (!canvas) return;
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
-    const dpr = window.devicePixelRatio || 1;
-    const rect = canvas.getBoundingClientRect();
-    const displayWidth = rect.width || width;
-    const displayHeight = rect.height || height;
-    canvas.width = Math.round(displayWidth * dpr);
-    canvas.height = Math.round(displayHeight * dpr);
-    canvas.style.width = `${displayWidth}px`;
-    canvas.style.height = `${displayHeight}px`;
+    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    canvas.width = Math.round(width * dpr);
+    canvas.height = Math.round(height * dpr);
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     ctx.lineCap = 'round';
     ctx.lineJoin = 'round';
-    ctx.lineWidth = 6;
-    ctx.strokeStyle = '#111827';
     ctx.fillStyle = '#ffffff';
-    ctx.fillRect(0, 0, displayWidth, displayHeight);
+    ctx.fillRect(0, 0, width, height);
     snapshotRef.current?.(canvas.toDataURL('image/png'));
   }, [height, width]);
 
-  const getContext = () => {
+  const getContext = () => canvasRef.current?.getContext('2d') || null;
+
+  const savePrevious = (ctx: CanvasRenderingContext2D) => {
     const canvas = canvasRef.current;
-    if (!canvas) return null;
-    return canvas.getContext('2d');
+    if (!canvas) return;
+    previousImageRef.current = ctx.getImageData(0, 0, canvas.width, canvas.height);
+    setCanUndo(true);
   };
 
   const setToolStyle = (ctx: CanvasRenderingContext2D) => {
-    if (tool === 'eraser') {
-      ctx.globalCompositeOperation = 'destination-out';
-      ctx.lineWidth = 14;
-    } else {
-      ctx.globalCompositeOperation = 'source-over';
-      ctx.lineWidth = 6;
-      ctx.strokeStyle = '#111827';
-    }
+    ctx.globalCompositeOperation = 'source-over';
+    ctx.lineWidth = tool === 'eraser' ? 20 : 6;
+    ctx.strokeStyle = tool === 'eraser' ? '#ffffff' : color;
+    ctx.fillStyle = tool === 'eraser' ? '#ffffff' : color;
   };
 
-  const getPoint = (e: React.PointerEvent<HTMLCanvasElement>) => {
+  const getPoint = (event: React.PointerEvent<HTMLCanvasElement>) => {
     const canvas = canvasRef.current;
     if (!canvas) return null;
     const rect = canvas.getBoundingClientRect();
     return {
-      x: e.clientX - rect.left,
-      y: e.clientY - rect.top,
+      x: Math.max(0, Math.min(width, (event.clientX - rect.left) * width / rect.width)),
+      y: Math.max(0, Math.min(height, (event.clientY - rect.top) * height / rect.height)),
     };
   };
 
-  const pointerDown = (e: React.PointerEvent<HTMLCanvasElement>) => {
+  const pointerDown = (event: React.PointerEvent<HTMLCanvasElement>) => {
     if (disabled) return;
-    const point = getPoint(e);
-    if (!point) return;
+    const ctx = getContext();
+    const point = getPoint(event);
+    if (!ctx || !point) return;
+    event.preventDefault();
+    event.currentTarget.setPointerCapture(event.pointerId);
+    savePrevious(ctx);
+    setToolStyle(ctx);
+    ctx.beginPath();
+    ctx.arc(point.x, point.y, ctx.lineWidth / 2, 0, Math.PI * 2);
+    ctx.fill();
     drawing.current = true;
     lastPoint.current = point;
   };
 
-  const pointerMove = (e: React.PointerEvent<HTMLCanvasElement>) => {
+  const pointerMove = (event: React.PointerEvent<HTMLCanvasElement>) => {
     if (disabled || !drawing.current) return;
     const ctx = getContext();
-    if (!ctx) return;
-    const current = getPoint(e);
-    if (!current) return;
-    const prev = lastPoint.current;
-    if (!prev) {
-      lastPoint.current = current;
-      return;
-    }
+    const current = getPoint(event);
+    const previous = lastPoint.current;
+    if (!ctx || !current || !previous) return;
     setToolStyle(ctx);
     ctx.beginPath();
-    ctx.moveTo(prev.x, prev.y);
+    ctx.moveTo(previous.x, previous.y);
     ctx.lineTo(current.x, current.y);
     ctx.stroke();
     lastPoint.current = current;
   };
 
-  const pointerUp = () => {
+  const pointerUp = (event: React.PointerEvent<HTMLCanvasElement>) => {
+    if (!drawing.current) return;
     drawing.current = false;
     lastPoint.current = null;
-    const canvas = canvasRef.current;
-    if (canvas && onSnapshot) {
-      onSnapshot(canvas.toDataURL('image/png'));
+    if (event.currentTarget.hasPointerCapture(event.pointerId)) {
+      event.currentTarget.releasePointerCapture(event.pointerId);
     }
+    const canvas = canvasRef.current;
+    if (canvas) onSnapshot?.(canvas.toDataURL('image/png'));
+  };
+
+  const undo = () => {
+    const ctx = getContext();
+    if (!ctx || !previousImageRef.current) return;
+    ctx.putImageData(previousImageRef.current, 0, 0);
+    previousImageRef.current = null;
+    setCanUndo(false);
+    const canvas = canvasRef.current;
+    if (canvas) onSnapshot?.(canvas.toDataURL('image/png'));
   };
 
   const clearCanvas = () => {
-    const canvas = canvasRef.current;
     const ctx = getContext();
-    if (!canvas || !ctx) return;
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    const canvas = canvasRef.current;
+    if (!ctx || !canvas) return;
+    savePrevious(ctx);
     ctx.fillStyle = '#ffffff';
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    ctx.fillRect(0, 0, width, height);
     onSnapshot?.(canvas.toDataURL('image/png'));
   };
 
   const finish = () => {
     const canvas = canvasRef.current;
     if (!canvas) return;
+    drawing.current = false;
+    lastPoint.current = null;
     const dataUrl = canvas.toDataURL('image/png');
     onSnapshot?.(dataUrl);
     onFinish?.(dataUrl);
   };
 
+  useEffect(() => {
+    if (timeUp) finish();
+  }, [timeUp]);
+
   return (
-    <div className="space-y-3">
-      <div className="flex items-center gap-2">
-        <button
-          type="button"
-          className={`px-3 py-1 rounded-md text-sm ring-1 ring-inset ${tool === 'pen' ? 'bg-gray-900 text-white ring-gray-900' : 'ring-gray-300 text-gray-700'}`}
-          onClick={() => setTool('pen')}
-          disabled={disabled}
-        >
-          ペン
-        </button>
-        <button
-          type="button"
-          className={`px-3 py-1 rounded-md text-sm ring-1 ring-inset ${tool === 'eraser' ? 'bg-gray-900 text-white ring-gray-900' : 'ring-gray-300 text-gray-700'}`}
-          onClick={() => setTool('eraser')}
-          disabled={disabled}
-        >
-          消しゴム
-        </button>
-        <button
-          type="button"
-          className="px-3 py-1 rounded-md text-sm ring-1 ring-inset ring-gray-300 text-gray-700"
-          onClick={clearCanvas}
-          disabled={disabled}
-        >
-          全消し
-        </button>
-        <button
-          type="button"
-          className="ml-auto px-3 py-1 rounded-md text-sm bg-blue-600 text-white"
-          onClick={finish}
-          disabled={disabled}
-        >
-          終了
-        </button>
+    <div className="mx-auto w-full max-w-[500px] space-y-3">
+      <div className="rounded-2xl border border-rose-100 bg-white/90 p-3 shadow-sm dark:border-slate-700 dark:bg-slate-900/90">
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <div className="flex flex-wrap items-center gap-2" aria-label="ペンの色">
+            {COLORS.map((item) => (
+              <button
+                key={item.value}
+                type="button"
+                title={item.name}
+                aria-label={`${item.name}のペン`}
+                aria-pressed={tool === 'pen' && color === item.value}
+                className={`h-9 w-9 rounded-full border-[3px] border-white shadow-sm ring-2 transition hover:scale-110 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-rose-500 ${tool === 'pen' && color === item.value ? 'ring-rose-500' : 'ring-slate-200 dark:ring-slate-600'}`}
+                style={{ backgroundColor: item.value }}
+                onClick={() => { setColor(item.value); setTool('pen'); }}
+                disabled={disabled}
+              />
+            ))}
+          </div>
+          <button
+            type="button"
+            className={`rounded-full px-3 py-2 text-sm font-semibold transition ${tool === 'eraser' ? 'bg-slate-800 text-white dark:bg-slate-100 dark:text-slate-900' : 'bg-slate-100 text-slate-700 hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-200'}`}
+            aria-pressed={tool === 'eraser'}
+            onClick={() => setTool('eraser')}
+            disabled={disabled}
+          >
+            消しゴム
+          </button>
+        </div>
+        <div className="mt-3 flex flex-wrap items-center gap-2 border-t border-slate-100 pt-3 dark:border-slate-700">
+          <button type="button" className="rounded-full px-3 py-1.5 text-sm font-medium text-slate-700 hover:bg-slate-100 disabled:opacity-40 dark:text-slate-200 dark:hover:bg-slate-800" onClick={undo} disabled={disabled || !canUndo}>
+            ↶ ひとつ戻す
+          </button>
+          <button type="button" className="rounded-full px-3 py-1.5 text-sm font-medium text-slate-700 hover:bg-slate-100 dark:text-slate-200 dark:hover:bg-slate-800" onClick={clearCanvas} disabled={disabled}>
+            全消し
+          </button>
+          <button type="button" className="ml-auto rounded-full bg-rose-500 px-5 py-2 text-sm font-bold text-white shadow-sm transition hover:bg-rose-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-rose-500 disabled:opacity-50" onClick={finish} disabled={disabled}>
+            描けた！
+          </button>
+        </div>
       </div>
-      <div className="rounded-lg border border-gray-300 bg-white p-2">
+      <div className="draw-canvas-frame mx-auto w-full max-w-[420px] rounded-[1.75rem] p-3 sm:p-4">
         <canvas
           ref={canvasRef}
           width={width}
           height={height}
-          className="w-full h-auto touch-none"
+          aria-label="お絵かきキャンバス"
+          className="aspect-square w-full rounded-2xl bg-white shadow-sm touch-none"
           onPointerDown={pointerDown}
           onPointerMove={pointerMove}
           onPointerUp={pointerUp}
-          onPointerLeave={pointerUp}
+          onPointerCancel={pointerUp}
         />
       </div>
     </div>

@@ -72,16 +72,19 @@ AWS CLI の標準プロファイル（`codex-prod`）と実行主体も `docs/aw
 ## Deploy (CodeBuild → S3 + CloudFront)
 
 - Buildspec: `astro-blog/buildspec.yml`
+- Start the existing CodeBuild project from the AWS console, AWS MCP, or an authenticated AWS CLI using `codex-prod`, with the reviewed Git commit as its source version.
 - Required project environment variables (CodeBuild console):
   - `BUCKET` (S3 static hosting bucket)
   - `DISTRIBUTION_ID` (CloudFront distribution ID)
   - `PUBLIC_PDF_API_BASE` (e.g., `https://xxxx.execute-api.ap-northeast-1.amazonaws.com/`)
+  - `PUBLIC_DRAW_API_BASE`
 - The buildspec:
   - Uses the CodeBuild Node 20 runtime and npm cache, then installs deps
   - Runs summary generator (admin-app) with stable `{YYYY-MM}-summary.md` slugs
   - Builds Astro site and runs sanity tests
-  - Syncs `dist/` to S3 with size-only comparison and invalidates CloudFront
-  - Logs `[timing]` lines for install, summary, build, sanity, S3 sync, and invalidation request steps
+  - Uploads `dist/_astro` first and retains older hashed assets, then syncs the remaining files with `--delete` while excluding `_astro/*` and comparing content/mtime
+  - Waits for CloudFront invalidation completion and checks that the production result page references the current DrawResult asset and that the asset returns HTTP 200
+  - Logs `[timing]` lines for install, summary, build, sanity, S3 sync, and invalidation completion
 
 ## Services: PDF Compression
 

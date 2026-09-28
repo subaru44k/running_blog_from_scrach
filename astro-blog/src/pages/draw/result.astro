@@ -11,8 +11,9 @@ const metaDescription = '採点結果とランキングを表示します。自�
   metaDescription={metaDescription}
   noSidebar={true}
   pageHeading="採点結果"
-  pageLead="点数と短評、ランキングをチェックできます。"
+  hidePageHeader={true}
 >
+  <h1 class="sr-only">採点結果</h1>
   <section class="card p-5 md:p-6">
     <DrawResult client:load />
   </section>

@@ -11,7 +11,9 @@ Astroで生成する静的サイト本体。ブログ、PDF圧縮、ペース計
   - `running-pace.astro`: ペース計算ツール（#calculator / #table のアンカーで計算と表を同一ページ内に配置）
   - `pdf-compress.astro`: PDF圧縮UI（署名→圧縮API）
   - `draw/index.astro`, `draw/play.astro`, `draw/result.astro`: 30秒お絵描き採点ゲーム（`/api/draw/*` と連携）
-  - `draw/archive.astro`: 2026-02以降の月別ランキングTop20一覧（`/api/draw/prompt` + `/api/draw/leaderboard` + 詳細モーダル用 `/api/draw/submission`）
+    - 描画UIは初期ペンに加えて色選択、白消しゴム、1手戻す操作を持ち、白背景PNGを送る
+  - `draw/archive.astro`: 2026-02から前月までの確定済み月別ランキングTop20一覧（`/api/draw/prompt` + `/api/draw/leaderboard` + 詳細モーダル用 `/api/draw/submission`）。当月は表示しない
+    - Top20画像をレスポンシブなギャラリーで表示し、作品詳細は選択時だけ取得する
   - `games/dressup-next.astro`: PNG レイヤー版おしゃれゲームの公開ルート。プレイヤーとチャットさんで共有するベースモデル選択、モデル共通補正と必要なパーツだけの個別補正による既存衣装アセット再利用、各部位約20種類の画像プレビュー付きアイテム選択、部位内ページ送り、チャットさんの選択演出、完成後の編集UI非表示を提供し、sitemap と games Service Worker キャッシュ対象に含める
   - `games/tv-catch.astro`: 30秒で犬を左右に動かし、わるいひとが棚から跳ね落とすテレビを自動キャッチする静的ミニゲーム。3難易度、タッチ・キーボード・ゲームパッド操作、「大きくあそぶ」に対応する
   - `games/reversi.astro`: チャットさん対戦／2人対戦の静的リバーシ。合法手がない側は自動パス、両者の連続パスで終了し、パス後のAI手番でも遅延予約を失わない
@@ -31,6 +33,7 @@ Astroで生成する静的サイト本体。ブログ、PDF圧縮、ペース計
   - `PUBLIC_PDF_API_BASE` の `/sign-upload` と `/compress`
   - `PUBLIC_DRAW_API_BASE` の `/api/draw/*`（prompt/upload-url/submit/leaderboard/submission）
 - CodeBuild:
+  - AWSコンソール、AWS MCP、または認証済みAWS CLI（`codex-prod`）から既存プロジェクトを起動し、確認したGitコミットを指定する
   - Node.js 20 runtime を buildspec の `runtime-versions` で指定する
   - npm cache は `/root/.npm/**/*`
   - 月次サマリーは `admin-app/scripts/generate-monthly-summary.js --force` で `{YYYY-MM}-summary.md` に安定生成する

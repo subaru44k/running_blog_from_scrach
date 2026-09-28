@@ -2,6 +2,7 @@ export type PromptInfo = {
   promptId: string;
   dateJst: string;
   promptText: string;
+  rankingEligible: boolean;
 };
 
 export type ScoreBreakdown = {
@@ -18,6 +19,7 @@ export type SubmitResult = {
   tips: string[];
   childOneLiner: string;
   childTips: string[];
+  rankingEligible: boolean;
   isRanked: boolean;
   rank?: number;
 };
@@ -40,6 +42,7 @@ export type SubmissionDetail = {
   promptId: string;
   promptText: string;
   createdAt: string;
+  rankingEligible: boolean;
   rank?: number;
   score: number;
   breakdown: ScoreBreakdown;

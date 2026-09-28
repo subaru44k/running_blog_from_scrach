@@ -1,7 +1,7 @@
 # デプロイ手順（分かる範囲）
 
 ## Astroサイト
-1. CodeBuild プロジェクトを実行する
+1. 確認済み変更をGitへpushし、対象コミットを指定して既存CodeBuildプロジェクトを実行する
 2. ビルド後、ハッシュ付きasset、その他の成果物の順でS3に同期され、CloudFrontが無効化される
 3. CloudWatch Logs で `[timing]` 行を確認し、`S3 sync` が通常更新で突出していないことを確認する
 
@@ -19,7 +19,7 @@
 - CloudFrontの全パス無効化は完了まで待機し、作成または完了確認に失敗した場合はデプロイを失敗させる。その後、本番結果ページが今回生成したDrawResult assetを参照して、そのassetがHTTP 200であることを自動確認する。
 
 ### 注意
-- デプロイ実行はAWSコンソールまたはAWS MCP経由で行う
+- 既存CodeBuildプロジェクトはAWSコンソール、AWS MCP、または認証済みAWS CLI（`codex-prod` プロファイル）から起動する
 - AWS CLIコマンドは本ドキュメントでは記載しない
 
 ## PDF圧縮サービス

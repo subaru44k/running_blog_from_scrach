@@ -40,21 +40,38 @@ export default function DrawStart() {
   };
 
   return (
-    <div className="space-y-4">
-      {state.loading && <div className="text-sm text-gray-500">お題を取得中…</div>}
-      {state.error && <div className="text-sm text-red-600">{state.error}</div>}
+    <div className="space-y-5">
+      <div>
+        <div className="mb-3 inline-flex items-center gap-2 rounded-full bg-white/75 px-3 py-1.5 text-xs font-bold tracking-wider text-rose-700 ring-1 ring-rose-200 dark:bg-slate-900/70 dark:text-rose-300 dark:ring-rose-900">
+          <span aria-hidden="true">✦</span> 30秒の小さなアトリエ
+        </div>
+        <h2 className="m-0 text-2xl font-bold leading-snug text-slate-900 dark:text-white sm:text-3xl">思いついたら、すぐ描こう。</h2>
+        <p className="mt-2 text-sm text-slate-600 dark:text-slate-300">上手に描こうとしなくて大丈夫。30秒のひらめきを楽しもう。</p>
+      </div>
+      {state.loading && <div className="draw-prompt-card rounded-[1.75rem] p-6 text-sm text-slate-500">お題を取得中…</div>}
+      {state.error && <div className="rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-600">{state.error}</div>}
       {state.prompt && (
-        <div className="space-y-3">
-          <div className="text-xs text-gray-500">
-            {(() => {
-              const m = /^prompt-(\d{4}-\d{2})$/.exec(state.prompt?.promptId || '');
-              if (m) return `${m[1]} のお題`;
-              return `${state.prompt.dateJst} のお題`;
-            })()}
+        <div className="space-y-5">
+          <div className="draw-prompt-card relative overflow-hidden rounded-[1.75rem] p-5 sm:p-6">
+            <div className="relative z-10">
+              <div className="inline-flex rounded-full bg-white/80 px-3 py-1 text-xs font-bold text-rose-700 dark:bg-slate-900/80 dark:text-rose-300">
+                {(() => {
+                  const m = /^prompt-(\d{4}-\d{2})$/.exec(state.prompt?.promptId || '');
+                  if (m) return `${m[1]} のお題`;
+                  return `${state.prompt.dateJst} のお題`;
+                })()}
+              </div>
+              <div className="mt-4 text-2xl font-bold leading-snug text-slate-900 dark:text-white sm:text-3xl">{state.prompt.promptText}</div>
+            </div>
+            <span aria-hidden="true" className="pointer-events-none absolute -bottom-4 right-5 rotate-[-18deg] text-7xl text-rose-300/60 dark:text-rose-500/30">✎</span>
           </div>
-          <div className="text-xl font-semibold">{state.prompt.promptText}</div>
-          <fieldset className="rounded-lg border border-gray-200 bg-white p-3 dark:border-gray-700 dark:bg-slate-900">
-            <legend className="px-1 text-sm font-semibold text-gray-800 dark:text-gray-100">けっかの ことば</legend>
+          {!state.prompt.rankingEligible && (
+            <div className="rounded-lg border border-amber-200 bg-amber-50 p-3 text-sm text-amber-900 dark:border-amber-800 dark:bg-amber-950/30 dark:text-amber-100">
+              これは過去月のお題です。練習として遊べますが、投稿はランキング対象外です。
+            </div>
+          )}
+          <fieldset className="rounded-2xl border border-slate-200 bg-white/80 p-4 dark:border-slate-700 dark:bg-slate-900/70">
+            <legend className="px-1 text-sm font-semibold text-slate-800 dark:text-slate-100">結果のことばを選ぶ</legend>
             <div className="mt-2 grid gap-2 sm:grid-cols-2">
               {([
                 { value: 'child' as const, title: 'こどもむけ', body: 'ひらがなだけで、やさしく せつめいします' },
@@ -62,7 +79,7 @@ export default function DrawStart() {
               ]).map((option) => (
                 <label
                   key={option.value}
-                  className={`cursor-pointer rounded-lg border p-3 ${reviewMode === option.value ? 'border-blue-500 bg-blue-50 dark:bg-blue-950/30' : 'border-gray-200 dark:border-gray-700'}`}
+                  className={`cursor-pointer rounded-xl border p-3 transition ${reviewMode === option.value ? 'border-teal-500 bg-teal-50 ring-1 ring-teal-200 dark:bg-teal-950/30' : 'border-slate-200 hover:border-teal-300 dark:border-slate-700'}`}
                 >
                   <input
                     type="radio"
@@ -78,20 +95,15 @@ export default function DrawStart() {
               ))}
             </div>
           </fieldset>
-          <button className="px-4 py-2 rounded-md bg-blue-600 text-white" onClick={start}>
-            スタート
+          <button className="w-full rounded-full bg-rose-500 px-6 py-3.5 text-base font-bold text-white shadow-lg shadow-rose-500/20 transition hover:-translate-y-0.5 hover:bg-rose-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-rose-500 sm:w-auto" onClick={start}>
+            お絵かきをはじめる →
           </button>
         </div>
       )}
-      <div className="text-xs text-gray-500">
-        このページをブックマークしてね。/draw からいつでも遊べます。
+      <div className="flex flex-wrap items-center gap-3 text-sm">
+        <span className="text-slate-500 dark:text-slate-400">作品を見てみたい？</span>
+        <a href="/draw/archive/" className="font-semibold text-teal-700 hover:underline dark:text-teal-300">みんなの作品ギャラリーへ →</a>
       </div>
-      <a
-        href="/draw/archive/"
-        className="inline-block text-sm font-medium text-blue-700 hover:underline dark:text-blue-300"
-      >
-        過去の月別ランキングを見る
-      </a>
     </div>
   );
 }

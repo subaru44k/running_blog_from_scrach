@@ -8,6 +8,7 @@ const prompt: PromptInfo = {
   promptId: 'prompt-2026-01-19',
   dateJst: baseDate,
   promptText: '30秒で熊を描いて',
+  rankingEligible: true,
 };
 
 const sketches = [
@@ -58,6 +59,7 @@ export async function submitDrawing(params: {
       ? 'かたちが よく わかって、げんきな えだね。つぎも のびのび かいてみよう。'
       : 'せんが よく みえて、たのしい えだね。つぎは もっと おおきく かいてみよう。',
     childTips: ['のびのび', 'おおきな かたち', 'たのしい せん'],
+    rankingEligible: true,
     isRanked,
     rank,
   };

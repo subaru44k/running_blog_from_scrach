@@ -8,6 +8,7 @@ type UploadUrlResponse = {
   putUrl: string;
   promptId?: string;
   promptText?: string;
+  rankingEligible?: boolean;
 };
 
 class ApiError extends Error {
