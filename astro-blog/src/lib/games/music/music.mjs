@@ -35,6 +35,12 @@ export function frequencyFromMidi(midi) {
   return 440 * 2 ** ((midi - 69) / 12);
 }
 
+/** Stem geometry for an isolated note; SVG y increases downward. */
+export function staffStem(x, y) {
+  const down = y <= STAFF_LINES_Y[2];
+  return { x: x + (down ? -14 : 14), y1: y + (down ? 3 : -3), y2: y + (down ? 55 : -55) };
+}
+
 export function staffYForNote(note, clef) {
   const letters = ['C', 'D', 'E', 'F', 'G', 'A', 'B'];
   const bottom = clef === 'treble' ? 4 * 7 + 2 : clef === 'bass' ? 2 * 7 + 4 : null;

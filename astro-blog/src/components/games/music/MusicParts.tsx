@@ -1,5 +1,5 @@
 import React from 'react';
-import { CLEF_REFERENCE_Y, STAFF_LINES_Y, WHITE_PITCH_CLASSES, staffYForNote } from '../../../lib/games/music/music.mjs';
+import { CLEF_REFERENCE_Y, STAFF_LINES_Y, WHITE_PITCH_CLASSES, staffStem, staffYForNote } from '../../../lib/games/music/music.mjs';
 import { MUSIC_GLYPH_PATHS } from './musicGlyphPaths';
 
 export type MusicNote = { pitchClass: string; pitch: number; midi: number; octave: number; notationName: string; accidental: string | null };
@@ -47,6 +47,7 @@ function QuarterRest({ x }: { x: number }) {
 export function MusicStaff({ note, clef, rhythm, cursorBeat }: { note?: MusicNote; clef?: 'treble' | 'bass'; rhythm?: RhythmEvent[]; cursorBeat?: number }) {
   const isRhythm = Boolean(rhythm);
   const y = note && clef ? staffYForNote(note, clef) : 0;
+  const stem = staffStem(224, y);
   return <svg className="music-staff" viewBox="0 0 480 155" role="img" aria-label={isRhythm ? 'リズムふ' : `${clef === 'bass' ? 'ヘ' : 'ト'}おんきごうの ごせんふ`}>
     <rect x="2" y="8" width="476" height="139" rx="22" fill="#fffdf9" />
     {STAFF_LINES_Y.map((line) => <line key={line} x1="30" x2="452" y1={line} y2={line} stroke="#a7abc8" strokeWidth="2" />)}
@@ -55,7 +56,7 @@ export function MusicStaff({ note, clef, rhythm, cursorBeat }: { note?: MusicNot
       {y >= 132 && <line x1="200" x2="248" y1="132" y2="132" stroke="#474170" strokeWidth="2" />}
       {y <= 12 && <line x1="200" x2="248" y1="12" y2="12" stroke="#474170" strokeWidth="2" />}
       <ellipse cx="224" cy={y} rx="15" ry="10" transform={`rotate(-20 224 ${y})`} fill="#6148c8" />
-      <line x1="238" x2="238" y1={y - 3} y2={y - 55} stroke="#6148c8" strokeWidth="3" strokeLinecap="round" />
+      <line x1={stem.x} x2={stem.x} y1={stem.y1} y2={stem.y2} stroke="#6148c8" strokeWidth="3" strokeLinecap="round" />
       {note.accidental && <text x="187" y={y + 8} fontSize="30" fill="#474170">{note.accidental === '#' ? '♯' : '♭'}</text>}
     </g>}
     {rhythm?.map((event, index) => {

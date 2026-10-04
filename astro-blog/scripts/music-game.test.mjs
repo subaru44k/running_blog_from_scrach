@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { CLEF_REFERENCE_Y, EASY_MUSIC, STAFF_LINES_Y, checkMelodyInput, chooseQuestion, countMissedNotes, easyNotes, frequencyFromMidi, isCorrectPitch, judgeRhythmTap, makeMelody, makeRhythmRound, melodyLength, noteFromMidi, noteFromPitch, rhythmTimelineAt, staffYForNote } from '../src/lib/games/music/music.mjs';
+import { CLEF_REFERENCE_Y, EASY_MUSIC, STAFF_LINES_Y, checkMelodyInput, chooseQuestion, countMissedNotes, easyNotes, frequencyFromMidi, isCorrectPitch, judgeRhythmTap, makeMelody, makeRhythmRound, melodyLength, noteFromMidi, noteFromPitch, rhythmTimelineAt, staffStem, staffYForNote } from '../src/lib/games/music/music.mjs';
 
 test('MIDI pitch and notation spelling stay separate', () => {
   assert.deepEqual(noteFromPitch('C', 4), { pitchClass: 'C', pitch: 60, midi: 60, octave: 4, notationName: 'C', accidental: null });
@@ -31,6 +31,21 @@ test('clef reference points align with their staff lines', () => {
   assert.equal(staffYForNote(noteFromPitch('F', 3), 'bass'), CLEF_REFERENCE_Y.bass);
   assert.equal(staffYForNote(noteFromPitch('C', 4), 'treble'), 132);
   assert.equal(staffYForNote(noteFromPitch('C', 3), 'bass'), 82);
+});
+
+test('isolated note stems switch side and direction at the middle line in both clefs', () => {
+  for (const [clef, octave, names] of [['treble', 4, ['A', 'B', 'C']], ['bass', 3, ['C', 'D', 'E']]]) {
+    for (const [index, name] of names.entries()) {
+      const noteOctave = clef === 'treble' && name === 'C' ? 5 : octave;
+      const y = staffYForNote(noteFromPitch(name, noteOctave), clef);
+      assert.equal(y, 82 - index * 10);
+      const stem = staffStem(224, y);
+      const down = index >= 1;
+      assert.equal(stem.x, down ? 210 : 238);
+      assert.equal(stem.y1, y + (down ? 3 : -3));
+      assert.equal(stem.y2 > stem.y1, down);
+    }
+  }
 });
 
 test('note question generation uses the pool and avoids immediate repeats', () => {

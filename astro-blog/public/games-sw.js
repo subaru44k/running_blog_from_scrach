@@ -1,4 +1,4 @@
-const CACHE_VERSION = 'games-offline-v22';
+const CACHE_VERSION = 'games-offline-v23';
 const OFFLINE_ROUTES = [
   '/games/',
   '/games/music/',
