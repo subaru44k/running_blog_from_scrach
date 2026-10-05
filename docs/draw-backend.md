@@ -4,7 +4,7 @@
 - API Gateway（/api/draw/*）
 - Lambda（prompt / upload-url / submit / leaderboard / submission / monthly cleanup）
 - DynamoDB（DrawSubmissions / DrawRateLimit）
-- S3（画像保管: draw/{promptId}/{submissionId}.png）
+- S3（ランキング対象画像: `draw/{promptId}/{submissionId}.png`、練習画像: `draw/practice/{promptId}/{submissionId}.png`）
 - CloudFront（S3非公開 + 署名URL 15分）
 - Secrets Manager（CloudFront署名の秘密鍵 / OpenAI API key）
 
@@ -27,9 +27,11 @@
 1. **prompt**: `GET /api/draw/prompt?month=YYYY-MM`（month省略時はJST今月）
    - サーバーが月次ルールで `promptId`/`promptText` を返す
    - 月次切替は JST ベース、`2026-02` を index 0（熊）として36題を順送り
+   - `rankingEligible` はJSTの当月だけ `true`。過去月のお題は練習として遊べるが `false` を返す
 2. **upload-url**: `POST /api/draw/upload-url`
    - submissionId(ULID) 生成（promptId はサーバー決定）
    - S3 PUT 署名URL発行
+   - 過去月のお題では `draw/practice/` prefixを使い、ランキング用GSIに入らない投稿として扱う
 3. **画像PUT**: ブラウザから S3 へ直接PUT
    - AWS SDK のリクエストチェックサム計算とレスポンスチェックサム検証は `WHEN_REQUIRED`（必須時のみ）
 4. **submit**: `POST /api/draw/submit`（`promptText` は任意）
@@ -54,16 +56,20 @@
    - DynamoDB保存（provider/model/tokens/推定コストも保存）
 5. **leaderboard**: `GET /api/draw/leaderboard?promptId=...` または `?month=YYYY-MM`
    - CloudFront署名URLを付与して返却
+   - 開催中の順位は GSI1 の `scoreSortKey` 順から都度算出する
 6. **submission detail**: `GET /api/draw/submission?promptId=...&submissionId=...`
    - archive 詳細モーダル用
    - 画像, 点数, breakdown, 一次講評, tips, お題, 投稿日時を返却
+   - 順位は保存済みの暫定値を使わず、ランキング対象投稿であれば GSI1 の現在の並びから算出する
    - nickname や usage 情報のような内部項目は返さない
-7. **monthly cleanup**: EventBridge（月1回）→ `draw-monthly-cleanup-prod`
+7. **monthly cleanup**: EventBridge（日次起動、月次確定はJST 1日のみ）→ `draw-monthly-cleanup-prod`
    - 対象は「前月の prompt」
+   - Top20の順位・長期TTLを確定し、Top20以外の通常投稿をGSI1から除外する
    - S3 `draw/prompt-YYYY-MM/` 配下から Top20 以外を削除
+   - S3 `draw/practice/` 配下の短期保持期限を過ぎた画像を削除
 
 ### フロント表示（履歴ページ）
-- `/draw/archive/` は 2026-02 以降の各月について `prompt` と `leaderboard` を順次取得し、月別Top20を表示する。
+- `/draw/archive/` は 2026-02 から前月までの確定済み各月について `prompt` と `leaderboard` を順次取得し、月別Top20を表示する。当月は表示しない。
 - 各順位カードはクリックで詳細モーダルを開き、必要になった時だけ `submission detail` API を取得する。
 
 ## DynamoDB スキーマ
@@ -77,10 +83,11 @@
   - primaryProvider, primaryModelId, primaryInputTokens, primaryCachedInputTokens, primaryCacheWriteTokens, primaryOutputTokens, primaryTotalTokens, primaryLatencyMs, primaryEstimatedCostUsd
   - tokenRecordedAt, aiFallbackUsed
 - TTL: expiresAt
-- 通常投稿は `SUBMISSION_TTL_DAYS`（既定45日）保持し、月次cleanupで確定Top20のみ `ARCHIVE_TTL_DAYS`（既定3650日）へ延長する
+- 当月のランキング対象投稿は `SUBMISSION_TTL_DAYS`（既定45日）保持し、月次cleanupで確定Top20のみ `ARCHIVE_TTL_DAYS`（既定3650日）へ延長する
+- 過去月の練習投稿は `PRACTICE_SUBMISSION_TTL_DAYS`（既定7日）で短期保持し、ランキングGSI属性を持たない
 - GSI1 (Leaderboard):
   - GSI1PK: promptId
-  - GSI1SK: scoreSortKey = `${(100-score).padStart(3,'0')}#${createdAt}#${submissionId}`
+  - GSI1のRange Key: `scoreSortKey = ${(100-score).padStart(3,'0')}#${createdAt}#${submissionId}`
 
 ### DrawRateLimit
 - PK: key (string) 例: `ip#route#windowStart`
@@ -115,6 +122,8 @@
 - SUBMISSION_TTL_DAYS=45
 - ARCHIVE_TTL_DAYS=3650
 - LEADERBOARD_KEEP_LIMIT=20（cleanupがS3に残す件数）
+- PRACTICE_SUBMISSION_TTL_DAYS=7（過去月の練習投稿を保持する日数）
+- PRACTICE_IMAGE_RETENTION_DAYS=7（過去月の練習画像を保持する日数）
 
 ## フロント環境変数
 - `PUBLIC_DRAW_API_BASE`: `/api/draw/*` のベースURL（HTTP APIのエンドポイント）
@@ -123,26 +132,28 @@
 - `npm run build --prefix backend/draw` で Lambdaコードを **CJS (.cjs)** にビルドし、`backend/draw/artifacts/*.zip` まで再生成する
 - API Gateway に Lambda を統合
 - Secrets Manager に CloudFront 秘密鍵と OpenAI API key を保存
-- EventBridge `cron` で `draw-monthly-cleanup-prod` を毎月実行（前月を自動整理）
+- EventBridge `cron(15 18 * * ? *)` で `draw-monthly-cleanup-prod` を日次実行し、LambdaがJSTの1日のみ前月を確定し、それ以外の日は期限切れの練習画像だけを整理する
 - 一次採点モデルを変更する場合は、先に `npm run snapshot-month-scores --prefix backend/draw -- YYYY-MM ...` でDynamoDBの対象月をバックアップし、再採点後に必要なら `npm run restore-month-scores --prefix backend/draw -- <snapshot.json>` で復元する
 - 既存投稿の再採点は `npm run rewrite-month-scores --prefix backend/draw -- YYYY-MM ...` を使い、全対象月の失敗件数が0であることを確認してから完了とする
 
 > 注意: S3 CORS は手動設定済み（GET/PUT/HEAD）。必要に応じて更新すること。
 
 ## 前月Top20保持（S3削除）ルール
-- 実行タイミング: 毎月1回（JST基準、実行時刻はEventBridge側）
+- 実行タイミング: EventBridge日次起動、月次確定はJSTの1日のみ（UTC 18:15起動ならJST 03:15）。練習画像の期限切れ整理は毎日起動時に行う。
 - 判定:
-  - DynamoDB `DrawSubmissions` の GSI1（scoreSortKey）で前月Top20を取得
+  - DynamoDB `DrawSubmissions` の GSI1（scoreSortKey）で前月Top20を取得し、順位を確定
   - tie-breakは既存どおり `createdAt` 昇順（早い投稿優先）
 - DDB保持:
   - 当月投稿は最低45日残し、月次cleanup時点で前月ぶんの順位確定ができるようにする
-  - cleanup実行時にTop20行の `expiresAt` を長期保持へ更新し、archiveページ用の順位・メタデータを維持する
+  - cleanup実行時にTop20行の `expiresAt` を長期保持へ更新し、`rankingFinalizedAt` と順位を保存する
+  - Top20以外の通常投稿は `GSI1PK/scoreSortKey` を削除して確定後のランキングから除外する
+  - 練習投稿はランキング確定処理の対象外とする
 - 削除対象:
   - `draw/prompt-YYYY-MM/` 配下のうち、Top20の `imageKey` 以外
 - 監査ログ:
-  - `targetMonth / scanned / keepCount / deleteCandidates / deleted` をCloudWatch Logsへ出力
+  - `targetMonth / scanned / keepCount / deleteCandidates / deleted / practiceDeleted` をCloudWatch Logsへ出力
 - 安全策:
-  - prefixガード（`draw/prompt-YYYY-MM/` 以外は削除しない）
+  - prefixガード（通常画像は `draw/prompt-YYYY-MM/`、練習画像は `draw/practice/` の配下だけを削除する）
   - 旧形式キー（例: `prompt-YYYY-MM-DD`）は復旧時に月次キーへ移してから管理する
 
 ## curl検証例

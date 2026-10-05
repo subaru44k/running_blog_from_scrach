@@ -1,19 +1,20 @@
-import { PutCommand, QueryCommand } from '@aws-sdk/lib-dynamodb';
+import { PutCommand } from '@aws-sdk/lib-dynamodb';
 import { json, options, parseJson } from '../lib/http.js';
 import { rateLimit } from '../lib/rateLimit.js';
 import { getObjectBuffer } from '../lib/s3.js';
 import { computeInkRatio, isInkGateFail } from '../lib/inkGate.js';
 import { scoreStub } from '../lib/scoreStub.js';
 import { ddb } from '../lib/ddb.js';
-import { DRAW_BUCKET, DRAW_TABLE, OPENAI_API_KEY_SECRET_ID, PRIMARY_MODEL_ID, PRIMARY_PROVIDER, RATE_LIMIT_SUBMIT, SUBMISSION_TTL_DAYS } from '../lib/env.js';
+import { DRAW_BUCKET, DRAW_TABLE, OPENAI_API_KEY_SECRET_ID, PRIMARY_MODEL_ID, PRIMARY_PROVIDER, PRACTICE_SUBMISSION_TTL_DAYS, RATE_LIMIT_SUBMIT, SUBMISSION_TTL_DAYS } from '../lib/env.js';
 import { getClientIp } from '../lib/ip.js';
 import type { SubmitResult } from '../types.js';
 import { buildPrimaryUser, primarySystemPrompt } from '../lib/aiPrompts.js';
-import { resolveDrawPrompt } from '../lib/prompt.js';
+import { getCurrentMonthJst, resolveDrawPrompt } from '../lib/prompt.js';
 import { invokeOpenAIJson } from '../lib/openai.js';
 import { estimateOpenAiUsd } from '../lib/pricing.js';
+import { getCurrentRank } from '../lib/ranking.js';
 
-const gateResult = (submissionId: string): SubmitResult => ({
+const gateResult = (submissionId: string, rankingEligible: boolean): SubmitResult => ({
   submissionId,
   score: 0,
   breakdown: { likeness: 0, composition: 0, originality: 0 },
@@ -21,19 +22,13 @@ const gateResult = (submissionId: string): SubmitResult => ({
   tips: [],
   childOneLiner: 'せんが ほとんど みえなかったので、てんすうは つけなかったよ。',
   childTips: [],
+  rankingEligible,
   isRanked: false,
 });
 
 const makeScoreSortKey = (score: number, createdAt: string, submissionId: string) => {
   const inv = String(100 - Math.min(100, Math.max(0, score))).padStart(3, '0');
   return `${inv}#${createdAt}#${submissionId}`;
-};
-
-const computeRank = (items: Array<{ scoreSortKey?: string }>, newKey: string) => {
-  const list = [...items.map((i) => i.scoreSortKey || '')];
-  list.push(newKey);
-  list.sort();
-  return list.indexOf(newKey) + 1;
 };
 
 const clampScore = (value: number) => Math.min(100, Math.max(0, Math.round(value)));
@@ -155,24 +150,26 @@ export const handler = async (event: any) => {
       return json(400, { error: 'submissionId, imageKey required' }, origin);
     }
     const imagePromptId = (() => {
-      const m = /^draw\/(prompt-\d{4}-\d{2})\/[^/]+\.png$/.exec(String(imageKey));
+      const m = /^draw\/(?:practice\/)?(prompt-\d{4}-\d{2})\/[^/]+\.png$/.exec(String(imageKey));
       return m ? m[1] : undefined;
     })();
     const prompt = resolveDrawPrompt({ promptId: imagePromptId || promptIdRaw, month });
     const promptId = prompt.promptId;
     const resolvedPromptText = prompt.promptText;
+    const rankingEligible = prompt.month === getCurrentMonthJst();
     const ip = getClientIp(event);
     await rateLimit(`ip#submit#${ip}`, RATE_LIMIT_SUBMIT);
 
     const imageBuffer = await getObjectBuffer(DRAW_BUCKET, imageKey);
     const inkRatio = computeInkRatio(imageBuffer);
     const createdAt = new Date().toISOString();
-    const expiresAt = Math.floor(Date.now() / 1000) + SUBMISSION_TTL_DAYS * 86400;
+    const submissionTtlDays = rankingEligible ? SUBMISSION_TTL_DAYS : PRACTICE_SUBMISSION_TTL_DAYS;
+    const expiresAt = Math.floor(Date.now() / 1000) + submissionTtlDays * 86400;
 
     let result: SubmitResult;
     let isRanked = false;
     let rank: number | undefined = undefined;
-    let scoreSortKey = '';
+    let scoreSortKey: string | undefined;
     let secondaryStatus: 'pending' | 'skipped' | 'failed' | 'done' = 'skipped';
     const tokenRecordedAt = new Date().toISOString();
     let primaryProvider: string | null = null;
@@ -188,8 +185,8 @@ export const handler = async (event: any) => {
     let aiFallbackUsed = false;
 
     if (isInkGateFail(inkRatio)) {
-      result = gateResult(submissionId);
-      scoreSortKey = makeScoreSortKey(result.score, createdAt, submissionId);
+      result = gateResult(submissionId, rankingEligible);
+      if (rankingEligible) scoreSortKey = makeScoreSortKey(result.score, createdAt, submissionId);
       aiFallbackUsed = true;
     } else {
       let scored = scoreStub();
@@ -235,24 +232,17 @@ export const handler = async (event: any) => {
         tips: scored.tips,
         childOneLiner: scored.childOneLiner,
         childTips: scored.childTips,
+        rankingEligible,
         isRanked: false,
       };
 
-      scoreSortKey = makeScoreSortKey(result.score, createdAt, submissionId);
-      const leaderboard = await ddb.send(new QueryCommand({
-        TableName: DRAW_TABLE,
-        IndexName: 'GSI1',
-        KeyConditionExpression: 'GSI1PK = :pk',
-        ExpressionAttributeValues: { ':pk': promptId },
-        ProjectionExpression: 'scoreSortKey',
-        ScanIndexForward: true,
-        Limit: 20,
-      }));
-      const items = (leaderboard.Items || []) as Array<{ scoreSortKey?: string }>;
-      rank = computeRank(items, scoreSortKey);
-      isRanked = rank <= 20;
-      result.isRanked = isRanked;
-      if (isRanked) result.rank = rank;
+      if (rankingEligible) {
+        scoreSortKey = makeScoreSortKey(result.score, createdAt, submissionId);
+        rank = await getCurrentRank(promptId, scoreSortKey);
+        isRanked = typeof rank === 'number' && rank <= 20;
+        result.isRanked = isRanked;
+        if (isRanked) result.rank = rank;
+      }
       secondaryStatus = 'skipped';
     }
 
@@ -273,6 +263,8 @@ export const handler = async (event: any) => {
         childOneLiner: result.childOneLiner,
         childTips: result.childTips,
         childReviewVersion: 'v1-four-sentence',
+        rankingEligible,
+        rankingStatus: rankingEligible ? 'active' : 'practice',
         isRanked: result.isRanked,
         rank: result.rank,
         secondaryStatus,
@@ -295,8 +287,9 @@ export const handler = async (event: any) => {
         secondaryOutputTokens: null,
         secondaryTotalTokens: null,
         secondaryLatencyMs: null,
-        GSI1PK: promptId,
-        scoreSortKey,
+        ...(rankingEligible && scoreSortKey
+          ? { GSI1PK: promptId, scoreSortKey }
+          : {}),
       },
     }));
 

@@ -351,9 +351,13 @@ features:
       - draw routes are included in sitemap and linked from global nav
       - /draw/archive/ provides only finalized monthly Top20 history from 2026-02 through the previous JST month (client fetches month-by-month leaderboard)
       - /draw/archive/ ranking cards open a client-side detail modal that fetches submission detail on demand from GET /api/draw/submission
+      - the current JST month is the only ranking-eligible month; older prompt months remain playable as practice but their submissions are excluded from the leaderboard and are stored under a short-lived practice policy
+      - the leaderboard GSI order is the ranking source of truth while a month is open; submission detail derives the current rank from that same order instead of trusting a stale stored rank
+      - monthly cleanup finalizes the previous JST month, persists its Top20 rank snapshot, removes non-Top20 rows from the leaderboard GSI, and retains only the finalized Top20 images for the archive
+      - scheduled cleanup runs daily at the UTC time corresponding to JST day 1; monthly finalization runs only on JST day 1 while other invocations only purge expired practice images, avoiding UTC/JST month-boundary errors
       - draw backend resources use cost allocation tags (Service=draw, Env=prod)
-      - monthly cleanup keeps only previous month's Top20 images and deletes others from S3
-      - draw submissions remain in DynamoDB long enough for monthly final ranking, and monthly cleanup extends Top20 rows to long-term retention for archive pages
+      - monthly cleanup keeps only previous month's Top20 images and deletes others from S3; practice images use a separate short retention policy
+      - draw submissions remain in DynamoDB long enough for monthly final ranking, and monthly cleanup extends finalized Top20 rows to long-term retention for archive pages
   mini_games:
     routes:
       - /games/

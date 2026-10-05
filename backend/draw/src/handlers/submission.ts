@@ -5,6 +5,7 @@ import { buildSignedUrl } from '../lib/cfSign.js';
 import { json, options } from '../lib/http.js';
 import type { SubmissionDetailResponse } from '../types.js';
 import { resolveDrawPrompt } from '../lib/prompt.js';
+import { getCurrentRank } from '../lib/ranking.js';
 
 const clampScore = (value: any) => {
   const numeric = Number(value);
@@ -36,12 +37,27 @@ export const handler = async (event: any) => {
       return json(404, { error: 'not_found' }, origin);
     }
 
+    const rankingEligible = item.rankingEligible !== false
+      && !String(item.imageKey).startsWith('draw/practice/');
+    const hasLiveRankingKey = rankingEligible
+      && String(item.GSI1PK || '') === promptId
+      && typeof item.scoreSortKey === 'string'
+      && item.scoreSortKey.length > 0;
+    const liveRank = hasLiveRankingKey
+      ? await getCurrentRank(promptId, String(item.scoreSortKey))
+      : undefined;
+    const finalizedRank = item.rankingStatus === 'final_top20'
+      && Number.isFinite(Number(item.rank))
+      ? Number(item.rank)
+      : undefined;
+
     const body: SubmissionDetailResponse = {
       submissionId,
       promptId,
       promptText: String(item.promptText || prompt.promptText || ''),
       createdAt: String(item.createdAt || ''),
-      rank: Number.isFinite(Number(item.rank)) ? Number(item.rank) : undefined,
+      rankingEligible,
+      rank: liveRank ?? finalizedRank,
       score: clampScore(item.score),
       breakdown: {
         likeness: clampScore(item?.breakdown?.likeness),

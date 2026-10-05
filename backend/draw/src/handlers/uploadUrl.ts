@@ -4,7 +4,7 @@ import { createPutUrl } from '../lib/s3.js';
 import { DRAW_BUCKET, IMAGE_TTL_SECONDS, RATE_LIMIT_UPLOAD } from '../lib/env.js';
 import { generateUlid } from '../lib/ulid.js';
 import { getClientIp } from '../lib/ip.js';
-import { resolveDrawPrompt } from '../lib/prompt.js';
+import { getCurrentMonthJst, resolveDrawPrompt } from '../lib/prompt.js';
 
 export const handler = async (event: any) => {
   const origin = event?.headers?.origin || event?.headers?.Origin;
@@ -15,8 +15,11 @@ export const handler = async (event: any) => {
     await rateLimit(`ip#upload-url#${ip}`, RATE_LIMIT_UPLOAD);
 
     const prompt = resolveDrawPrompt({ month, promptId });
+    const rankingEligible = prompt.month === getCurrentMonthJst();
     const submissionId = generateUlid();
-    const imageKey = `draw/${prompt.promptId}/${submissionId}.png`;
+    const imageKey = rankingEligible
+      ? `draw/${prompt.promptId}/${submissionId}.png`
+      : `draw/practice/${prompt.promptId}/${submissionId}.png`;
     const putUrl = await createPutUrl(DRAW_BUCKET, imageKey, IMAGE_TTL_SECONDS, 'image/png');
 
     return json(200, {
@@ -25,6 +28,7 @@ export const handler = async (event: any) => {
       putUrl,
       promptId: prompt.promptId,
       promptText: prompt.promptText,
+      rankingEligible,
     }, origin);
   } catch (err: any) {
     const status = err?.statusCode || 500;

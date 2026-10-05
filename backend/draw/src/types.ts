@@ -16,6 +16,7 @@ export type SubmitResult = {
   tips: string[];
   childOneLiner: string;
   childTips: string[];
+  rankingEligible: boolean;
   isRanked: boolean;
   rank?: number;
 };
@@ -38,6 +39,7 @@ export type SubmissionDetailResponse = {
   promptId: string;
   promptText: string;
   createdAt: string;
+  rankingEligible: boolean;
   rank?: number;
   score: number;
   breakdown: ScoreBreakdown;

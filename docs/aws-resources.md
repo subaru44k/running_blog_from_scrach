@@ -235,7 +235,7 @@ Cost Explorer での基本フィルタ:
 | `draw-submit-prod` | `ap-northeast-1` | 一次採点（OpenAI GPT-5.6 Luna / ink gate / token cost保存） |
 | `draw-submission-prod` | `ap-northeast-1` | 投稿詳細取得（archive 詳細モーダル用） |
 | `draw-leaderboard-prod` | `ap-northeast-1` | ランキング取得 |
-| `draw-monthly-cleanup-prod` | `ap-northeast-1` | 前月Top20以外の画像削除 |
+| `draw-monthly-cleanup-prod` | `ap-northeast-1` | 前月ランキングの確定、GSI整理、Top20以外の画像削除 |
 
 ### S3
 
@@ -254,9 +254,9 @@ Cost Explorer での基本フィルタ:
 
 | Rule | Region | Schedule | Target |
 | --- | --- | --- | --- |
-| `draw-monthly-cleanup-prod-monthly` | `ap-northeast-1` | `cron(15 18 1 * ? *)` | `draw-monthly-cleanup-prod` |
+| `draw-monthly-cleanup-prod-monthly` | `ap-northeast-1` | `cron(15 18 * * ? *)`（月次確定はJST 1日のみ） | `draw-monthly-cleanup-prod` |
 
-> 実行時刻は UTC 基準（上記は JST 03:15 / 毎月1日）。
+> EventBridgeはUTC基準で毎日03:15 JST相当の時刻に起動し、LambdaがJSTの日付を確認して1日のみ前月を確定する。それ以外の日は期限切れの練習画像だけを整理する。UTCの毎月1日指定ではJSTの月初処理を取りこぼすため、日次起動とする。
 
 ### API Gateway (HTTP API)
 

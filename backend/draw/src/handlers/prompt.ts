@@ -1,5 +1,5 @@
 import { json, options } from '../lib/http.js';
-import { resolveDrawPrompt } from '../lib/prompt.js';
+import { getCurrentMonthJst, resolveDrawPrompt } from '../lib/prompt.js';
 
 export const handler = async (event: any) => {
   const origin = event?.headers?.origin || event?.headers?.Origin;
@@ -11,6 +11,7 @@ export const handler = async (event: any) => {
       promptId: prompt.promptId,
       dateJst: prompt.dateJst,
       promptText: prompt.promptText,
+      rankingEligible: prompt.month === getCurrentMonthJst(),
     }, origin);
   } catch (err: any) {
     return json(500, { error: err?.message || 'failed' }, origin);
