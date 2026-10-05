@@ -347,6 +347,7 @@ features:
       - weighted score uses promptMatch*0.30, shapeClarity*0.22, completeness*0.16, composition*0.14, creativity*0.10, lineStability*0.08
       - light score bonus adds only small lifts when promptMatch, shapeClarity, completeness, and lineStability are all reasonably strong, and a small penalty when promptMatch is very low
       - legacy breakdown (likeness/composition/originality) is derived from rubric for frontend compatibility
+      - the local model comparison tool reads saved submissions and images, evaluates them with configurable AI providers, and writes HTML/JSON/raw JSON/text reports without changing production records; OpenAI comparisons use strict JSON Schema and include standard and child reviews
       - OpenAI token usage and estimated USD cost are stored per submission (input/output/total/cached-input/cache-write/model/provider/latency), using the current model pricing table
       - draw routes are included in sitemap and linked from global nav
       - /draw/archive/ provides only finalized monthly Top20 history from 2026-02 through the previous JST month (client fetches month-by-month leaderboard)

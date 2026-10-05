@@ -258,3 +258,11 @@ curl "https://<api>/api/draw/leaderboard?month=2026-02&limit=20"
 - 運用メモ:
   - 比較用 raw response は `artifacts/model-compare-*.raw.json` に保存する
   - 講評欠落や parser 取りこぼしの疑いがある場合は raw JSON から `output_text` と `usage.reasoning_tokens` を確認する
+
+## ローカルのモデル比較ツール
+- `backend/draw/scripts/model-compare.mjs` は、対象月の投稿をDynamoDBから、画像をS3から読み、設定したAIモデルで採点して比較する実験用CLI。通常のLambdaビルドには含まれない。
+- `backend/draw/` で `npm run compare-models -- YYYY-MM 件数` を実行する。AWS認証と対象プロバイダーのAPI認証が必要で、実行時にAI APIの利用料が発生する。
+- `OPENAI_MODELS`、`OPENAI_REASONING_EFFORT`、`MODEL_COMPARE_ONLY` で比較対象を指定する。GPT-5.6 LunaとGPT-6 Lunaの表示名・料金設定を持つが、本番モデルの設定は変更しない。
+- OpenAIへの要求はstrict JSON Schemaを使い、通常・子ども向け講評を含む。本番に合わせた6軸のスコア式で、点数・講評・時間・token数・推定費用をHTML / JSON / raw JSON / TXTへ出力する。
+- rubricの0点は0点として保持し、欠損・数値に変換できない値は5点へ補完する。
+- 本番投稿・ランキングの更新処理は行わない。保存済みの比較レポートは実行時点の参考記録であり、今回の修正では再生成しない。
