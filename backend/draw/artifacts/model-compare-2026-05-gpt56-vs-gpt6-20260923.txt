@@ -1,0 +1,33 @@
+お絵かきゲーム採点モデル比較 2026-05
+実行日時: 2026-09-23T13-54-50-568Z
+お題: 30秒でうさぎを描いて / 対象: 5枚（月次評価画像）
+条件: Responses API / reasoning.effort=none / 同じ画像・本番一次採点prompt・strict JSON Schema・本番6軸スコア式
+
+概要
+GPT-5.6 Luna (none): 5枚
+  平均 47.4点 (22–88点)
+  平均時間 4332ms (4068–4533ms), 合計 21.7秒
+  推定費用 $0.005592 (平均 $0.001118/枚)
+  token 入力 14,729 / cached 0 / cache write 14,714 / 出力 1,592
+  rubric平均: お題一致 4.8 / 構図 5.2 / 形の分かりやすさ 4.6 / 線の安定 4.4 / 工夫 4.2 / 完成度 4.6
+GPT-6 Luna (none): 5枚
+  平均 43.6点 (20–69点)
+  平均時間 7116ms (6538–7633ms), 合計 35.6秒
+  推定費用 $0.002618 (平均 $0.000524/枚)
+  token 入力 14,729 / cached 0 / cache write 14,714 / 出力 1,555
+  rubric平均: お題一致 4.6 / 構図 4.8 / 形の分かりやすさ 4.2 / 線の安定 4.8 / 工夫 4.0 / 完成度 3.8
+平均点差 (GPT-6 − GPT-5.6): -3.8点
+
+画像ごとの点数
+01M0P4GH17HA470PD57M4CT7DJ	保存済み 58点	GPT-5.6 Luna 46点	GPT-6 Luna 53点	差 +7点
+01M0P4F0S3JRQVBC71R8KM5QAN	保存済み 29点	GPT-5.6 Luna 23点	GPT-6 Luna 20点	差 -3点
+01M0P4DJFG9Y2K9Z797E6H2TR1	保存済み 88点	GPT-5.6 Luna 88点	GPT-6 Luna 69点	差 -19点
+01M0P4AH4G296D1XYHG83SMMX2	保存済み 20点	GPT-5.6 Luna 22点	GPT-6 Luna 25点	差 +3点
+01KQXZ5QC38VFEJCDB3YTNC3JT	保存済み 54点	GPT-5.6 Luna 58点	GPT-6 Luna 51点	差 -7点
+
+費用算出
+利用token数×OpenAI公式Standard料金（短いprompt tier、100万token単価）から推定。入力画像tokenを含む。
+GPT-5.6 Luna: input $0.20 / cached input $0.02 / cache write $0.25 / output $1.20
+GPT-6 Luna: input $0.10 / cached input $0.01 / cache write $0.125 / output $0.50
+個別の画像・6指標・時間・費用・講評は、同じベース名のHTMLを参照。
+価格情報: https://developers.openai.com/api/docs/models/gpt-5.6-luna / https://developers.openai.com/api/docs/models/gpt-6-luna

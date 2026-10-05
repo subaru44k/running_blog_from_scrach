@@ -1,0 +1,41 @@
+お絵かきゲーム採点モデル比較 2026-07
+実行日時: 2026-09-23T13-42-45-437Z
+お題: 30秒できつねを描いて / 対象: 13枚（月次評価画像）
+条件: Responses API / reasoning.effort=none / 同じ画像・本番一次採点prompt・strict JSON Schema・本番6軸スコア式
+
+概要
+GPT-5.6 Luna (none): 13枚
+  平均 66.1点 (43–86点)
+  平均時間 4787ms (3677–11390ms), 合計 62.2秒
+  推定費用 $0.023794 (平均 $0.001830/枚)
+  token 入力 74,337 / cached 0 / cache write 74,298 / 出力 4,343
+  rubric平均: お題一致 7.0 / 構図 5.8 / 形の分かりやすさ 5.8 / 線の安定 5.2 / 工夫 5.2 / 完成度 5.2
+GPT-6 Luna (none): 13枚
+  平均 47.0点 (27–66点)
+  平均時間 6265ms (5101–9249ms), 合計 81.4秒
+  推定費用 $0.011371 (平均 $0.000875/枚)
+  token 入力 74,337 / cached 0 / cache write 74,298 / 出力 4,159
+  rubric平均: お題一致 4.8 / 構図 4.8 / 形の分かりやすさ 4.6 / 線の安定 5.5 / 工夫 3.9 / 完成度 4.3
+平均点差 (GPT-6 − GPT-5.6): -19.1点
+
+画像ごとの点数
+01KYV9R7S8PFHWM75Y10YMYME7	保存済み 83点	GPT-5.6 Luna 83点	GPT-6 Luna 53点	差 -30点
+01KY94QGN5E6EPVDS3SQ457JYH	保存済み 48点	GPT-5.6 Luna 51点	GPT-6 Luna 34点	差 -17点
+01KY94KF04VPHXD7MKVZ4Z72A0	保存済み 36点	GPT-5.6 Luna 43点	GPT-6 Luna 27点	差 -16点
+01KY94HSPGZBBBHK82V6NKX3E2	保存済み 50点	GPT-5.6 Luna 60点	GPT-6 Luna 29点	差 -31点
+01KY94FTPSQ17M4AVMF2137H18	保存済み 43点	GPT-5.6 Luna 58点	GPT-6 Luna 31点	差 -27点
+01KY94D91SDXQJNTFGZYQYMEFH	保存済み 60点	GPT-5.6 Luna 65点	GPT-6 Luna 57点	差 -8点
+01KY94B5FQF8KCNT5MBY1F8C2Z	保存済み 53点	GPT-5.6 Luna 58点	GPT-6 Luna 53点	差 -5点
+01KX8R1E9979Y5J2PAKB6DHN71	保存済み 86点	GPT-5.6 Luna 86点	GPT-6 Luna 47点	差 -39点
+01KX8PTQQJPWHZ0W57EMBVCHCJ	保存済み 82点	GPT-5.6 Luna 82点	GPT-6 Luna 57点	差 -25点
+01KWXE9AXCV2KG7CXJ7PP76PJS	保存済み 59点	GPT-5.6 Luna 59点	GPT-6 Luna 41点	差 -18点
+01KWP077R50A3327EB1BHD1YY0	保存済み 47点	GPT-5.6 Luna 60点	GPT-6 Luna 58点	差 -2点
+01KWP04K5V26GDPE6E6R8VJAY9	保存済み 62点	GPT-5.6 Luna 78点	GPT-6 Luna 66点	差 -12点
+01KWP01M442RRFG4KM68P80GAP	保存済み 75点	GPT-5.6 Luna 76点	GPT-6 Luna 58点	差 -18点
+
+費用算出
+利用token数×OpenAI公式Standard料金（短いprompt tier、100万token単価）から推定。入力画像tokenを含む。
+GPT-5.6 Luna: input $0.20 / cached input $0.02 / cache write $0.25 / output $1.20
+GPT-6 Luna: input $0.10 / cached input $0.01 / cache write $0.125 / output $0.50
+個別の画像・6指標・時間・費用・講評は、同じベース名のHTMLを参照。
+価格情報: https://developers.openai.com/api/docs/models/gpt-5.6-luna / https://developers.openai.com/api/docs/models/gpt-6-luna

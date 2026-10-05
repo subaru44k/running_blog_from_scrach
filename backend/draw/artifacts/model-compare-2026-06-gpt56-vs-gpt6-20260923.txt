@@ -1,0 +1,40 @@
+お絵かきゲーム採点モデル比較 2026-06
+実行日時: 2026-09-23T13-54-50-568Z
+お題: 30秒でパンダを描いて / 対象: 10枚（月次評価画像）
+条件: Responses API / reasoning.effort=none / 同じ画像・本番一次採点prompt・strict JSON Schema・本番6軸スコア式
+注意: 10枚中1枚は保存時に本番の線検出でAI採点をスキップ。今回は比較用に両モデルへ渡したため、該当画像の新しい点数は参考値。費用と時間の合計には比較用の追加呼び出し分が含まれる。
+該当ID: 01KTQSYZJQNT3GSMAYPJ5778PJ
+
+概要
+GPT-5.6 Luna (none): 10枚
+  平均 48.9点 (20–77点)
+  平均時間 4425ms (3865–5192ms), 合計 44.2秒
+  推定費用 $0.011451 (平均 $0.001145/枚)
+  token 入力 29,461 / cached 0 / cache write 29,431 / 出力 3,406
+  rubric平均: お題一致 4.9 / 構図 5.5 / 形の分かりやすさ 4.7 / 線の安定 4.5 / 工夫 4.9 / 完成度 4.8
+GPT-6 Luna (none): 10枚
+  平均 48.4点 (20–53点)
+  平均時間 7639ms (6544–9648ms), 合計 76.4秒
+  推定費用 $0.005270 (平均 $0.000527/枚)
+  token 入力 29,461 / cached 0 / cache write 29,431 / 出力 3,176
+  rubric平均: お題一致 5.4 / 構図 4.7 / 形の分かりやすさ 4.6 / 線の安定 4.7 / 工夫 4.6 / 完成度 4.6
+平均点差 (GPT-6 − GPT-5.6): -0.5点
+
+画像ごとの点数
+01M0P48V7J2G2PT9EYGFZ9EXXW	保存済み 76点	GPT-5.6 Luna 77点	GPT-6 Luna 50点	差 -27点
+01M0P474RDFD3NQKDZJHJCG3R8	保存済み 20点	GPT-5.6 Luna 20点	GPT-6 Luna 20点	差 0点
+01KW0ZY9PNZPC92QFA0A6G7M6Z	保存済み 73点	GPT-5.6 Luna 65点	GPT-6 Luna 53点	差 -12点
+01KVPNHJB7A4SM28BK8SQ20G97	保存済み 47点	GPT-5.6 Luna 38点	GPT-6 Luna 49点	差 +11点
+01KVHPFRQBN40WRZW2AWXMTCQP	保存済み 52点	GPT-5.6 Luna 50点	GPT-6 Luna 53点	差 +3点
+01KV727VQH7H08WW1DWKFDSRWX	保存済み 68点	GPT-5.6 Luna 77点	GPT-6 Luna 52点	差 -25点
+01KV70S08PRYMBZ7G78G4H1DHK	保存済み 39点	GPT-5.6 Luna 46点	GPT-6 Luna 53点	差 +7点
+01KV5BECXHVB49481Y85MKEKFV	保存済み 40点	GPT-5.6 Luna 37点	GPT-6 Luna 52点	差 +15点
+01KTQTRBJJGQNHVT25FAEWDEEK	保存済み 20点	GPT-5.6 Luna 29点	GPT-6 Luna 52点	差 +23点
+01KTQSYZJQNT3GSMAYPJ5778PJ	保存済み 0点（本番AI採点スキップ）	GPT-5.6 Luna 50点	GPT-6 Luna 50点	差 0点
+
+費用算出
+利用token数×OpenAI公式Standard料金（短いprompt tier、100万token単価）から推定。入力画像tokenを含む。
+GPT-5.6 Luna: input $0.20 / cached input $0.02 / cache write $0.25 / output $1.20
+GPT-6 Luna: input $0.10 / cached input $0.01 / cache write $0.125 / output $0.50
+個別の画像・6指標・時間・費用・講評は、同じベース名のHTMLを参照。
+価格情報: https://developers.openai.com/api/docs/models/gpt-5.6-luna / https://developers.openai.com/api/docs/models/gpt-6-luna
