@@ -10,7 +10,9 @@ export const handler = async (event: any) => {
   const origin = event?.headers?.origin || event?.headers?.Origin;
   if (event?.requestContext?.http?.method === 'OPTIONS') return options(origin);
   try {
-    const { month, promptId } = parseJson(event);
+    const { month, promptId, contentType = 'image/png' } = parseJson(event);
+    if (contentType !== 'image/png' && contentType !== 'image/webp') return json(400, { error: 'Unsupported image content type' }, origin);
+    const extension = contentType === 'image/webp' ? 'webp' : 'png';
     const ip = getClientIp(event);
     await rateLimit(`ip#upload-url#${ip}`, RATE_LIMIT_UPLOAD);
 
@@ -18,9 +20,9 @@ export const handler = async (event: any) => {
     const rankingEligible = prompt.month === getCurrentMonthJst();
     const submissionId = generateUlid();
     const imageKey = rankingEligible
-      ? `draw/${prompt.promptId}/${submissionId}.png`
-      : `draw/practice/${prompt.promptId}/${submissionId}.png`;
-    const putUrl = await createPutUrl(DRAW_BUCKET, imageKey, IMAGE_TTL_SECONDS, 'image/png');
+      ? `draw/${prompt.promptId}/${submissionId}.${extension}`
+      : `draw/practice/${prompt.promptId}/${submissionId}.${extension}`;
+    const putUrl = await createPutUrl(DRAW_BUCKET, imageKey, IMAGE_TTL_SECONDS, contentType);
 
     return json(200, {
       submissionId,
@@ -29,6 +31,7 @@ export const handler = async (event: any) => {
       promptId: prompt.promptId,
       promptText: prompt.promptText,
       rankingEligible,
+      contentType,
     }, origin);
   } catch (err: any) {
     const status = err?.statusCode || 500;

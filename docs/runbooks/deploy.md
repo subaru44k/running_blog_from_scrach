@@ -37,3 +37,7 @@ TODO: CloudFormationによる更新フローの確定後に追記。
 フロントエンドのみの変更。追加依存・Lambda更新は不要。完全ビルドとsanity後、`astro-blog/scripts/draw-flow-smoke.py` でPNGのPUT完了後の遷移、採点待ちの画像表示、採点成功後のランキング取得、旧保存結果の除外、再読み込み・再試行時の投稿ID維持を確認する。スモークは既存のPython Playwright/Chromium環境で実行し、API/アップロードをモックする。
 
 公開時は認証済みAWS環境から `builddeploy-subaru-is-running-site`（us-east-1）を対象コミットで起動する。CodeBuildの成功・CloudFront無効化完了・本番DrawResult/DrawPlay asset参照とHTTP 200を確認後、練習モードで本番のアップロード→結果画面→採点→講評を確認する。本セッションの環境にはAWS認証がなく、ローカル検証だけでは本番公開完了と扱わない。
+
+### Draw元解像度WebP・品質90
+
+[draw-webp-upload.md](draw-webp-upload.md) の引き継ぎ手順を優先する。今回はLambdaのWebP対応も必要なので、worker→submit→upload-urlを先に反映してから対象コミットのCodeBuildを起動する。先のPNG維持フロー変更の「フロントのみ」とは公開範囲が異なる。WebP保存後はバックエンドの対応をロールバックしない。

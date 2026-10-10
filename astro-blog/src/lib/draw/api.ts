@@ -6,6 +6,7 @@ type UploadUrlResponse = {
   submissionId: string;
   imageKey: string;
   putUrl: string;
+  contentType?: 'image/png' | 'image/webp';
   promptId?: string;
   promptText?: string;
   rankingEligible?: boolean;
@@ -56,7 +57,7 @@ const requestJson = async <T>(input: RequestInfo, init?: RequestInit): Promise<T
   return (await parseJson(res)) as T;
 };
 
-export async function getUploadUrl(promptId: string): Promise<UploadUrlResponse> {
+export async function getUploadUrl(promptId: string, contentType: 'image/png' | 'image/webp' = 'image/png'): Promise<UploadUrlResponse> {
   if (!apiBase) throw new ApiError('APIの設定が見つかりません。PUBLIC_DRAW_API_BASE を設定してください。');
   const month = (() => {
     const m = /^prompt-(\d{4}-\d{2})$/.exec(promptId || '');
@@ -65,7 +66,7 @@ export async function getUploadUrl(promptId: string): Promise<UploadUrlResponse>
   return requestJson<UploadUrlResponse>(buildUrl('/api/draw/upload-url'), {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ promptId, month }),
+    body: JSON.stringify({ promptId, month, contentType }),
   });
 }
 

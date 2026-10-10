@@ -12,6 +12,7 @@ import {getCurrentMonthJst,resolveDrawPrompt} from '../lib/prompt.js';
 import {getCurrentRank} from '../lib/ranking.js';
 import {computeGameScore,toCompatibilityBreakdown} from '../lib/gameScore.js';
 import {scoreWithDecisions,decisionsVersions,decisionsInstructionHash} from '../lib/decisions.js';
+import {asPng} from '../lib/image.js';
 const sqs=new SQSClient({});
 const fromItem=(item:any):SubmitResult=>({submissionId:item.submissionId,score:item.score,breakdown:item.breakdown,oneLiner:item.oneLiner||'',tips:item.tips||[],childOneLiner:item.childOneLiner||'',childTips:item.childTips||[],reviewStatus:item.reviewStatus||'skipped',rankingEligible:item.rankingEligible!==false,isRanked:item.isRanked===true,...(typeof item.rank==='number'?{rank:item.rank}:{}),...(item.primaryRubric?{primaryRubric:item.primaryRubric,promptVersion:item.promptVersion,rubricVersion:item.rubricVersion,scoringVersion:item.scoringVersion,baseScore:item.baseScore,gameScore:item.gameScore}:{})});
 const sortKey=(score:number,time:string,id:string)=>`${String(100-score).padStart(3,'0')}#${time}#${id}`;
@@ -20,7 +21,7 @@ export const handler=async(event:any)=>{
  if(event?.requestContext?.http?.method==='OPTIONS')return options(origin);
  try{
   const {submissionId,imageKey,nickname}=parseJson(event);
-  const match=/^draw\/(?:practice\/)?(prompt-\d{4}-\d{2})\/([^/]+)\.png$/.exec(String(imageKey||''));
+  const match=/^draw\/(?:practice\/)?(prompt-\d{4}-\d{2})\/([^/]+)\.(?:png|webp)$/.exec(String(imageKey||''));
   if(!submissionId||!match||match[2]!==submissionId)return json(400,{error:'投稿情報が正しくありません。'},origin);
   const prompt=resolveDrawPrompt({promptId:match[1]}),promptId=prompt.promptId;
   const key={promptId,submissionId};
@@ -28,7 +29,7 @@ export const handler=async(event:any)=>{
   const previous=await ddb.send(new GetCommand({TableName:DRAW_TABLE,Key:key,ConsistentRead:true}));
   if(previous.Item)return json(200,fromItem(previous.Item),origin);
   await rateLimit(`ip#submit#${getClientIp(event)}`,RATE_LIMIT_SUBMIT);
-  const bytes=await getObjectBuffer(DRAW_BUCKET,imageKey),createdAt=new Date().toISOString();
+  const bytes=await asPng(await getObjectBuffer(DRAW_BUCKET,imageKey)),createdAt=new Date().toISOString();
   const rankingEligible=prompt.month===getCurrentMonthJst()&&!String(imageKey).startsWith('draw/practice/');
   const gated=isInkGateFail(computeInkRatio(bytes));
   let measured:Awaited<ReturnType<typeof scoreWithDecisions>>|undefined;

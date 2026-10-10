@@ -35,7 +35,7 @@ await Promise.all(entries.map(async (entry) => {
   await build({
     entryPoints: [resolve(root, entry)],
     bundle: true,
-    loader: { '.md': 'text' },
+    loader: { '.md': 'text', '.wasm': 'binary' },
     platform: 'node',
     target: 'node20',
     format: 'cjs',

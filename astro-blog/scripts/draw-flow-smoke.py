@@ -28,7 +28,9 @@ async def main():
    elif path.endswith('/leaderboard'):
     calls.append(('ranking',None));data={'promptId':PROMPT['promptId'],'items':[]}
    elif path.endswith('/submission'):calls.append(('detail',None));data={**RESULT,**PROMPT,'createdAt':'','imageDataUrl':IMAGE}
-   elif path.endswith('/upload-url'):data={'submissionId':'test-flow','imageKey':PENDING['imageKey'],'putUrl':BASE+'/test-upload','promptId':PROMPT['promptId'],'promptText':PROMPT['promptText']}
+   elif path.endswith('/upload-url'):
+    content_type=route.request.post_data_json.get('contentType','image/png');calls.append(('upload-url',content_type));extension='webp' if content_type=='image/webp' else 'png'
+    data={'submissionId':'test-flow','imageKey':'draw/prompt-2026-10/test-flow.'+extension,'putUrl':BASE+'/test-upload','promptId':PROMPT['promptId'],'promptText':PROMPT['promptText'],'contentType':content_type}
    else:raise Exception(path)
    await route.fulfill(json=data)
   await context.route('**/*',lambda route: route.continue_() if route.request.url.startswith(BASE) else route.abort())
@@ -75,7 +77,10 @@ async def main():
   calls.clear();started.clear();release.clear()
   upload_started=asyncio.Event();upload_release=asyncio.Event()
   async def upload(route):
-   upload_started.set();await upload_release.wait();await route.fulfill(status=200,body='')
+   content_type=route.request.headers['content-type'];body=route.request.post_data_buffer
+   assert content_type==next(x[1] for x in calls if x[0]=='upload-url')
+   assert (body[:4]==b'RIFF' and body[8:12]==b'WEBP') if content_type=='image/webp' else body[:8]==b'\x89PNG\r\n\x1a\n'
+   calls.append(('put',content_type));upload_started.set();await upload_release.wait();await route.fulfill(status=200,body='')
   await context.route('**/test-upload',upload)
   await page.goto(BASE+'/draw/play/',wait_until='domcontentloaded')
   await page.evaluate('()=>{localStorage.clear();sessionStorage.removeItem("drawPendingSubmission");}')
@@ -88,12 +93,15 @@ async def main():
   await asyncio.wait_for(upload_started.wait(),10)
   assert '/draw/play' in page.url
   assert not any(x[0]=='submit' for x in calls)
-  print('PASS: play waits for successful PNG upload; never submits before navigation')
+  print('PASS: upload type matches signed request and actual PNG/WebP bytes; no early submit')
   upload_release.set()
   await page.wait_for_url('**/draw/result?**')
   await asyncio.wait_for(started.wait(),10)
   await page.get_by_alt_text('投稿した絵',exact=True).wait_for()
   assert len([x for x in calls if x[0]=='submit'])==1
+  chosen=next(x[1] for x in calls if x[0]=='put');expected_extension='.webp' if chosen=='image/webp' else '.png'
+  assert next(x[1] for x in calls if x[0]=='submit')['imageKey'].endswith(expected_extension)
+  assert await page.evaluate('(type)=>sessionStorage.getItem("drawImage").startsWith("data:"+type)',chosen)
   assert not any(x[0]=='ranking' for x in calls)
   print('PASS: upload completion navigates immediately; drawing visible while score request remains pending')
   release.set()

@@ -2,7 +2,7 @@ import test from 'node:test';import assert from 'node:assert/strict';import {bui
 import {candidateScore,candidates} from '../../../tools/draw-evaluation/score-candidates.mjs';
 const dir=await mkdtemp(join(tmpdir(),'draw-adopted-test-'));
 const root=resolve(import.meta.dirname,'..');
-async function bundle(entry,name,plugins=[]){const outfile=join(dir,name+'.mjs');await build({entryPoints:[resolve(root,entry)],bundle:true,platform:'node',format:'esm',packages:'external',loader:{'.md':'text'},outfile,plugins});return import(pathToFileURL(outfile).href);}
+async function bundle(entry,name,plugins=[]){const outfile=join(dir,name+'.mjs');await build({entryPoints:[resolve(root,entry)],bundle:true,platform:'node',format:'esm',packages:'external',loader:{'.md':'text','.wasm':'binary'},outfile,plugins});return import(pathToFileURL(outfile).href);}
 // Pure scorer needs no env, keys, SDK clients or inference.
 const scoring=await bundle('src/lib/gameScore.ts','score');
 const frontend=await bundle('../../astro-blog/src/lib/draw/rubricPresentation.ts','presentation');
@@ -32,16 +32,18 @@ test('new and historical result presentation stay separate in standard and child
 });
 // Handler is exercised with local service mocks. Never read credentials or contact AWS/OpenAI.
 const replacements={
- 'env':`export const DRAW_BUCKET='test',DRAW_TABLE='test',OPENAI_API_KEY_SECRET_ID='test',PRIMARY_MODEL_ID='gpt-5.6-luna',PRIMARY_PROVIDER='openai',OPENAI_REASONING_EFFORT='none',PRACTICE_SUBMISSION_TTL_DAYS=7,RATE_LIMIT_SUBMIT=5,SUBMISSION_TTL_DAYS=45,SECONDARY_QUEUE_URL='test',SECONDARY_MODEL_ID='gpt-6-luna';`,
+ 'env':`export const DRAW_BUCKET='test',DRAW_TABLE='test',OPENAI_API_KEY_SECRET_ID='test',PRIMARY_MODEL_ID='gpt-5.6-luna',PRIMARY_PROVIDER='openai',OPENAI_REASONING_EFFORT='none',PRACTICE_SUBMISSION_TTL_DAYS=7,RATE_LIMIT_SUBMIT=5,SUBMISSION_TTL_DAYS=45,SECONDARY_QUEUE_URL='test',SECONDARY_MODEL_ID='gpt-6-luna',IMAGE_TTL_SECONDS=900,RATE_LIMIT_UPLOAD=10;`,
  'ddb':`export const ddb={send:async command=>{if(globalThis.ddbSend)return globalThis.ddbSend(command.input);if(command.input.Item){globalThis.savedItem=command.input.Item;return {};}return {Item:globalThis.detailItem};}};`,
- 's3':`export const getObjectBuffer=async()=>Buffer.from('test image');`,
+ 's3':`export const getObjectBuffer=async()=>Buffer.from('test image');export const createPutUrl=async(bucket,key,ttl,contentType)=>{globalThis.signedUpload={bucket,key,ttl,contentType};return 'https://example.invalid/put';};`,
  'rateLimit':`export const rateLimit=async()=>{};`,
  'secrets':`export const getSecretString=async()=> 'test-only-key';`,
+ 'ulid':`export const generateUlid=()=> 'generated-test';`,
+ 'image':`export const asPng=async bytes=>bytes;`,
  'inkGate':`export const computeInkRatio=()=>globalThis.inkRatio;export const isInkGateFail=r=>r===0;`,
  'cfSign':`export const buildSignedUrl=async()=> 'https://example.invalid/test.png';`,
  'ranking':`export const getCurrentRank=async()=>1;`,
 };
-const plugin={name:'local-services',setup(b){b.onResolve({filter:/^@aws-sdk\/client-sqs$/},()=>({path:'sqs',namespace:'sqs-test'}));b.onLoad({filter:/.*/,namespace:'sqs-test'},()=>({contents:'export class SendMessageCommand{constructor(input){this.input=input;}} export class SQSClient{async send(command){globalThis.queueMessages ||= [];globalThis.queueMessages.push(command.input);if(globalThis.queueFail)throw Error("Queue failed");return {};}}',loader:'js'}));b.onResolve({filter:/^@aws-sdk\/lib-dynamodb$/},()=>({path:'ddb-command',namespace:'test'}));b.onLoad({filter:/.*/,namespace:'test'},()=>({contents:'export class PutCommand { constructor(input){this.input=input;} } export class GetCommand { constructor(input){this.input=input;} } export class UpdateCommand { constructor(input){this.input=input;} }',loader:'js'}));b.onLoad({filter:/\/lib\/(env|ddb|s3|rateLimit|secrets|inkGate|ranking|cfSign)\.ts$/},args=>({contents:replacements[args.path.split('/').at(-1).replace('.ts','')],loader:'ts'}));}};
+const plugin={name:'local-services',setup(b){b.onResolve({filter:/^@aws-sdk\/client-sqs$/},()=>({path:'sqs',namespace:'sqs-test'}));b.onLoad({filter:/.*/,namespace:'sqs-test'},()=>({contents:'export class SendMessageCommand{constructor(input){this.input=input;}} export class SQSClient{async send(command){globalThis.queueMessages ||= [];globalThis.queueMessages.push(command.input);if(globalThis.queueFail)throw Error("Queue failed");return {};}}',loader:'js'}));b.onResolve({filter:/^@aws-sdk\/lib-dynamodb$/},()=>({path:'ddb-command',namespace:'test'}));b.onLoad({filter:/.*/,namespace:'test'},()=>({contents:'export class PutCommand { constructor(input){this.input=input;} } export class GetCommand { constructor(input){this.input=input;} } export class UpdateCommand { constructor(input){this.input=input;} }',loader:'js'}));b.onLoad({filter:/\/lib\/(env|ddb|s3|rateLimit|secrets|ulid|image|inkGate|ranking|cfSign)\.ts$/},args=>({contents:replacements[args.path.split('/').at(-1).replace('.ts','')],loader:'ts'}));}};
 const submit=await bundle('src/handlers/submit.ts','submit',[plugin]);
 const detail=await bundle('src/handlers/submission.ts','detail',[plugin]);
 test('detail exposes new rubric and score versions without changing historical fields',async()=>{
@@ -87,4 +89,26 @@ test('async worker claims once, writes reviews only, and retries failures up to 
  }finally{globalThis.fetch=priorFetch;console.error=priorError;delete globalThis.ddbSend;}
 });
 // Cleanup after all registered tests (top-level await import alone does not wait for tests).
-import {after} from 'node:test';after(()=>rm(dir,{recursive:true,force:true}));
+import {after} from 'node:test';
+
+const uploadUrl = await bundle('src/handlers/uploadUrl.ts','upload-url',[plugin]);
+test('upload URL defaults to PNG, signs WebP with matching key/type, rejects other types',async()=>{
+ try{
+  for(const contentType of [undefined,'image/png','image/webp']){
+   const response=await uploadUrl.handler({requestContext:{http:{method:'POST'}},body:JSON.stringify({promptId:'prompt-2026-04',...(contentType?{contentType}:{})})});
+   assert.equal(response.statusCode,200);const data=JSON.parse(response.body),type=contentType||'image/png';
+   assert.equal(data.contentType,type);assert.ok(data.imageKey.endsWith(type==='image/webp'?'.webp':'.png'));assert.equal(globalThis.signedUpload.contentType,type);assert.equal(globalThis.signedUpload.key,data.imageKey);
+  }
+  const response=await uploadUrl.handler({requestContext:{http:{method:'POST'}},body:JSON.stringify({contentType:'image/jpeg'})});assert.equal(response.statusCode,400);
+ }finally{delete globalThis.signedUpload;}
+});
+test('submit accepts WebP keys and rejects mismatched submission IDs',async()=>{
+ const priorFetch=globalThis.fetch;globalThis.inkRatio=1;globalThis.fetch=async()=>({ok:true,headers:new Headers(),json:async()=>decisionData(ratings([3,3,3,3]))});
+ try{
+  const event={requestContext:{http:{method:'POST'}},body:JSON.stringify({submissionId:'webp-test',imageKey:'draw/practice/prompt-2026-04/webp-test.webp'})};
+  const response=await submit.handler(event);assert.equal(response.statusCode,200);assert.equal(globalThis.savedItem.imageKey,'draw/practice/prompt-2026-04/webp-test.webp');assert.equal(JSON.parse(response.body).score,70);
+  event.body=JSON.stringify({submissionId:'other',imageKey:'draw/practice/prompt-2026-04/webp-test.webp'});assert.equal((await submit.handler(event)).statusCode,400);
+ }finally{globalThis.fetch=priorFetch;for(const k of ['inkRatio','savedItem','queueMessages'])delete globalThis[k];}
+});
+
+after(()=>rm(dir,{recursive:true,force:true}));

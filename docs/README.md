@@ -23,3 +23,5 @@
 
 - [お絵描きreference評価ラボ](../tools/draw-evaluation/README.md): ローカル取得・Codex評価・人間レビュー・順位比較。
 - [お絵描き game-score-v1 組み込み・公開前確認](runbooks/draw-game-score-v1.md)
+
+- [Draw WebP品質90の公開引き継ぎ](runbooks/draw-webp-upload.md)：元解像度Canvas圧縮、PNG互換、backend先行の公開順序とロールバック。

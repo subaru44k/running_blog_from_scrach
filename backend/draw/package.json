@@ -25,7 +25,8 @@
     "split-dressup-shoes-b": "node ./scripts/split-dressup-shoes-b.mjs",
     "build-dressup-next-production-assets": "node ./scripts/build-dressup-next-production-assets.mjs",
     "typecheck": "tsc -p tsconfig.json --noEmit",
-    "test:scoring": "node --test tests/game-score.test.mjs"
+    "test:scoring": "node --test tests/game-score.test.mjs",
+    "test:images": "node --test tests/image-codec.test.mjs"
   },
   "dependencies": {
     "@aws-sdk/client-bedrock-runtime": "^3.514.0",
@@ -38,6 +39,7 @@
     "@aws-sdk/lib-dynamodb": "^3.514.0",
     "@aws-sdk/s3-request-presigner": "^3.514.0",
     "@aws-sdk/util-dynamodb": "^3.514.0",
+    "@jsquash/webp": "1.5.0",
     "pngjs": "^7.0.0",
     "ulid": "^2.3.0"
   },

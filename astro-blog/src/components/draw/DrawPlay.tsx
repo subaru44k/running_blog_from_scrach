@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import CanvasDraw from './CanvasDraw';
 import Timer from './Timer';
 import { ApiError, getUploadUrl, putToS3 } from '../../lib/draw/api';
+import { prepareUpload } from '../../lib/draw/uploadImage';
 import { PENDING_KEY } from '../../lib/draw/pendingSubmission';
 
 const getPromptFromStorage = () => {
@@ -62,9 +63,10 @@ export default function DrawPlay() {
     sessionStorage.setItem('drawImage', url);
     sessionStorage.setItem('drawPromptId', prompt.promptId);
     try {
-      const upload = await getUploadUrl(prompt.promptId);
-      const blob = await (await fetch(url)).blob();
-      await putToS3(upload.putUrl, blob, 'image/png');
+      const image = await prepareUpload(url);
+      const upload = await getUploadUrl(prompt.promptId, image.contentType);
+      await putToS3(upload.putUrl, image.blob, image.contentType);
+      sessionStorage.setItem('drawImage', image.dataUrl);
       const resolvedPromptId = upload.promptId || prompt.promptId;
       const pending = {
         promptId: resolvedPromptId,
@@ -80,7 +82,7 @@ export default function DrawPlay() {
       localStorage.setItem('drawSubmissionId', upload.submissionId);
       localStorage.setItem('drawPromptText', pending.promptText);
       localStorage.setItem('drawImageKey', upload.imageKey);
-      localStorage.setItem('drawImage', url);
+      localStorage.setItem('drawImage', image.dataUrl);
       setStatus('redirecting');
       const params = new URLSearchParams({ promptId: resolvedPromptId, submissionId: upload.submissionId });
       const month = resolvedPromptId.replace(/^prompt-/, '');

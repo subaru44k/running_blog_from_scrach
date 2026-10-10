@@ -274,3 +274,11 @@ curl "https://<api>/api/draw/leaderboard?month=2026-02&limit=20"
 再読み込み・失敗時の再試行でも同じ投稿ID/画像キーを使用し、保存済み投稿はバックエンドの再送対応で返す。React effectが重なっても同一画面の採点リクエストを共有する。古い保存結果はURLの投稿IDと照合して表示対象から除外する。採点成功までpending投稿を保持し、成功後または次の描画開始時に削除する。
 
 PNG形式・解像度・アップロードAPI・バックエンドは変更せず、圧縮用依存は追加しない。公開は既存CodeBuildのフロントエンドデプロイ手順を使用する。
+
+## 元解像度WebP・品質90のアップロード
+
+ブラウザ標準Canvasの `toBlob('image/webp', 0.9)` で元解像度のPNGを非可逆WebPへ変換する。WebP非対応・変換失敗・PNGより大きい場合は元PNGを使う。ブラウザ用ライブラリは追加しない。Canvasの品質0.9と比較実験のSharp/libwebp品質90は同じ出力を保証しない。
+
+署名URL発行は `contentType` として `image/png`（省略時）または `image/webp` のみを受け付け、キーの拡張子と署名Content-Typeを一致させる。submitは両拡張子を受け付ける。Lambda側に `@jsquash/webp` 1.5.0（推移依存 wasm-feature-detect）を追加し、デコーダーWASMをバンドルする。submit/講評workerでWebPをPNGへデコードし、既存の白紙判定とAI画像入力を維持する。デコードは非可逆圧縮で失われた画素を復元しない。過去PNG・旧クライアントは互換。
+
+結果画面にはアップロードした画像を保存して表示する。画像PUT後の即時遷移と結果画面での採点は維持する。バックエンド3関数を先に更新してからCodeBuildでフロントを公開する。詳細は `docs/runbooks/draw-webp-upload.md` を参照。
