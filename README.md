@@ -203,3 +203,7 @@ Python 3.12以上と固定依存を使う準備手順は [Garmin local runbook](
   - `--dry-run` or `FITBIT_IMPORT_DRY_RUN=true` prints Markdown without writing posts; token refresh still persists.
 - Existing `FITBIT_DEFAULT_*` and `FITBIT_IMPORT_TZ_OFFSET` settings apply to both sources.
 - See [admin import documentation](admin-app/README.md) and [Garmin local runbook](docs/runbooks/garmin-local.md).
+
+- Local drawing reference evaluation and human review: [tools/draw-evaluation/README.md](tools/draw-evaluation/README.md) (subscription Codex evaluation; no AI API calls).
+
+Draw新規採点はDecisions gpt-6-lunaの元の評価指示と4軸MAP/F方式を採用。講評はSQS経由のGPT-6 Luna noneで非同期生成し、結果画面で追記する。実装・公開手順はdocs/runbooks/draw-game-score-v1.md。

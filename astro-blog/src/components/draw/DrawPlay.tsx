@@ -74,7 +74,7 @@ export default function DrawPlay() {
         nickname: nickname || undefined,
       });
       localStorage.setItem('drawResult', JSON.stringify(result));
-      localStorage.setItem('drawResultVersion', 'v5-child-review');
+      localStorage.setItem('drawResultVersion', 'v6-decisions-async');
       localStorage.setItem('drawSubmissionId', result.submissionId);
       localStorage.setItem('drawScore', String(result.score));
       localStorage.setItem('drawPromptText', prompt.promptText);

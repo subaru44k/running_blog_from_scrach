@@ -30,6 +30,7 @@ export const handler = async (event: any) => {
     const response = await ddb.send(new GetCommand({
       TableName: DRAW_TABLE,
       Key: { promptId, submissionId },
+      ConsistentRead: true,
     }));
 
     const item = response.Item;
@@ -59,11 +60,13 @@ export const handler = async (event: any) => {
       rankingEligible,
       rank: liveRank ?? finalizedRank,
       score: clampScore(item.score),
+      ...(item.scoringVersion === "game-score-v1" && item.primaryRubric ? {primaryRubric: item.primaryRubric, promptVersion: item.promptVersion, rubricVersion: item.rubricVersion, scoringVersion: item.scoringVersion, baseScore: item.baseScore, gameScore: item.gameScore} : {}),
       breakdown: {
         likeness: clampScore(item?.breakdown?.likeness),
         composition: clampScore(item?.breakdown?.composition),
         originality: clampScore(item?.breakdown?.originality),
       },
+      reviewStatus: ['pending','done','failed','skipped'].includes(item.reviewStatus) ? item.reviewStatus : 'skipped',
       oneLiner: String(item.oneLiner || ''),
       tips: Array.isArray(item.tips) ? item.tips.map((tip: any) => String(tip)) : [],
       childOneLiner: String(item.childOneLiner || ''),

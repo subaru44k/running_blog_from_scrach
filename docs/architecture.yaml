@@ -332,21 +332,24 @@ features:
       - image upload via S3 signed PUT
       - S3 request checksum calculation and response checksum validation use WHEN_REQUIRED
       - CloudFront signed URL for image viewing (900s)
-      - primary review displays score, a fuller 4-sentence review comment assembled server-side from summary/goodPoint/improvement/nextStep fields, tips, and derived breakdown without secondary follow-up
+      - Decisions scoring returns integer score and four rubric levels immediately; standard/child four-sentence reviews and tips are generated asynchronously through the existing SQS secondary worker, and result pages poll submission detail every two seconds for at most two minutes
       - draw review presentation has standard and child modes; both use the same stored rubric, score, breakdown, and ranking, while child mode displays only a hiragana, preschool-friendly review and tips
       - the 30-second canvas starts with a dark pen and offers one-tap colors, a white eraser, and one-step undo; it exports an opaque white PNG without changing the upload or scoring contract
       - the archive displays the same finalized Top20 images as a responsive gallery; opening a work still fetches its existing detail endpoint on demand
       - frontend respects the server-provided rankingEligible flag; past-month results are labeled as practice and do not load the leaderboard
       - the selected review presentation mode is stored in the browser and applies consistently to new result pages and archive detail modals
-      - new submissions store both standard and child review variants from the same primary scoring response; archived Top20 submissions created before rollout are backfilled once so archive reads never trigger AI generation
+      - new submissions store standard and child review variants from an asynchronous GPT-6 Luna none Responses call using the immutable Decisions rubric; archive/detail reads never trigger AI generation and historical reviews remain available
       - share card generated in browser
       - submit/upload APIs resolve promptId and promptText server-side from month rules
-      - primary scoring uses OpenAI GPT-5.6 Luna (`gpt-5.6-luna`) with reasoning.effort=none (fallback to stub); existing submissions are re-scored with the same model before rollout completion
-      - primary scoring asks AI for a 6-axis rubric (0-10 each) with stricter anchored meanings (0-2 invalid, 3-4 weak, 5-6 normally understandable, 7 clearly above normal, 8 rare, 9 very strong, 10 exceptional)
-      - primary score is computed server-side from a weighted average of rubric values plus a light structural bonus, clamped into 20-100
-      - weighted score uses promptMatch*0.30, shapeClarity*0.22, completeness*0.16, composition*0.14, creativity*0.10, lineStability*0.08
-      - light score bonus adds only small lifts when promptMatch, shapeClarity, completeness, and lineStability are all reasonably strong, and a small penalty when promptMatch is very low
-      - legacy breakdown (likeness/composition/originality) is derived from rubric for frontend compatibility
+      - primary scoring uses OpenAI Decisions gpt-6-luna with the original evaluated instructions (decisions-original-v1), seven-level probabilities and MAP integer levels, with no reasoning parameter; historical results are not rewritten
+      - Decisions original instructions are generated directly from prompt-v3 prefix and rubric-v2 as in the evaluated baseline; four named score answers and normalized seven-level probabilities are validated; MAP ties select the lower level and mean/probabilities/confidence are stored; no text evidence is fabricated
+      - game-score-v1 computes score-v2 (weights 40/25/20/15, nonlinear level values and subject caps), rounds to two decimals, then applies adopted F anchors and rounds to two decimals; baseScore and gameScore are stored with prompt/rubric/scoring versions
+      - Public score is gameScore rounded to an integer; integer scoreSortKey and existing createdAt/submissionId tie order remain compatible; old and new scoring versions may coexist in rankings until a separately authorized migration
+      - New submit/detail responses expose optional primaryRubric four-axis levels and scoringVersion; frontend shows four levels out of six for new works and legacy three-axis bars for old works; legacy breakdown retains likeness/form percentages and originality=0 as a deprecated unmeasured placeholder
+      - Decisions failures/refusals/invalid distributions/timeouts return retryable HTTP 503 before saving or ranking; the existing ink gate returns zero without AI, and gated rows do not claim measured four-axis ratings
+      - Existing submissions are not automatically re-scored; old/new score versions may coexist. User authorized deployment on 2026-10-09. A conditional insert makes repeated submits reuse saved results; review enqueue failure marks review failed without changing score. Worker uses a conditional lease, at most three attempts and SQS partial batch failure responses; review updates never write score or ranking fields
+      - Authorized draw-only deployment may use fully built and sanity-checked local artifacts: retain old hashed assets, upload new assets before only draw/play/result/archive HTML, back up affected Lambda/HTML/configuration, deploy worker/detail before frontend and submit last; no whole-site deletion sync
+      - Production rollout completed 2026-10-09: submit/detail/secondary-worker and draw frontend updated, queue visibility 180 seconds, worker timeout 30 seconds and batch size one with ReportBatchItemFailures; practice-only live smoke verified pending-to-done review and stable scores on resubmit, and test-only records/images were removed
       - the local model comparison tool reads saved submissions and images, evaluates them with configurable AI providers, and writes HTML/JSON/raw JSON/text reports without changing production records; OpenAI comparisons use strict JSON Schema and include standard and child reviews
       - OpenAI token usage and estimated USD cost are stored per submission (input/output/total/cached-input/cache-write/model/provider/latency), using the current model pricing table
       - draw routes are included in sitemap and linked from global nav
@@ -359,6 +362,51 @@ features:
       - draw backend resources use cost allocation tags (Service=draw, Env=prod)
       - monthly cleanup keeps only previous month's Top20 images and deletes others from S3; practice images use a separate short retention policy
       - draw submissions remain in DynamoDB long enough for monthly final ranking, and monthly cleanup extends finalized Top20 rows to long-term retention for archive pages
+  draw_evaluation_lab:
+    path: tools/draw-evaluation
+    runtime: standalone Node.js 20+ loopback HTTP server; local JSON and PNG files
+    behavior:
+      - Read-only paginated DynamoDB monthly queries and S3 image copies; no production writes; subscription evaluation remains separate from an opt-in bounded Decisions API benchmark
+      - Deterministic month/score quantile sample selection with missing-image audit and retention bias disclosure
+      - Decisions benchmark maps rubric-v2 to four named score questions on gpt-6-luna, preserves probabilities and mean levels, and compares MAP levels through unchanged F; no generated evidence is fabricated
+      - Authorized Decisions prompt tuning uses up to nine general prompt variants on the 17 human-valid development works and one selected-prompt check on the 18 previously observed evaluation works, at most ten batches and one additional USD; no work-specific answers or teacher labels enter requests, rubric/F remain fixed, raw prompts/results and usage are retained, and selection prioritizes clear ranking among coherent works
+      - Decisions benchmark uses fixed 17 human-valid development and 18 fresh teacher works, records per-request end-to-end latency, repeats, errors and usage in separate raw files; teacher labels are excluded from API payloads and live execution requires explicit cost/key authorization
+      - Local GET /model-comparison displays all 35 Decisions benchmark images with Sol teacher, available Luna common-v3 and Decisions MAP rubric levels and unchanged F scores; separate raw benchmark files supply original and selected tuned Decisions values without fabricated evidence or review imports
+      - Drawing, append-only Evaluation, and append-only EvaluationReview are independent local entities
+      - Evaluation UI distinguishes candidate and reference conditions by model/effort/type as well as versions/run, keeps review history separate, and compares Luna candidates to adopted prompt-v3 initial Sol reference without copying judgments
+      - GPT-5.6 Luna dedicated v1 was selected on development but failed to improve the fresh 18-work holdout; dedicated v1/v2 are not adopted, and common v3 has not demonstrated sufficient teacher agreement for a production migration
+      - GPT-5.6 Luna low tuning uses the 17 human-valid development works, at most two dedicated prompt revisions, and a fresh score-stratified holdout excluding all 42 previously evaluated IDs and image hashes; selected prompts are frozen before opening new teacher labels
+      - Dedicated Luna prompt versions are bound to their declared candidate model with low subscription provenance during import validation
+      - Evaluation exporter supports an optional excluded dataset for read-only fresh sampling and deduplicates image hashes; excluded and unavailable images remain audited
+      - GPT-6 Luna dedicated prompt v1/v2 were not selected in the first tuning experiment; common v3 remains selected and holdout run variability requires fresh input/reproducibility validation before deployment
+      - Local review UI pairs tuning holdout candidates with fresh blind Sol v3 teachers without copying human review statuses
+      - Model-specific prompt tuning uses human-valid adopted-v3 teacher labels only for development (17 works); 10 concern works and 1 unreviewed work are quarantined from teacher targets
+      - Luna tuning final evaluation reserves the 13 unique saved works (one duplicate excluded) before iteration, gathers fresh blind Sol v3 teacher and Luna v3 baseline labels without opening outputs until prompt selection is frozen, and evaluates the selected Luna prompt once; historical v1/v2 exposure is disclosed
+      - Tuning allows at most two train-only prompt revisions, selects by train ordinal MAE then game-point MAE, freezes prompt SHA256 and IDs before opening final labels, and never refines on final evaluation results; rubric-v2 and F are unchanged and production adoption remains separate
+      - Subscription-only Luna pilot compares gpt-5.6-luna low and gpt-6-luna low as blind candidates on the same 28 adopted-v3 initial works; scores are recomputed with F for comparisons, human-valid subset is separate, none/API latency and production ranking migration remain unverified
+      - Reference evaluations are produced by subscription Codex GPT-6.1 Sol with low effort, not application inference; actual model provenance must be recorded
+      - Blind evaluator packets contain prompt and image hashes but exclude production scores and reviews
+      - rubric-v1 uses five anchored levels 0-4 for subject_match, structure, and completion; subjective creativity and motor line stability are excluded
+      - score-v1 computes (subject_match*50 + structure*30 + completion*20)/4; subject_match=0 caps score at 25; no free-generated final scores
+      - rubric-v2 is an experimental four-axis seven-level rubric for subject_match, feature_capture, form_coherence, and finish_quality; levels 3-4 describe ordinary competent work and level 6 requires exceptional visible evidence
+      - score-v2 converts levels using [0,10,25,45,65,82,100] with weights 40/25/20/15; subject_match 0/1/2 caps at 15/35/55; two decimal points are retained without random tie-breaks
+      - Adopted game-score-v1 (candidate F, user approved 2026-10-05) applies fixed monotone piecewise-linear maps after score-v2 without changing rubric or weights; fixed anchors are 0:0,15:35,35:60,45:70,65:79,82:95,100:100; all-level-4 is below 80 and all-level-5 reaches 95
+      - Calibration targets the current 28-work sample mean 60-70 and maximum 90-95, not a runtime percentile normalization; score-v2 subject caps apply before mapping, mapped caps are disclosed, adoption is complete and production rollout with original Decisions scoring completed on 2026-10-09
+      - Production score candidates are a read-only local comparison on adopted prompt-v3 initial evaluations; saved evaluations/reviews and production scores are never rewritten
+      - Score comparison retains subject caps 15/35/55 for levels 0/1/2, compares baseline nonlinear, linear conversion, quality-emphasis and near-baseline asymmetric weights; reports all versus explicitly valid samples, rounding effects, identical-rating unavoidable ties, rank shifts and repeat sensitivity
+      - Local GET /score-comparison renders the deterministic score comparison from the current dataset; candidate selection and production rollout remain separate decisions, with no random or work-ID tie breaking
+      - Adopted evaluation specification (2026-10-05 user decision) is prompt-v3 with rubric-v2; score-v2 remains an experimental calculator and production scoring/deployment are separate decisions
+      - Historical selection retained GPT-5.6 Luna none for Responses; the 2026-10-09 production selection now uses original Decisions for scoring and GPT-6 Luna none for asynchronous review; GPT-6 Luna none Responses re-evaluation is deferred because the 2026-09-23 same-image 51-work comparison averaged approximately 4.60s versus 6.57s; these measurements used the old six-axis production prompt, not adopted prompt-v3
+      - prompt-v3 keeps rubric-v2 and score-v2 fixed and clarifies competing subject identification, whole-work quality, and justified level-5 work; it is tested blindly on reviewed concern and valid-control works
+      - prompt-v4 isolates subject identification instructions and prompt-v5 isolates quality-boundary instructions against fresh prompt-v3 controls on the same blind subset; both retain rubric-v2 and score-v2, and compare directly to prompt-v3 rather than to each other
+      - Only explicitly allowed prompt/rubric/scoring version triplets are imported; each version has its own axis validator and deterministic scoring rule; earlier evaluations and human reviews remain immutable
+      - Imports validate versions, image hashes, discrete ratings, provenance and unique evaluation IDs; score is recomputed locally
+      - Reviews use valid/check/inappropriate and notes; accepted-only comparisons require explicit valid review, while all-data summaries are provisional
+      - Repeated runs retain history; comparisons group by model/effort/prompt/rubric/scoring/run and average repeated scores with tie-aware Spearman correlation
+      - Review UI selects an evaluation condition (prompt/rubric/scoring/run) and labels levels and scores by that version; the newest version is initially selected, repeats are shown separately, and previous reference scores and human review notes are available in a collapsed comparison panel
+      - Review UI prioritizes unreviewed reference evaluations with score>=90, confidence=low, or absolute saved-score gap>=25; newer conditions additionally prioritize works with concern reviews in the preceding condition, and prompt-v3/v4/v5 also flag changed ratings on previously valid controls; reasons and remaining counts are visible without copying earlier review decisions
+      - UI binds to 127.0.0.1, rejects foreign write origins, serves only dataset images, and persists atomic JSON replacements
+      - Local datasets and downloaded works are gitignored; rubric and workflow are versioned in repository
   mini_games:
     routes:
       - /games/

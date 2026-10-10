@@ -1,3 +1,5 @@
+import { rubricPresentation } from '../../lib/draw/rubricPresentation';
+import type { PrimaryRubric } from '../../lib/draw/types';
 import { useEffect, useState } from 'react';
 
 type Props = {
@@ -8,6 +10,7 @@ type Props = {
   secondaryPending?: boolean;
   phaseLabel?: string;
   tips?: string[];
+  primaryRubric?: PrimaryRubric;
   breakdown?: {
     likeness: number;
     composition: number;
@@ -26,6 +29,7 @@ export default function ResultCard({
   phaseLabel,
   tips = [],
   breakdown,
+  primaryRubric,
   imageDataUrl,
   childMode = false,
 }: Props) {
@@ -83,7 +87,7 @@ export default function ResultCard({
         {secondaryPending && (
           <div className="flex items-center gap-2 text-xs text-amber-600">
             <span className="inline-block h-3 w-3 animate-spin rounded-full border-2 border-amber-300 border-t-amber-600" />
-            ✨ 注目作品レビュー中
+            {childMode ? 'おはなしを じゅんびしているよ' : '講評を準備中'}
           </div>
         )}
         <div className="space-y-2">
@@ -104,22 +108,18 @@ export default function ResultCard({
             </button>
           )}
         </div>
-        {breakdown && (
+        {(primaryRubric || breakdown) && (
           <div className="space-y-2 pt-2">
-            {[
-              { label: childMode ? 'わかりやすさ' : '伝わりやすさ', value: breakdown.likeness },
-              { label: 'まとまり', value: breakdown.composition },
-              { label: childMode ? 'くふう' : '工夫', value: breakdown.originality },
-            ].map((item) => (
+            {rubricPresentation(primaryRubric, breakdown, childMode).map((item) => (
               <div key={item.label} className="space-y-1">
                 <div className="flex justify-between text-xs text-gray-500">
                   <span>{item.label}</span>
-                  <span>{Math.max(0, Math.min(100, item.value))}</span>
+                  <span>{Math.max(0, Math.min(item.max, item.value))}{item.max === 6 ? " / 6" : ""}</span>
                 </div>
                 <div className="h-2 rounded-full bg-white/80 dark:bg-slate-700">
                   <div
                     className="h-2 rounded-full bg-teal-500"
-                    style={{ width: `${Math.max(0, Math.min(100, item.value))}%` }}
+                    style={{ width: `${Math.max(0, Math.min(100, item.value / item.max * 100))}%` }}
                   />
                 </div>
               </div>

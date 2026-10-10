@@ -24,7 +24,8 @@
     "generate-dressup-placement-viewer-b": "node ./scripts/generate-dressup-placement-viewer-b.mjs",
     "split-dressup-shoes-b": "node ./scripts/split-dressup-shoes-b.mjs",
     "build-dressup-next-production-assets": "node ./scripts/build-dressup-next-production-assets.mjs",
-    "typecheck": "tsc -p tsconfig.json --noEmit"
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "test:scoring": "node --test tests/game-score.test.mjs"
   },
   "dependencies": {
     "@aws-sdk/client-bedrock-runtime": "^3.514.0",

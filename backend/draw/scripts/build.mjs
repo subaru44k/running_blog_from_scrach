@@ -16,6 +16,7 @@ const entries = [
   'src/handlers/leaderboard.ts',
   'src/handlers/submission.ts',
   'src/handlers/monthlyCleanup.ts',
+  'src/handlers/secondaryWorker.ts',
 ];
 
 const zipNames = {
@@ -25,6 +26,7 @@ const zipNames = {
   leaderboard: 'draw-leaderboard.zip',
   submission: 'draw-submission.zip',
   monthlyCleanup: 'draw-monthly-cleanup.zip',
+  secondaryWorker: 'draw-secondary-worker.zip',
 };
 
 await Promise.all(entries.map(async (entry) => {
@@ -33,6 +35,7 @@ await Promise.all(entries.map(async (entry) => {
   await build({
     entryPoints: [resolve(root, entry)],
     bundle: true,
+    loader: { '.md': 'text' },
     platform: 'node',
     target: 'node20',
     format: 'cjs',

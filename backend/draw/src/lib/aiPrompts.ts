@@ -1,3 +1,5 @@
+import adoptedPrompt from '../../../../tools/draw-evaluation/prompt-v3.md';
+import adoptedRubric from '../../../../tools/draw-evaluation/rubric-v2.json' with { type: 'json' };
 import type { ClaudeContent } from '../types.js';
 
 export const primarySystemPrompt = `あなたは30秒お絵描きゲームの一次採点担当です。
@@ -14,19 +16,12 @@ export const buildPrimaryUser = (promptText: string, imageBase64: string): Claud
   {
     type: 'text',
     text: `お題: ${promptText || 'お題不明'}\n画像を評価して、次のJSONスキーマで返してください。\n` +
-      `{"rubric":{"promptMatch":0-10,"composition":0-10,"shapeClarity":0-10,"lineStability":0-10,"creativity":0-10,"completeness":0-10},` +
+      `{"rubric":{"subject_match":0-6,"feature_capture":0-6,"form_coherence":0-6,"finish_quality":0-6},"axis_evidence":{"subject_match":["根拠"],"feature_capture":["根拠"],"form_coherence":["根拠"],"finish_quality":["根拠"]},` +
       `"review":{"summary":"全体の印象を1文","goodPoint":"良い点を1文","improvement":"改善点を1文","nextStep":"次の一手を1文"},"tips":["短い名詞句を2-3個"],` +
       `"childReview":{"summary":"4歳向けの全体の印象を1文","goodPoint":"4歳向けの良い点を1文","improvement":"4歳向けの工夫を1文","nextStep":"4歳向けの次の一手を1文"},"childTips":["4歳向けの短い語句を2-3個"]}\n` +
-      `採点基準を固定する。0-2は成立していない、3-4はかなり弱い、5-6は普通に伝わる、7は普通より明らかに良い、8はかなり珍しい、9はごく少数の強い作品、10は例外的な作品のみ。` +
-      `rubricは必ず1点刻みの整数で評価すること。` +
-      `各項目は自然に評価し、同じ値が複数あってもよい。` +
-      `30秒お絵かきでは、普通に伝わる絵でも多くの項目は5-6に収まることが多い。認識できるだけで7-8を付けないこと。` +
-      `promptMatch は最も厳しく評価すること。最初の一目でお題だと分からない場合は高くしないこと。` +
-      `promptMatch の目安: 9-10は初見で迷わずお題だと分かる、7-8はお題だと分かるが曖昧さが残る、5-6は関連は感じるが別のものにも見える、3-4は別のものに見える、0-2はお題外れ。` +
-      `shapeClarity, composition, completeness も甘くしないこと。形が粗い、輪郭が不安定、画面内でまとまりが弱い、未完成に見える場合は4-6を基本とすること。` +
-      `creativity は珍しさだけで高くしないこと。見やすさや魅力につながる工夫がある場合だけ高くすること。` +
-      `読みにくい絵や未完成の絵には低い点を付けてよい。` +
-      `明確に良い点がある場合だけ高い点を付けること。` +
+      adoptedPrompt.split('visual_observations / positive_points / improvement_points')[0] +
+      `\n段階定義: ${JSON.stringify(adoptedRubric)}\n` +
+      `rubricは4軸、axis_evidenceは各軸1〜2件の可視的な根拠。総合点は出力しない。\n` +
       `review の4項目はすべて必須で、日本語1文ずつにすること。` +
       `summary では絵全体の印象を1文で述べること。` +
       `goodPoint では良い点を1つ具体的に褒めること。` +

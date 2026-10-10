@@ -23,3 +23,5 @@ export const PRIMARY_MODEL_ID = process.env.PRIMARY_MODEL_ID || 'gpt-5.6-luna';
 export const OPENAI_REASONING_EFFORT = process.env.OPENAI_REASONING_EFFORT || 'none';
 export const OPENAI_API_KEY_SECRET_ID = process.env.OPENAI_API_KEY_SECRET_ID || '';
 export const SECONDARY_MODEL_ID = process.env.SECONDARY_MODEL_ID || '';
+
+export const SECONDARY_QUEUE_URL = process.env.SECONDARY_QUEUE_URL || '';

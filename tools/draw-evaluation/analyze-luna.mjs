@@ -1,0 +1,17 @@
+import {load,save,latestReview,spearman,rubricAxes} from './core.mjs';
+import {candidates,candidateScore,distribution} from './score-candidates.mjs';
+import {resolve,dirname} from 'node:path';import {fileURLToPath} from 'node:url';
+const dir=resolve(process.argv[2]||resolve(dirname(fileURLToPath(import.meta.url)),'data')),db=load(resolve(dir,'dataset.json')),axes=rubricAxes['rubric-v2'],f=candidates.find(c=>c.id==='game-balanced');
+const reference=db.evaluations.filter(e=>e.id.startsWith('sol-ref-p3-01-'));
+const average=a=>a.length?a.reduce((s,x)=>s+x,0)/a.length:null;
+const metric=rows=>({n:rows.length,reference_distribution:distribution(rows.map(r=>r.reference.game_score)),candidate_distribution:distribution(rows.map(r=>r.candidate.game_score)),axis_exact_agreement:Object.fromEntries(axes.map(k=>[k,average(rows.map(r=>Number(r.reference.ratings[k]===r.candidate.ratings[k])))])),axis_mean_absolute_error:Object.fromEntries(axes.map(k=>[k,average(rows.map(r=>Math.abs(r.reference.ratings[k]-r.candidate.ratings[k])))])),all_axes_exact:rows.filter(r=>axes.every(k=>r.reference.ratings[k]===r.candidate.ratings[k])).length,game_score_mean_absolute_error:average(rows.map(r=>Math.abs(r.candidate.game_score-r.reference.game_score))),game_score_mean_signed_error:average(rows.map(r=>r.candidate.game_score-r.reference.game_score)),game_score_rank_correlation:spearman(rows.map(r=>r.reference.game_score),rows.map(r=>r.candidate.game_score)),within_5_points:rows.filter(r=>Math.abs(r.candidate.game_score-r.reference.game_score)<=5).length,large_axis_discrepancies:rows.filter(r=>axes.some(k=>Math.abs(r.reference.ratings[k]-r.candidate.ratings[k])>=2)).length});
+const requestedModels=['gpt-5.6-luna','gpt-6-luna'];
+const availableModels=requestedModels.filter(model=>db.evaluations.filter(e=>e.evaluator_type==='candidate'&&e.model===model&&e.run_id==='luna-low-pilot-20261005-01').length===reference.length);
+if(!availableModels.length)throw Error('No complete pilot results');
+const comparisons=availableModels.map(model=>{
+ const es=db.evaluations.filter(e=>e.evaluator_type==='candidate'&&e.model===model&&e.run_id==='luna-low-pilot-20261005-01');
+ if(es.length!==reference.length)throw Error(`Incomplete ${model}: ${es.length}/${reference.length}`);
+ const rows=reference.map(e=>{const c=es.find(c=>c.drawing_id===e.drawing_id);if(!c)throw Error(`Missing ${e.drawing_id}`);return {drawing_id:e.drawing_id,prompt:db.drawings.find(d=>d.id===e.drawing_id).prompt_text,image_path:db.drawings.find(d=>d.id===e.drawing_id).image_path,review:latestReview(db,e.id)||null,reference:{evaluation_id:e.id,ratings:e.ratings,game_score:candidateScore(e.ratings,f)},candidate:{evaluation_id:c.id,ratings:c.ratings,game_score:candidateScore(c.ratings,f),confidence:c.confidence,axis_evidence:c.axis_evidence}};});
+ return {model,reasoning_effort:'low',all:metric(rows),human_valid:metric(rows.filter(r=>r.review?.status==='valid')),human_concerns:metric(rows.filter(r=>['check','inappropriate'].includes(r.review?.status))),rows};
+});
+const result={created_at:new Date().toISOString(),scope:'Subscription low pilot, single evaluation per work, not none or an API benchmark',game_scoring:'game-score-v1',missing_models:requestedModels.filter(m=>!availableModels.includes(m)),comparisons};save(resolve(dir,'luna-analysis.json'),result);console.log(JSON.stringify({...result,comparisons:comparisons.map(c=>({...c,rows:undefined}))},null,2));

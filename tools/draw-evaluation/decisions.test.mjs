@@ -1,0 +1,6 @@
+import test from 'node:test';import assert from 'node:assert/strict';import {requestBody,parseDecision} from './decisions.mjs';
+const names=['subject_match','feature_capture','form_coherence','finish_quality'];
+const answer=(name)=>({name,type:'score',score:3.5,confidence:.5,probabilities:Array.from({length:7},(_,value)=>({value,probability:value===3||value===4?.5:0}))});
+test('four ordered rubrics; no teacher information in request',()=>{const r=requestBody({prompt_text:'猫',teacher:6},Buffer.from('test'));assert.equal(r.questions.length,4);assert.equal(r.questions[0].levels.length,7);assert.ok(!JSON.stringify(r).includes('teacher'));});
+test('mean is fractional; MAP ties choose lower; F remains integer-level formula',()=>{const r=parseDecision({answers:names.map(answer)});assert.equal(r.means.subject_match,3.5);assert.equal(r.map.subject_match,3);assert.equal(r.game_score_map,70);});
+test('refusal, duplicate axes, bad normalization and inconsistent score fail closed',()=>{for(const change of [a=>a[0].type='refusal',a=>a[0].name='feature_capture',a=>a[0].probabilities[0].probability=.4,a=>a[0].score=5]){const a=names.map(answer);change(a);assert.throws(()=>parseDecision({answers:a}));}});

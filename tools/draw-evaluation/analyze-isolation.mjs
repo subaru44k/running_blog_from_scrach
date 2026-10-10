@@ -1,0 +1,9 @@
+import {load,save,latestReview,rubricAxes} from './core.mjs';
+import {resolve,dirname} from 'node:path';import {fileURLToPath} from 'node:url';
+const dir=resolve(process.argv[2]||resolve(dirname(fileURLToPath(import.meta.url)),'data')),db=load(resolve(dir,'dataset.json')),packet=load(resolve(dir,'packet-isolation.json'));
+const axes=rubricAxes['rubric-v2'];
+const conditions={original:e=>e.id.startsWith('sol-ref-p3-01-'),baseline:e=>e.id.startsWith('sol-isolation-p3-01-'),subject:e=>e.id.startsWith('sol-isolation-p4-01-'),quality:e=>e.id.startsWith('sol-isolation-p5-01-')};
+const rows=packet.drawings.map(d=>{const evaluations=Object.fromEntries(Object.entries(conditions).map(([k,f])=>{const e=db.evaluations.find(e=>e.drawing_id===d.id&&f(e));if(!e)throw Error(`Missing ${k} ${d.id}`);return [k,{id:e.id,ratings:e.ratings,score:e.calculated_score}];}));return {drawing_id:d.id,prompt:d.prompt_text,review:latestReview(db,evaluations.original.id),evaluations};});
+const average=x=>x.reduce((s,v)=>s+v,0)/x.length;
+const drift=Object.fromEntries(['baseline','subject','quality'].map(k=>[k,{mean_absolute_score_change:average(rows.map(r=>Math.abs(r.evaluations[k].score-r.evaluations.original.score))),axis_changes:Object.fromEntries(axes.map(a=>[a,rows.filter(r=>r.evaluations[k].ratings[a]!==r.evaluations.original.ratings[a]).length])),valid_controls:rows.filter(r=>r.review?.status==='valid').map(r=>({drawing_id:r.drawing_id,old_score:r.evaluations.original.score,new_score:r.evaluations[k].score,changed_axes:axes.filter(a=>r.evaluations[k].ratings[a]!==r.evaluations.original.ratings[a])}))}]));
+const result={created_at:new Date().toISOString(),n:rows.length,scope:'Exploratory single fresh evaluation per condition; same reviewed sample, not held-out',drift,rows};save(resolve(dir,'isolation-analysis.json'),result);console.log(JSON.stringify(drift,null,2));

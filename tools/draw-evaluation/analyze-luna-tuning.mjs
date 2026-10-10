@@ -1,0 +1,11 @@
+import {readFileSync,writeFileSync} from 'node:fs';
+import {createHash} from 'node:crypto';
+import {compare} from './luna-tuning.mjs';
+const dir=new URL('./data/',import.meta.url),read=n=>JSON.parse(readFileSync(new URL(n,dir)));
+const frozen=read('luna-tuning-freeze.json'),hash=b=>createHash('sha256').update(b).digest('hex');
+if(hash(readFileSync(new URL(frozen.prompt_file,import.meta.url)))!==frozen.prompt_sha256||hash(readFileSync(new URL('luna-tuning-split.json',dir)))!==frozen.split_sha256)throw Error('Frozen prompt/split changed');
+const ids=new Set(frozen.final_ids),subset=a=>a.filter(e=>ids.has(e.drawing_id));
+const teacher=subset(read('tuning-final-sol.json'));
+const report={freeze:frozen,final_baseline:compare(teacher,subset(read('tuning-final-baseline.json'))),final_selected:compare(teacher,subset(read('tuning-final-selected.json'))),limitations:['13 unique historical works, no bear/rabbit holdout','Sol final labels not yet human validated','Subscription low only; no API none or latency conclusion']};
+writeFileSync(new URL('luna-tuning-analysis.json',dir),JSON.stringify(report,null,2));
+console.log(JSON.stringify(Object.fromEntries(['final_baseline','final_selected'].map(k=>[k,Object.fromEntries(Object.entries(report[k]).filter(([n])=>n!=='rows'))])),null,2));

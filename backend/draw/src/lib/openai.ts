@@ -1,5 +1,6 @@
 import { OPENAI_API_KEY_SECRET_ID, OPENAI_REASONING_EFFORT } from './env.js';
 import { getSecretString } from './secrets.js';
+import { rubricKeys } from './gameScore.js';
 
 export type OpenAiUsage = {
   inputTokens: number | null;
@@ -52,8 +53,9 @@ export const invokeOpenAIJson = async <T>(
   modelId: string,
   system: string,
   inputParts: OpenAiInputPart[],
+  schema?: Record<string, any>,
 ): Promise<OpenAiJsonResult<T>> => {
-  const supportedEfforts = modelId === 'gpt-5.6-luna'
+  const supportedEfforts = ['gpt-5.6-luna', 'gpt-6-luna'].includes(modelId)
     ? ['none', 'low', 'medium', 'high', 'xhigh', 'max']
     : ['minimal', 'low', 'medium', 'high'];
   if (!supportedEfforts.includes(OPENAI_REASONING_EFFORT)) {
@@ -66,6 +68,7 @@ export const invokeOpenAIJson = async <T>(
       'Content-Type': 'application/json',
       Authorization: `Bearer ${apiKey}`,
     },
+    signal: AbortSignal.timeout(20000),
     body: JSON.stringify({
       model: modelId,
       reasoning: { effort: OPENAI_REASONING_EFFORT },
@@ -74,16 +77,20 @@ export const invokeOpenAIJson = async <T>(
           type: 'json_schema',
           name: 'draw_primary_review',
           strict: true,
-          schema: {
+          schema: schema || {
             type: 'object',
             additionalProperties: false,
-            required: ['rubric', 'review', 'tips', 'childReview', 'childTips'],
+            required: ['rubric', 'axis_evidence', 'review', 'tips', 'childReview', 'childTips'],
             properties: {
               rubric: {
                 type: 'object',
                 additionalProperties: false,
-                required: ['promptMatch', 'composition', 'shapeClarity', 'lineStability', 'creativity', 'completeness'],
-                properties: Object.fromEntries(['promptMatch', 'composition', 'shapeClarity', 'lineStability', 'creativity', 'completeness'].map((key) => [key, { type: 'integer', minimum: 0, maximum: 10 }])),
+                required: [...rubricKeys],
+                properties: Object.fromEntries(rubricKeys.map(key => [key, { type: 'integer', minimum: 0, maximum: 6 }])),
+              },
+              axis_evidence: {
+                type: 'object', additionalProperties: false, required: [...rubricKeys],
+                properties: Object.fromEntries(rubricKeys.map(key => [key, {type: 'array', items: {type: 'string', minLength: 1, maxLength: 120}, minItems: 1, maxItems: 2}])),
               },
               review: {
                 type: 'object',
@@ -116,7 +123,7 @@ export const invokeOpenAIJson = async <T>(
     }),
   });
   if (!response.ok) {
-    throw new Error(`OpenAI ${response.status}: ${await response.text()}`);
+    throw new Error(`OpenAI HTTP ${response.status}`);
   }
   const payload: any = await response.json();
   const text = getOutputText(payload);

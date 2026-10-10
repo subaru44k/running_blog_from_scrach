@@ -59,3 +59,6 @@ backend/draw/artifacts/model-compare-*.html
 backend/draw/artifacts/model-compare-*.json
 backend/draw/artifacts/secondary-compare-*.html
 backend/draw/artifacts/secondary-compare-*.json
+
+# Local drawing evaluation datasets and downloaded user works
+/tools/draw-evaluation/data*/

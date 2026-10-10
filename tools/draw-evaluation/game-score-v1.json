@@ -1,0 +1,77 @@
+{
+  "version": "game-score-v1",
+  "status": "adopted",
+  "adopted_at": "2026-10-05",
+  "candidate_id": "game-balanced",
+  "prompt_version": "prompt-v3",
+  "rubric_version": "rubric-v2",
+  "base_scoring_version": "score-v2",
+  "axes": [
+    "subject_match",
+    "feature_capture",
+    "form_coherence",
+    "finish_quality"
+  ],
+  "weights": [
+    40,
+    25,
+    20,
+    15
+  ],
+  "level_values": [
+    0,
+    10,
+    25,
+    45,
+    65,
+    82,
+    100
+  ],
+  "subject_caps_before_transform": [
+    15,
+    35,
+    55,
+    100,
+    100,
+    100,
+    100
+  ],
+  "anchors": [
+    [
+      0,
+      0
+    ],
+    [
+      15,
+      35
+    ],
+    [
+      35,
+      60
+    ],
+    [
+      45,
+      70
+    ],
+    [
+      65,
+      79
+    ],
+    [
+      82,
+      95
+    ],
+    [
+      100,
+      100
+    ]
+  ],
+  "interpolation": "piecewise-linear",
+  "rounding": {
+    "base_decimal_places": 2,
+    "game_decimal_places": 2,
+    "method": "Math.round(value * 100) / 100"
+  },
+  "production_rollout": "pending",
+  "integration_status": "implemented"
+}

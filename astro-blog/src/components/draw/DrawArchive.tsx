@@ -1,3 +1,4 @@
+import { rubricPresentation } from '../../lib/draw/rubricPresentation';
 import { useEffect, useMemo, useState } from 'react';
 import { getLeaderboard, getPrompt, getSubmissionDetail } from '../../lib/draw/api';
 import type { LeaderboardItem, SubmissionDetail } from '../../lib/draw/types';
@@ -369,20 +370,16 @@ export default function DrawArchive() {
                   </div>
 
                   <div className="space-y-2">
-                    {[
-                      { label: reviewMode === 'child' ? 'わかりやすさ' : '伝わりやすさ', value: detail.breakdown.likeness },
-                      { label: 'まとまり', value: detail.breakdown.composition },
-                      { label: reviewMode === 'child' ? 'くふう' : '工夫', value: detail.breakdown.originality },
-                    ].map((item) => (
+                    {rubricPresentation(detail.primaryRubric, detail.breakdown, reviewMode === 'child').map((item) => (
                       <div key={item.label} className="space-y-1">
                         <div className="flex justify-between text-xs text-slate-500 dark:text-slate-400">
                           <span>{item.label}</span>
-                          <span>{item.value}</span>
+                          <span>{item.value}{item.max === 6 ? " / 6" : ""}</span>
                         </div>
                         <div className="h-2 rounded-full bg-slate-200 dark:bg-slate-700">
                           <div
                             className="h-2 rounded-full bg-blue-500"
-                            style={{ width: `${Math.max(0, Math.min(100, item.value))}%` }}
+                            style={{ width: `${Math.max(0, Math.min(100, item.value / item.max * 100))}%` }}
                           />
                         </div>
                       </div>

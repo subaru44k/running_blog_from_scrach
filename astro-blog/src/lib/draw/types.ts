@@ -1,3 +1,5 @@
+export type PrimaryRubric = { subject_match: number; feature_capture: number; form_coherence: number; finish_quality: number };
+
 export type PromptInfo = {
   promptId: string;
   dateJst: string;
@@ -15,6 +17,13 @@ export type SubmitResult = {
   submissionId: string;
   score: number;
   breakdown: ScoreBreakdown;
+  primaryRubric?: PrimaryRubric;
+  promptVersion?: string;
+  rubricVersion?: string;
+  scoringVersion?: string;
+  baseScore?: number;
+  gameScore?: number;
+  reviewStatus?: 'pending' | 'done' | 'failed' | 'skipped';
   oneLiner: string;
   tips: string[];
   childOneLiner: string;
@@ -46,6 +55,13 @@ export type SubmissionDetail = {
   rank?: number;
   score: number;
   breakdown: ScoreBreakdown;
+  primaryRubric?: PrimaryRubric;
+  promptVersion?: string;
+  rubricVersion?: string;
+  scoringVersion?: string;
+  baseScore?: number;
+  gameScore?: number;
+  reviewStatus?: 'pending' | 'done' | 'failed' | 'skipped';
   oneLiner: string;
   tips: string[];
   childOneLiner: string;

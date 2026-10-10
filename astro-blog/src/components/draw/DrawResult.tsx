@@ -20,9 +20,10 @@ type FirstReviewResult = {
   shortComment: string;
   tips?: string[];
   breakdown?: SubmitResult['breakdown'];
+  primaryRubric?: SubmitResult['primaryRubric'];
 };
 
-const RESULT_VERSION = 'v5-child-review';
+const RESULT_VERSION = 'v6-decisions-async';
 
 const getPromptFromStorage = () => {
   try {
@@ -50,6 +51,7 @@ export default function DrawResult() {
   const [primarySlow, setPrimarySlow] = useState(false);
   const [storageReady, setStorageReady] = useState(false);
   const [promptError, setPromptError] = useState<string | null>(null);
+  const [reviewWaitingExpired, setReviewWaitingExpired] = useState(false);
   const [reviewMode, setReviewMode] = useState<ReviewMode>('standard');
 
   const mineRowRef = useRef<HTMLDivElement | null>(null);
@@ -82,7 +84,11 @@ export default function DrawResult() {
       : '勢いがあって気持ちいいです。';
     const sourceComment = childMode ? result.childOneLiner : result.oneLiner;
     const sourceTips = childMode ? result.childTips : result.tips;
-    const shortComment = sourceComment?.trim() || fallbackComment;
+    const shortComment = result.reviewStatus === 'pending'
+      ? (childMode ? 'えの おはなしを つくっているよ。' : '講評を準備しています…')
+      : result.reviewStatus === 'failed'
+        ? (childMode ? 'えの おはなしは つくれなかったけど、てんすうは でたよ。' : '講評を取得できませんでした。点数は確定しています。')
+        : sourceComment?.trim() || fallbackComment;
     const tips = (sourceTips || []).map((tip) => tip.trim()).filter(Boolean);
     const fallbackTips = childMode
       ? ['のびのび', 'おおきな かたち', 'たのしい せん']
@@ -94,8 +100,9 @@ export default function DrawResult() {
     return {
       score: result.score,
       shortComment,
-      tips: (tips.length > 0 ? tips : fallbackTips).slice(0, 3),
+      tips: result.reviewStatus === 'pending' || result.reviewStatus === 'failed' ? [] : (tips.length > 0 ? tips : fallbackTips).slice(0, 3),
       breakdown: result.breakdown,
+      primaryRubric: result.primaryRubric,
     };
   };
 
@@ -141,6 +148,13 @@ export default function DrawResult() {
     submissionId: detail.submissionId,
     score: detail.score,
     breakdown: detail.breakdown,
+    primaryRubric: detail.primaryRubric,
+    promptVersion: detail.promptVersion,
+    rubricVersion: detail.rubricVersion,
+    scoringVersion: detail.scoringVersion,
+    baseScore: detail.baseScore,
+    gameScore: detail.gameScore,
+    reviewStatus: detail.reviewStatus,
     oneLiner: detail.oneLiner,
     tips: detail.tips,
     childOneLiner: detail.childOneLiner,
@@ -187,9 +201,9 @@ export default function DrawResult() {
       if (!result.rankingEligible) return;
       try {
         const leaderboard = await getLeaderboard(promptId, 20);
-        setState({ result, leaderboard });
+        setState(prev => ({ ...prev, leaderboard }));
       } catch (err: any) {
-        setState({ result, leaderboardError: err?.message || 'ランキングの取得に失敗しました。' });
+        setState(prev => ({ ...prev, leaderboardError: err?.message || 'ランキングの取得に失敗しました。' }));
       }
     } catch (err: any) {
       const message = err instanceof ApiError && err.status === 429
@@ -218,15 +232,46 @@ export default function DrawResult() {
       setDisplayScore(saved.score);
       if (!saved.rankingEligible) return;
       getLeaderboard(promptId, 20).then((leaderboard) => {
-        setState({ result: saved, leaderboard });
+        setState(prev => ({ ...prev, leaderboard }));
       }).catch((err: any) => {
-        setState({ result: saved, leaderboardError: err?.message || 'ランキングの取得に失敗しました。' });
+        setState(prev => ({ ...prev, leaderboardError: err?.message || 'ランキングの取得に失敗しました。' }));
       });
       return;
     }
     loadResult();
     return () => clearPrimaryTimers();
   }, [imageDataUrl, promptId, submissionId, storageReady, reviewMode]);
+
+  useEffect(() => {
+    if (!promptId || !state.result || state.result.reviewStatus !== 'pending') return;
+    let cancelled = false;
+    let timer: number;
+    const id = state.result.submissionId;
+    const deadline = Date.now() + 120000;
+    setReviewWaitingExpired(false);
+    const poll = async () => {
+      if (cancelled) return;
+      try {
+        const detail = await getSubmissionDetail(promptId, id);
+        if (cancelled) return;
+        const result = buildSubmitResultFromDetail(detail);
+        if (result.reviewStatus !== 'pending') {
+          setState(prev => prev.result?.submissionId === id ? { ...prev, result } : prev);
+          setFirstReview(buildFirstReview(result));
+          localStorage.setItem('drawResult', JSON.stringify(result));
+          return;
+        }
+      } catch { /* A transient read failure must not discard the already displayed score. */ }
+      if (cancelled) return;
+      if (Date.now() >= deadline) {
+        setReviewWaitingExpired(true);
+        return;
+      }
+      if (!cancelled) timer = window.setTimeout(poll, 2000);
+    };
+    timer = window.setTimeout(poll, 2000);
+    return () => { cancelled = true; window.clearTimeout(timer); };
+  }, [promptId, state.result?.submissionId, state.result?.reviewStatus, reviewMode]);
 
   useEffect(() => {
     if (state.result) {
@@ -257,7 +302,7 @@ export default function DrawResult() {
     };
     raf = requestAnimationFrame(step);
     return () => cancelAnimationFrame(raf);
-  }, [firstReview, judgeState]);
+  }, [firstReview?.score, judgeState]);
 
   const updateName = (value: string) => {
     const trimmed = value.trim().slice(0, 20);
@@ -418,9 +463,11 @@ export default function DrawResult() {
           <ResultCard
             imageDataUrl={imageDataUrl}
             score={displayScore}
-            shortComment={firstReview.shortComment}
+            shortComment={reviewWaitingExpired && state.result.reviewStatus === 'pending' ? (reviewMode === 'child' ? 'おはなしに じかんが かかっているよ。あとで また みてね。' : '講評の準備に時間がかかっています。後でページを再読み込みすると確認できます。') : firstReview.shortComment}
+            secondaryPending={state.result.reviewStatus === 'pending' && !reviewWaitingExpired}
             tips={firstReview.tips}
             breakdown={firstReview.breakdown}
+            primaryRubric={firstReview.primaryRubric}
             childMode={reviewMode === 'child'}
           />
 

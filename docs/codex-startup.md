@@ -41,3 +41,5 @@
 - 変更が設計判断に影響するかを判断する。
 - 最終回答に `Design decision affected: YES/NO` を明記する。
 - YES の場合は、更新した設計 docs を列挙する。
+
+- `tools/draw-evaluation/`: 本番に書き込まないお絵描きreference評価・レビュー基盤。AI APIを呼ばず、サブスクリプションCodexで画像評価しJSONを取り込む。手順は同ディレクトリのREADME。

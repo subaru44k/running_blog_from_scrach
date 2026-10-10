@@ -20,3 +20,6 @@
 - TODO: Fitbitトークン保管のS3バケット名と暗号化方式の正式な運用ルール
 - TODO: 管理アプリの本番利用有無（ローカル専用か、社内用か）
 - 未確定: CloudFront Functions / OAC の更新ポリシーと権限境界
+
+- [お絵描きreference評価ラボ](../tools/draw-evaluation/README.md): ローカル取得・Codex評価・人間レビュー・順位比較。
+- [お絵描き game-score-v1 組み込み・公開前確認](runbooks/draw-game-score-v1.md)

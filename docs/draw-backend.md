@@ -2,7 +2,8 @@
 
 ## アーキテクチャ概要
 - API Gateway（/api/draw/*）
-- Lambda（prompt / upload-url / submit / leaderboard / submission / monthly cleanup）
+- Lambda（prompt / upload-url / submit / leaderboard / submission / secondary worker / monthly cleanup）
+- SQS（draw-secondary-queue-prod、非同期講評、可視性180秒、worker timeout30秒・batch size1・partial batch failure）
 - DynamoDB（DrawSubmissions / DrawRateLimit）
 - S3（ランキング対象画像: `draw/{promptId}/{submissionId}.png`、練習画像: `draw/practice/{promptId}/{submissionId}.png`）
 - CloudFront（S3非公開 + 署名URL 15分）
@@ -35,23 +36,16 @@
 3. **画像PUT**: ブラウザから S3 へ直接PUT
    - AWS SDK のリクエストチェックサム計算とレスポンスチェックサム検証は `WHEN_REQUIRED`（必須時のみ）
 4. **submit**: `POST /api/draw/submit`（`promptText` は任意）
-   - 画像取得 → inkRatio gate → 一次採点（OpenAI GPT-5.6 Luna, `reasoning.effort=none`、失敗時はスタブ）
-   - 一次採点はAIに6項目rubric（0-10）を生成させ、最終scoreはサーバー側で算出
-   - AI には `review.summary / goodPoint / improvement / nextStep` の4フィールドを返させ、サーバー側で `oneLiner` に結合する
-   - `oneLiner` は旧二次講評に近い役割を持つ4文の講評として返す
-   - rubric の採点アンカーは `0-2 成立していない / 3-4 かなり弱い / 5-6 普通に伝わる / 7 普通より明らかに良い / 8 かなり珍しい / 9 ごく少数の強い作品 / 10 例外的`
-   - `promptMatch` は最も厳しく評価し、初見でお題だと分からない場合は高くしない
-   - スコア式は weighted average を主軸にしつつ、`promptMatch / shapeClarity / completeness / lineStability` が揃ったときだけ少し押し上げる light bonus 方式
-     - `weighted = promptMatch*0.30 + shapeClarity*0.22 + completeness*0.16 + composition*0.14 + creativity*0.10 + lineStability*0.08`
-     - `score = weighted*10`
-     - `promptMatch>=8` で `+5`
-     - `shapeClarity>=6` で `+2`
-     - `completeness>=6` で `+2`
-     - `lineStability>=6` で `+3`
-     - 4項目が揃ったときだけ追加で `+5`
-     - `promptMatch<=4` のときだけ `-6`
-     - 最後に `20..100` へ clamp
-   - 既存フロント互換のため breakdown(likeness/composition/originality) はrubricから集約して返却
+   - 画像取得 → inkRatio gate → Decisions API（gpt-6-luna、元の評価済み指示 decisions-original-v1）。4質問の7段階確率を検証し、最頻段階MAPを整数rubricへ変換（同確率は低い段階）。平均段階は点数換算に使わず別保存する
+   - AIは最終得点や文章の根拠を生成しない。API失敗・拒否・不正回答はHTTP 503で再試行可能とし、スタブ点をランキングへ入れない
+   - 採点を条件付きで保存後、SQSの講評ジョブを送る。再送は保存済みの点数・講評を返して上書きしない
+   - 講評は別LambdaでGPT-6 Luna none Responsesから通常/子ども向けの4文とtipsを生成する。点数・rubric・ランキングは更新しない。キュー/講評失敗でも採点結果を保持する
+   - 基礎点score-v2は換算 `[0,10,25,45,65,82,100]` ×重み40/25/20/15、お題段階0/1/2の上限15/35/55を適用し小数2桁
+   - game-score-v1（採用F）は基礎点を0→0、15→35、35→60、45→70、65→79、82→95、100→100の区分線形で補正し小数2桁に丸める
+   - baseScore / gameScore / promptVersion / rubricVersion / scoringVersion / primaryRubric / primaryAxisEvidenceを保存。公開scoreはgameScoreを整数に丸め、ランキングのキー形式・同点の日時/ID順は維持
+   - 投稿・詳細APIは新方式のprimaryRubricを任意フィールドで返し、新UIは4軸を6段階として表示。過去投稿は旧3軸表示。legacy breakdownのoriginalityは新方式では未測定の互換用0
+   - インクゲートは維持。ゲートには測定版を付けず講評生成をスキップする
+   - 既存投稿の自動再採点は行わない。新規投稿から新方式を適用する
    - `imageKey` 内の promptId を優先し、サーバー側でお題テキストを確定
    - DynamoDB保存（provider/model/tokens/推定コストも保存）
 5. **leaderboard**: `GET /api/draw/leaderboard?promptId=...` または `?month=YYYY-MM`
@@ -59,7 +53,7 @@
    - 開催中の順位は GSI1 の `scoreSortKey` 順から都度算出する
 6. **submission detail**: `GET /api/draw/submission?promptId=...&submissionId=...`
    - archive 詳細モーダル用
-   - 画像, 点数, breakdown, 一次講評, tips, お題, 投稿日時を返却
+   - 画像, 点数, rubric, breakdown, 講評, tips, reviewStatus, お題, 投稿日時を返却。AIは呼ばない。結果画面がpendingの間2秒ごと・最大2分再取得する
    - 順位は保存済みの暫定値を使わず、ランキング対象投稿であれば GSI1 の現在の並びから算出する
    - nickname や usage 情報のような内部項目は返さない
 7. **monthly cleanup**: EventBridge（日次起動、月次確定はJST 1日のみ）→ `draw-monthly-cleanup-prod`
@@ -114,8 +108,10 @@
 - CLOUDFRONT_DOMAIN
 - CF_KEY_PAIR_ID
 - CF_PRIVATE_KEY_SECRET_ID
-- PRIMARY_PROVIDER=openai
-- PRIMARY_MODEL_ID（一次採点: `gpt-5.6-luna`）
+- PRIMARY_PROVIDER=openai-decisions
+- PRIMARY_MODEL_ID（採点モデル記録用: `gpt-6-luna`、Decisions呼び出しは評価済みモデルに固定）
+- SECONDARY_QUEUE_URL（既存の非同期講評キュー）
+- SECONDARY_MODEL_ID（講評: `gpt-6-luna`）
 - OPENAI_REASONING_EFFORT（既定: `none`。Lunaでは `minimal` 非対応）
 - OPENAI_API_KEY_SECRET_ID（OpenAI key を入れた Secrets Manager secret）
 - IMAGE_TTL_SECONDS=900
@@ -134,7 +130,7 @@
 - Secrets Manager に CloudFront 秘密鍵と OpenAI API key を保存
 - EventBridge `cron(15 18 * * ? *)` で `draw-monthly-cleanup-prod` を日次実行し、LambdaがJSTの1日のみ前月を確定し、それ以外の日は期限切れの練習画像だけを整理する
 - 一次採点モデルを変更する場合は、先に `npm run snapshot-month-scores --prefix backend/draw -- YYYY-MM ...` でDynamoDBの対象月をバックアップし、再採点後に必要なら `npm run restore-month-scores --prefix backend/draw -- <snapshot.json>` で復元する
-- 既存投稿の再採点は `npm run rewrite-month-scores --prefix backend/draw -- YYYY-MM ...` を使い、全対象月の失敗件数が0であることを確認してから完了とする
+- game-score-v1導入時の既存投稿再採点は未実施。`rewrite-month-scores.mjs`等は旧6軸方式のため新方式の移行には使わない。移行をする場合は採用仕様に対応した専用手順と明示的な実施判断が必要
 
 > 注意: S3 CORS は手動設定済み（GET/PUT/HEAD）。必要に応じて更新すること。
 
@@ -173,10 +169,10 @@ curl "https://<api>/api/draw/leaderboard?month=2026-02&limit=20"
 ## OpenAI差し替えポイント
 - `backend/draw/src/handlers/submit.ts` の一次採点部分
 - OpenAI key は Secrets Manager から取得する
-- 既存データの再計算は `backend/draw/scripts/rewrite-month-scores.mjs` を使う
+- 旧方式の再計算スクリプトはgame-score-v1に未対応。新方式への再計算は別途実装・承認する
 
 ## コスト計算用メモ
-- 各投稿で一次の `input/cached-input/cache-write/output/total tokens` と `primaryEstimatedCostUsd` を `DrawSubmissions` に保存する。GPT-5.6 Lunaの現行価格は入力 `$0.20`、キャッシュ入力 `$0.02`、キャッシュ書き込み `$0.25`、出力 `$1.20` / 1M tokens とする。
+- 各投稿で一次の `input/cached-input/cache-write/output/total tokens` と `primaryEstimatedCostUsd` を `DrawSubmissions` に保存する。Decisionsは入力 `$0.10` / 1M tokens、キャッシュ・出力料金なし。非同期講評のGPT-6 Luna Responsesは入力 `$0.10`、キャッシュ入力 `$0.01`、書き込み `$0.125`、出力 `$0.50` / 1M tokens。講評usageとsecondaryEstimatedCostUsdも保存する。
 - OpenAI の利用分は AWS Cost Explorer では直接見えないため、DynamoDB 側の usage 集計を一次ソースにする。
 
 ## 2026-07-31 GPT-5.6 Luna切替
@@ -266,3 +262,7 @@ curl "https://<api>/api/draw/leaderboard?month=2026-02&limit=20"
 - OpenAIへの要求はstrict JSON Schemaを使い、通常・子ども向け講評を含む。本番に合わせた6軸のスコア式で、点数・講評・時間・token数・推定費用をHTML / JSON / raw JSON / TXTへ出力する。
 - rubricの0点は0点として保持し、欠損・数値に変換できない値は5点へ補完する。
 - 本番投稿・ランキングの更新処理は行わない。保存済みの比較レポートは実行時点の参考記録であり、今回の修正では再生成しない。
+
+## 2026-10-09 本番反映
+
+元のDecisions指示のgpt-6-luna採点と、gpt-6-luna / noneの非同期講評を本番反映済み。3 Lambda・既存SQS mapping/visibility・Draw対象HTMLを更新。練習モード実APIで採点89点が講評後も不変、pending→done（1試行）、再送で同一コメントを確認。ブラウザ描画でも71点・4軸・講評を確認。テスト練習投稿/画像は削除、既存投稿/ランキングは再採点していない。

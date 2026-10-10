@@ -232,7 +232,8 @@ Cost Explorer での基本フィルタ:
 | --- | --- | --- |
 | `draw-prompt-prod` | `ap-northeast-1` | 月次お題取得（JST） |
 | `draw-upload-url-prod` | `ap-northeast-1` | 画像アップロード用署名URL発行 |
-| `draw-submit-prod` | `ap-northeast-1` | 一次採点（OpenAI GPT-5.6 Luna / ink gate / token cost保存） |
+| `draw-submit-prod` | `ap-northeast-1` | 一次採点（OpenAI Decisions GPT-6 Luna / ink gate / F点数・usage保存） |
+| `draw-secondary-worker-prod` | `ap-northeast-1` | SQS非同期講評（GPT-6 Luna none、timeout30秒、batch1） |
 | `draw-submission-prod` | `ap-northeast-1` | 投稿詳細取得（archive 詳細モーダル用） |
 | `draw-leaderboard-prod` | `ap-northeast-1` | ランキング取得 |
 | `draw-monthly-cleanup-prod` | `ap-northeast-1` | 前月ランキングの確定、GSI整理、Top20以外の画像削除 |
@@ -279,3 +280,7 @@ Cost Explorer での基本フィルタ:
 - API Gateway(HTTP API): `draw-api` (`2vzy10yq0e`)
 - CloudFront: `E2CQHMEVDKG7MU`
 - EventBridge Rule: `draw-monthly-cleanup-prod-monthly`
+
+### SQS非同期講評（draw）
+
+`draw-secondary-queue-prod`（ap-northeast-1、visibility180秒）→ `draw-secondary-worker-prod`。Event source mapping `259e188e-0678-4491-a5a6-c6eda598858f` はbatch size1、ReportBatchItemFailures。有効な講評ジョブだけ処理し、状態は既存GET詳細で確認する。新しい公開APIルートは追加しない。

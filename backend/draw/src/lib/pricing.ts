@@ -3,6 +3,7 @@ const MODEL_PRICING_USD_PER_MILLION: Record<string, { input: number; cachedInput
   'gpt-5-mini': { input: 0.25, cachedInput: 0.025, cacheWrite: 0.3125, output: 2.0 },
   'gpt-5-nano': { input: 0.05, cachedInput: 0.005, cacheWrite: 0.0625, output: 0.4 },
   'gpt-5.4-nano': { input: 0.2, cachedInput: 0.02, cacheWrite: 0.25, output: 1.25 },
+  'gpt-6-luna': { input: 0.1, cachedInput: 0.01, cacheWrite: 0.125, output: 0.5 },
   'gpt-5.6-luna': { input: 0.2, cachedInput: 0.02, cacheWrite: 0.25, output: 1.2 },
 };
 
