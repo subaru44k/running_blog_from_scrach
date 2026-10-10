@@ -31,3 +31,9 @@ TODO: CloudFormationによる更新フローの確定後に追記。
 ### Draw限定の手元成果物デプロイ
 
 作業ツリーに別機能の変更がある場合、承認済みDraw変更は完全ビルド・sanity確認後に手元の成果物から限定反映できる。`_astro`のhash assetsを先に追加し、draw/play・draw/result・draw/archiveのHTMLのみ更新する。サイト全体の削除syncは行わない。旧HTML・Lambdaコード/設定を退避し、worker/detail→frontend→submitの順で反映、対象パスのCloudFront無効化と実URL参照assetの200を確認する。手順はdraw-game-score-v1.md。通常の全サイト公開は上記CodeBuild手順。
+
+### Drawアップロード後の即時遷移（PNG維持）
+
+フロントエンドのみの変更。追加依存・Lambda更新は不要。完全ビルドとsanity後、`astro-blog/scripts/draw-flow-smoke.py` でPNGのPUT完了後の遷移、採点待ちの画像表示、採点成功後のランキング取得、旧保存結果の除外、再読み込み・再試行時の投稿ID維持を確認する。スモークは既存のPython Playwright/Chromium環境で実行し、API/アップロードをモックする。
+
+公開時は認証済みAWS環境から `builddeploy-subaru-is-running-site`（us-east-1）を対象コミットで起動する。CodeBuildの成功・CloudFront無効化完了・本番DrawResult/DrawPlay asset参照とHTTP 200を確認後、練習モードで本番のアップロード→結果画面→採点→講評を確認する。本セッションの環境にはAWS認証がなく、ローカル検証だけでは本番公開完了と扱わない。

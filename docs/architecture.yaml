@@ -334,6 +334,8 @@ features:
       - CloudFront signed URL for image viewing (900s)
       - Decisions scoring returns integer score and four rubric levels immediately; standard/child four-sentence reviews and tips are generated asynchronously through the existing SQS secondary worker, and result pages poll submission detail every two seconds for at most two minutes
       - draw review presentation has standard and child modes; both use the same stored rubric, score, breakdown, and ranking, while child mode displays only a hiragana, preschool-friendly review and tips
+      - after a successful image PUT, the play page saves a tab-scoped pending submission and immediately navigates to the result page; the result page submits that same ID for scoring, shows the uploaded image while waiting, and loads ranking only after a score is returned
+      - result-page reloads and retries reuse the pending submission ID/image key; in-flight requests are deduplicated within the page and saved scores are matched to the URL submission ID
       - the 30-second canvas starts with a dark pen and offers one-tap colors, a white eraser, and one-step undo; it exports an opaque white PNG without changing the upload or scoring contract
       - the archive displays the same finalized Top20 images as a responsive gallery; opening a work still fetches its existing detail endpoint on demand
       - frontend respects the server-provided rankingEligible flag; past-month results are labeled as practice and do not load the leaderboard

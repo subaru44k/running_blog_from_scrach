@@ -1,7 +1,8 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import CanvasDraw from './CanvasDraw';
 import Timer from './Timer';
-import { ApiError, getUploadUrl, putToS3, submitDrawing } from '../../lib/draw/api';
+import { ApiError, getUploadUrl, putToS3 } from '../../lib/draw/api';
+import { PENDING_KEY } from '../../lib/draw/pendingSubmission';
 
 const getPromptFromStorage = () => {
   try {
@@ -18,7 +19,7 @@ export default function DrawPlay() {
   const [finished, setFinished] = useState(false);
   const [imageDataUrl, setImageDataUrl] = useState<string | null>(null);
   const [timeUp, setTimeUp] = useState(false);
-  const [status, setStatus] = useState<'idle' | 'uploading' | 'submitting' | 'redirecting' | 'error'>('idle');
+  const [status, setStatus] = useState<'idle' | 'uploading' | 'redirecting' | 'error'>('idle');
   const [error, setError] = useState<string | null>(null);
   const [isSlow, setIsSlow] = useState(false);
   const finishingRef = useRef(false);
@@ -40,7 +41,7 @@ export default function DrawPlay() {
   }, []);
 
   useEffect(() => {
-    if (status !== 'uploading' && status !== 'submitting') {
+    if (status !== 'uploading') {
       setIsSlow(false);
       return;
     }
@@ -64,25 +65,25 @@ export default function DrawPlay() {
       const upload = await getUploadUrl(prompt.promptId);
       const blob = await (await fetch(url)).blob();
       await putToS3(upload.putUrl, blob, 'image/png');
-      setStatus('submitting');
-      const nickname = sessionStorage.getItem('drawNickname') || undefined;
-      const result = await submitDrawing({
-        promptId: prompt.promptId,
-        promptText: prompt.promptText,
+      const resolvedPromptId = upload.promptId || prompt.promptId;
+      const pending = {
+        promptId: resolvedPromptId,
+        promptText: upload.promptText || prompt.promptText,
         submissionId: upload.submissionId,
         imageKey: upload.imageKey,
-        nickname: nickname || undefined,
-      });
-      localStorage.setItem('drawResult', JSON.stringify(result));
-      localStorage.setItem('drawResultVersion', 'v6-decisions-async');
-      localStorage.setItem('drawSubmissionId', result.submissionId);
-      localStorage.setItem('drawScore', String(result.score));
-      localStorage.setItem('drawPromptText', prompt.promptText);
+        nickname: sessionStorage.getItem('drawNickname') || undefined,
+      };
+      sessionStorage.setItem(PENDING_KEY, JSON.stringify(pending));
+      sessionStorage.setItem('drawPromptId', resolvedPromptId);
+      localStorage.removeItem('drawResult');
+      localStorage.removeItem('drawScore');
+      localStorage.setItem('drawSubmissionId', upload.submissionId);
+      localStorage.setItem('drawPromptText', pending.promptText);
       localStorage.setItem('drawImageKey', upload.imageKey);
       localStorage.setItem('drawImage', url);
       setStatus('redirecting');
-      const params = new URLSearchParams({ promptId: prompt.promptId });
-      const month = prompt.promptId.replace(/^prompt-/, '');
+      const params = new URLSearchParams({ promptId: resolvedPromptId, submissionId: upload.submissionId });
+      const month = resolvedPromptId.replace(/^prompt-/, '');
       if (/^\d{4}-\d{2}$/.test(month)) params.set('month', month);
       window.location.href = `/draw/result?${params.toString()}`;
     } catch (err: any) {
@@ -131,20 +132,19 @@ export default function DrawPlay() {
       {status !== 'idle' && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/45 px-4">
           <div className="w-full max-w-md rounded-xl bg-white p-5 shadow-xl dark:bg-gray-900">
-            {(status === 'uploading' || status === 'submitting' || status === 'redirecting') && (
+            {(status === 'uploading' || status === 'redirecting') && (
               <div className="space-y-3">
                 <div className="mx-auto h-6 w-6 animate-spin rounded-full border-2 border-gray-300 border-t-blue-600" />
                 <p className="text-center text-base font-medium text-gray-900 dark:text-gray-100">
                   {status === 'uploading' && '画像を送信中…'}
-                  {status === 'submitting' && '採点リクエスト送信中…'}
                   {status === 'redirecting' && '結果ページへ移動中…'}
                 </p>
-                {(status === 'uploading' || status === 'submitting') && (
+                {status === 'uploading' && (
                   <p className="text-center text-xs text-gray-500 dark:text-gray-400">
                     送信中のため操作できません
                   </p>
                 )}
-                {isSlow && (status === 'uploading' || status === 'submitting') && (
+                {isSlow && status === 'uploading' && (
                   <p className="rounded-md bg-amber-50 p-2 text-center text-xs text-amber-800 dark:bg-amber-900/20 dark:text-amber-200">
                     少し時間がかかっています。通信環境により数秒かかる場合があります。
                   </p>

@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { ApiError, getLeaderboard, getPrompt, getSubmissionDetail } from '../../lib/draw/api';
 import type { LeaderboardResponse, PromptInfo, SubmissionDetail, SubmitResult } from '../../lib/draw/types';
+import { getPendingSubmission, scorePendingSubmission, PENDING_KEY } from '../../lib/draw/pendingSubmission';
 import ResultCard from './ResultCard';
 import Leaderboard from './Leaderboard';
 import { buildShareCard, downloadDataUrl } from '../../lib/draw/shareCard';
@@ -54,6 +55,7 @@ export default function DrawResult() {
   const [reviewWaitingExpired, setReviewWaitingExpired] = useState(false);
   const [reviewMode, setReviewMode] = useState<ReviewMode>('standard');
 
+  const loadingRef = useRef(false);
   const mineRowRef = useRef<HTMLDivElement | null>(null);
   const leaderboardRef = useRef<HTMLDivElement | null>(null);
   const slowTextRef = useRef<number | null>(null);
@@ -70,7 +72,7 @@ export default function DrawResult() {
       if (!raw) return null;
       const parsed = JSON.parse(raw) as SubmitResult;
       const savedSubmissionId = localStorage.getItem('drawSubmissionId');
-      if (!parsed?.submissionId || !savedSubmissionId || parsed.submissionId !== savedSubmissionId) return null;
+      if (!parsed?.submissionId || !savedSubmissionId || parsed.submissionId !== savedSubmissionId || (submissionId && parsed.submissionId !== submissionId)) return null;
       return { ...parsed, rankingEligible: parsed.rankingEligible !== false };
     } catch {
       return null;
@@ -120,7 +122,7 @@ export default function DrawResult() {
     const promptIdFromQuery = params.get('promptId') || sessionStorage.getItem('drawPromptId') || 'prompt-unknown';
     setPromptId(promptIdFromQuery);
     setNickname(sessionStorage.getItem('drawNickname') || '');
-    setSubmissionId(localStorage.getItem('drawSubmissionId') || '');
+    setSubmissionId(params.get('submissionId') || localStorage.getItem('drawSubmissionId') || '');
     setImageKey(localStorage.getItem('drawImageKey') || '');
     setStorageReady(true);
     const storedPrompt = getPromptFromStorage();
@@ -165,11 +167,13 @@ export default function DrawResult() {
   });
 
   const loadResult = async () => {
+    if (loadingRef.current) return;
     if (!promptId || !submissionId) {
       setState({ error: '送信情報が見つかりませんでした。もう一度描いてください。' });
       setJudgeState('error');
       return;
     }
+    loadingRef.current = true;
     clearPrimaryTimers();
     setPrimarySlow(false);
     setJudgeState('judging_primary');
@@ -178,15 +182,12 @@ export default function DrawResult() {
 
     slowTextRef.current = window.setTimeout(() => setPrimarySlow(true), 2500);
     try {
-      const detail = await getSubmissionDetail(promptId, submissionId);
-      const result = buildSubmitResultFromDetail(detail);
+      const pending = getPendingSubmission(promptId, submissionId);
+      const detail = pending ? null : await getSubmissionDetail(promptId, submissionId);
+      const result = pending ? await scorePendingSubmission(pending) : buildSubmitResultFromDetail(detail!);
+      const resolvedText = pending?.promptText || detail?.promptText || prompt?.promptText || '';
       if (!prompt) {
-        setPrompt({
-          promptId: detail.promptId,
-          promptText: detail.promptText,
-          dateJst: '',
-          rankingEligible: detail.rankingEligible !== false,
-        });
+        setPrompt({ promptId, promptText: resolvedText, dateJst: '', rankingEligible: result.rankingEligible !== false });
         setPromptError(null);
       }
       setFirstReview(buildFirstReview(result));
@@ -195,8 +196,9 @@ export default function DrawResult() {
       localStorage.setItem('drawResult', JSON.stringify(result));
       localStorage.setItem('drawResultVersion', RESULT_VERSION);
       localStorage.setItem('drawSubmissionId', result.submissionId);
-      localStorage.setItem('drawPromptText', detail.promptText || prompt?.promptText || '');
+      localStorage.setItem('drawPromptText', resolvedText);
       localStorage.setItem('drawScore', String(result.score));
+      if (getPendingSubmission(promptId, submissionId)) sessionStorage.removeItem(PENDING_KEY);
       setSubmissionId(result.submissionId);
       if (!result.rankingEligible) return;
       try {
@@ -212,6 +214,7 @@ export default function DrawResult() {
       setState({ error: message });
       setJudgeState('error');
     } finally {
+      loadingRef.current = false;
       clearPrimaryTimers();
     }
   };
@@ -391,21 +394,12 @@ export default function DrawResult() {
   })() : null;
 
   const retry = () => {
-    if (!promptId) return;
-    clearPrimaryTimers();
-    sessionStorage.removeItem('drawImage');
-    localStorage.removeItem('drawImage');
-    localStorage.removeItem('drawResult');
-    localStorage.removeItem('drawResultVersion');
-    localStorage.removeItem('drawSubmissionId');
-    localStorage.removeItem('drawScore');
-    localStorage.removeItem('drawImageKey');
-    sessionStorage.removeItem('drawNickname');
-    loadResult();
+    void loadResult();
   };
 
   const reloadToPlay = () => {
     if (!promptId) return;
+    sessionStorage.removeItem(PENDING_KEY);
     sessionStorage.removeItem('drawImage');
     localStorage.removeItem('drawImage');
     localStorage.removeItem('drawResult');
@@ -428,6 +422,10 @@ export default function DrawResult() {
         <div className="mt-2 text-xl font-bold text-slate-900 dark:text-white">{prompt?.promptText || (promptError ? '取得できませんでした' : '読み込み中…')}</div>
         {promptError && <div className="mt-1 text-xs text-red-600">{promptError}</div>}
       </div>
+
+      {(judgeState === 'idle' || judgeState === 'judging_primary') && imageDataUrl && (
+        <img src={imageDataUrl} alt="投稿した絵" className="mx-auto w-full max-w-sm rounded-2xl bg-white" />
+      )}
 
       {judgeState === 'judging_primary' && (
         <>
@@ -539,7 +537,7 @@ export default function DrawResult() {
         </div>
       )}
 
-      <div className="space-y-2">
+      {state.result && <div className="space-y-2">
         {state.result?.rankingEligible === false ? (
           <div className="rounded-lg border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900 dark:border-amber-800 dark:bg-amber-950/30 dark:text-amber-100">
             この作品は練習として採点しました。過去月のお題への投稿はランキングに入りません。
@@ -601,7 +599,7 @@ export default function DrawResult() {
         )}
           </>
         )}
-      </div>
+      </div>}
 
     </div>
   );
