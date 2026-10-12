@@ -43,3 +43,9 @@
 - YES の場合は、更新した設計 docs を列挙する。
 
 - `tools/draw-evaluation/`: 本番に書き込まないお絵描きreference評価・レビュー基盤。AI APIを呼ばず、サブスクリプションCodexで画像評価しJSONを取り込む。手順は同ディレクトリのREADME。
+
+## 承認済みDrawデータ移行（2026-10-11〜12）
+
+- 過去月99件は最新Decisions採点へ移行済み。講評を保持し、点数と月内順位を更新。手順とバックアップは `docs/runbooks/draw-rescore-history.md`。
+- 保存PNG109枚は元解像度Canvas WebP品質0.9へ移行。既存WebPは再圧縮せず、点数・順位・講評は保持。元PNG削除は署名URLの900秒以上の猶予と公開検証後。手順と完了記録は `docs/runbooks/draw-image-migration.md`。
+- バックアップ原画像と投稿データはローカル保管で、Gitへ追加しない。未追跡 `data/` を一括stageしない。

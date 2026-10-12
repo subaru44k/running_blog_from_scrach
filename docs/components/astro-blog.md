@@ -11,7 +11,7 @@ Astroで生成する静的サイト本体。ブログ、PDF圧縮、ペース計
   - `running-pace.astro`: ペース計算ツール（#calculator / #table のアンカーで計算と表を同一ページ内に配置）
   - `pdf-compress.astro`: PDF圧縮UI（署名→圧縮API）
   - `draw/index.astro`, `draw/play.astro`, `draw/result.astro`: 30秒お絵描き採点ゲーム（`/api/draw/*` と連携）
-    - 描画UIは初期ペンに加えて色選択、白消しゴム、1手戻す操作を持ち、白背景PNGを送る
+    - 描画UIは初期ペンに加えて色選択、白消しゴム、1手戻す操作を持ち、白背景PNGから元解像度WebP品質0.9へ圧縮して送る（非対応・失敗・容量増加時はPNG）
   - `draw/archive.astro`: 2026-02から前月までの確定済み月別ランキングTop20一覧（`/api/draw/prompt` + `/api/draw/leaderboard` + 詳細モーダル用 `/api/draw/submission`）。当月は表示しない
     - Top20画像をレスポンシブなギャラリーで表示し、作品詳細は選択時だけ取得する
   - `games/dressup-next.astro`: PNG レイヤー版おしゃれゲームの公開ルート。プレイヤーとチャットさんで共有するベースモデル選択、独立した `src/lib/games/dressup-next-models.json` による位置補正管理（頭・首元・腰・左右の足首を変形原点にし、部位共通補正とアイテムの部分補正を合成）と既存衣装アセット再利用、各部位約20種類の画像プレビュー付きアイテム選択、部位内ページ送り、チャットさんの選択演出、完成後の編集UI非表示を提供し、sitemap と games Service Worker キャッシュ対象に含める
