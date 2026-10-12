@@ -273,3 +273,11 @@ PNG形式・解像度・アップロードAPI・バックエンドは変更せ�
 署名URL発行は `contentType` として `image/png`（省略時）または `image/webp` のみを受け付け、キーの拡張子と署名Content-Typeを一致させる。submitは両拡張子を受け付ける。Lambda側に `@jsquash/webp` 1.5.0（推移依存 wasm-feature-detect）を追加し、デコーダーWASMをバンドルする。submit/講評workerでWebPをPNGへデコードし、既存の白紙判定とAI画像入力を維持する。デコードは非可逆圧縮で失われた画素を復元しない。過去PNG・旧クライアントは互換。
 
 結果画面にはアップロードした画像を保存して表示する。画像PUT後の即時遷移と結果画面での採点は維持する。バックエンド3関数を先に更新してからCodeBuildでフロントを公開する。詳細は `docs/runbooks/draw-webp-upload.md` を参照。
+
+### 承認された過去投稿の採点移行
+
+過去投稿は通常は再採点しない。明示的に承認された移行では、`backend/draw/scripts/rescore-history.mjs` が元レコードと画像を退避して最新のDecisions・白紙判定・点数変換を適用する。講評を保持し、月単位の条件付きtransactionで採点値と既存の月内順位だけを更新する。SQS投入・画像削除・月次cleanupは行わない。手順は [過去投稿の採点のみの移行](runbooks/draw-rescore-history.md)。
+
+### 承認された保存画像の圧縮移行
+
+元解像度Canvas WebP品質0.9への既存画像移行は明示的な承認で実施する。元画像と投稿を退避し、新しいWebPをアップロード・検証してからimageKeyだけを更新する。点数・順位・講評は保持する。既存署名URLの900秒以上の猶予と公開検証後、元PNGを削除する。詳細は [保存画像の圧縮移行](runbooks/draw-image-migration.md)。

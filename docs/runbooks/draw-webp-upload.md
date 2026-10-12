@@ -60,3 +60,17 @@ S3/CloudFrontのキーやIAM権限の変更は不要。Content-Typeヘッダー�
 - frontend完全ビルド3,240ページとsanityが成功。ブラウザスモーク6項目で署名MIME・PUTバイト・保存プレビューの一致と即時結果遷移を確認。
 - 提供画像720×720・92,324バイトはChromium Canvas品質0.9で21,406バイト（約76.8%削減）。解像度維持、変換失敗/非対応/容量増加でPNGへのフォールバックを確認。これは1画像・1ブラウザの実測であり全投稿の削減率保証ではない。
 - AWS認証がないため本番deploy、本番練習スモークは未実施。
+
+## 引き継ぎ実施結果（2026-10-11）
+
+上記の未公開状態は解消済み。対象コミット `37cb3d4fd0ab0dca07fac7a2989a86b98c758b91` を本番公開した。
+
+- backend型チェック、採点関連10テスト、画像デコード2テスト、backend buildが成功。frontend完全ビルド3,240ページ、sanity、ブラウザスモーク6項目も成功。
+- 既存Lambdaコード・設定と公開play/result/archive HTMLを退避し、worker→submit→upload-urlの順に更新。3関数のLastUpdateStatus、配布ZIPのSHA-256一致、既存runtime/Handler/メモリ/環境変数等の維持を確認。
+- PNG省略指定とWebP指定の署名MIME・拡張子を確認。既存PNG作品の詳細・画像取得も成功。
+- CodeBuild `builddeploy-subaru-is-running-site:a7ddeaa5-13ca-4096-acf0-9fd614eda086` が指定コミットで成功。S3 syncは87秒、CloudFront無効化完了は22秒。公開DrawPlay/DrawResultの新asset参照とHTTP 200を確認。
+- 2026年9月の練習モードで実Canvas描画をWebPとしてPUTし、PUT完了後約0.54秒で結果ページへ遷移。採点77点、講評done、講評前後の同点、再読み込み時の投稿ID維持、保存画像のWebPバイト形式とContent-Typeを確認。当月ランキングにはテスト投稿を作成していない。
+- 検証投稿は `01M4N97AM4X5EV1N98D3D1RGS5`、画像キーは `draw/practice/prompt-2026-09/01M4N97AM4X5EV1N98D3D1RGS5.webp`。検証スクリプトの計測エラーで中断した投稿は `01M4N960HWB2QV6TAPA6YCMK6K`、画像キーは `draw/practice/prompt-2026-09/01M4N960HWB2QV6TAPA6YCMK6K.webp`。検証後、この2件だけをDynamoDB/S3から削除し、既存9月ランキングのID・順位・点数・名前の一致を確認済み。
+- 作業開始前のローカルZIP変更は一度復元した後、内容を比較して不要と判断し、ユーザーの指示で破棄。4個のZIPは対象コミットの状態へ戻し、対応するGit stashも削除済み。未追跡dataは保持。公開時バックアップと検証記録はローカル `/tmp/subaru-webp-deploy-20261011/` に保存（秘密値を含み得る設定バックアップはリポジトリへ追加しない）。
+
+既存設計に沿った公開と検証のため、設計判断の変更はない。

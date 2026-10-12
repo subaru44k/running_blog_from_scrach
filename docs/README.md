@@ -25,3 +25,5 @@
 - [お絵描き game-score-v1 組み込み・公開前確認](runbooks/draw-game-score-v1.md)
 
 - [Draw WebP品質90の公開引き継ぎ](runbooks/draw-webp-upload.md)：元解像度Canvas圧縮、PNG互換、backend先行の公開順序とロールバック。
+- [過去投稿の採点のみの移行](runbooks/draw-rescore-history.md)：元データ退避、最新基準での再採点、講評保持、月内順位検証。
+- [保存画像のWebP圧縮移行](runbooks/draw-image-migration.md)：試算、imageKeyのみ更新、署名URL猶予後の元PNG削除。
