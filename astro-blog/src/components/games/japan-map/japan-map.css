@@ -1,0 +1,295 @@
+.jm {
+  --jm-ink: #123b35;
+  --jm-secondary: #4b665f;
+  --jm-paper: #fffdf7;
+  --jm-line: #d4dfd5;
+  --jm-accent: #176451;
+  --jm-on-accent: #fff;
+  --jm-water: #e5f3f4;
+  --jm-land: #d4dfd0;
+  --jm-region: #8bc5ab;
+  --jm-boundary: #57796c;
+  --jm-selected: #ffc575;
+  --jm-selected-line: #a24911;
+  color: var(--jm-ink);
+  max-width: 72rem;
+  margin: auto;
+}
+
+.dark .jm {
+  --jm-ink: #e5f4eb;
+  --jm-secondary: #b4c8bf;
+  --jm-paper: #182823;
+  --jm-line: #405951;
+  --jm-accent: #99d8bc;
+  --jm-on-accent: #102d23;
+  --jm-water: #192f39;
+  --jm-land: #43574b;
+  --jm-region: #43876e;
+  --jm-boundary: #a3cbba;
+  --jm-selected-line: #ffd9b1;
+}
+
+.jm-header {
+  padding: clamp(1.2rem, 3vw, 2.5rem);
+  border: 1px solid var(--jm-line);
+  border-radius: 1.5rem;
+  background: linear-gradient(115deg, var(--jm-paper), var(--jm-water));
+}
+
+.jm h1 {
+  margin: 0;
+  font-size: clamp(1.75rem, 5vw, 3.1rem);
+  font-weight: 850;
+  line-height: 1.2;
+  letter-spacing: .015em;
+}
+
+.jm-header p {
+  margin: .85rem 0 0;
+  color: var(--jm-secondary);
+  font-size: clamp(.95rem, 2vw, 1.12rem);
+}
+
+.jm-controls, .jm-location {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .7rem;
+  align-items: center;
+  margin: 1rem 0;
+}
+
+.jm-location {
+  justify-content: space-between;
+}
+
+.jm h2 {
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 800;
+  line-height: 1.4;
+}
+
+.jm-switch {
+  display: inline-flex;
+  max-width: 100%;
+  gap: .2rem;
+  padding: .24rem;
+  border: 1px solid var(--jm-line);
+  border-radius: 1rem;
+  background: var(--jm-paper);
+}
+
+.jm-switch button, .jm-button {
+  min-height: 2.75rem;
+  border: 1px solid transparent;
+  border-radius: .75rem;
+  padding: .42rem .75rem;
+  text-align: center;
+  font-weight: 700;
+  color: inherit;
+}
+
+.jm-button {
+  border-color: var(--jm-line);
+  background: var(--jm-paper);
+}
+
+.jm button:not(:disabled):hover {
+  border-color: var(--jm-accent);
+}
+
+.jm button:focus-visible, .jm a:focus-visible {
+  outline: 2px solid var(--jm-accent);
+  outline-offset: 2px;
+}
+
+.jm [aria-pressed='true'], .jm .jm-primary {
+  color: var(--jm-on-accent);
+  background: var(--jm-accent);
+}
+
+.jm-workspace {
+  display: grid;
+  grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr);
+  gap: 1rem;
+  align-items: start;
+}
+
+.jm-map {
+  border: 1px solid var(--jm-line);
+  border-radius: 1.25rem;
+  background: var(--jm-water);
+  overflow: hidden;
+}
+
+.jm-map svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  max-height: min(65svh, 34rem);
+}
+
+.jm-inset rect {
+  fill: none;
+  stroke: var(--jm-boundary);
+  stroke-dasharray: 4 4;
+}
+
+.jm-inset text {
+  font-size: 14px;
+  font-weight: 700;
+  fill: var(--jm-ink);
+}
+
+.jm-map path {
+  fill-rule: evenodd;
+  stroke-linejoin: round;
+}
+
+.jm-land {
+  fill: var(--jm-land);
+  stroke: var(--jm-boundary);
+  stroke-width: .6;
+}
+
+.jm-area {
+  fill: var(--jm-region);
+  stroke: var(--jm-boundary);
+  stroke-width: .75;
+}
+
+.jm-area[data-pickable] {
+  cursor: pointer;
+}
+
+.jm-area[data-pickable]:hover, .jm-area.jm-active-area {
+  fill: var(--jm-selected);
+}
+
+.jm-outline {
+  fill: none;
+  stroke: var(--jm-selected-line);
+  stroke-width: 2;
+}
+
+.jm-marker {
+  fill: var(--jm-selected);
+  stroke: #71370e;
+  stroke-width: 1.75;
+}
+
+.jm-panel {
+  display: grid;
+  gap: .7rem;
+  padding: clamp(.85rem, 2vw, 1.25rem);
+  border: 1px solid var(--jm-line);
+  border-radius: 1.25rem;
+  background: var(--jm-paper);
+}
+
+.jm-panel p {
+  margin: 0;
+}
+
+.jm-muted, .jm-progress, .jm-source {
+  color: var(--jm-secondary);
+}
+
+.jm-selected {
+  display: grid;
+  gap: .5rem;
+  padding: .7rem .85rem;
+  border-radius: .75rem;
+  background: var(--jm-water);
+}
+
+.jm-selected strong {
+  display: block;
+  font-size: 1.35rem;
+}
+
+.jm-selected span {
+  color: var(--jm-secondary);
+}
+
+.jm-list {
+  overflow-y: auto;
+  max-height: 20rem;
+  padding: .2rem;
+}
+
+.jm-city-list, .jm-region, .jm-choices {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: .4rem;
+}
+
+.jm-city-list button {
+  display: flex;
+  align-items: center;
+  gap: .35rem;
+  justify-content: space-between;
+  text-align: left;
+}
+
+.jm-pref-list h3 {
+  margin: .65rem 0 .25rem;
+  font-weight: 800;
+  font-size: .88rem;
+  color: var(--jm-secondary);
+}
+
+.jm-check {
+  margin-left: auto;
+}
+
+.jm-choices [data-answer='correct'] {
+  border-color: #326a53;
+  background: #d9f3de;
+  color: #123b35;
+}
+
+.jm-choices [data-answer='wrong'] {
+  border-color: #a24911;
+  background: #ffead1;
+  color: #602c0e;
+}
+
+.jm-feedback {
+  font-weight: 800;
+}
+
+.jm-result {
+  font-size: 1.5rem;
+  font-weight: 850;
+}
+
+.jm-missed {
+  margin: 0;
+  padding-inline-start: 1.4rem;
+  list-style-type: disc;
+}
+
+.jm-source {
+  margin-top: 1rem;
+  font-size: .8rem;
+}
+
+.jm-source div {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .3rem 1rem;
+  margin-top: .4rem;
+}
+
+.jm-source a {
+  color: inherit;
+  text-decoration: underline;
+}
+
+@media (max-width: 740px) {
+  .jm-workspace { grid-template-columns: minmax(0, 1fr); }
+  .jm-map svg { max-height: min(42svh, 22rem); }
+  .jm-list { max-height: 17rem; }
+}

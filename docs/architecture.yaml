@@ -432,10 +432,11 @@ features:
       - /games/tic-tac-toe/
       - /games/reversi/
       - /games/music/
+      - /games/japan-map/
     behavior:
       - /games/ is the hub page for lightweight browser games
       - global nav links separately to /draw/ and /games/ to keep draw as a first-class feature
-      - /games/ includes the draw game as the featured card and links to fourteen lighter mini-games
+      - /games/ includes the draw game as the featured card and links to fifteen lighter mini-games
       - balloon-catch, cushion-catch, tv-catch, window-catch, snake, maze, tic-tac-toe, reversi, janken, clock, dressup, dressup-next, and match-quiz are shipped as static Astro pages with client-side logic and no backend dependency
       - individual mini-game pages render their related-game sidebar from a shared component so public game links, including /games/dressup-next/ and /draw/, stay consistent across pages; the current page remains visible as a non-link item
       - /games/balloon-catch/ is a 30-second balloon catching game where the player moves a dog horizontally to catch balloons thrown by a CPU character, offers おそい/ふつう/はやい difficulty settings, uses only pre-generated game assets, draws the dog from the selected sprite sheet rather than separate dog pose images, and provides a wide play mode that uses the Fullscreen API when available with a CSS overlay fallback
@@ -449,6 +450,8 @@ features:
       - /games/janken/ provides Chat-san mode and local 1v1 mode, uses one-round matches, waits briefly before Chat-san reveals a hand, and uses sequential hidden input for local two-player play
       - /games/clock/ asks the player to match a target time by dragging the analog clock hands directly, carries the hour forward or backward when the minute hand crosses 12, offers やさしい/ふつう/むずかしい difficulty levels (whole hours / half hours / 5-minute steps), and checks correctness only when the player presses the answer button
       - /games/music/ is a static, browser-only four-mode music game for reading a single note on treble or bass staff, tapping 4/4 rhythms including rests, recognizing one heard pitch, and repeating short melodies; the four modes share a twelve-semitone-capable keyboard and synthesized Web Audio engine, show white keys by default, and finish after ten questions or bars without account or server persistence
+      - /games/japan-map/ is a static geography game for all 47 prefectures, 792 cities, and Tokyo’s 23 special wards; it uses SVG paths pre-generated from MLIT N03 (2026-01-01) boundaries and MIC local-government codes and readings, combines designated-city wards, shows a national map with an Okinawa inset and a fitted prefecture map, and is linked from the hub, related games, sitemap, and games Service Worker
+      - The Japan map scope control shows prefectures before cities. Tokyo’s city scope includes both its 26 cities and 23 special wards in study, progress counts, and quiz questions. Japan map study mode pairs clickable areas with keyboard-accessible lists, and quiz mode asks up to five map-to-name multiple-choice questions with immediate feedback and a replay of missed questions; kanji and hiragana are selectable independently of mode, and the browser stores the last prefecture, settings, and viewed city and ward progress locally
       - music pitch identity (MIDI/pitch class/octave) is separate from staff notation (letter/accidental), notation uses small SVG drawings, and rhythm input is judged against a monotonic performance clock with configurable timing windows
       - music staff clefs and quarter rests use small local SVG outlines extracted from SMuFL Bravura, with the G and F clefs anchored to the G4 second line for treble and F3 fourth line for bass
       - isolated staff notes at or above the middle line have downward stems attached on the left; notes below it have upward stems attached on the right, for both clefs

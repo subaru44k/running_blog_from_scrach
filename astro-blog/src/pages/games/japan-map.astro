@@ -1,0 +1,13 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import JapanMapApp from '../../components/games/japan-map/JapanMapApp';
+import RelatedGames from '../../components/games/RelatedGames.astro';
+
+const pageTitle = '日本地図でまなぼう｜ミニゲーム';
+const metaDescription = '日本の47都道府県、792市、東京23区を、地図を見ながら勉強。漢字とひらがなを切り替えて、地図クイズにも挑戦できます。';
+---
+
+<Layout pageTitle={pageTitle} metaDescription={metaDescription} noSidebar={true} hidePageHeader={true}>
+  <JapanMapApp client:load />
+  <div class="mt-8"><RelatedGames currentHref="/games/japan-map/" /></div>
+</Layout>

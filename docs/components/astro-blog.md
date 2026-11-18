@@ -21,6 +21,8 @@ Astroで生成する静的サイト本体。ブログ、PDF圧縮、ペース計
   - `games/reversi.astro`: チャットさん対戦／2人対戦の静的リバーシ。合法手がない側は自動パス、両者の連続パスで終了し、パス後のAI手番でも遅延予約を失わない
   - `games/music.astro`: 4モードの音楽ミニゲーム。共通 React UI、SVG 譜面、Web Audio 合成音、UI から独立した音楽・判定ロジックを利用する
     - SMuFL Bravura の音部記号と四分休符の SVG 輪郭を使い、ト音記号の G4 線とヘ音記号の F3 線を合わせる。単独音符の符幹は第3線以上で左側から下向き、第3線より下で右側から上向きにする（両音部記号共通）。リズムは開始ボタン、4拍の初回カウント、最初の小節の2拍分の休符、各小節の冒頭1拍の休符、各小節間2拍の譜面プレビューを持つ。小節の組み合わせは毎回生成し、開始後は固定する
+  - `games/japan-map.astro`: 47都道府県・792市・東京23区の地図学習。東京都の「市」では26市と23区を地図・一覧・クイズの対象にする。全国地図から県別地図へ切り替えられ、勉強・クイズと漢字・ひらがなを選べる。学習履歴と設定は同じブラウザの localStorage に保存する。React UI と SVG 用の同梱データで動作し、都道府県別の詳細データは選択時に取得する。
+    - 地図を更新するには [国土数値情報 N03（2026年版）](https://nlftp.mlit.go.jp/ksj/gml/datalist/KsjTmplt-N03-2026.html) の都道府県別 ZIP 47件を `01.zip` から `47.zip`、[総務省のコード表（令和6年1月1日版）](https://www.soumu.go.jp/main_content/000925835.xlsx) を `codes.xlsx` として同じディレクトリに置く。Python 3.11 と `shapely==2.1.2`、`pyshp==3.0.3`、`openpyxl==3.1.5` の環境で `python astro-blog/scripts/generate-japan-map.py <データディレクトリ>` を実行する。
   - `contact.astro`, `privacy.astro`, `about.astro`, `404.astro`
   - `sitemap.xml.ts`: サイトマップ生成
 - `astro-blog/src/layouts/Layout.astro`: 共通レイアウト/SEO。AdSense script と `google-adsense-account` メタタグを共通 `<head>` に出す
